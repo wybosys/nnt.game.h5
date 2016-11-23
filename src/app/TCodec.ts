@@ -35,7 +35,7 @@ extends nn.Sprite
     }
 
     _actUnzip() {
-        nn.ResManager.getBinary(this.inpUrl.text, RES.LoadPriority.NORMAL, (rcd:hd.ICacheBinary)=>{
+        nn.ResManager.getBinary(this.inpUrl.text, RES.LoadPriority.NORMAL, (rcd:nn.ICacheBinary)=>{
             //let zip = new nn.ZipArchiver();
             let zip = new nn.LzmaArchiver();
             zip.load(rcd.use());

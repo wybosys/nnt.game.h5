@@ -101,7 +101,7 @@ extends nn.Sprite
     updateLayout() {
         super.updateLayout();
         new nn.VBox(this)
-            .addPixelHBox(100, (box:hd.HBox)=>{
+            .addPixelHBox(100, (box:nn.HBox)=>{
                 box.addFlex(1, this._btnOpen)
                     .addFlex(1, this._btnSimulate);
             })

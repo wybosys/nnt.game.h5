@@ -11,8 +11,8 @@ module app {
     interface IMainScene
     {
         //slot {
-        _actEnter(s?:hd.Slot);
-        _actOpenLink(s?:hd.Slot);
+        _actEnter(s?:nn.Slot);
+        _actOpenLink(s?:nn.Slot);
         //slot }
     }
 
@@ -91,21 +91,21 @@ module app {
             }
         }
 
-        private _on_remove(s:hd.Slot) {
+        private _on_remove(s:nn.Slot) {
             this.removeChild(s.sender);
         }
 
-        _actKeyPress(s?:hd.Slot) {
-            let d:hd.CKeyboard = s.data;
+        _actKeyPress(s?:nn.Slot) {
+            let d:nn.CKeyboard = s.data;
             nn.noti("按下 " + d.key + " " + d.code);
         }
 
-        _actEnter(s?:hd.Slot) {
+        _actEnter(s?:nn.Slot) {
             let inp:eui.TextInputU = s.sender;
             this.lblHtml.value = inp.value;
         }
 
-        _actOpenLink(s?:hd.Slot) {
+        _actOpenLink(s?:nn.Slot) {
             nn.noti(s.data);
         }
 

@@ -19,7 +19,7 @@ module nn {
 
         private static start(m:Model, id:number):void {
             let script = document.createElement('script');
-            m.modelcallback = "hd._CrossLoader.completeCall.call_" + id + "";
+            m.modelcallback = "nn._CrossLoader.completeCall.call_" + id + "";
             script.src = m.url();
             document.body.appendChild(script);
         }

@@ -19,10 +19,10 @@ module eui {
             return _EUIBaseExtPROTO.getExhibition.call(this);
         }
 
-        set clipBounds(rc:hd.Rect) {
+        set clipBounds(rc:nn.Rect) {
             _EUIBaseExtPROTO.setClipbounds.call(this, rc);
         }
-        get clipBounds():hd.Rect {
+        get clipBounds():nn.Rect {
             return _EUIBaseExtPROTO.getClipbounds.call(this);
         }
 
@@ -58,8 +58,8 @@ module eui {
             this._signals.register(nn.SignalChanged);
         }
 
-        protected _signals:hd.Signals;
-        get signals():hd.Signals {
+        protected _signals:nn.Signals;
+        get signals():nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -71,7 +71,7 @@ module eui {
             this._initSignals();
         }
         
-        _signalConnected(sig:string, s?:hd.Slot) {
+        _signalConnected(sig:string, s?:nn.Slot) {
             if (sig == nn.SignalClicked) {
                 this.touchEnabled = true;
                 nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
@@ -91,19 +91,19 @@ module eui {
             this.imageSource = src;
         }
 
-        private _imageSource = new nn.SourceVariable<hd.ICacheTexture, nn.TextureSource>();
-        get imageSource():hd.TextureSource {
+        private _imageSource = new nn.SourceVariable<nn.ICacheTexture, nn.TextureSource>();
+        get imageSource():nn.TextureSource {
             let tex = this._getTexture();
             if (tex == null)
                 return this._imageSource.source;
             nn.COriginType.shared.imp = tex;
             return nn.COriginType.shared;
         }
-        set imageSource(ds:hd.TextureSource) {
+        set imageSource(ds:nn.TextureSource) {
             if (ds == this._imageSource.source)
                 return;
             this._imageSource.source = ds;
-            nn.ResManager.getTexture(ds, RES.LoadPriority.NORMAL, (tex:hd.ICacheTexture)=>{
+            nn.ResManager.getTexture(ds, RES.LoadPriority.NORMAL, (tex:nn.ICacheTexture)=>{
                 if (ds != this._imageSource.source)
                     return;
                 this._setTexture(tex.use());
@@ -152,17 +152,17 @@ module eui {
             this._format = fmt;
         }
 
-        bestFrame(inrc?:hd.Rect):hd.Rect {
+        bestFrame(inrc?:nn.Rect):nn.Rect {
             let tex = this._getTexture();
             if (tex == null)
                 return new nn.Rect();
             return new nn.Rect(0, 0, tex.textureWidth, tex.textureHeight);
         }
 
-        get frame():hd.Rect {
+        get frame():nn.Rect {
             return nn.getFrame(this);
         }        
-        set frame(rc:hd.Rect) {
+        set frame(rc:nn.Rect) {
             nn.setFrame(this, rc);
         }
 

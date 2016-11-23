@@ -1,5 +1,5 @@
 class TDynamic
-extends nn.Sprite//hd.GGround
+extends nn.Sprite//nn.GGround
 {
     constructor() {
         super();

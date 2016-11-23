@@ -8,7 +8,7 @@ extends nn.Dialog
         this.clickedToClose = true;
     }
 
-    bestFrame():hd.Rect {
+    bestFrame():nn.Rect {
         return new nn.Rect(300, 0, 300, 300);
     }
 }
@@ -34,7 +34,7 @@ extends TDialog
         this.label.setFrame(this.boundsForLayout());
     }
 
-    bestFrame():hd.Rect {
+    bestFrame():nn.Rect {
         return new nn.Rect(0, 0, 300, 300);
     }
 }
@@ -55,7 +55,7 @@ extends nn.Tips
 
     _lblTxt = new nn.Label();
 
-    setFrame(rc:hd.Rect) {
+    setFrame(rc:nn.Rect) {
         super.setFrame(rc);
     }
 
@@ -65,7 +65,7 @@ extends nn.Tips
         this._lblTxt.setFrame(this.bounds());
     }
 
-    bestFrame():hd.Rect {
+    bestFrame():nn.Rect {
         return new nn.Rect(0, 0, 400, 200);
     }
 }
@@ -143,7 +143,7 @@ extends nn.Sprite
         super.updateLayout();
         new nn.VBox(this)
             .addFlex(1)
-            .addPixelHBox(100, (box:hd.HBox) => {
+            .addPixelHBox(100, (box:nn.HBox) => {
                 box
                     .addFlex(1)
                     .addPixel(200, this._btnPop)
@@ -151,7 +151,7 @@ extends nn.Sprite
                     .addPixel(200, this._btnTipsP)               
                     .addFlex(1);
             })
-            .addPixelHBox(100, (box:hd.HBox) => {
+            .addPixelHBox(100, (box:nn.HBox) => {
                 box
                     .addFlex(1)
                     .addPixel(200, this._btnDlgs)
@@ -161,13 +161,13 @@ extends nn.Sprite
             .apply();
 
         new nn.VBox(this)
-            .addPixelHBox(100, (box:hd.HBox)=> {
+            .addPixelHBox(100, (box:nn.HBox)=> {
                 box.addPixel(200, this._btnTips0)
                     .addFlex(1)
                     .addPixel(200, this._btnTips1);
             })
             .addFlex(1)
-            .addPixelHBox(100, (box:hd.HBox)=> {
+            .addPixelHBox(100, (box:nn.HBox)=> {
                 box.addPixel(200, this._btnTips2)
                     .addFlex(1)
                     .addPixel(200, this._btnTips3);
@@ -192,7 +192,7 @@ extends nn.Sprite
         tp.showTo(this._btnTips);
     }
 
-    _actTipsP(s:hd.Slot) {
+    _actTipsP(s:nn.Slot) {
         nn.log("TipsP Clicked");
 
         var tp = new TTips();

@@ -36,7 +36,7 @@ extends nn.Sprite
         super.updateLayout();
         new nn.VBox(this)
             .addFlex(1)
-            .addPixelHBox(100, (box:hd.HBox)=>{
+            .addPixelHBox(100, (box:nn.HBox)=>{
                 box
                     .addFlex(1, this._btnPlay)
                     .addFlex(1, this._btnPause)

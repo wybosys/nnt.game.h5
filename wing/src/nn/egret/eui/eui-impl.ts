@@ -79,31 +79,31 @@ module eui {
 
 module nn {
 
-    export function getBounds(e:egret.DisplayObject):hd.Rect {
+    export function getBounds(e:egret.DisplayObject):nn.Rect {
         return new nn.Rect(0, 0,
                            e.width, e.height);
     }
 
-    export function getFrame(e:egret.DisplayObject):hd.Rect {
+    export function getFrame(e:egret.DisplayObject):nn.Rect {
         return new nn.Rect(e.x, e.y,
                            e.width, e.height);
     }
 
-    export function setFrame(e:egret.DisplayObject, rc:hd.Rect) {
+    export function setFrame(e:egret.DisplayObject, rc:nn.Rect) {
         e.x = rc.x;
         e.y = rc.y;
         e.width = rc.width;
         e.height = rc.height;
     }
 
-    export function setCenter(e:egret.DisplayObject, pt:hd.Point) {
+    export function setCenter(e:egret.DisplayObject, pt:nn.Point) {
         let rc = getFrame(e);
         rc.center = pt;
         setFrame(e, rc);
     }
 
     // 提供eui类似于core的设置anchor而不改变位置的方法
-    export function setAnchorPoint(e:egret.DisplayObject, anchor:hd.Point) {
+    export function setAnchorPoint(e:egret.DisplayObject, anchor:nn.Point) {
         let rc = getFrame(e);
         e.anchorOffsetX = rc.width * anchor.x;
         e.anchorOffsetY = rc.height * anchor.y;

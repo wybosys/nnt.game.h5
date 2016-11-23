@@ -241,7 +241,7 @@ module nn {
                 this._node.style.display = b ? 'block' : 'none';
             }
 
-            setFrame(rc:hd.Rect) {
+            setFrame(rc:nn.Rect) {
                 if (this._node.style.position != 'absolute')
                     this._node.style.position = 'absolute';
                 this._node.style.left = rc.x + 'px';

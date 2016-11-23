@@ -53,7 +53,7 @@ extends nn.Sprite
         }
     }
 
-    bestFrame():hd.Rect {
+    bestFrame():nn.Rect {
         var d = this.tag;
         if (d.expand)
             return new nn.Rect(0, 0, 0, 200);
@@ -124,7 +124,7 @@ extends nn.TableView
         return this._datas.length;
     }
 
-    updateRow(item:TableSimpleItem, cell:hd.TableViewCell, row:number) {
+    updateRow(item:TableSimpleItem, cell:nn.TableViewCell, row:number) {
         //if (cell.edgeInsets == null)
         //    cell.edgeInsets = new nn.EdgeInsets(5, 5, 10, 10);
         item.tag = this._datas[row];
@@ -132,13 +132,13 @@ extends nn.TableView
         item.btnDel.signals.connect(nn.SignalClicked, this._actDel, this);
     }
 
-    _actAdd(s:hd.Slot) {
+    _actAdd(s:nn.Slot) {
         var cell = nn.TableViewCell.FromItem(s.sender.parent);
         nn.ArrayT.InsertObjectAtIndex(this._datas, {value:this._max++, expand:false}, cell.row);
         this.table.reloadData();
     }
 
-    _actDel(s:hd.Slot) {
+    _actDel(s:nn.Slot) {
         var cell = nn.TableViewCell.FromItem(s.sender.parent);
         nn.ArrayT.RemoveObjectAtIndex(this._datas, cell.row);
         this.table.reloadData();
@@ -209,7 +209,7 @@ extends nn.Sprite
         new nn.VBox(this)
             .addFlex(1, this._simple)
         //.addFlex(1, this._grid)
-            .addPixelHBox(100, (box:hd.HBox)=>{
+            .addPixelHBox(100, (box:nn.HBox)=>{
                 box.addFlex(1, this._btnNext)
                     .addFlex(1, this._btnPre)
                     .addFlex(1, this._btnClear);

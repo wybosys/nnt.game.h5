@@ -336,7 +336,7 @@ module egret {
     """).substitute({
         'ver': int(res[0]) * 10000 + int(res[1]) * 100 + int(res[2])
     });
-    open('src/hd/Engine.ts', 'w').write(source)
+    open('src/nn/Engine.ts', 'w').write(source)
 
 def prebuildsrc():
     # 处理 tsd 文件

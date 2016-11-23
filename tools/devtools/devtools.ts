@@ -6,7 +6,7 @@ module app.api {
 
 module app.dev {
     
-    export function main(node:hd.dom.DomObject) {
+    export function main(node:nn.dom.DomObject) {
         node.css = "width:100%;height:100%;";
         webix.ui({
             rows:[

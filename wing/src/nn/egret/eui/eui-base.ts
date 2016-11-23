@@ -77,7 +77,7 @@ module eui {
 
             // 停止所有计时器
             if (this._timers) {
-                this._timers.forEach((e:hd.Timer)=>{
+                this._timers.forEach((e:nn.Timer)=>{
                     e.drop();
                 });
                 this._timers = null;
@@ -87,12 +87,12 @@ module eui {
                 nn.LaunchersManager.unregister(<any>this);
         }
 
-        timer(duration:hd.Interval, count:number, idr?:string):hd.Timer
+        timer(duration:nn.Interval, count:number, idr?:string):nn.Timer
         {
             if (this._timers == null)
-                this._timers = new Array<hd.Timer>();
+                this._timers = new Array<nn.Timer>();
             if (idr != null) {
-                let tmr = nn.ArrayT.RemoveObjectByFilter(this._timers, (e:hd.Timer):boolean=>{
+                let tmr = nn.ArrayT.RemoveObjectByFilter(this._timers, (e:nn.Timer):boolean=>{
                     return e.tag == idr;
                 });
                 if (tmr) {
@@ -110,7 +110,7 @@ module eui {
             nn.Defer(tmr.oneTick, tmr);
             return tmr;
         }
-        private _timers:Array<hd.Timer>;
+        private _timers:Array<nn.Timer>;
 
         // 和core模块的意义相同
         protected onAppeared() {}        
@@ -164,8 +164,8 @@ module eui {
             this._signals.register(nn.SignalVisibleChanged);
         }
 
-        protected _signals:hd.Signals;
-        get signals():hd.Signals {
+        protected _signals:nn.Signals;
+        get signals():nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -177,7 +177,7 @@ module eui {
             this._initSignals();
         }
 
-        _signalConnected(sig:string, s?:hd.Slot) {
+        _signalConnected(sig:string, s?:nn.Slot) {
             if (sig == nn.SignalClicked) {
                 this.touchEnabled = true;
                 nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
@@ -194,7 +194,7 @@ module eui {
 
         setSkinPart(partName:string, instance:any) {
             let varname = partName;            
-            //hd.noti("绑定变量 " + varname);
+            //nn.noti("绑定变量 " + varname);
             super.setSkinPart(varname, instance);
             
             // 如果实现了euiext进行扩展处理
@@ -231,7 +231,7 @@ module eui {
         addChild(sp:egret.DisplayObject | nn.CComponent):egret.DisplayObject {
             let ui:egret.DisplayObject;
             if (sp instanceof nn.CComponent) {
-                ui = (<hd.CComponent>sp).handle();
+                ui = (<nn.CComponent>sp).handle();
             } else {
                 ui = <egret.DisplayObject>sp;
             }
@@ -241,7 +241,7 @@ module eui {
         addChildAt(sp:egret.DisplayObject | nn.CComponent, idx:number):egret.DisplayObject {
             let ui:egret.DisplayObject;
             if (sp instanceof nn.CComponent) {
-                ui = (<hd.CComponent>sp).handle();
+                ui = (<nn.CComponent>sp).handle();
             } else {
                 ui = <egret.DisplayObject>sp;
             }
@@ -251,7 +251,7 @@ module eui {
         removeChild(sp:egret.DisplayObject | nn.CComponent):egret.DisplayObject {
             let ui:egret.DisplayObject;
             if (sp instanceof nn.CComponent) {
-                let c = <hd.CComponent>sp;
+                let c = <nn.CComponent>sp;
                 ui = c.handle();
                 c.drop();
             } else {
@@ -380,14 +380,14 @@ module eui {
         convertRectTo = _EUIBaseExtPROTO.convertRectTo;
         updateCache = _EUIBaseExtPROTO.updateCache;
         
-        get frame():hd.Rect {
+        get frame():nn.Rect {
             return nn.getFrame(this);
         }        
-        set frame(rc:hd.Rect) {
+        set frame(rc:nn.Rect) {
             nn.setFrame(this, rc);
         }
 
-        bounds():hd.Rect {
+        bounds():nn.Rect {
             return nn.getBounds(this);
         }
     }
@@ -449,21 +449,21 @@ module eui {
         }
 
         /** 设置遮罩 */
-        setClipbounds(rc:hd.Rect) {
+        setClipbounds(rc:nn.Rect) {
             let self:any = this;
             self.mask = rc;
         }
         
-        getClipbounds():hd.Rect {
+        getClipbounds():nn.Rect {
             let self:any = this;
             return self.mask;
         }
 
-        convertPointTo(pt:hd.Point, sp:egret.DisplayObject | nn.CComponent):hd.Point {
+        convertPointTo(pt:nn.Point, sp:egret.DisplayObject | nn.CComponent):nn.Point {
             return ConvertPoint(<any>this, pt, sp);
         }
 
-        convertRectTo(rc:hd.Rect, sp:egret.DisplayObject | nn.CComponent):hd.Rect {
+        convertRectTo(rc:nn.Rect, sp:egret.DisplayObject | nn.CComponent):nn.Rect {
             return ConvertRect(<any>this, rc, sp);
         }
 
@@ -522,7 +522,7 @@ module eui {
             }
         }
         
-        private __cb_aniend(s:hd.Slot) {
+        private __cb_aniend(s:nn.Slot) {
             let ani = s.sender;
             nn.ArrayT.RemoveObject(this._playingAnimates, ani);
         }
@@ -530,41 +530,41 @@ module eui {
 
     export var _EUIBaseExtPROTO = _EUIBaseExt.prototype;
 
-    export function ConvertPoint(fromsp:egret.DisplayObject|hd.CComponent, pt:hd.Point, tosp:egret.DisplayObject|hd.CComponent):hd.Point {
+    export function ConvertPoint(fromsp:egret.DisplayObject|hd.CComponent, pt:nn.Point, tosp:egret.DisplayObject|hd.CComponent):nn.Point {
         let from:egret.DisplayObject;
         if (fromsp instanceof nn.CComponent)
-            from = (<hd.CComponent>fromsp).handle();
+            from = (<nn.CComponent>fromsp).handle();
         else 
             from = <egret.DisplayObject>fromsp;
         let to:egret.DisplayObject;
         if (tosp instanceof nn.CComponent)
-            to = (<hd.CComponent>tosp).handle();
+            to = (<nn.CComponent>tosp).handle();
         else 
             to = <egret.DisplayObject>tosp;
         if (from == null)
-            from = (<hd.IComponent><any>hd.Application.shared.gameLayer)._imp;
+            from = (<nn.IComponent><any>hd.Application.shared.gameLayer)._imp;
         if (to == null)
-            to = (<hd.IComponent><any>hd.Application.shared.gameLayer)._imp;
+            to = (<nn.IComponent><any>hd.Application.shared.gameLayer)._imp;
         from.localToGlobal(pt.x, pt.y, gs_convertpt);
         to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
         return new nn.Point(gs_convertpt.x, gs_convertpt.y);
     }
     
-    export function ConvertRect(fromsp:egret.DisplayObject|hd.CComponent, rc:hd.Rect, tosp:egret.DisplayObject|hd.CComponent):hd.Rect {
+    export function ConvertRect(fromsp:egret.DisplayObject|hd.CComponent, rc:nn.Rect, tosp:egret.DisplayObject|hd.CComponent):nn.Rect {
         let from:egret.DisplayObject;
         if (fromsp instanceof nn.CComponent)
-            from = (<hd.CComponent>fromsp).handle();
+            from = (<nn.CComponent>fromsp).handle();
         else 
             from = <egret.DisplayObject>fromsp;
         let to:egret.DisplayObject;
         if (tosp instanceof nn.CComponent)
-            to = (<hd.CComponent>tosp).handle();
+            to = (<nn.CComponent>tosp).handle();
         else 
             to = <egret.DisplayObject>tosp;
         if (from == null)
-            from = (<hd.IComponent><any>hd.Application.shared.gameLayer)._imp;
+            from = (<nn.IComponent><any>hd.Application.shared.gameLayer)._imp;
         if (to == null)
-            to = (<hd.IComponent><any>hd.Application.shared.gameLayer)._imp;
+            to = (<nn.IComponent><any>hd.Application.shared.gameLayer)._imp;
         from.localToGlobal(rc.x, rc.y, gs_convertpt);
         to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
         return new nn.Rect(gs_convertpt.x, gs_convertpt.y,
@@ -580,12 +580,12 @@ module eui {
     {
     }
     
-    nn.EntryCheckSettings = (cls:any, data:hd.EntrySettings):boolean=>{
+    nn.EntryCheckSettings = (cls:any, data:nn.EntrySettings):boolean=>{
         if (data.singletone) {
             if (nn.Desktop._AllOpenings.length &&
                 nn.IsInherit(cls, eui.DialogU))
             {
-                let fnd = nn.ArrayT.QueryObject(nn.Desktop._AllOpenings, (dsk:hd.Desktop):boolean=>{
+                let fnd = nn.ArrayT.QueryObject(nn.Desktop._AllOpenings, (dsk:nn.Desktop):boolean=>{
                     return nn.ObjectClass(dsk.contentView.handle()) == cls;
                 });
                 if (fnd != null) {

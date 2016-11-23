@@ -20,7 +20,7 @@ extends nn.Sprite
 
     label = new nn.Label();
 
-    _actGlobalClicked(s:hd.Slot) {
+    _actGlobalClicked(s:nn.Slot) {
         var touch = s.data;
         var center = this.bounds().center;
         
@@ -35,7 +35,7 @@ extends nn.Sprite
 
         // 做动画
         var pos = touch.positionInView(this.parent);
-        new nn.Animate().bind(v).to(1, null, (ani:hd.Animator)=>{
+        new nn.Animate().bind(v).to(1, null, (ani:nn.Animator)=>{
             ani.moveto(pos);
         }, this).play();
     }
@@ -54,8 +54,8 @@ extends nn.Sprite
         var btn = new TButton();
         btn.text = "SlideIn";
         btn.tag = 0;
-        btn.signals.connect(nn.SignalClicked, (s:hd.Slot) => {
-            new nn.Animate().inTo(1, (ani:hd.Animator) => {
+        btn.signals.connect(nn.SignalClicked, (s:nn.Slot) => {
+            new nn.Animate().inTo(1, (ani:nn.Animator) => {
                 ani.backMode = true;
                 ani.moveto(new nn.Point(s.sender.frame.width, 0)).fadeIn();
             }, this).bind(s.sender).play();
@@ -66,8 +66,8 @@ extends nn.Sprite
         btn = new TButton();
         btn.text = "SlideOut";
         btn.tag = 1;
-        btn.signals.connect(nn.SignalClicked, (s:hd.Slot) => {
-            new nn.Animate().bind(s.sender).inTo(1, (ani:hd.Animator) => {
+        btn.signals.connect(nn.SignalClicked, (s:nn.Slot) => {
+            new nn.Animate().bind(s.sender).inTo(1, (ani:nn.Animator) => {
                 ani.moveto(new nn.Point(s.sender.frame.width, 0)).fadeOut();
             }, this).play();
         }, this);
@@ -78,7 +78,7 @@ extends nn.Sprite
         btn.text = "Tremble";
         btn.tag = 2;
         btn.anchor = new nn.Point(0.5, 0.5);
-        btn.signals.connect(nn.SignalClicked, (s:hd.Slot) => {
+        btn.signals.connect(nn.SignalClicked, (s:nn.Slot) => {
             new nn.Animate().bind(s.sender).tremble().play();
         }, this);
         this.addChild(btn);        
@@ -88,8 +88,8 @@ extends nn.Sprite
         btn.text = "SCALE";
         btn.tag = 3;
         btn.anchor = new nn.Point(0.5, 0.5);
-        btn.signals.connect(nn.SignalClicked, (s:hd.Slot) => {
-            new nn.Animate().bind(s.sender).inTo(1, (ani:hd.Animator) => {
+        btn.signals.connect(nn.SignalClicked, (s:nn.Slot) => {
+            new nn.Animate().bind(s.sender).inTo(1, (ani:nn.Animator) => {
                 ani.scale(new nn.Size(0.5, 0.5));
             }, this).play();
         }, this);
@@ -99,7 +99,7 @@ extends nn.Sprite
         btn = new TButton();
         btn.text = "TWEEN";
         btn.anchor = new nn.Point(0.5, 0.5);
-        btn.signals.connect(nn.SignalClicked, (s:hd.Slot) => {
+        btn.signals.connect(nn.SignalClicked, (s:nn.Slot) => {
             nn.Tween.Get(s.sender)
                 .call(()=>{ nn.noti('0'); })
                 .to({'x':500}, 1000)
@@ -114,7 +114,7 @@ extends nn.Sprite
         btn = new TButton();
         btn.text = "GROUP";
         btn.anchor = new nn.Point(0.5, 0.5);
-        btn.signals.connect(nn.SignalClicked, (s:hd.Slot) => {
+        btn.signals.connect(nn.SignalClicked, (s:nn.Slot) => {
             new nn.AnimateGroup()
                 .add(new nn.Animate().bind(nn.findElementsByTag(this, 0)[0]).tremble())
                 .next(new nn.Animate().bind(nn.findElementsByTag(this, 1)[0]).tremble())
@@ -126,10 +126,10 @@ extends nn.Sprite
 
         btn = new TButton();
         btn.text = "COUNT";
-        btn.signals.connect(nn.SignalClicked, (s:hd.Slot) => {
+        btn.signals.connect(nn.SignalClicked, (s:nn.Slot) => {
             new nn.Animate().bind(s.sender).repeat(3)
-                .to(1, null, (ani:hd.Animator)=>{ani.fadeOut();})
-                .to(1, null, (ani:hd.Animator)=>{ani.fadeIn();})
+                .to(1, null, (ani:nn.Animator)=>{ani.fadeOut();})
+                .to(1, null, (ani:nn.Animator)=>{ani.fadeIn();})
                 .play().complete(()=>{alert("动画结束")});
         }, this);
         this.addChild(btn);        
@@ -137,12 +137,12 @@ extends nn.Sprite
 
         btn = new TButton();
         btn.text = "TEST";
-        btn.signals.connect(nn.SignalClicked, (s:hd.Slot) => {
+        btn.signals.connect(nn.SignalClicked, (s:nn.Slot) => {
             new nn.Animate().bind(s.sender)
-                .to(0, null, (ani:hd.Animator)=>{
+                .to(0, null, (ani:nn.Animator)=>{
                     ani.movetoy(100);
                 })
-                .to(1, nn.TimeFunction.Bounce(nn.TimeFunction.OUT), (ani:hd.Animator)=>{
+                .to(1, nn.TimeFunction.Bounce(nn.TimeFunction.OUT), (ani:nn.Animator)=>{
                     ani.movetoy(this.frame.height/2);
                 })
                 .play();
@@ -155,7 +155,7 @@ extends nn.Sprite
         // 持续旋转
         btn = new TButton();
         btn.frame = new nn.Rect(500, 300, 100, 100);
-        btn.playAnimate(new nn.Animate().repeat(-1).to(3, null, (ani:hd.Animator)=>{
+        btn.playAnimate(new nn.Animate().repeat(-1).to(3, null, (ani:nn.Animator)=>{
             ani.rotate(nn.Angle.ANGLE(359));
         }));
         this.addChild(btn);
@@ -179,7 +179,7 @@ extends nn.Sprite
         super.updateLayout();
         var box = new nn.VBox(this).useAnchor(true);
         for (var i = 0; i < 8; ++i) {
-            box.addFlexHBox(1, (box:hd.HBox, i:any) => {
+            box.addFlexHBox(1, (box:nn.HBox, i:any) => {
                 for (var j = 0; j < 8; ++j) {
                     if (i == j) {
                         box.addFlex(1, nn.at(this._btns, i));

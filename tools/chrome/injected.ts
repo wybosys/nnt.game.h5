@@ -15,7 +15,7 @@ module injected {
             this.wait(nn.model.NodeList.CMD, this.cmdNodeList, this);
         }
 
-        private cmdNodeList(m:hd.model.NodeList) {
+        private cmdNodeList(m:nn.model.NodeList) {
             let c = findElementById(m.id);
             m.children.length = 0;
             if (c) {

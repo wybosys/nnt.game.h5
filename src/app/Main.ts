@@ -46,7 +46,7 @@ extends nn.Application
 
         // 增加通过手势返回
         var ges = new nn.GestureSwipe();
-        ges.signals.connect(nn.SignalDone, (s:hd.Slot)=>{
+        ges.signals.connect(nn.SignalDone, (s:nn.Slot)=>{
             if (nn.Mask.isset(nn.Direction.RIGHT, s.data))
                 this.viewStack.pop();
         }, this);
@@ -61,11 +61,11 @@ extends nn.Application
         // 连接服务器
         nn.SocketSession.connector = new nn.WebSocketConnector();
         nn.SocketSession.host = 'ws://localhost:8080/ws';
-        //hd.SocketSession.host = 'ws://192.168.3.136:7002/ws';
+        //nn.SocketSession.host = 'ws://192.168.3.136:7002/ws';
         nn.SocketSession.open();
     }
 
-    static BestFrame():hd.Rect {
+    static BestFrame():nn.Rect {
         return new nn.Rect(0, 0, 720, 1280);
     }
     
@@ -73,11 +73,11 @@ extends nn.Application
         return 1;
     }
 
-    static ScreenFillMode():hd.FillMode {
+    static ScreenFillMode():nn.FillMode {
         return nn.FillMode.ASPECTSTRETCH;
     }
 
-    static Features():hd.FrameworkFeature {
+    static Features():nn.FrameworkFeature {
         return nn.FrameworkFeature.NOSYNC;
     }
     

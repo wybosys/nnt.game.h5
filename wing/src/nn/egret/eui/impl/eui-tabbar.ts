@@ -35,8 +35,8 @@ module eui {
             this._signals.register(nn.SignalSelectionChanging);
         }
         
-        protected _signals:hd.Signals;
-        get signals():hd.Signals {
+        protected _signals:nn.Signals;
+        get signals():nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -48,7 +48,7 @@ module eui {
             this._initSignals();
         }
         
-        _signalConnected(sig:string, s?:hd.Slot) {
+        _signalConnected(sig:string, s?:nn.Slot) {
             if (sig == nn.SignalSelectionChanged) {
             } else if (sig == nn.SignalSelectionChanging) {
                 nn.EventHook(this, egret.Event.CHANGING, this.__lst_selchanging, this);

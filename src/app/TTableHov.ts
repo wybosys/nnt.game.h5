@@ -64,7 +64,7 @@ extends nn.TableView
         return this._datas.length;
     }
 
-    updateRow(item:TableHovItem, cell:hd.TableViewCell, row:number) {
+    updateRow(item:TableHovItem, cell:nn.TableViewCell, row:number) {
         if (cell.edgeInsets == null)
             cell.edgeInsets = new nn.EdgeInsets(5, 5, 10, 10);
         item.tag = this._datas[row];
@@ -72,7 +72,7 @@ extends nn.TableView
 
     _cbShowCells() {
         var cells = this.table.visibledCells;
-        cells.forEach((cell:hd.TableViewCell)=>{
+        cells.forEach((cell:nn.TableViewCell)=>{
             nn.noti("cell row: " + cell.row);
         });
 
@@ -150,7 +150,7 @@ extends nn.CoverFlowView
         item.tag = null;
     }
 
-    updateItemsSize(items:hd.Sprite[]) {
+    updateItemsSize(items:nn.Sprite[]) {
         var rc = this.boundsForLayout();
         var off = this.offsetPos;        
         items.forEach((item:CoverItem, idx:number)=>{
@@ -164,8 +164,8 @@ extends nn.CoverFlowView
         });
     }
 
-    private _cbSelectionChanged(s:hd.Slot) {
-        var d:hd.SelectionData = s.data;
+    private _cbSelectionChanged(s:nn.Slot) {
+        var d:nn.SelectionData = s.data;
         var old = d.old ? d.old.tag : '';
         nn.noti(`coverflow selected: now:${d.now.tag} old:${old}`);
     }

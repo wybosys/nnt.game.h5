@@ -41,8 +41,8 @@ module eui {
             this._signals.register(nn.SignalAction);
         }
 
-        protected _signals:hd.Signals;
-        get signals():hd.Signals {
+        protected _signals:nn.Signals;
+        get signals():nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -54,7 +54,7 @@ module eui {
             this._initSignals();
         }
         
-        _signalConnected(sig:string, s?:hd.Slot) {
+        _signalConnected(sig:string, s?:nn.Slot) {
             if (sig == nn.SignalAction) {
                 this.touchEnabled = true;
                 nn.EventHook(this, egret.TextEvent.LINK, this.__lbl_link, this);
@@ -103,10 +103,10 @@ module eui {
             this._format = fmt;
         }
         
-        private _links:Array<hd.Closure>;
+        private _links:Array<nn.Closure>;
         href(re:RegExp, cb:(url:string)=>void, ctx?:any) {
             if (this._links == null) {
-                this._links = new Array<hd.Closure>();
+                this._links = new Array<nn.Closure>();
                 this.touchEnabled = true;
                 nn.EventHook(this, egret.TextEvent.LINK, this.__lbl_link, this);
             }
@@ -120,7 +120,7 @@ module eui {
             nn.noti("点击链接 " + link);            
             this.signals.emit(nn.SignalAction, link);
             if (this._links) {
-                this._links.forEach((c:hd.Closure)=>{
+                this._links.forEach((c:nn.Closure)=>{
                     let r = c.payload;
                     if (link.match(r))
                         c.invoke(link);

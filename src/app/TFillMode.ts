@@ -13,7 +13,7 @@ extends nn.Sprite
         this.addChild(this._lbl);
     }
 
-    fillMode:hd.FillMode;
+    fillMode:nn.FillMode;
     reverse:boolean;
 
     _sp0 = new nn.Sprite();

@@ -31,12 +31,12 @@ module eui {
             return this;
         }
         
-        to(duration:number, tf:Function, ani:(ani:hd.Animator)=>void, ctx?:any):this {
+        to(duration:number, tf:Function, ani:(ani:nn.Animator)=>void, ctx?:any):this {
             this._ani.to(duration, tf, ani, ctx);
             return this;
         }
         
-        then(ani:(ani:hd.Animator)=>void, ctx = null, duration = nn.CAnimate.Duration, tf:Function = null):this {
+        then(ani:(ani:nn.Animator)=>void, ctx = null, duration = nn.CAnimate.Duration, tf:Function = null):this {
             this._ani.then(ani, ctx, duration, tf);
             return this;
         }
@@ -45,7 +45,7 @@ module eui {
             this._ani.stop();
         }
 
-        complete(cb:(s:hd.Slot)=>void, ctx?:any):this {
+        complete(cb:(s:nn.Slot)=>void, ctx?:any):this {
             this._ani.complete(cb, ctx);
             return this;
         }

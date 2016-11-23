@@ -35,8 +35,8 @@ module eui {
             this._signals.register(nn.SignalSelectionChanging);
         }
         
-        protected _signals:hd.Signals;
-        get signals():hd.Signals {
+        protected _signals:nn.Signals;
+        get signals():nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -48,7 +48,7 @@ module eui {
             this._initSignals();
         }
         
-        _signalConnected(sig:string, s?:hd.Slot) {
+        _signalConnected(sig:string, s?:nn.Slot) {
             if (sig == nn.SignalSelectionChanged) {
                 nn.EventHook(this, egret.Event.CHANGE, this.__lst_selchanged, this);
             } else if (sig == nn.SignalSelectionChanging) {
@@ -76,7 +76,7 @@ module eui {
             this._signals.emit(nn.SignalItemClicked, ItemInfo.FromEvent(e));
         }
 
-        scrollTo(pt:hd.Point) {
+        scrollTo(pt:nn.Point) {
             let scl:eui.Scroller = nn.findParentByType(this, eui.Scroller);
             if (scl) {
                 scl.viewport.scrollH = pt.x;
@@ -84,7 +84,7 @@ module eui {
             }
         }
 
-        scrollToItem(idx:number, edge:hd.EDGE) {
+        scrollToItem(idx:number, edge:nn.EDGE) {
             // 额外保护一下
             if (idx < 0 || idx == null)
                 return;

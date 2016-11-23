@@ -5,15 +5,15 @@ module eui {
     {
         protected onPartBinded = _EUIExtPROTO.onPartBinded;
 
-        private _percent:hd.Percentage;
-        get percent():hd.Percentage {
+        private _percent:nn.Percentage;
+        get percent():nn.Percentage {
             if (this._percent == null)
                 this._percent = new nn.Percentage();
             this._percent.max = this.maximum;
             this._percent.value = this.value;
             return this._percent;
         }
-        set percent(p:hd.Percentage) {
+        set percent(p:nn.Percentage) {
             if (this._percent == null)
                 this._percent = new nn.Percentage();
             this._percent.max = p.max;

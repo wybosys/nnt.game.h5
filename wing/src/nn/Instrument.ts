@@ -1,6 +1,6 @@
 
 module app.dev {        
-    export declare function main(node:hd.dom.DomObject);
+    export declare function main(node:nn.dom.DomObject);
 }
 
 module nn {

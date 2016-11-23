@@ -34,7 +34,7 @@ extends nn.Sprite
     }
 
     /*
-      boundsForCartesian():hd.Rect {
+      boundsForCartesian():nn.Rect {
       let rc = this.frame;
         rc.position = rc.center;
         return rc;

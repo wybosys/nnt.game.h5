@@ -21,7 +21,7 @@ module eui {
         public fullSize:boolean = false;
 
         /** 转换 */
-        static FromView(e:egret.DisplayObject):hd.Desktop {
+        static FromView(e:egret.DisplayObject):nn.Desktop {
             return nn.Desktop.FromView(nn.BridgedComponent.FromImp(e));
         }
     }
@@ -137,12 +137,12 @@ module eui {
         fullSize:boolean = false;
 
         /** 依赖的队列 */
-        queue:hd.OperationQueue;
+        queue:nn.OperationQueue;
 
         /** 是否可以穿透触摸 */
         onlyFiltersTouchEnabled:boolean;
         
-        protected instanceDesktop():hd.Desktop {
+        protected instanceDesktop():nn.Desktop {
             var dsk = new _ExtDesktop(new nn.BridgedComponent(this));
             dsk.onlyFiltersTouchEnabled = this.onlyFiltersTouchEnabled;
             dsk.popupMode = this.popupMode;
@@ -158,7 +158,7 @@ module eui {
         }
 
         // 参照core-dialog
-        _filters = new Set<hd.CComponent>();
+        _filters = new Set<nn.CComponent>();
         addFilter(ui:UiType) {
             let c = nn.BridgedComponent.Wrapper(ui);
             this._filters.add(c);
@@ -173,19 +173,19 @@ module eui {
                 dsk.updateFilters();
         }
                 
-        replace(link:Component):hd.Desktop {
+        replace(link:Component):nn.Desktop {
             var dsk = this.instanceDesktop();
             dsk.replace(nn.CComponent.FromImp(link));
             return dsk;
         }
         
-        open(queue:boolean = true):hd.Desktop {
+        open(queue:boolean = true):nn.Desktop {
             var dsk = this.instanceDesktop();
             dsk.open(queue);
             return dsk;
         }
 
-        follow(link:Component):hd.Desktop {
+        follow(link:Component):nn.Desktop {
             var dsk = this.instanceDesktop();
             dsk.follow(nn.CComponent.FromImp(link));
             return dsk;
@@ -199,7 +199,7 @@ module eui {
             this.signals.emit(nn.SignalRequestClose);
         }
 
-        bestFrame():hd.Rect {
+        bestFrame():nn.Rect {
             if (this.fullSize) {
                 let rc = nn.StageBounds.clone();
                 rc.x = rc.width * this._anchorPointX;
@@ -224,7 +224,7 @@ module eui {
             return null;
         }
 
-        bestPosition():hd.Point {
+        bestPosition():nn.Point {
             return null;
         }
     }

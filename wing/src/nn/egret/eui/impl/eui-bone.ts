@@ -58,8 +58,8 @@ module eui {
             this._signals.register(nn.SignalDone);
         }
 
-        protected _signals:hd.Signals;
-        get signals():hd.Signals {
+        protected _signals:nn.Signals;
+        get signals():nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -71,7 +71,7 @@ module eui {
             this._initSignals();
         }
         
-        _signalConnected(sig:string, s?:hd.Slot) {
+        _signalConnected(sig:string, s?:nn.Slot) {
             switch (sig) {
             case nn.SignalClicked:
                 nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
@@ -212,10 +212,10 @@ module eui {
             }
         }
 
-        get boneSource():hd.BoneSource {
+        get boneSource():nn.BoneSource {
             return this._bone.boneSource;
         }
-        set boneSource(cfg:hd.BoneSource) {
+        set boneSource(cfg:nn.BoneSource) {
             this._bone.boneSource = cfg;
         }
 

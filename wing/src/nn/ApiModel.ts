@@ -6,7 +6,7 @@ module nn {
     /* 用法
        let m = new app.model.Test();
        m.message = "hello";
-       m.signals.connect(nn.Model.SignalDone, function(e:hd.Slot) {
+       m.signals.connect(nn.Model.SignalDone, function(e:nn.Slot) {
        nn.msgbox(m.result);
        }, this);
        nn.RestSession.fetch(m);

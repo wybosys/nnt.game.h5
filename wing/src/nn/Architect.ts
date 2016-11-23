@@ -123,7 +123,7 @@ module nn {
                 ler = LaunchersManager.find(leridr);
                 // 如果ler为null，则代表目标模块还没有加载，需要先加载目标模块，待之准备好后，再加载当前模块
                 if (ler == null) {
-                    let wait = (s:hd.Slot)=>{
+                    let wait = (s:nn.Slot)=>{
                         if (s.data != leridr)
                             return;
                         LaunchersManager.signals.disconnect(nn.SignalChanged, wait);

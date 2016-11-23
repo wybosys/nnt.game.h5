@@ -52,8 +52,8 @@ module eui {
             this._signals.register(nn.SignalVisibleChanged);
         }
 
-        protected _signals:hd.Signals;
-        get signals():hd.Signals {
+        protected _signals:nn.Signals;
+        get signals():nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -65,7 +65,7 @@ module eui {
             this._initSignals();
         }
         
-        _signalConnected(sig:string, s?:hd.Slot) {
+        _signalConnected(sig:string, s?:nn.Slot) {
             if (sig == nn.SignalClicked) {
                 s.eps = this.eps;
                 nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
@@ -190,10 +190,10 @@ module eui {
         convertPointTo = _EUIBaseExtPROTO.convertPointTo;
         convertRectTo = _EUIBaseExtPROTO.convertRectTo;
 
-        get frame():hd.Rect {
+        get frame():nn.Rect {
             return nn.getFrame(this);
         }        
-        set frame(rc:hd.Rect) {
+        set frame(rc:nn.Rect) {
             nn.setFrame(this, rc);
         }
 

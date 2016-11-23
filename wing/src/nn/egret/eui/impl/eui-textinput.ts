@@ -53,8 +53,8 @@ module eui {
             this._signals.register(nn.SignalEnterKey);
         }
 
-        protected _signals:hd.Signals;
-        get signals():hd.Signals {
+        protected _signals:nn.Signals;
+        get signals():nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -66,7 +66,7 @@ module eui {
             this._initSignals();
         }
 
-        _signalConnected(sig:string, s?:hd.Slot) {
+        _signalConnected(sig:string, s?:nn.Slot) {
             switch (sig) {
             case nn.SignalChanged:
                 nn.EventHook(this, egret.Event.CHANGE, this.__txt_changed, this); break;
@@ -91,8 +91,8 @@ module eui {
                 this._signals.emit(nn.SignalFocusLost);
         }
 
-        private __txt_keypress(s:hd.Slot) {
-            let d:hd.CKeyboard = s.data;
+        private __txt_keypress(s:nn.Slot) {
+            let d:nn.CKeyboard = s.data;
             if (d.code == 13)
                 this._signals.emit(nn.SignalEnterKey);
         }

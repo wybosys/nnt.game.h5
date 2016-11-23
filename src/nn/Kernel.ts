@@ -1,4 +1,4 @@
-/// <reference path="hd.ts" />
+/// <reference path="nn.ts" />
 /// <reference path="Typescript.ts" />
 
 /** 三态 bool */

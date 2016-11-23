@@ -9,7 +9,7 @@ module eui {
             return <any>hd.findParentByType(e, ScrollerU);
         }
 
-        scrollToEdge(e:egret.DisplayObject, edge:hd.EDGE) {
+        scrollToEdge(e:egret.DisplayObject, edge:nn.EDGE) {
             let dst = nn.getBounds(e);
             let src = nn.getBounds(this);
             src.edgeTo(dst, edge);
@@ -21,14 +21,14 @@ module eui {
             this.contentOffset = pt;
         }
 
-        get contentOffset():hd.Point {
+        get contentOffset():nn.Point {
             let vp = this.viewport;
             if (vp == null)
                 return new nn.Point();
             return new nn.Point(vp.scrollH, vp.scrollV);
         }
 
-        set contentOffset(pt:hd.Point) {
+        set contentOffset(pt:nn.Point) {
             let vp = this.viewport;
             vp.scrollH = pt.x;
             vp.scrollV = pt.y;

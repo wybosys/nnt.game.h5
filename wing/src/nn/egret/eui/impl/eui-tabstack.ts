@@ -3,7 +3,7 @@ module eui {
     class ImpViewStack
     extends nn.ViewStack
     {
-        getViews():Array<hd.StackPageType> {
+        getViews():Array<nn.StackPageType> {
             return this._views;
         }
     }
@@ -31,7 +31,7 @@ module eui {
         /** 通过类查找对应的页面 */
         findPage(cls:any):egret.DisplayObject {
             let views = this._imp.getViews();
-            let page = nn.ArrayT.QueryObject(views, (p:hd.StackPageType):boolean=>{
+            let page = nn.ArrayT.QueryObject(views, (p:nn.StackPageType):boolean=>{
                 let obj = p.obj;
                 return obj instanceof cls;
             });
@@ -47,7 +47,7 @@ module eui {
         pop() {}
 
         pages():egret.DisplayObject[] {
-            return nn.ArrayT.Convert(this._imp.getViews(), (page:hd.StackPageType):egret.DisplayObject=>{
+            return nn.ArrayT.Convert(this._imp.getViews(), (page:nn.StackPageType):egret.DisplayObject=>{
                 return page.obj.handle();
             });
         }

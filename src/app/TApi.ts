@@ -130,7 +130,7 @@ extends nn.Sprite
         this.edgeInsets = new nn.EdgeInsets(100, 100, 100, 100);
 
         this._inpMsg.text = nn.Storage.shared.value('::test::msg', 'HELLO');
-        this._inpMsg.signals.connect(nn.SignalChanged, (s:hd.Slot)=>{
+        this._inpMsg.signals.connect(nn.SignalChanged, (s:nn.Slot)=>{
             nn.Storage.shared.set('::test::msg', s.data);
         }, this);
         this._btnGet.text = 'GET';
@@ -171,13 +171,13 @@ extends nn.Sprite
         super.updateLayout();
         new nn.VBox(this)
             .addFlex(1, this._inpMsg)
-            .addFlexHBox(1, (box:hd.HBox)=>{
+            .addFlexHBox(1, (box:nn.HBox)=>{
                 box
                     .addFlex(1, this._btnGet)
                     .addFlex(1, this._btnPost)
                     .addFlex(1, this._btnTimeout);
             })
-            .addFlexHBox(1, (box:hd.HBox)=>{
+            .addFlexHBox(1, (box:nn.HBox)=>{
                 box
                     .addFlex(1, this._btnSocket);
             })
@@ -216,7 +216,7 @@ extends nn.Sprite
         */
     }
 
-    _cbApi(s:hd.Slot) {
+    _cbApi(s:nn.Slot) {
         nn.Hud.Text(s.sender.message);
     }
 }

@@ -64,7 +64,7 @@ extends nn.Sprite
         this.backgroundColor = nn.Color.White;
     }
 
-    setFrame(rc:hd.Rect) {
+    setFrame(rc:nn.Rect) {
         super.setFrame(rc);
     }
 
@@ -115,22 +115,22 @@ extends nn.Sprite
 
         let tmrrt = new nn.RtTimer(5, 2);
         let tmrst = new nn.SysTimer(5, 2);
-        tmrrt.signals.connect(nn.SignalAction, ()=>{hd.noti("REAL TIMER NOW");}, this);
-        tmrst.signals.connect(nn.SignalAction, ()=>{hd.noti("SYS TIMER NOW");}, this);
-        tmrrt.signals.connect(nn.SignalDone, ()=>{hd.noti("REAL TIMER DONE");}, this);
-        tmrst.signals.connect(nn.SignalDone, ()=>{hd.noti("SYS TIMER DONE");}, this);
+        tmrrt.signals.connect(nn.SignalAction, ()=>{nn.noti("REAL TIMER NOW");}, this);
+        tmrst.signals.connect(nn.SignalAction, ()=>{nn.noti("SYS TIMER NOW");}, this);
+        tmrrt.signals.connect(nn.SignalDone, ()=>{nn.noti("REAL TIMER DONE");}, this);
+        tmrst.signals.connect(nn.SignalDone, ()=>{nn.noti("SYS TIMER DONE");}, this);
         //tmrrt.start();
         //tmrst.start();
 
         let cotmr = new nn.CoTimer();
         cotmr.backgroundMode = true;
         let tmritem = cotmr.add(5, 2);
-        tmritem.signals.connect(nn.SignalAction, ()=>{hd.noti("CO TIMER NOW");}, this);
-        tmritem.signals.connect(nn.SignalDone, ()=>{hd.noti("CO TIMER DONE");}, this);
+        tmritem.signals.connect(nn.SignalAction, ()=>{nn.noti("CO TIMER NOW");}, this);
+        tmritem.signals.connect(nn.SignalDone, ()=>{nn.noti("CO TIMER DONE");}, this);
         //cotmr.start();
 
         let rstmr = cotmr.add(10, 1);
-        rstmr.signals.connect(nn.SignalDone, (s:hd.Slot)=>{
+        rstmr.signals.connect(nn.SignalDone, (s:nn.Slot)=>{
             nn.noti("RS TIMER DONE");
             rstmr.reset(10, 1, s.data);
         }, this);
@@ -172,7 +172,7 @@ extends nn.Sprite
 
         let box = new nn.VBox(this);
         for (let i = 0; i < this._rows; i++) {
-            box.addFlexHBox(1, (box:hd.HBox, i:any) => {
+            box.addFlexHBox(1, (box:nn.HBox, i:any) => {
                 for (let j = 0; j < this._cols; j++) {
                     let idx = i * this._cols + j;
                     box.addFlex(1, this.reuse(idx));
@@ -224,7 +224,7 @@ extends nn.Sprite
 
     _cb8() {
         //let v = new TDynamic();
-        //hd.Application.shared.viewStack.push(v);
+        //nn.Application.shared.viewStack.push(v);
     }
 
     _cb9() {

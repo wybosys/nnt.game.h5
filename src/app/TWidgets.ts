@@ -15,7 +15,7 @@ extends nn.Slider
         super.dispose();
     }
 
-    bestFrame():hd.Rect {
+    bestFrame():nn.Rect {
         return new nn.Rect(0, 0, 50, 50);
     }
 }
@@ -36,7 +36,7 @@ extends TButton
         this.stateHighlight = null;
 
         this.stateNormal = new nn.State({
-            backgroundColor:hd.Color.Gray,
+            backgroundColor:nn.Color.Gray,
             textColor:0,
             scale:new nn.Point(1, 1),
             translate:new nn.Point(0, -20)
@@ -87,22 +87,22 @@ extends nn.TabStack
         super.updateLayout();
         new nn.VBox(this).setRect(this.bounds())
             .addFlex(1)
-            .addPixelHBox(100, (box:hd.HBox)=>{
-                this.tabButtons.forEach((btn:hd.Button)=>{
+            .addPixelHBox(100, (box:nn.HBox)=>{
+                this.tabButtons.forEach((btn:nn.Button)=>{
                     box.addFlex(1, btn);
                 });
             })
             .apply();
     }
 
-    _actSelectionChange(s:hd.Slot) {
-        var pages:hd.SelectionTabData = s.data;
+    _actSelectionChange(s:nn.Slot) {
+        var pages:nn.SelectionTabData = s.data;
         if (pages.oldTabButton)
             pages.oldTabButton.sendBack(pages.now);
         pages.nowTabButton.bringFront();
     }
 
-    static TabButton(page:hd.StackPageType):hd.Button {
+    static TabButton(page:nn.StackPageType):nn.Button {
         var btn = new TTabButton();
         btn.text = nn.Classname(page.clazz);
         return btn;
@@ -122,9 +122,9 @@ implements nn.ITabPage
         super.onLoaded();
     }
 
-    tabButton:hd.Button;
+    tabButton:nn.Button;
     /*
-    static TabButton(page:hd.StackPageType):hd.Button {
+    static TabButton(page:nn.StackPageType):nn.Button {
         var btn = new TTabButton();
         btn.text = nn.Classname(page.clazz);
         return btn;
@@ -156,7 +156,7 @@ extends TTabPage
     }
 
     _cbSelected() {
-        this._lbl.text = (<hd.TabStack>this.viewStack).selection + '';
+        this._lbl.text = (<nn.TabStack>this.viewStack).selection + '';
     }
 }
 
@@ -168,7 +168,7 @@ extends TTabPage
         this.resourceGroups = ['font'];
 
         this.addChild(this._slider);
-        this._slider.signals.connect(nn.SignalChanged, (s:hd.Slot) => {
+        this._slider.signals.connect(nn.SignalChanged, (s:nn.Slot) => {
             nn.log(s.data.percent);
         }, this);
 
@@ -199,7 +199,7 @@ extends TTabPage
 
         this._lblSwipe.text = "SWIPE GESTURE";
         var gessw = new nn.GestureSwipe();
-        gessw.signals.connect(nn.SignalDone, (s:hd.Slot)=>{
+        gessw.signals.connect(nn.SignalDone, (s:nn.Slot)=>{
             var str = '';
             if (nn.Mask.isset(nn.Direction.DOWN, s.data))
                 str += 'DOWN ';
@@ -226,7 +226,7 @@ extends TTabPage
         this._inpPh.signals.connect(nn.SignalFocusLost, ()=>{
             this._lblTxt.fontFamily = this._inpPh.text;
         }, this);
-        this._inpPh.signals.connect(nn.SignalChanged, (s:hd.Slot)=>{
+        this._inpPh.signals.connect(nn.SignalChanged, (s:nn.Slot)=>{
             nn.log(s.data);
         }, this);
         this.addChild(this._inpPh);
@@ -280,20 +280,20 @@ extends TTabPage
         super.updateLayout();
         new nn.VBox(this)
             .addPixel(100, this._slider)
-            .addPixelHBox(100, (box:hd.HBox)=>{
+            .addPixelHBox(100, (box:nn.HBox)=>{
                 box.addFlex(1, this._lblCustom);
                 box.addFlex(1, this._lblBtext);
             })
-            .addPixelHBox(100, (box:hd.HBox)=>{
+            .addPixelHBox(100, (box:nn.HBox)=>{
                 box.addFlex(1, this._btnLongTap);
                 box.addFlex(2, this._lblSwipe);
             })
-            .addPixelHBox(100, (box:hd.HBox)=>{
+            .addPixelHBox(100, (box:nn.HBox)=>{
                 box.addFlex(1, this._lblTxt);
                 box.addPixel(5);
                 box.addFlex(1, this._inpPh);
             })
-            .addPixelHBox(100, (box:hd.HBox)=>{
+            .addPixelHBox(100, (box:nn.HBox)=>{
                 box.addFlex(1, this._btnFull);
                 box.addFlex(1, this._btnTrans);
             })
@@ -312,7 +312,7 @@ extends TTabPage
 
         this._imgUrl.imageSource = "http://image.tianjimedia.com/uploadImages/2013/057/8996E2SKE74Q.jpg";
         this._imgUrl.fillMode = nn.FillMode.CENTER;
-        this.addChild(nn.ScrollView.Wrapper(this._imgUrl).callself((s:hd.ScrollView)=>{
+        this.addChild(nn.ScrollView.Wrapper(this._imgUrl).callself((s:nn.ScrollView)=>{
             s.verticalIdentifier = new TSlider().callself((s:TSlider)=>{
                 s.horizonMode = false;
             });
@@ -350,7 +350,7 @@ extends TTabPage
         });
         this.addChild(this._inpHtml);        
         this.addChild(this._lblHtml);
-        this._inpHtml.signals.connect(nn.SignalChanged, (s:hd.Slot)=>{
+        this._inpHtml.signals.connect(nn.SignalChanged, (s:nn.Slot)=>{
             this._lblHtml.htmlText = s.data;
         }, this);
 

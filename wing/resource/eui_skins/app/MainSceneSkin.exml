@@ -12,7 +12,7 @@
 	</e:ListU>
 	<e:ListU id="list1" bottom="586" top="60" y="10" right="37" width="191">
 	</e:ListU>
-	<e:HtmlLabelU id="lblHtml" height="34" size="20" verticalAlign="middle" textAlign="left" left="72" right="0" top="220" slots="hd.SignalAction=&gt;actOpenLink"/>
+	<e:HtmlLabelU id="lblHtml" height="34" size="20" verticalAlign="middle" textAlign="left" left="72" right="0" top="220" slots="nn.SignalAction=&gt;actOpenLink"/>
 	<e:TabBarU id="tabbar0" height="49" itemRendererSkinName="skins.ItemRendererSkin" left="30" right="30" bottom="8">
 		<e:ArrayCollection>
 			<e:Array>
@@ -50,7 +50,7 @@
 			</e:Array>
 		</e:ArrayCollection>
 	</e:List>
-	<eui:TextInputU x="30" y="262" width="419" prompt="输入框" slots="hd.SignalEnterKey=&gt;actEnter"/>
+	<eui:TextInputU x="30" y="262" width="419" prompt="输入框" slots="nn.SignalEnterKey=&gt;actEnter"/>
 	<eui:BoneU width="200" height="200" right="0" bottom="69" boneName="ruizi" autoPlay="true" playCount="-1" motion="attack"/>
 	<eui:DivU height="74" y="604" text="&lt;iframe src=&quot;http://www.baidu.com&quot;&gt;&lt;/iframe&gt;" left="20" right="20"/>
 </e:Skin>

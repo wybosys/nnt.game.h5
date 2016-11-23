@@ -322,10 +322,6 @@
         {
             "keys": "free_tileset_version_10,village", 
             "name": "tiled"
-        }, 
-        {
-            "keys": "", 
-            "name": "~tsc"
         }
     ]
 }

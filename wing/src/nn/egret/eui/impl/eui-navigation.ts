@@ -3,7 +3,7 @@ module eui {
     class _NaviViewStack
     extends nn.ViewStack
     {
-        getViews():Array<hd.StackPageType> {
+        getViews():Array<nn.StackPageType> {
             return this._views;
         }
     }
@@ -65,7 +65,7 @@ module eui {
         }
 
         pages():ComponentU[] {
-            return nn.ArrayT.Convert(this._imp.getViews(), (page:hd.StackPageType):ComponentU=>{
+            return nn.ArrayT.Convert(this._imp.getViews(), (page:nn.StackPageType):ComponentU=>{
                 return page.obj.handle();
             });
         }

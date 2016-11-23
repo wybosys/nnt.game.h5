@@ -343,7 +343,7 @@ module nn {
             }
             else
             {
-                ply.signals.connect(SignalEnd, (s:hd.Slot)=>{
+                ply.signals.connect(SignalEnd, (s:nn.Slot)=>{
                     drop(s.sender);
                 }, null);
             }
