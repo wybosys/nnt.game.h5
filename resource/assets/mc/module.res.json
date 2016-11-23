@@ -1,0 +1,20 @@
+{
+    "fight.png": {
+        "p": "mc/fight.png"
+    }, 
+    "fight.json": {
+        "p": "mc/fight.json"
+    }, 
+    "out.json": {
+        "p": "mc/out.json"
+    }, 
+    "shangdi.json": {
+        "p": "mc/shangdi.json"
+    }, 
+    "out.png": {
+        "p": "mc/out.png"
+    }, 
+    "shangdi.png": {
+        "p": "mc/shangdi.png"
+    }
+}

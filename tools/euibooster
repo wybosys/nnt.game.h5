@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+NPMLIB=`npm root -g`
+EBLIB=$NPMLIB/cli-eui-new
+#TOOL=$PWD/euibooster.js
+TOOLEXP=`cat euibooster.js`
+cd $EBLIB/lib
+node -e "$TOOLEXP" $0 $1 $2
+

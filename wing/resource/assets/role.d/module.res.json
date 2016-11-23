@@ -1,0 +1,122 @@
+{
+    "1_stand.png": {
+        "p": "role.d/item_0003/1_stand.png"
+    }, 
+    "3_attack.png": {
+        "p": "role.d/item_0003/3_attack.png"
+    }, 
+    "1_stand.json": {
+        "p": "role.d/item_0003/1_stand.json"
+    }, 
+    "2_magic.png": {
+        "p": "role.d/item_0003/2_magic.png"
+    }, 
+    "2_magic.json": {
+        "p": "role.d/item_0003/2_magic.json"
+    }, 
+    "3_attack.json": {
+        "p": "role.d/item_0003/3_attack.json"
+    }, 
+    "4_stand.json": {
+        "p": "role.d/item_0003/4_stand.json"
+    }, 
+    "4_attack.json": {
+        "p": "role.d/item_0003/4_attack.json"
+    }, 
+    "1_attack.png": {
+        "p": "role.d/item_0003/1_attack.png"
+    }, 
+    "4_stand.png": {
+        "p": "role.d/item_0003/4_stand.png"
+    }, 
+    "0_stand.png": {
+        "p": "role.d/item_0003/0_stand.png"
+    }, 
+    "0_run.json": {
+        "p": "role.d/item_0003/0_run.json"
+    }, 
+    "2_run.png": {
+        "p": "role.d/item_0003/2_run.png"
+    }, 
+    "2_stand.png": {
+        "p": "role.d/item_0003/2_stand.png"
+    }, 
+    "4_run.png": {
+        "p": "role.d/item_0003/4_run.png"
+    }, 
+    "3_stand.png": {
+        "p": "role.d/item_0003/3_stand.png"
+    }, 
+    "4_attack.png": {
+        "p": "role.d/item_0003/4_attack.png"
+    }, 
+    "1_attack.json": {
+        "p": "role.d/item_0003/1_attack.json"
+    }, 
+    "0_run.png": {
+        "p": "role.d/item_0003/0_run.png"
+    }, 
+    "2_attack.json": {
+        "p": "role.d/item_0003/2_attack.json"
+    }, 
+    "0_magic.png": {
+        "p": "role.d/item_0003/0_magic.png"
+    }, 
+    "0_stand.json": {
+        "p": "role.d/item_0003/0_stand.json"
+    }, 
+    "0_magic.json": {
+        "p": "role.d/item_0003/0_magic.json"
+    }, 
+    "1_run.png": {
+        "p": "role.d/item_0003/1_run.png"
+    }, 
+    "2_attack.png": {
+        "p": "role.d/item_0003/2_attack.png"
+    }, 
+    "3_run.json": {
+        "p": "role.d/item_0003/3_run.json"
+    }, 
+    "0_attack.json": {
+        "p": "role.d/item_0003/0_attack.json"
+    }, 
+    "4_magic.png": {
+        "p": "role.d/item_0003/4_magic.png"
+    }, 
+    "1_magic.json": {
+        "p": "role.d/item_0003/1_magic.json"
+    }, 
+    "2_run.json": {
+        "p": "role.d/item_0003/2_run.json"
+    }, 
+    "3_magic.png": {
+        "p": "role.d/item_0003/3_magic.png"
+    }, 
+    "3_stand.json": {
+        "p": "role.d/item_0003/3_stand.json"
+    }, 
+    "4_run.json": {
+        "p": "role.d/item_0003/4_run.json"
+    }, 
+    "0_attack.png": {
+        "p": "role.d/item_0003/0_attack.png"
+    }, 
+    "2_stand.json": {
+        "p": "role.d/item_0003/2_stand.json"
+    }, 
+    "1_run.json": {
+        "p": "role.d/item_0003/1_run.json"
+    }, 
+    "4_magic.json": {
+        "p": "role.d/item_0003/4_magic.json"
+    }, 
+    "1_magic.png": {
+        "p": "role.d/item_0003/1_magic.png"
+    }, 
+    "3_magic.json": {
+        "p": "role.d/item_0003/3_magic.json"
+    }, 
+    "3_run.png": {
+        "p": "role.d/item_0003/3_run.png"
+    }
+}

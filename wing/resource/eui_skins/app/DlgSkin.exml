@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<e:Skin class="DlgSkin" width="480" height="586" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing"  xmlns:ns1="*" xmlns:hde1="eui.hde.*">
+	<e:Group left="0" right="0" top="0" bottom="0">
+		<e:ListU width="390" height="297" x="58" y="109" itemRendererSkinName="ListItemSkin">
+			<e:layout>
+				<e:VerticalLayout gap="6"/>
+			</e:layout>
+			<e:ArrayCollection>
+				<e:Array>
+					<e:Object label="数据1"/>
+					<e:Object label="数据2"/>
+					<e:Object label="数据3"/>
+				</e:Array>
+			</e:ArrayCollection>
+		</e:ListU>
+		<e:List width="200" height="200" x="70" y="12">
+			<e:layout>
+				<e:VerticalLayout/>
+			</e:layout>
+		</e:List>
+	</e:Group>
+</e:Skin>

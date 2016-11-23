@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
+<e:Skin class="HudTextSkin" width="400" height="508" xmlns:e="http://ns.egret.com/eui" xmlns:eui="eui.*" xmlns:w="http://ns.egret.com/wing" >
+	<e:RectU height="40" left="9" right="10" top="208"/>
+</e:Skin>

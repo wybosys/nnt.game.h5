@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<e:Skin class="MainSceneSkin" width="480" height="800" xmlns:e="http://ns.egret.com/eui" xmlns:eui="eui.*" xmlns:w="http://ns.egret.com/wing"  states="b" >
+	<eui:ButtonU id="btnXXX" label="按钮" x="24" y="371"/>
+	<e:ListU id="list0" left="30" top="60" bottom="586" itemRendererSkinName="app.item.ButtonSkin" width="191">
+		<e:ArrayCollection>
+			<e:Array>
+				<e:Object label="数据1"/>
+				<e:Object label="数据2"/>
+				<e:Object label="数据3"/>
+			</e:Array>
+		</e:ArrayCollection>
+	</e:ListU>
+	<e:ListU id="list1" bottom="586" top="60" y="10" right="37" width="191">
+	</e:ListU>
+	<e:HtmlLabelU id="lblHtml" height="34" size="20" verticalAlign="middle" textAlign="left" left="72" right="0" top="220" slots="hd.SignalAction=&gt;actOpenLink"/>
+	<e:TabBarU id="tabbar0" height="49" itemRendererSkinName="skins.ItemRendererSkin" left="30" right="30" bottom="8">
+		<e:ArrayCollection>
+			<e:Array>
+				<e:Object label="数据1"/>
+				<e:Object label="数据2"/>
+				<e:Object label="数据3"/>
+			</e:Array>
+		</e:ArrayCollection>
+	</e:TabBarU>
+	<e:PageStackU left="33" right="35" top="583" bottom="70">
+		<e:Group width="100%" name="视图" height="100%" xmlns:e="http://ns.egret.com/eui">
+		</e:Group>
+	</e:PageStackU>
+	<e:ProgressBarU value="50" right="33" bottom="0" left="31"/>
+	<e:ImageU id="img0" width="35" height="30" x="33" y="220" source="thumb"/>
+	<e:MovieClipU width="200" height="200" textureSource="mc://shangdi.png" frameSource="mc://shangdi.json" clipName="shangdi" playCount="-1" autoPlay="true" left="0" bottom="69"/>
+	<e:Group width="266" height="41" x="181" y="8">
+		<e:ButtonU id="btn0" x="59" y="-2" label="按钮" width="113" height="43"/>
+		<e:ButtonU id="btn1" label="DIALOG" x="22" y="15" height="43"/>
+		<e:layout>
+			<e:HorizontalLayout/>
+		</e:layout>
+	</e:Group>
+	<e:List width="425" height="115" x="23" y="504" itemRendererSkinName="skins.ButtonSkin">
+		<e:layout>
+			<e:TileLayout requestedColumnCount="3" rowAlign="top" columnAlign="justifyUsingGap"/>
+		</e:layout>
+		<e:ArrayCollection>
+			<e:Array>
+				<e:Object label="数据1"/>
+				<e:Object label="数据2"/>
+				<e:Object label="数据3"/>
+				<e:Object label="数据4"/>
+				<e:Object label="数据5"/>
+			</e:Array>
+		</e:ArrayCollection>
+	</e:List>
+	<eui:TextInputU x="30" y="262" width="419" prompt="输入框" slots="hd.SignalEnterKey=&gt;actEnter"/>
+	<eui:BoneU width="200" height="200" right="0" bottom="69" boneName="ruizi" autoPlay="true" playCount="-1" motion="attack"/>
+	<eui:DivU height="74" y="604" text="&lt;iframe src=&quot;http://www.baidu.com&quot;&gt;&lt;/iframe&gt;" left="20" right="20"/>
+</e:Skin>

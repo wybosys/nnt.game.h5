@@ -1,0 +1,177 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys, getopt, os, re, json, uuid, math
+from PIL import Image
+
+alphathr = 0
+
+def mcfilter(img):
+    if alphathr == 0:
+        return
+    w, h = img.size
+    for x in range(w):
+        for y in range(h):
+            r,g,b,a = img.getpixel((x,y))
+            if a < alphathr:
+                img.putpixel((x,y), (0,0,0,0))
+
+def proc(name, dir, width, height, scale, off, fps, dfps, pat):
+    rpat = re.compile(pat + '\.png$')
+    datas = []
+    width = int(width * scale)
+    height = int(height * scale)
+    # 列出所有符合规则的文件
+    for e in os.listdir(dir):
+        if os.path.isdir(dir + "/" + e):
+            continue
+        res = rpat.findall(e)
+        if len(res) == 1:
+            idx = int(res[0])
+            path = dir + "/"  + e
+            datas.append({'id':idx,
+                          'path':path,
+                          'key':str(uuid.uuid4().fields[0]),
+                          'img':None, #处理用的图形对象
+                          'frame':None, #合并的位置
+                          'offset':None, #偏移位置
+            })
+    datas = sorted(datas, key=lambda path:path['id'])
+    skips = 0 #跳帧
+    # 判断是否需要插值
+    if fps != dfps:
+        if fps > dfps: #插值
+            print "暂不支持插值"
+        elif fps < dfps: #减帧
+            skips = math.ceil(dfps / fps) - 1
+    if skips > 0:
+        tmps = []
+        i = skips # 从0下标开始
+        for e in datas:
+            if i == skips:
+                i = 0
+                tmps.append(e)
+                continue
+            i += 1
+        datas = tmps
+    # 计算每一个图的尺寸
+    for data in datas:        
+        img = Image.open(data['path'])
+        mcfilter(img)
+        size = (int(img.size[0]*scale), int(img.size[1]*scale))
+        center = (size[0]/2, size[1]/2)
+        img = img.resize(size, Image.LANCZOS)
+        bbx = img.getbbox()
+        if bbx != None:
+            data['img'] = img.crop(bbx)
+            data['offset'] = (bbx[0] - center[0] + off[0], bbx[1] - center[1] + off[1])
+    # 分配工作画板
+    work = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+    # 根据面积从小到大排列，再反向用从大到小pop填充
+    sdatas = sorted(datas, cmp=mergesort)
+    mergeimgs(work, sdatas, (0, 0, width, height))
+    # 生成mc的数据文件
+    frames = []
+    mc = {name:{'frameRate':fps, 'events':[], 'frames':frames}}
+    res = {}
+    for data in datas:
+        if data['frame'] == None:
+            # 遇到一个空帧
+            frames.append({})
+            continue
+        res[data['key']] = data['frame']
+        frames.append({
+            'res':data['key'],
+            'x':data['offset'][0],
+            'y':data['offset'][1]
+        })
+    jso = {'mc':mc, 'res':res}
+    return (work.crop(work.getbbox()), jso)
+
+def mergesort(l, r):
+    if l['img'] == None:
+        return 0
+    if r['img'] == None:
+        return 0
+    lsz = l['img'].size
+    rsz = r['img'].size
+    return lsz[1] - rsz[1]
+
+# 合图
+def mergeimgs(work, datas, rc):
+    if len(datas) == 0:
+        return True
+    data = datas[len(datas) - 1]
+    sz = (0, 0)
+    if data['img'] != None:
+        img = data['img']    
+        sz = img.size
+        if rc[3] < sz[1]:
+            return False
+        if rc[2] < sz[0]:
+            return False
+        r = 0.3
+        work.paste(img, (rc[0], rc[1], (rc[0] + sz[0]), rc[1] + sz[1]))
+        data['frame'] = {'x':rc[0], 'y':rc[1], 'w':sz[0], 'h':sz[1]}
+    # 迭代下去
+    datas.pop()
+    if mergeimgs(work, datas, (rc[0] + sz[0], rc[1], rc[2] - sz[0], sz[1])):
+        return True
+    else:
+        return mergeimgs(work, datas, (rc[0], rc[1] + sz[1], rc[2], rc[3] - sz[1]))
+
+def main():
+    width = 1024
+    height = 9999
+    fps = 30
+    dfps = None
+    name = 'main'
+    scale = 1
+    patfile = '(\d+)\.png$'
+    out = 'out'
+    off = (0, 0)
+    dir = os.getcwd()
+    opts, args = getopt.getopt(sys.argv[1:], "", ["width=",
+                                                  "height=",
+                                                  "fps=",
+                                                  "dfps=",
+                                                  "name=",
+                                                  "pat=",
+                                                  "out=",
+                                                  "scale=",
+                                                  "alphafilter=",
+                                                  "offset="])    
+    for e in opts:
+        if '--width' in e: #画布宽度
+            width = int(e[1])
+        elif '--height' in e: #画布高度
+            height = int(e[1])
+        elif '--fps' in e: #输出的帧率
+            fps = int(e[1])
+        elif '--dfps'  in e: #设计时的帧率(影响插值)
+            dfps = int(e[1])
+        elif '--name' in e: #clipName
+            name = e[1]
+        elif '--pat' in e: #资源文件基于的格式
+            patfile = e[1]
+        elif '--scale' in e: #缩放系数
+            scale = float(e[1])
+        elif '--out' in e: #输出的文件名
+            out = e[1]
+        elif '--offset' in e: #输出文件的偏移量
+            v = e[1].split(",")
+            off = (int(v[0]), int(v[1]))
+        elif '--alphafilter' in e: #alpha过滤
+            global alphathr
+            alphathr = int(float(e[1])*255)
+    if dfps == None:
+        dfps = fps
+    if len(args):
+        dir = os.path.abspath(args[0])
+    res = proc(name, dir, width, height, scale, off, fps, dfps, patfile)
+    res[0].save(out + '.png')
+    open(out + '.json', 'w').write(json.dumps(res[1],indent=4))
+
+if __name__=="__main__":
+    main()
+

@@ -1,0 +1,11 @@
+{
+    "house.jpg": {
+        "p": "data/house.jpg"
+    }, 
+    "data.zip": {
+        "p": "data/data.zip"
+    }, 
+    "mask.png": {
+        "p": "data/mask.png"
+    }
+}

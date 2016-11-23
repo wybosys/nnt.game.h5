@@ -1,0 +1,71 @@
+{
+    "tracklight.png": {
+        "p": "wgt/Slider/tracklight.png"
+    }, 
+    "checkbox_select_up.png": {
+        "p": "wgt/CheckBox/checkbox_select_up.png"
+    }, 
+    "thumb.png": {
+        "p": "wgt/Slider/thumb.png"
+    }, 
+    "track_sb.png": {
+        "p": "wgt/ScrollBar/track_sb.png"
+    }, 
+    "header.png": {
+        "p": "wgt/Panel/header.png"
+    }, 
+    "track_pb.png": {
+        "p": "wgt/ProgressBar/track_pb.png"
+    }, 
+    "radiobutton_select_up.png": {
+        "p": "wgt/RadioButton/radiobutton_select_up.png"
+    }, 
+    "track.png": {
+        "p": "wgt/Slider/track.png"
+    }, 
+    "checkbox_unselect.png": {
+        "p": "wgt/CheckBox/checkbox_unselect.png"
+    }, 
+    "button_up.png": {
+        "p": "wgt/Button/button_up.png"
+    }, 
+    "border.png": {
+        "p": "wgt/Panel/border.png"
+    }, 
+    "radiobutton_unselect.png": {
+        "p": "wgt/RadioButton/radiobutton_unselect.png"
+    }, 
+    "roundthumb.png": {
+        "p": "wgt/ScrollBar/roundthumb.png"
+    }, 
+    "off.png": {
+        "p": "wgt/ToggleSwitch/off.png"
+    }, 
+    "on.png": {
+        "p": "wgt/ToggleSwitch/on.png"
+    }, 
+    "checkbox_select_down.png": {
+        "p": "wgt/CheckBox/checkbox_select_down.png"
+    }, 
+    "handle.png": {
+        "p": "wgt/ToggleSwitch/handle.png"
+    }, 
+    "checkbox_select_disabled.png": {
+        "p": "wgt/CheckBox/checkbox_select_disabled.png"
+    }, 
+    "radiobutton_select_disabled.png": {
+        "p": "wgt/RadioButton/radiobutton_select_disabled.png"
+    }, 
+    "radiobutton_select_down.png": {
+        "p": "wgt/RadioButton/radiobutton_select_down.png"
+    }, 
+    "selected.png": {
+        "p": "wgt/ItemRenderer/selected.png"
+    }, 
+    "thumb_pb.png": {
+        "p": "wgt/ProgressBar/thumb_pb.png"
+    }, 
+    "button_down.png": {
+        "p": "wgt/Button/button_down.png"
+    }
+}

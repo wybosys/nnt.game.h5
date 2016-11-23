@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
+<e:Skin class="app.item.TestItemSkin" width="50" height="50" xmlns:e="http://ns.egret.com/eui" >
+	<e:ImageU left="0" right="0" top="0" bottom="0" source="radiobutton_select_disabled"/>
+</e:Skin>

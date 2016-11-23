@@ -1,0 +1,15 @@
+{
+	"name": "egret",
+	"version": "2.5.0",
+	"modules": [
+		{
+			"name": "hd",
+			"description": "hd",
+			"files": [
+                "Javascript.d.ts",
+                "Javascript.js"
+            ],
+			"root": "src"
+		}
+	]
+}

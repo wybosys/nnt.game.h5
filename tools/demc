@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys, getopt, os, re, json, uuid, math
+from PIL import Image
+
+def mcfilter(img):
+    w, h = img.size
+    for x in range(w):
+        for y in range(h):
+            r,g,b,a = img.getpixel((x,y))
+            if a < 60:
+                img.putpixel((x,y), (0,0,0,0))            
+
+def demc(indir, name, outdir):
+    if not os.path.exists(outdir):
+        os.mkdir(outdir)
+    jsobj = json.loads(''.join(open(indir + '/' + name + '.json').readlines()))
+    pngobj = Image.open(indir + '/' + name + '.png')
+    mcobj = jsobj['mc']
+    fmobj = mcobj.items()[0][1]['frames']
+    resobj = jsobj['res']
+    # 计算出最大的子图的大小以及偏移的范围
+    maxsz = [0, 0]
+    offset = [0, 0, 0, 0]
+    for fm in fmobj:
+        res = resobj[fm['res']]
+        maxsz[0] = max(maxsz[0], res['w'])
+        maxsz[1] = max(maxsz[1], res['h'])
+        offset[0] = min(offset[0], fm['x'])
+        offset[1] = min(offset[1], fm['y'])
+        offset[2] = max(offset[2], fm['x'])
+        offset[3] = max(offset[3], fm['y'])
+    center = [maxsz[0]/2, maxsz[1]/2]
+    deflate = [center[0] + offset[0], center[1] + offset[1],
+               offset[2], offset[3]]
+    worksz = [maxsz[0] + deflate[0] + deflate[2], maxsz[1] + deflate[1] + deflate[3]]
+    # 导出图片
+    i = 0
+    for fm in fmobj:
+        work = Image.new('RGBA', (worksz[0], worksz[1]), (0, 0, 0, 0))
+        res = resobj[fm['res']]
+        img = pngobj.crop((res['x'], res['y'], res['x'] + res['w'], res['y'] + res['h']))
+        pos = (center[0] + fm['x'], center[1] + fm['y'])        
+        tgt = (pos[0], pos[1], pos[0] + res['w'], pos[1] + res['h'])
+        work.paste(img, tgt)
+        mcfilter(work)
+        work.save(outdir + '/' + str(i) + '.png')
+        i += 1
+
+if __name__=="__main__":
+    if len(sys.argv) != 4:
+        print 'demc indir name output'
+    else:
+        demc(os.path.relpath(sys.argv[1]), sys.argv[2], os.path.relpath(sys.argv[3]))

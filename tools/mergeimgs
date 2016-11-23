@@ -1,0 +1,115 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys, getopt, os, re, json, uuid
+from PIL import Image
+
+# 把目录下面的图片合并到一张图，名字按照目录名的hash和序列号命名，单张图控制在2048*2048大小
+PATTERN_FILENAME_EXT = re.compile('(.+)\.(.+)')
+
+def mergeDirectory(dir):
+    dnm = os.path.dirname(dir)
+    # 列出所有的简单图片文件，除了font、mc等成套资源
+    files = []
+    for ef in os.listdir(dir):
+        files += PATTERN_FILENAME_EXT.findall(ef)
+    ignores = []
+    # 挨个判断有没有不需要加入的资源
+    for ef in files:        
+        ext = ef[1]
+        if ext == 'fnt':
+            ignores.append(ef)
+        elif ext == 'json':
+            ignores.append(ef)
+    # 移除命中的
+    for ef in ignores:
+        nm = ef[0]
+        ext = ef[1]
+        if ext == 'fnt':            
+            try:
+                files.remove(ef)
+                files.remove((nm, 'png'))
+            except:
+                pass
+        elif ext == 'json':
+            try:
+                files.remove(ef)
+                files.remove((nm, 'png'))
+            except:
+                pass
+    # 把file对象转换成image对象并从大到小排序
+    images = []
+    for ef in files:
+        path = dir + '/' + ef[0] + '.' + ef[1]
+        img = Image.open(path)
+        if img == None:
+            print '没有打开图像 ' + path
+            continue
+        images.append({
+            'name': ef[0],
+            'path': path,
+            'frame':None, #之后的位置
+            'img':img
+        })
+    # 排序
+    images = sorted(images, cmp=mergesort)
+    # 生成
+    workid = 0
+    while True:
+        work = {'work':Image.new('RGBA', (2048, 2048), (0, 0, 0, 0)),
+                'result':[]}
+        res = mergeImages(work, images, (0, 0, 2048, 2048))
+        # 保存到对应目录下
+        png = work['work']        
+        png.crop(png.getbbox()).save(dir + '/automerged_' + str(workid) + '.png')
+        # 生成对应的json文件
+        frmobjs = {}
+        for e in work['result']:
+            frame = e['frame']
+            frmobjs[e['name']] = {
+                'x':frame['x'], 'y':frame['y'], 'w':frame['w'], 'h':frame['h'],
+                'offX':0, 'offY':0,
+                'sourceW':frame['w'], 'sourceH':frame['h']
+            }
+        jsobj = {'file':"automerged_" + str(workid) + ".png",
+                 'frames':frmobjs}
+        open(dir + '/automerged_' + str(workid) + ".json", 'w').write(json.dumps(jsobj))
+        workid += 1
+        if res == True:
+            break
+
+def mergesort(l, r):
+    if l['img'] == None:
+        return 0
+    if r['img'] == None:
+        return 0
+    lsz = l['img'].size
+    rsz = r['img'].size
+    return lsz[1] - rsz[1]
+
+def mergeImages(work, images, rc):
+    if len(images) == 0:
+        return True
+    # 从第一个开始迭代
+    image = images[len(images) - 1]
+    sz = (0, 0)
+    img = image['img']    
+    sz = img.size
+    if rc[3] < sz[1]:
+        return False
+    if rc[2] < sz[0]:
+        return False
+    work['work'].paste(img, (rc[0], rc[1], (rc[0] + sz[0]), rc[1] + sz[1]))
+    image['frame'] = {'x':rc[0], 'y':rc[1], 'w':sz[0], 'h':sz[1]}
+    work['result'].append(image)
+    # 继续下一个
+    images.pop()
+    if mergeImages(work, images, (rc[0] + sz[0], rc[1], rc[2] - sz[0], sz[1])):
+        return True
+    return mergeImages(work, images, (rc[0], rc[1] + sz[1], rc[2], rc[3] - sz[1]))
+
+def main():
+    mergeDirectory(sys.argv[1])
+
+if __name__=="__main__":
+    main()

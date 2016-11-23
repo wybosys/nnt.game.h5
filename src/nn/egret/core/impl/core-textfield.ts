@@ -1,0 +1,140 @@
+module nn {
+
+    export class TextField
+    extends Label
+    implements CTextField
+    {
+        constructor() {
+            super();
+            this.touchEnabled = true;
+            
+            this._lbl.type = egret.TextFieldType.INPUT;
+            EventHook(this._lbl, egret.FocusEvent.FOCUS_IN, this.__inp_focus, this);
+            EventHook(this._lbl, egret.FocusEvent.FOCUS_OUT, this.__inp_blur, this);
+        }
+        
+        dispose() {
+            super.dispose();
+        }
+
+        _initSignals() {
+            super._initSignals();
+            this._signals.register(SignalFocusGot);
+            this._signals.register(SignalFocusLost);
+        }
+        
+        _signalConnected(sig:string, s?:Slot) {
+            super._signalConnected(sig, s);
+            if (sig == SignalChanged)
+                EventHook(this._lbl, egret.Event.CHANGE, this.__lbl_changed, this);
+        }
+
+        // 文本框的实现比其它空间特殊，因为会输入或者直接点击，所以需要返回的是实现的实体
+        protected hitTestClient(x:number, y:number):egret.DisplayObject {
+            return super.hitTestClient(x, y) ? this._lbl : null;
+        }
+        
+        set readonly(v:boolean) {
+            this._lbl.touchEnabled = !v;
+        }
+        get readonly():boolean {
+            return !this._lbl.touchEnabled;
+        }
+
+        set securityInput(v:boolean) {
+            this._lbl.displayAsPassword = v;
+        }
+        get securityInput():boolean {
+            return this._lbl.displayAsPassword;
+        }
+        
+        private _labelPlaceholder:Label;
+        get labelPlaceholder():Label {
+            return this._labelPlaceholder;
+        }
+        set labelPlaceholder(lbl:Label) {
+            if (lbl == this._labelPlaceholder)
+                return;
+            if (this._labelPlaceholder)
+                this.removeChild(this._labelPlaceholder);
+            this._labelPlaceholder = lbl;
+            if (lbl)
+                this.addChild(lbl);
+        }
+
+        placeholderTextColor = 0x7d7d7d;
+        
+        get placeholder():string {
+            return this._labelPlaceholder ? this._labelPlaceholder.text : '';
+        }
+        set placeholder(s:string) {
+            if (this._labelPlaceholder == null) {
+                var lbl = new Label();
+                lbl.textAlign = this.textAlign;
+                lbl.fontSize = this.fontSize;
+                lbl.textColor = this.placeholderTextColor;
+                lbl.visible = this.text.length == 0;
+                lbl.multilines = this.multilines;
+                this.labelPlaceholder = lbl;
+            }
+            this._labelPlaceholder.text = s;
+        }
+
+        protected _setFontSize(v:number) {
+            super._setFontSize(v);
+            if (this._labelPlaceholder)
+                this._labelPlaceholder.fontSize = v;
+        }
+
+        protected _setTextAlign(a:string) {
+            super._setTextAlign(a);
+            if (this._labelPlaceholder)
+                this._labelPlaceholder.textAlign = a;
+        }
+
+        protected _setText(s:string):boolean {
+            if (!super._setText(s))
+                return false;
+            if (this._labelPlaceholder)
+                this._labelPlaceholder.visible = s.length == 0;
+            return true;
+        }
+
+        get multilines():boolean {
+            return this._lbl.multiline;
+        }
+        set multilines(b:boolean) {
+            this._lbl.multiline = b;
+            if (this._labelPlaceholder)
+                this._labelPlaceholder.multilines = b;
+        }
+        
+        private __inp_focus() {
+            Keyboard.visible = true;
+            if (this._labelPlaceholder)
+                this._labelPlaceholder.visible = false;
+            if (this._signals)
+                this._signals.emit(SignalFocusGot);
+        }
+        
+        private __inp_blur() {
+            Keyboard.visible = false;
+            if (this._labelPlaceholder && this.text.length == 0)
+                this._labelPlaceholder.visible = true;
+            if (this._signals)
+                this._signals.emit(SignalFocusLost);
+        }
+                
+        private __lbl_changed(e:any) {
+            this._scaleToFit && this.doScaleToFit();
+            this._signals.emit(SignalChanged, this.text);
+        }
+
+        updateLayout() {
+            super.updateLayout();
+            if (this._labelPlaceholder)
+                this._labelPlaceholder.setFrame(this.boundsForLayout());
+        }
+    }
+    
+}

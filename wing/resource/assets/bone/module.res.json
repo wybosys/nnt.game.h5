@@ -1,0 +1,11 @@
+{
+    "ruizi_texture.json": {
+        "p": "bone/ruizi_texture.json"
+    }, 
+    "ruizi_texture.png": {
+        "p": "bone/ruizi_texture.png"
+    }, 
+    "ruizi_skeleton.json": {
+        "p": "bone/ruizi_skeleton.json"
+    }
+}

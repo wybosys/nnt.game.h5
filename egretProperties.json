@@ -1,0 +1,64 @@
+{
+	"native": {
+		"path_ignore": [
+			"doc",
+			"wing",
+			"tools",
+			"server",
+			"support",
+			"publish"
+		],
+		"ios_path": "n2egret.ios",
+		"android_path": "n2egret.aos"
+	},
+	"publish": {
+		"web": 0,
+		"native": 1,
+		"path": "bin-release"
+	},
+	"modules": [
+		{
+			"name": "egret"
+		},
+		{
+			"name": "game"
+		},
+		{
+			"name": "res"
+		},
+		{
+			"name": "tween"
+		},
+		{
+			"name": "dragonbones"
+		},
+        {
+            "name": "jszip",
+            "path": "3rd/jszip"
+        },
+        {
+            "name": "lzma",
+            "path": "3rd/lzma"
+        },
+		{
+			"name": "hd",
+			"path": "3rd/hd"
+		},
+		{
+			"name": "particle",
+			"path": "3rd/particle"
+		},
+		{
+			"name": "physics",
+			"path": "3rd/physics"
+		},
+		{
+			"name": "tiled",
+			"path": "3rd/tiled"
+		},
+		{
+			"name": "greensock",
+			"path": "3rd/greensock"
+		}
+	]
+}

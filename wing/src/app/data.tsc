@@ -1,0 +1,7 @@
+module app {
+
+    export var datas:any = {
+        1:[1,1,1,1,1]
+    };
+    
+}

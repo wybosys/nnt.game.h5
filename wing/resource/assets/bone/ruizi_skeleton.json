@@ -1,0 +1,4291 @@
+{
+  "version": 2.3,
+  "name": "ruizi",
+  "armature": [
+    {
+      "skin": [
+        {
+          "name": "default",
+          "slot": [
+            {
+              "display": [
+                {
+                  "name": "shadow",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -19.87,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -3.12,
+                    "pX": -4.37,
+                    "pY": -0.7,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "shadow",
+              "z": 0,
+              "parent": "shadow"
+            },
+            {
+              "display": [
+                {
+                  "name": "juan",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -72.97,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -51,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "juan",
+              "z": 1,
+              "parent": "juan"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_leg_left",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -6,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -5.75,
+                    "pX": -1.62,
+                    "pY": -1.37,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_leg_left",
+              "z": 2,
+              "parent": "gds_leg_left"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_foot_left",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -6.25,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -5.5,
+                    "pX": 0,
+                    "pY": -2.12,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_foot_left",
+              "z": 3,
+              "parent": "gds_foot_left"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_leg_right",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -1.62,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -3.75,
+                    "pX": 5.63,
+                    "pY": -1.37,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_leg_right",
+              "z": 4,
+              "parent": "gds_leg_right"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_foot_right",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -5.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -5.25,
+                    "pX": 4.88,
+                    "pY": -1.87,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_foot_right",
+              "z": 5,
+              "parent": "gds_foot_right"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_arm_left",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.62,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": 1.25,
+                    "pX": 0,
+                    "pY": 7.38,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_arm_left",
+              "z": 6,
+              "parent": "gds_arm_left"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_body",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -16.25,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -12.25,
+                    "pX": 5.75,
+                    "pY": 8.75,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_body",
+              "z": 7,
+              "parent": "gds_body"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_waist",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -9.25,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.5,
+                    "pX": 8.63,
+                    "pY": -2.62,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_waist",
+              "z": 8,
+              "parent": "gds_waist"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_head",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -84.22,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -90.5,
+                    "pX": -16,
+                    "pY": 6.88,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_head",
+              "z": 9,
+              "parent": "gds_head"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_weapon",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -18.55,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -5.72,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_weapon",
+              "z": 10,
+              "parent": "gds_weapon"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_arm_right",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -9,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -12.5,
+                    "pX": 0,
+                    "pY": -9.75,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_arm_right",
+              "z": 11,
+              "parent": "gds_arm_right"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_shoulder_right",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -20,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -18.5,
+                    "pX": -11.5,
+                    "pY": -10,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_shoulder_right",
+              "z": 12,
+              "parent": "gds_shoulder_right"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_hand_left",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": 4.13,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -6.62,
+                    "pX": 5.63,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_hand_left",
+              "z": 13,
+              "parent": "gds_hand_left"
+            },
+            {
+              "display": [
+                {
+                  "name": "gds_hand_right",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -11.5,
+                    "pX": 16.25,
+                    "pY": -10,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "gds_hand_right",
+              "z": 14,
+              "parent": "gds_hand_right"
+            },
+            {
+              "display": [
+                {
+                  "name": "rundust",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -5.2,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -5.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "Layer 2",
+              "z": 19,
+              "parent": "Layer 2"
+            },
+            {
+              "display": [
+                {
+                  "name": "ef2",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -22.2,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -22.1,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "ef1",
+              "z": 15,
+              "parent": "ef1"
+            },
+            {
+              "display": [
+                {
+                  "name": "ef3",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -21,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -62.02,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "ef4",
+              "z": 16,
+              "parent": "ef4"
+            },
+            {
+              "display": [
+                {
+                  "name": "ef4",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -5.82,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -18.12,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "ef3",
+              "z": 17,
+              "parent": "ef3"
+            },
+            {
+              "display": [
+                {
+                  "name": "ef4",
+                  "type": "image",
+                  "transform": {
+                    "skX": 0,
+                    "x": -5.82,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -18.12,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ],
+              "name": "ef3_0",
+              "z": 18,
+              "parent": "ef3_0"
+            }
+          ]
+        }
+      ],
+      "name": "ruizi",
+      "animation": [
+        {
+          "fadeInTime": 0.3,
+          "name": "stand",
+          "loop": 0,
+          "timeline": [
+            {
+              "offset": 0,
+              "name": "shadow",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 10,
+                  "z": 0,
+                  "transform": {
+                    "skX": 0,
+                    "x": 0.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -1.27,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "juan",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 1,
+                  "transform": {
+                    "skX": 0,
+                    "x": -26.52,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -47,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 1,
+                  "transform": {
+                    "skX": 8.27,
+                    "x": -26.52,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -52.02,
+                    "pX": 0.03,
+                    "pY": 0,
+                    "skY": 8.27
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_leg_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 2,
+                  "transform": {
+                    "skX": 15,
+                    "x": 2.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.37,
+                    "pX": -0.02,
+                    "pY": 0.03,
+                    "skY": 15
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_foot_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_leg_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 4,
+                  "transform": {
+                    "skX": 0,
+                    "x": -13.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 4,
+                  "transform": {
+                    "skX": 20.97,
+                    "x": -12.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.62,
+                    "pX": 0.05,
+                    "pY": -0.02,
+                    "skY": 20.97
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_foot_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_arm_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 6,
+                  "transform": {
+                    "skX": 0,
+                    "x": 14.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 6,
+                  "transform": {
+                    "skX": 0,
+                    "x": 14.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -39.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_body",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 7,
+                  "transform": {
+                    "skX": 0,
+                    "x": 1.25,
+                    "scX": 1.1,
+                    "scY": 1.1,
+                    "y": -31.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 7,
+                  "transform": {
+                    "skX": 0,
+                    "x": -0.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_waist",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 8,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -16.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 8,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -19.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_head",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 9,
+                  "transform": {
+                    "skX": -4.44,
+                    "x": 4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -36.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": -4.44
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 9,
+                  "transform": {
+                    "skX": -3.19,
+                    "x": 4.47,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -41.62,
+                    "pX": -0.05,
+                    "pY": -0.05,
+                    "skY": -3.19
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_weapon",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 10,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.47,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 10,
+                  "transform": {
+                    "skX": -10.91,
+                    "x": -31.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -31.45,
+                    "pX": 0.03,
+                    "pY": -0.02,
+                    "skY": -10.91
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_arm_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 11,
+                  "transform": {
+                    "skX": 0,
+                    "x": -29.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -29.07,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 11,
+                  "transform": {
+                    "skX": -9.7,
+                    "x": -28.67,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.33,
+                    "pX": 0.03,
+                    "pY": 0,
+                    "skY": -9.7
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_shoulder_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 12,
+                  "transform": {
+                    "skX": 0,
+                    "x": -23.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 12,
+                  "transform": {
+                    "skX": -9.7,
+                    "x": -23.4,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -38.72,
+                    "pX": 0.03,
+                    "pY": 0,
+                    "skY": -9.7
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_hand_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 13,
+                  "transform": {
+                    "skX": 0,
+                    "x": 21.13,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 13,
+                  "transform": {
+                    "skX": 12.97,
+                    "x": 21.13,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -31.62,
+                    "pX": 0,
+                    "pY": 0.03,
+                    "skY": 12.97
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_hand_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 5,
+                  "z": 14,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -21.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 14,
+                  "transform": {
+                    "skX": -20.44,
+                    "x": -31.22,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -25.42,
+                    "pX": -0.02,
+                    "pY": 0,
+                    "skY": -20.44
+                  }
+                }
+              ]
+            }
+          ],
+          "autoTween": 1,
+          "duration": 10,
+          "tweenEasing": null,
+          "scale": 4
+        },
+        {
+          "fadeInTime": 0.3,
+          "name": "run",
+          "loop": 0,
+          "timeline": [
+            {
+              "offset": 0,
+              "name": "shadow",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 0,
+                  "transform": {
+                    "skX": 0,
+                    "x": 0.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -1.27,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 0,
+                  "transform": {
+                    "skX": 0,
+                    "x": -1.87,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -1.27,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "juan",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 1,
+                  "transform": {
+                    "skX": -3.98,
+                    "x": -26.52,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -46.97,
+                    "pX": 0,
+                    "pY": -0.07,
+                    "skY": -3.98
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 1,
+                  "transform": {
+                    "skX": 9.75,
+                    "x": -21.52,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -46.97,
+                    "pX": 0,
+                    "pY": -0.07,
+                    "skY": 9.75
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_leg_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.25,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -14.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 2,
+                  "transform": {
+                    "skX": 118.04,
+                    "x": 8.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.12,
+                    "pX": -0.02,
+                    "pY": 0.03,
+                    "skY": 118.04
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_foot_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 3,
+                  "transform": {
+                    "skX": -29.7,
+                    "x": 10.13,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -9.62,
+                    "pX": 0,
+                    "pY": -0.02,
+                    "skY": -29.7
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 3,
+                  "transform": {
+                    "skX": 29,
+                    "x": -3.82,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -8.18,
+                    "pX": 0,
+                    "pY": 0.03,
+                    "skY": 29
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_leg_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 4,
+                  "transform": {
+                    "skX": 69.49,
+                    "x": -12,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.27,
+                    "pX": 0.03,
+                    "pY": 0,
+                    "skY": 69.49
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 4,
+                  "transform": {
+                    "skX": 12.51,
+                    "x": -2.82,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.15,
+                    "pX": 0.03,
+                    "pY": 0.05,
+                    "skY": 12.51
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_foot_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 5,
+                  "transform": {
+                    "skX": 23.75,
+                    "x": -10.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -8.07,
+                    "pX": -0.02,
+                    "pY": 0.05,
+                    "skY": 23.75
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 5,
+                  "transform": {
+                    "skX": -22.44,
+                    "x": 11.25,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -8.65,
+                    "pX": -0.02,
+                    "pY": 0,
+                    "skY": -22.44
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_arm_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 6,
+                  "transform": {
+                    "skX": -9.49,
+                    "x": 17.95,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.42,
+                    "pX": 0.03,
+                    "pY": 0,
+                    "skY": -9.49
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 6,
+                  "transform": {
+                    "skX": 4,
+                    "x": 22.3,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.33,
+                    "pX": 0.03,
+                    "pY": -0.02,
+                    "skY": 4
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_body",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 7,
+                  "transform": {
+                    "skX": 8.69,
+                    "x": 3.38,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -30.52,
+                    "pX": 0.05,
+                    "pY": 0.03,
+                    "skY": 8.69
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 7,
+                  "transform": {
+                    "skX": 8.69,
+                    "x": 8.38,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -30.55,
+                    "pX": 0.05,
+                    "pY": 0.08,
+                    "skY": 8.69
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_waist",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 8,
+                  "transform": {
+                    "skX": 9.69,
+                    "x": -2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -17.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 9.69
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 8,
+                  "transform": {
+                    "skX": 9.69,
+                    "x": 2.25,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -17.25,
+                    "pX": 0,
+                    "pY": 0.03,
+                    "skY": 9.69
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_head",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 9,
+                  "transform": {
+                    "skX": -9.41,
+                    "x": 12.28,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.1,
+                    "pX": -0.02,
+                    "pY": 0.03,
+                    "skY": -9.41
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 9,
+                  "transform": {
+                    "skX": -0.47,
+                    "x": 17.27,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.1,
+                    "pX": -0.02,
+                    "pY": -0.02,
+                    "skY": -0.47
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_weapon",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 10,
+                  "transform": {
+                    "skX": -59.16,
+                    "x": -25.97,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -22.7,
+                    "pX": 0.08,
+                    "pY": 0.03,
+                    "skY": -59.16
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 10,
+                  "transform": {
+                    "skX": -9.5,
+                    "x": -27.8,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.02,
+                    "pX": 0.05,
+                    "pY": 0.03,
+                    "skY": -9.5
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_arm_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 11,
+                  "transform": {
+                    "skX": -47.94,
+                    "x": -25.57,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.32,
+                    "pX": -0.05,
+                    "pY": 0,
+                    "skY": -47.94
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 11,
+                  "transform": {
+                    "skX": -13.95,
+                    "x": -24.9,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -29.35,
+                    "pX": -0.02,
+                    "pY": -0.02,
+                    "skY": -13.95
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_shoulder_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 12,
+                  "transform": {
+                    "skX": -32.71,
+                    "x": -21.65,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.52,
+                    "pX": -0.02,
+                    "pY": 0.03,
+                    "skY": -32.71
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 12,
+                  "transform": {
+                    "skX": 1.29,
+                    "x": -17.6,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.12,
+                    "pX": -0.05,
+                    "pY": 0.05,
+                    "skY": 1.29
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_hand_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 13,
+                  "transform": {
+                    "skX": -9.49,
+                    "x": 27.45,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -28.42,
+                    "pX": -0.02,
+                    "pY": 0,
+                    "skY": -9.49
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 13,
+                  "transform": {
+                    "skX": 4,
+                    "x": 30.15,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.3,
+                    "pX": 0,
+                    "pY": -0.02,
+                    "skY": 4
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_hand_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 14,
+                  "transform": {
+                    "skX": -62.42,
+                    "x": -22.67,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -18.48,
+                    "pX": -0.02,
+                    "pY": -0.02,
+                    "skY": -62.42
+                  }
+                },
+                {
+                  "duration": 6,
+                  "z": 14,
+                  "transform": {
+                    "skX": -13.95,
+                    "x": -26.9,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -21.22,
+                    "pX": -0.02,
+                    "pY": -0.05,
+                    "skY": -13.95
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "Layer 2",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 4,
+                  "z": 19,
+                  "transform": {
+                    "skX": 0,
+                    "x": -17.62,
+                    "scX": 0.46,
+                    "scY": 0.46,
+                    "y": -8.22,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  },
+                  "colorTransform": {
+                    "rM": 100,
+                    "gO": 0,
+                    "bM": 100,
+                    "gM": 100,
+                    "bO": 0,
+                    "aO": 0,
+                    "aM": 0,
+                    "rO": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 19,
+                  "transform": {
+                    "skX": 0,
+                    "x": -31.37,
+                    "scX": 1.49,
+                    "scY": 1.49,
+                    "y": -9.47,
+                    "pX": -0.02,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 19,
+                  "transform": {
+                    "skX": 0,
+                    "x": -45.17,
+                    "scX": 1.3,
+                    "scY": 1.3,
+                    "y": -13.3,
+                    "pX": 0.03,
+                    "pY": 0.03,
+                    "skY": 0
+                  },
+                  "colorTransform": {
+                    "rM": 100,
+                    "gO": 0,
+                    "bM": 100,
+                    "gM": 100,
+                    "bO": 0,
+                    "aO": 0,
+                    "aM": 0,
+                    "rO": 0
+                  }
+                }
+              ]
+            }
+          ],
+          "autoTween": 1,
+          "duration": 12,
+          "tweenEasing": null,
+          "scale": 0.6
+        },
+        {
+          "fadeInTime": 0.3,
+          "name": "attack",
+          "loop": 0,
+          "timeline": [
+            {
+              "offset": 0,
+              "name": "shadow",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 35,
+                  "z": 0,
+                  "transform": {
+                    "skX": 0,
+                    "x": -1.87,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -1.27,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "juan",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 1,
+                  "transform": {
+                    "skX": 0,
+                    "x": -20.27,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -46.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 1,
+                  "transform": {
+                    "skX": 0,
+                    "x": -20.27,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -46.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 1,
+                  "transform": {
+                    "skX": 0,
+                    "x": -20.27,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -46.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 1,
+                  "transform": {
+                    "skX": 0,
+                    "x": -25.27,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -46.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 1,
+                  "transform": {
+                    "skX": 0,
+                    "x": -20.27,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -46.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 1,
+                  "transform": {
+                    "skX": 0,
+                    "x": -20.27,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -46.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_leg_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_foot_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_leg_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 4,
+                  "transform": {
+                    "skX": 0,
+                    "x": -13.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 4,
+                  "transform": {
+                    "skX": 0,
+                    "x": -13.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 4,
+                  "transform": {
+                    "skX": 0,
+                    "x": -13.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 4,
+                  "transform": {
+                    "skX": 0,
+                    "x": -13.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 4,
+                  "transform": {
+                    "skX": 0,
+                    "x": -13.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 4,
+                  "transform": {
+                    "skX": 0,
+                    "x": -13.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_foot_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_arm_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 6,
+                  "transform": {
+                    "skX": 0,
+                    "x": 14.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 6,
+                  "transform": {
+                    "skX": -35.21,
+                    "x": 14.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.5,
+                    "pX": 0,
+                    "pY": 0.03,
+                    "skY": -35.21
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 6,
+                  "transform": {
+                    "skX": -35.21,
+                    "x": 14.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.5,
+                    "pX": 0,
+                    "pY": 0.03,
+                    "skY": -35.21
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 6,
+                  "transform": {
+                    "skX": -35.21,
+                    "x": 9.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.5,
+                    "pX": 0,
+                    "pY": 0.03,
+                    "skY": -35.21
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 6,
+                  "transform": {
+                    "skX": -35.21,
+                    "x": 14.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.5,
+                    "pX": 0,
+                    "pY": 0.03,
+                    "skY": -35.21
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 6,
+                  "transform": {
+                    "skX": -35.21,
+                    "x": 14.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.5,
+                    "pX": 0,
+                    "pY": 0.03,
+                    "skY": -35.21
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_body",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 7,
+                  "transform": {
+                    "skX": 0,
+                    "x": 1.25,
+                    "scX": 1.1,
+                    "scY": 1.1,
+                    "y": -31.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 7,
+                  "transform": {
+                    "skX": 0,
+                    "x": 1.25,
+                    "scX": 1.1,
+                    "scY": 1.1,
+                    "y": -31.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 7,
+                  "transform": {
+                    "skX": 0,
+                    "x": 1.25,
+                    "scX": 1.1,
+                    "scY": 1.1,
+                    "y": -31.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 7,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.75,
+                    "scX": 1.1,
+                    "scY": 1.1,
+                    "y": -31.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 7,
+                  "transform": {
+                    "skX": 0,
+                    "x": 1.25,
+                    "scX": 1.1,
+                    "scY": 1.1,
+                    "y": -31.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 7,
+                  "transform": {
+                    "skX": 0,
+                    "x": 1.25,
+                    "scX": 1.1,
+                    "scY": 1.1,
+                    "y": -31.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_waist",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 8,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -16.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 8,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -16.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 8,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -16.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 8,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -16.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 8,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -16.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 8,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -16.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_head",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 9,
+                  "transform": {
+                    "skX": -4.44,
+                    "x": 4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -36.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": -4.44
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 9,
+                  "transform": {
+                    "skX": -4.44,
+                    "x": 4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -36.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": -4.44
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 9,
+                  "transform": {
+                    "skX": -4.44,
+                    "x": 4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -36.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": -4.44
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 9,
+                  "transform": {
+                    "skX": -4.44,
+                    "x": -0.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -36.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": -4.44
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 9,
+                  "transform": {
+                    "skX": -4.44,
+                    "x": 4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -36.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": -4.44
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 9,
+                  "transform": {
+                    "skX": -4.44,
+                    "x": 4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -36.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": -4.44
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_weapon",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 10,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.47,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 10,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.47,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 10,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.47,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 10,
+                  "transform": {
+                    "skX": 0,
+                    "x": -38.47,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 10,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.47,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 10,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.47,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_arm_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 11,
+                  "transform": {
+                    "skX": 0,
+                    "x": -29.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -29.07,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 11,
+                  "transform": {
+                    "skX": 0,
+                    "x": -29.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -29.07,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 11,
+                  "transform": {
+                    "skX": 0,
+                    "x": -29.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -29.07,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 11,
+                  "transform": {
+                    "skX": 0,
+                    "x": -34.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -29.07,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 11,
+                  "transform": {
+                    "skX": 0,
+                    "x": -29.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -29.07,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 11,
+                  "transform": {
+                    "skX": 0,
+                    "x": -29.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -29.07,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_shoulder_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 12,
+                  "transform": {
+                    "skX": 0,
+                    "x": -23.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 12,
+                  "transform": {
+                    "skX": 0,
+                    "x": -23.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 12,
+                  "transform": {
+                    "skX": 0,
+                    "x": -23.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 12,
+                  "transform": {
+                    "skX": 0,
+                    "x": -28.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 12,
+                  "transform": {
+                    "skX": 0,
+                    "x": -23.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 12,
+                  "transform": {
+                    "skX": 0,
+                    "x": -23.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_hand_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 13,
+                  "transform": {
+                    "skX": 0,
+                    "x": 21.13,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 13,
+                  "transform": {
+                    "skX": 0,
+                    "x": 26.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -32.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 13,
+                  "transform": {
+                    "skX": 0,
+                    "x": 26.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -32.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 13,
+                  "transform": {
+                    "skX": 0,
+                    "x": 21.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -32.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 13,
+                  "transform": {
+                    "skX": 0,
+                    "x": 26.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -32.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 13,
+                  "transform": {
+                    "skX": 0,
+                    "x": 26.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -32.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_hand_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "z": 14,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -21.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 14,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -21.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 4,
+                  "z": 14,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -21.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 14,
+                  "transform": {
+                    "skX": 0,
+                    "x": -38.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -21.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 12,
+                  "z": 14,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -21.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 14,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -21.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "ef1",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 3,
+                  "displayIndex": -1
+                },
+                {
+                  "duration": 12,
+                  "z": 15,
+                  "transform": {
+                    "skX": 0,
+                    "x": 37.63,
+                    "scX": 2.88,
+                    "scY": 2.88,
+                    "y": -33.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 15,
+                  "transform": {
+                    "skX": 105,
+                    "x": 32.78,
+                    "scX": 0.77,
+                    "scY": 0.77,
+                    "y": -33.77,
+                    "pX": -0.07,
+                    "pY": 0.03,
+                    "skY": 105
+                  },
+                  "colorTransform": {
+                    "rM": 100,
+                    "gO": 0,
+                    "bM": 100,
+                    "gM": 100,
+                    "bO": 0,
+                    "aO": 0,
+                    "aM": 0,
+                    "rO": 0
+                  }
+                },
+                {
+                  "duration": 19,
+                  "displayIndex": -1
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "ef4",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 15,
+                  "displayIndex": -1
+                },
+                {
+                  "duration": 3,
+                  "z": 16,
+                  "transform": {
+                    "skX": 0,
+                    "x": 39.25,
+                    "scX": 0.18,
+                    "scY": 0.18,
+                    "y": -34,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 16,
+                  "transform": {
+                    "skX": 0,
+                    "x": 39.25,
+                    "scX": 0.58,
+                    "scY": 0.58,
+                    "y": -34,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 14,
+                  "z": 16,
+                  "transform": {
+                    "skX": 0,
+                    "x": 39.25,
+                    "scX": 0.82,
+                    "scY": 0.82,
+                    "y": -34,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  },
+                  "colorTransform": {
+                    "rM": 100,
+                    "gO": 0,
+                    "bM": 100,
+                    "gM": 100,
+                    "bO": 0,
+                    "aO": 0,
+                    "aM": 0,
+                    "rO": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "ef3",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 18,
+                  "displayIndex": -1
+                },
+                {
+                  "duration": 3,
+                  "z": 17,
+                  "transform": {
+                    "skX": 0,
+                    "x": 47.48,
+                    "scX": 0.53,
+                    "scY": 0.53,
+                    "y": -32.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 17,
+                  "transform": {
+                    "skX": 0,
+                    "x": 47.48,
+                    "scX": 1.4,
+                    "scY": 1.4,
+                    "y": -32.5,
+                    "pX": 0,
+                    "pY": -0.02,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 11,
+                  "z": 17,
+                  "transform": {
+                    "skX": 0,
+                    "x": 47.48,
+                    "scX": 3,
+                    "scY": 3,
+                    "y": -32.5,
+                    "pX": 0,
+                    "pY": -0.02,
+                    "skY": 0
+                  },
+                  "colorTransform": {
+                    "rM": 100,
+                    "gO": 0,
+                    "bM": 100,
+                    "gM": 100,
+                    "bO": 0,
+                    "aO": 0,
+                    "aM": 0,
+                    "rO": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "ef3_0",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 20,
+                  "displayIndex": -1
+                },
+                {
+                  "duration": 3,
+                  "z": 18,
+                  "transform": {
+                    "skX": 0,
+                    "x": 52.48,
+                    "scX": 0.53,
+                    "scY": 0.53,
+                    "y": -32.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 3,
+                  "z": 18,
+                  "transform": {
+                    "skX": 0,
+                    "x": 52.48,
+                    "scX": 1.4,
+                    "scY": 1.4,
+                    "y": -32.5,
+                    "pX": 0,
+                    "pY": -0.02,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 18,
+                  "transform": {
+                    "skX": 0,
+                    "x": 52.48,
+                    "scX": 3,
+                    "scY": 3,
+                    "y": -32.5,
+                    "pX": 0,
+                    "pY": -0.02,
+                    "skY": 0
+                  },
+                  "colorTransform": {
+                    "rM": 100,
+                    "gO": 0,
+                    "bM": 100,
+                    "gM": 100,
+                    "bO": 0,
+                    "aO": 0,
+                    "aM": 0,
+                    "rO": 0
+                  }
+                }
+              ]
+            }
+          ],
+          "autoTween": 1,
+          "duration": 35,
+          "tweenEasing": null,
+          "scale": 0.8
+        },
+        {
+          "fadeInTime": 0.3,
+          "name": "dead",
+          "loop": 1,
+          "timeline": [
+            {
+              "offset": 0,
+              "name": "shadow",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 29,
+                  "z": 0,
+                  "transform": {
+                    "skX": 0,
+                    "x": -1.87,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -1.27,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "juan",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 1,
+                  "transform": {
+                    "skX": 0,
+                    "x": -26.52,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -47,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 1,
+                  "transform": {
+                    "skX": 0,
+                    "x": -43.02,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -19.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 1,
+                  "transform": {
+                    "skX": 0,
+                    "x": -43.02,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -19.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 1,
+                  "transform": {
+                    "skX": 0,
+                    "x": -43.02,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -19.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_leg_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 2,
+                  "transform": {
+                    "skX": 0,
+                    "x": 2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_foot_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 3,
+                  "transform": {
+                    "skX": 0,
+                    "x": 7.63,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_leg_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 4,
+                  "transform": {
+                    "skX": 0,
+                    "x": -13.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 4,
+                  "transform": {
+                    "skX": 0,
+                    "x": -13.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 4,
+                  "transform": {
+                    "skX": 0,
+                    "x": -13.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 4,
+                  "transform": {
+                    "skX": 0,
+                    "x": -13.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_foot_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 5,
+                  "transform": {
+                    "skX": 0,
+                    "x": -4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -7.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_arm_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 6,
+                  "transform": {
+                    "skX": 0,
+                    "x": 14.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 6,
+                  "transform": {
+                    "skX": 0,
+                    "x": 14.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 6,
+                  "transform": {
+                    "skX": 0,
+                    "x": 14.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -34.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 6,
+                  "transform": {
+                    "skX": 0,
+                    "x": 13.38,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -16.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_body",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 7,
+                  "transform": {
+                    "skX": 0,
+                    "x": 1.25,
+                    "scX": 1.1,
+                    "scY": 1.1,
+                    "y": -31.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 7,
+                  "transform": {
+                    "skX": 0,
+                    "x": 1.25,
+                    "scX": 1.1,
+                    "scY": 1.1,
+                    "y": -31.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 7,
+                  "transform": {
+                    "skX": 0,
+                    "x": 1.25,
+                    "scX": 1.1,
+                    "scY": 1.1,
+                    "y": -31.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 7,
+                  "transform": {
+                    "skX": 23.24,
+                    "x": 0.63,
+                    "scX": 1.1,
+                    "scY": 1.1,
+                    "y": -11.25,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 23.24
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_waist",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 8,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -16.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 8,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -16.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 8,
+                  "transform": {
+                    "skX": 0,
+                    "x": -3.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -16.37,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 8,
+                  "transform": {
+                    "skX": 19.24,
+                    "x": -2.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -2.12,
+                    "pX": 0.03,
+                    "pY": 0,
+                    "skY": 19.24
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_head",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 9,
+                  "transform": {
+                    "skX": -4.44,
+                    "x": 4.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -36.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": -4.44
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 9,
+                  "transform": {
+                    "skX": -54.39,
+                    "x": -56,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -35.92,
+                    "pX": -0.05,
+                    "pY": 0.03,
+                    "skY": -54.39
+                  }
+                },
+                {
+                  "duration": 1,
+                  "z": 9,
+                  "transform": {
+                    "skX": -54.39,
+                    "x": -58.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -40.92,
+                    "pX": -0.07,
+                    "pY": 0.03,
+                    "skY": -54.39
+                  }
+                },
+                {
+                  "duration": 7,
+                  "z": 9,
+                  "transform": {
+                    "skX": -54.39,
+                    "x": -61,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -35.92,
+                    "pX": -0.02,
+                    "pY": 0.03,
+                    "skY": -54.39
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 9,
+                  "transform": {
+                    "skX": -54.39,
+                    "x": -61,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -35.92,
+                    "pX": -0.02,
+                    "pY": 0.03,
+                    "skY": -54.39
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 9,
+                  "transform": {
+                    "skX": -54.39,
+                    "x": -61,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -35.92,
+                    "pX": -0.02,
+                    "pY": 0.03,
+                    "skY": -54.39
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_weapon",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 10,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.47,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 10,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.47,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 10,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.47,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 10,
+                  "transform": {
+                    "skX": 43.71,
+                    "x": -31.3,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -15.65,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 43.71
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_arm_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 11,
+                  "transform": {
+                    "skX": 0,
+                    "x": -29.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -29.07,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 11,
+                  "transform": {
+                    "skX": 0,
+                    "x": -29.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -29.07,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 11,
+                  "transform": {
+                    "skX": 0,
+                    "x": -29.5,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -29.07,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 11,
+                  "transform": {
+                    "skX": 43.72,
+                    "x": -26.77,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -14.62,
+                    "pX": -0.02,
+                    "pY": 0,
+                    "skY": 43.72
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_shoulder_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 12,
+                  "transform": {
+                    "skX": 0,
+                    "x": -23.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 12,
+                  "transform": {
+                    "skX": 0,
+                    "x": -23.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 12,
+                  "transform": {
+                    "skX": 0,
+                    "x": -23.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -33.5,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 12,
+                  "transform": {
+                    "skX": 43.72,
+                    "x": -19.27,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -13.6,
+                    "pX": 0,
+                    "pY": 0.03,
+                    "skY": 43.72
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_hand_left",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 13,
+                  "transform": {
+                    "skX": 0,
+                    "x": 21.13,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 13,
+                  "transform": {
+                    "skX": 0,
+                    "x": 21.13,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 13,
+                  "transform": {
+                    "skX": 0,
+                    "x": 21.13,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -26.62,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 13,
+                  "transform": {
+                    "skX": 0,
+                    "x": 19.75,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -8.75,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                }
+              ]
+            },
+            {
+              "offset": 0,
+              "name": "gds_hand_right",
+              "scale": 1,
+              "frame": [
+                {
+                  "duration": 6,
+                  "z": 14,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -21.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 14,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -21.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 9,
+                  "z": 14,
+                  "transform": {
+                    "skX": 0,
+                    "x": -33.37,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -21.7,
+                    "pX": 0,
+                    "pY": 0,
+                    "skY": 0
+                  }
+                },
+                {
+                  "duration": 5,
+                  "z": 14,
+                  "transform": {
+                    "skX": 43.72,
+                    "x": -34.67,
+                    "scX": 1,
+                    "scY": 1,
+                    "y": -11.97,
+                    "pX": -0.02,
+                    "pY": 0,
+                    "skY": 43.72
+                  }
+                }
+              ]
+            }
+          ],
+          "autoTween": 1,
+          "duration": 29,
+          "tweenEasing": null,
+          "scale": 1
+        }
+      ],
+      "bone": [
+        {
+          "transform": {
+            "skX": 0,
+            "x": 0.63,
+            "scX": 1,
+            "scY": 1,
+            "y": -1.27,
+            "skY": 0
+          },
+          "name": "shadow"
+        },
+        {
+          "name": "juan",
+          "transform": {
+            "skX": 0,
+            "x": -26.52,
+            "scX": 1,
+            "scY": 1,
+            "y": -47,
+            "skY": 0
+          },
+          "parent": "gds_body"
+        },
+        {
+          "name": "gds_leg_left",
+          "transform": {
+            "skX": 0,
+            "x": 2.75,
+            "scX": 1,
+            "scY": 1,
+            "y": -13.25,
+            "skY": 0
+          },
+          "parent": "gds_waist"
+        },
+        {
+          "name": "gds_foot_left",
+          "transform": {
+            "skX": 0,
+            "x": 7.63,
+            "scX": 1,
+            "scY": 1,
+            "y": -7.75,
+            "skY": 0
+          },
+          "parent": "gds_leg_left"
+        },
+        {
+          "name": "gds_leg_right",
+          "transform": {
+            "skX": 0,
+            "x": -13.5,
+            "scX": 1,
+            "scY": 1,
+            "y": -15.25,
+            "skY": 0
+          },
+          "parent": "gds_waist"
+        },
+        {
+          "name": "gds_foot_right",
+          "transform": {
+            "skX": 0,
+            "x": -4.5,
+            "scX": 1,
+            "scY": 1,
+            "y": -7.25,
+            "skY": 0
+          },
+          "parent": "gds_leg_right"
+        },
+        {
+          "name": "gds_arm_left",
+          "transform": {
+            "skX": 0,
+            "x": 14.75,
+            "scX": 1,
+            "scY": 1,
+            "y": -34.5,
+            "skY": 0
+          },
+          "parent": "gds_body"
+        },
+        {
+          "transform": {
+            "skX": 0,
+            "x": 1.25,
+            "scX": 1.1,
+            "scY": 1.1,
+            "y": -31.37,
+            "skY": 0
+          },
+          "name": "gds_body"
+        },
+        {
+          "transform": {
+            "skX": 0,
+            "x": -3.5,
+            "scX": 1,
+            "scY": 1,
+            "y": -16.37,
+            "skY": 0
+          },
+          "name": "gds_waist"
+        },
+        {
+          "name": "gds_head",
+          "transform": {
+            "skX": -4.44,
+            "x": 4.5,
+            "scX": 1,
+            "scY": 1,
+            "y": -36.62,
+            "skY": -4.44
+          },
+          "parent": "gds_body"
+        },
+        {
+          "name": "gds_weapon",
+          "transform": {
+            "skX": 0,
+            "x": -33.47,
+            "scX": 1,
+            "scY": 1,
+            "y": -26.7,
+            "skY": 0
+          },
+          "parent": "gds_body"
+        },
+        {
+          "name": "gds_arm_right",
+          "transform": {
+            "skX": 0,
+            "x": -29.5,
+            "scX": 1,
+            "scY": 1,
+            "y": -29.07,
+            "skY": 0
+          },
+          "parent": "gds_shoulder_right"
+        },
+        {
+          "name": "gds_shoulder_right",
+          "transform": {
+            "skX": 0,
+            "x": -23.37,
+            "scX": 1,
+            "scY": 1,
+            "y": -33.5,
+            "skY": 0
+          },
+          "parent": "gds_body"
+        },
+        {
+          "name": "gds_hand_left",
+          "transform": {
+            "skX": 0,
+            "x": 21.13,
+            "scX": 1,
+            "scY": 1,
+            "y": -26.62,
+            "skY": 0
+          },
+          "parent": "gds_arm_left"
+        },
+        {
+          "name": "gds_hand_right",
+          "transform": {
+            "skX": 0,
+            "x": -33.37,
+            "scX": 1,
+            "scY": 1,
+            "y": -21.7,
+            "skY": 0
+          },
+          "parent": "gds_arm_right"
+        },
+        {
+          "transform": {
+            "skX": 0,
+            "x": -17.62,
+            "scX": 0.46,
+            "scY": 0.46,
+            "y": -8.22,
+            "skY": 0
+          },
+          "name": "Layer 2"
+        },
+        {
+          "name": "ef1",
+          "transform": {
+            "skX": 0,
+            "x": 37.63,
+            "scX": 2.88,
+            "scY": 2.88,
+            "y": -33.75,
+            "skY": 0
+          },
+          "parent": "gds_hand_left"
+        },
+        {
+          "transform": {
+            "skX": 0,
+            "x": 39.25,
+            "scX": 0.18,
+            "scY": 0.18,
+            "y": -34,
+            "skY": 0
+          },
+          "name": "ef4"
+        },
+        {
+          "transform": {
+            "skX": 0,
+            "x": 47.48,
+            "scX": 0.53,
+            "scY": 0.53,
+            "y": -32.5,
+            "skY": 0
+          },
+          "name": "ef3"
+        },
+        {
+          "transform": {
+            "skX": 0,
+            "x": 52.48,
+            "scX": 0.53,
+            "scY": 0.53,
+            "y": -32.5,
+            "skY": 0
+          },
+          "name": "ef3_0"
+        }
+      ]
+    }
+  ],
+  "frameRate": 24
+}
