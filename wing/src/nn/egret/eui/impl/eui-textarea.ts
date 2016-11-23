@@ -3,7 +3,6 @@ module eui {
     export class TextAreaU
     extends eui.EditableText
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
         public slots:string = null;
         public tag:any = null;
 
@@ -13,19 +12,22 @@ module eui {
             nn.EventHook(this, egret.FocusEvent.FOCUS_OUT, this.__txt_focusout, this);
         }
 
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
+
         get value():string {
             return this.text;
-        }
-        
+        }        
         set value(v:string) {
             this.text = v;
         }
 
         set exhibition(b:boolean) {
-            _EUIBaseExtPROTO.setExhibition.call(this, b);
+            _EUIExt.setExhibition(this, b);
         }
         get exhibition():boolean {
-            return _EUIBaseExtPROTO.getExhibition.call(this);
+            return _EUIExt.getExhibition(this);
         }
 
         dispose() {

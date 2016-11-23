@@ -3,27 +3,47 @@ module eui {
     export class ImageU
     extends eui.Image
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
         public slots:string = null;
         public tag:any = null;
-        goBack = _EUIBaseExtPROTO.goBack;
-        playAnimate = _EUIBaseExtPROTO.playAnimate;
-        findAnimate = _EUIBaseExtPROTO.findAnimate;
-        stopAnimate = _EUIBaseExtPROTO.stopAnimate;
-        stopAllAnimates = _EUIBaseExtPROTO.stopAllAnimates;
+
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
+
+        goBack() {
+            _EUIExt.goBack(this);
+        }
+
+        playAnimate(ani:Animate, idr?:any):Animate {
+            return _EUIExt.playAnimate(this, ani, idr);
+        }
+
+        findAnimate(idr:any):Animate {
+            return _EUIExt.findAnimate(this, idr);
+        }
+
+        stopAnimate(idr:any) {
+            _EUIExt.stopAnimate(this, idr);
+        }
+
+        stopAllAnimates() {
+            _EUIExt.stopAllAnimates(this);
+        }
 
         set exhibition(b:boolean) {
-            _EUIBaseExtPROTO.setExhibition.call(this, b);
+            _EUIExt.setExhibition(this, b);
         }
+        
         get exhibition():boolean {
-            return _EUIBaseExtPROTO.getExhibition.call(this);
+            return _EUIExt.getExhibition(this);
         }
 
         set clipBounds(rc:nn.Rect) {
-            _EUIBaseExtPROTO.setClipbounds.call(this, rc);
+            _EUIExt.setClipbounds(this, rc);
         }
+        
         get clipBounds():nn.Rect {
-            return _EUIBaseExtPROTO.getClipbounds.call(this);
+            return _EUIExt.getClipbounds(this);
         }
 
         constructor() {

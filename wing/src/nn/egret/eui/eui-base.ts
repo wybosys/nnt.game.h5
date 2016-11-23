@@ -14,8 +14,6 @@ module eui {
         pages():egret.DisplayObject[];
     }
 
-    let gs_convertpt = new egret.Point();
-
     export class ComponentU
     extends eui.Component
     implements eui.IItemRenderer
@@ -262,15 +260,29 @@ module eui {
             return super.removeChild(ui);
         }
 
-        removeFromParent = _EUIBaseExtPROTO.removeFromParent;
-        playAnimate = _EUIBaseExtPROTO.playAnimate;
-        findAnimate = _EUIBaseExtPROTO.findAnimate;
-        stopAnimate = _EUIBaseExtPROTO.stopAnimate;
-        stopAllAnimates = _EUIBaseExtPROTO.stopAllAnimates;
+        removeFromParent() {
+            _EUIExt.removeFromParent(this);
+        }
+
+        playAnimate(ani:Animate, idr?:any):Animate {
+            return _EUIExt.playAnimate(this, ani, idr);
+        }
+
+        findAnimate(idr:any):Animate {
+            return _EUIExt.findAnimate(this, idr);
+        }
+
+        stopAnimate(idr:any) {
+            _EUIExt.stopAnimate(this, idr);
+        }
+
+        stopAllAnimates() {
+            _EUIExt.stopAllAnimates(this);
+        }
 
         // 约定使用该函数返回容器的上一级
         goBack() {
-            _EUIBaseExtPROTO.goBack.call(this);
+            _EUIExt.goBack(this);
         }
         
         protected _data:any = undefined;
@@ -325,15 +337,18 @@ module eui {
 
         /** 隶属的栈 */
         get viewStack():IViewStack {
-            return _EUIBaseExtPROTO.getViewStack.call(this);
+            return _EUIExt.getViewStack(this);
         }
         set viewStack(sck:IViewStack) {
-            _EUIBaseExtPROTO.setViewStack.call(this, sck);
+            _EUIExt.setViewStack(this, sck);
         }
 
         /** 展示与否 */
+        get exhibition():boolean {
+            return _EUIExt.getExhibition(this);
+        }        
         set exhibition(b:boolean) {
-            _EUIBaseExtPROTO.setExhibition.call(this, b);
+            _EUIExt.setExhibition(this, b);
         }
         
         /** 刷新布局 */
@@ -376,10 +391,18 @@ module eui {
             this.updateLayout();
         }
 
-        convertPointTo = _EUIBaseExtPROTO.convertPointTo;
-        convertRectTo = _EUIBaseExtPROTO.convertRectTo;
-        updateCache = _EUIBaseExtPROTO.updateCache;
-        
+        convertPointTo(pt:nn.Point, sp:egret.DisplayObject | nn.CComponent):nn.Point {
+            return ConvertPoint(this, pt, sp);
+        }
+
+        convertRectTo(rc:nn.Rect, sp:egret.DisplayObject | nn.CComponent):nn.Rect {
+            return ConvertRect(this, rc, sp);
+        }
+
+        updateCache() {
+            this.validateDisplayList();
+        }
+
         get frame():nn.Rect {
             return nn.getFrame(this);
         }        
@@ -390,185 +413,6 @@ module eui {
         bounds():nn.Rect {
             return nn.getBounds(this);
         }
-    }
-
-    export class _EUIBaseExt
-    {
-        removeFromParent() {
-            let self:egret.DisplayObject = <any>this;
-            if (self.parent)
-                self.parent.removeChild(self);
-        }
-
-        private _viewStack:IViewStack;
-        setViewStack(sck:IViewStack) {
-            this._viewStack = sck;
-        }
-        getViewStack():IViewStack {
-            if (this._viewStack)
-                return this._viewStack;
-            let self:egret.DisplayObject = <any>this;
-            let p:any = self.parent;
-            if (p && !('viewStack' in p)) {
-                while (p) {
-                    if ('viewStack' in p)
-                        break;
-                    p = p.parent;
-                }
-            }
-            return p ? p.viewStack : null;
-        }
-
-        /* 返回上一级，采用逐层实现的方式，比如A(B(C(D，调用D的goback，如果D没有实现goback，则使用C，如果C是Dialog，则必然实现了goback方式，如果C没有goback方法（比如标准的eui对象），那继续向上追溯，一般业务中必然会遇到一个扩充后的对象
-         */
-        goBack() {
-            let self:any = this;
-            // 查找含有goback方法的上级
-            let p = nn.queryParent(this, (o:any):any=>{
-                if (o.goBack != undefined)
-                    return o;
-                return null;
-            });
-            // 调用父级元素的回退方法
-            p.goBack();
-        }
-
-        /* eui提供了基础的visible和includeInLayout，但是业务中会遇到同时操作这两个属性，所以提供一个便捷的设置 */
-        private _exhibition:boolean = true;
-        setExhibition(b:boolean) {
-            if (this._exhibition == b)
-                return;
-            this._exhibition = b;
-            let self:any = this;
-            self.visible = b;
-            self.includeInLayout = b;
-        }
-
-        getExhibition():boolean {
-            return this._exhibition;
-        }
-
-        /** 设置遮罩 */
-        setClipbounds(rc:nn.Rect) {
-            let self:any = this;
-            self.mask = rc;
-        }
-        
-        getClipbounds():nn.Rect {
-            let self:any = this;
-            return self.mask;
-        }
-
-        convertPointTo(pt:nn.Point, sp:egret.DisplayObject | nn.CComponent):nn.Point {
-            return ConvertPoint(<any>this, pt, sp);
-        }
-
-        convertRectTo(rc:nn.Rect, sp:egret.DisplayObject | nn.CComponent):nn.Rect {
-            return ConvertRect(<any>this, rc, sp);
-        }
-
-        updateCache() {
-            let self:any = <any>this;
-            self.validateDisplayList();
-        }
-
-        // 播放动画相关
-        private _playingAnimates:Array<Animate>;
-        playAnimate(ani:Animate, idr?:any):Animate {
-            if (idr == null)
-                idr = ani.tag ? ani.tag : ani.hashCode;
-            
-            if (this._playingAnimates == null)
-                this._playingAnimates = new Array<Animate>();
-            if (this.findAnimate(idr) != null) {
-                nn.warn("动画 " + idr + " 正在运行");
-                return null;
-            }
-            
-            ani = ani.clone();
-            ani.tag = idr;
-            this._playingAnimates.push(ani);
-            ani.complete(this.__cb_aniend, this);
-
-            let self:egret.DisplayObject = <any>this;
-            ani.bind(self).play();
-            return ani;
-        }
-
-        findAnimate(idr:any):Animate {
-            if (this._playingAnimates)
-                return nn.ArrayT.QueryObject(this._playingAnimates, (ani:Animate):boolean=>{
-                    return ani.tag == idr;
-                });
-            return null;
-        }
-
-        stopAnimate(idr:any) {
-            if (this._playingAnimates == null)
-                return;
-            let ani = this.findAnimate(idr);
-            if (ani == null)
-                return;
-            ani.stop();
-            nn.ArrayT.RemoveObject(this._playingAnimates, ani);
-            return;
-        }
-
-        stopAllAnimates() {
-            if (this._playingAnimates) {
-                nn.ArrayT.Clear(this._playingAnimates, (ani:Animate)=>{
-                    ani.stop();
-                });
-            }
-        }
-        
-        private __cb_aniend(s:nn.Slot) {
-            let ani = s.sender;
-            nn.ArrayT.RemoveObject(this._playingAnimates, ani);
-        }
-    }
-
-    export var _EUIBaseExtPROTO = _EUIBaseExt.prototype;
-
-    export function ConvertPoint(fromsp:egret.DisplayObject|nn.CComponent, pt:nn.Point, tosp:egret.DisplayObject|nn.CComponent):nn.Point {
-        let from:egret.DisplayObject;
-        if (fromsp instanceof nn.CComponent)
-            from = (<nn.CComponent>fromsp).handle();
-        else 
-            from = <egret.DisplayObject>fromsp;
-        let to:egret.DisplayObject;
-        if (tosp instanceof nn.CComponent)
-            to = (<nn.CComponent>tosp).handle();
-        else 
-            to = <egret.DisplayObject>tosp;
-        if (from == null)
-            from = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
-        if (to == null)
-            to = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
-        from.localToGlobal(pt.x, pt.y, gs_convertpt);
-        to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
-        return new nn.Point(gs_convertpt.x, gs_convertpt.y);
-    }
-    
-    export function ConvertRect(fromsp:egret.DisplayObject|nn.CComponent, rc:nn.Rect, tosp:egret.DisplayObject|nn.CComponent):nn.Rect {
-        let from:egret.DisplayObject;
-        if (fromsp instanceof nn.CComponent)
-            from = (<nn.CComponent>fromsp).handle();
-        else 
-            from = <egret.DisplayObject>fromsp;
-        let to:egret.DisplayObject;
-        if (tosp instanceof nn.CComponent)
-            to = (<nn.CComponent>tosp).handle();
-        else 
-            to = <egret.DisplayObject>tosp;
-        if (from == null)
-            from = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
-        if (to == null)
-            to = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
-        from.localToGlobal(rc.x, rc.y, gs_convertpt);
-        to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
-        return new nn.Rect(gs_convertpt.x, gs_convertpt.y,
-                           rc.width, rc.height);        
     }
 
     // 避免暴露到wing中

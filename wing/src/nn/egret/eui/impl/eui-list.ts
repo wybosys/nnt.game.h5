@@ -3,12 +3,12 @@ module eui {
     export class ListU
     extends eui.List
     {
-        belong:any;
-        
+        belong:any;        
         public slots:string = null;
-        protected onPartBinded(name:string, target:any) {
+        
+        onPartBinded(name:string, target:any) {
             this.belong = target;
-            _EUIDataGroupExtPROTO.onPartBinded.call(this, name, target);
+            _EUIDataGroupExt.onPartBinded(this, name, target);
         }
         
         dispose() {

@@ -3,16 +3,39 @@ module eui {
     export class CheckBoxU
     extends eui.CheckBox
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
         public slots:string = null;
         public tag:any = null;
-        goBack = _EUIBaseExtPROTO.goBack;
+
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
+
+        goBack() {
+            _EUIExt.goBack(this);
+        }
+
+        playAnimate(ani:Animate, idr?:any):Animate {
+            return _EUIExt.playAnimate(this, ani, idr);
+        }
+
+        findAnimate(idr:any):Animate {
+            return _EUIExt.findAnimate(this, idr);
+        }
+
+        stopAnimate(idr:any) {
+            _EUIExt.stopAnimate(this, idr);
+        }
+
+        stopAllAnimates() {
+            _EUIExt.stopAllAnimates(this);
+        }
 
         set exhibition(b:boolean) {
-            _EUIBaseExtPROTO.setExhibition.call(this, b);
+            _EUIExt.setExhibition(this, b);
         }
+        
         get exhibition():boolean {
-            return _EUIBaseExtPROTO.getExhibition.call(this);
+            return _EUIExt.getExhibition(this);
         }
 
         dispose() {

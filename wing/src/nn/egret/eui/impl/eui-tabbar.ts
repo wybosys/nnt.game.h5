@@ -4,8 +4,9 @@ module eui {
     extends eui.TabBar
     {        
         public slots:string = null;
-        protected onPartBinded(name:string, target:any) {
-            _EUIDataGroupExtPROTO.onPartBinded.call(this, name, target);
+        
+        onPartBinded(name:string, target:any) {
+            _EUIDataGroupExt.onPartBinded(this, name, target);
         }
 
         constructor() {

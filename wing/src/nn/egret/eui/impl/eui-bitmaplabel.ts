@@ -3,13 +3,16 @@ module eui {
     export class BitmapLabelU
     extends eui.BitmapLabel
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
-
-        set exhibition(b:boolean) {
-            _EUIBaseExtPROTO.setExhibition.call(this, b);
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
         }
+        
+        set exhibition(b:boolean) {
+            _EUIExt.setExhibition(this, b);
+        }
+        
         get exhibition():boolean {
-            return _EUIBaseExtPROTO.getExhibition.call(this);
+            return _EUIExt.getExhibition(this);
         }
 
         private _value:any;

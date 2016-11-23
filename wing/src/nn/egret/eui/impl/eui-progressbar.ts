@@ -3,7 +3,9 @@ module eui {
     export class ProgressBarU
     extends eui.ProgressBar
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
 
         private _percent:nn.Percentage;
         get percent():nn.Percentage {

@@ -5,13 +5,19 @@ module eui {
     export class MovieClipU
     extends eui.Group
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
         public slots:string = null;
         public tag:any = null;
-        goBack = _EUIBaseExtPROTO.goBack;
 
         constructor() {
             super();
+        }
+
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
+
+        goBack() {
+            _EUIExt.goBack(this);
         }
 
         dispose() {

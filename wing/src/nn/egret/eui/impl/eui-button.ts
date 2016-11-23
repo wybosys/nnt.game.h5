@@ -4,9 +4,40 @@ module eui {
     extends eui.Button
     implements eui.IItemRenderer
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
         public slots:string = null;
         public tag:any = null;
+
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
+
+        goBack() {
+            _EUIExt.goBack(this);
+        }
+
+        playAnimate(ani:Animate, idr?:any):Animate {
+            return _EUIExt.playAnimate(this, ani, idr);
+        }
+
+        findAnimate(idr:any):Animate {
+            return _EUIExt.findAnimate(this, idr);
+        }
+
+        stopAnimate(idr:any) {
+            _EUIExt.stopAnimate(this, idr);
+        }
+
+        stopAllAnimates() {
+            _EUIExt.stopAllAnimates(this);
+        }
+
+        set exhibition(b:boolean) {
+            _EUIExt.setExhibition(this, b);
+        }
+        
+        get exhibition():boolean {
+            return _EUIExt.getExhibition(this);
+        }
         
         protected _help:any = null;
         get help():any {
@@ -16,17 +47,6 @@ module eui {
             this._help = h;
         }
         
-        goBack() {
-            _EUIBaseExtPROTO.goBack.call(this);
-        }
-
-        set exhibition(b:boolean) {
-            _EUIBaseExtPROTO.setExhibition.call(this, b);
-        }
-        get exhibition():boolean {
-            return _EUIBaseExtPROTO.getExhibition.call(this);
-        }
-
         belong:any;
 
         dispose() {
@@ -181,14 +201,19 @@ module eui {
 
         /** 隶属的栈 */
         get viewStack():IViewStack {
-            return _EUIBaseExt.prototype.getViewStack.call(this);
+            return _EUIExt.getViewStack(this);
         }
         set viewStack(sck:IViewStack) {
-            _EUIBaseExt.prototype.setViewStack.call(this, sck);
+            _EUIExt.setViewStack(this, sck);
         }
 
-        convertPointTo = _EUIBaseExtPROTO.convertPointTo;
-        convertRectTo = _EUIBaseExtPROTO.convertRectTo;
+        convertPointTo(pt:nn.Point, sp:egret.DisplayObject | nn.CComponent):nn.Point {
+            return ConvertPoint(this, pt, sp);
+        }
+
+        convertRectTo(rc:nn.Rect, sp:egret.DisplayObject | nn.CComponent):nn.Rect {
+            return ConvertRect(this, rc, sp);
+        }
 
         get frame():nn.Rect {
             return nn.getFrame(this);

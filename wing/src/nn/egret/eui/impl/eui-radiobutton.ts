@@ -3,7 +3,9 @@ module eui {
     export class RadioButtonU
     extends eui.RadioButton
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
 
         dispose() {
         }

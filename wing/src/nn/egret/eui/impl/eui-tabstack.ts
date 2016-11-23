@@ -40,7 +40,7 @@ module eui {
         
         push(ui:egret.DisplayObject) {
             let bc = new nn.BridgedComponent(ui);
-            _EUIBaseExt.prototype.setViewStack.call(ui, this);
+            _EUIExt.setViewStack(ui, this);
             this._imp.push(bc);
         }
 

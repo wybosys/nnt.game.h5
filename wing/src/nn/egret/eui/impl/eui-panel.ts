@@ -3,7 +3,9 @@ module eui {
     export class PanelU
     extends eui.Panel
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
 
         dispose() {
         }

@@ -1,40 +1,6 @@
 /// <reference path="impl/eui-animate.ts" />
 
-module eui {
-
-    // 因为wing的问题自定义类必须位于独立的文件中，混在一起就找不到了
-    export interface IEUIExt
-    {
-        // skin绑定结束的回调
-        onPartBinded(name:string, target:any);
-    }
-    
-    export class _EUIExt
-    implements IEUIExt
-    {
-        onPartBinded(name:string, target:any) {
-            let self:any = this;
-            // 自动绑定点击, _onNameClicked
-            let clicked = '_on' + _EUIExt.Propname(name) + 'Clicked';
-            if (clicked in target) {
-                self.addEventListener(egret.TouchEvent.TOUCH_TAP, (e:egret.TouchEvent)=>{
-                    target[clicked].call(target);
-                    e.stopPropagation();
-                });
-            }
-        }
-
-        // 获得使用大驼峰法定义的属性名称
-        static Propname(name:string):string {
-            let c = name[0];
-            if (c == '_')
-                return name;
-            c = c.toUpperCase();
-            return c + name.substr(1);
-        }        
-    }
-
-    export var _EUIExtPROTO = _EUIExt.prototype;        
+module eui {   
 
     export class ItemInfo
     {        

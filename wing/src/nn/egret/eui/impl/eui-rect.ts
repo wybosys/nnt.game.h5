@@ -3,7 +3,9 @@ module eui {
     export class RectU
     extends eui.Rect
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
 
         onAppeared() {
         }
@@ -11,7 +13,9 @@ module eui {
         onDisappeared() {
         }
 
-        updateCache = _EUIBaseExtPROTO.updateCache;
+        updateCache() {
+            this.validateDisplayList();
+        }
 
         dispose() {
         }

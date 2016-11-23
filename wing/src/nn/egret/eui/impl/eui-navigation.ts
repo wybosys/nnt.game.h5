@@ -51,7 +51,7 @@ module eui {
 
         push(ui:ComponentU) {
             let bc = new nn.BridgedComponent(ui);
-            _EUIBaseExt.prototype.setViewStack.call(ui, this);
+            _EUIExt.setViewStack(ui, this);
             this._imp.push(bc);
         }
 

@@ -3,7 +3,9 @@ module eui {
     export class ScrollerU
     extends eui.Scroller
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
 
         static FromView(e:egret.DisplayObject):ScrollerU {
             return <any>nn.findParentByType(e, ScrollerU);

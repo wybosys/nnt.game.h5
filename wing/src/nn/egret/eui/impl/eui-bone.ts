@@ -19,10 +19,8 @@ module eui {
     export class BoneU
     extends eui.Group
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
         public slots:string = null;
         public tag:any = null;
-        goBack = _EUIBaseExtPROTO.goBack;
 
         constructor() {
             super();
@@ -39,6 +37,14 @@ module eui {
 
         drop() {
             this.dispose();
+        }
+
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
+
+        goBack() {
+            _EUIExt.goBack(this);
         }
 
         $onRemoveFromStage() {

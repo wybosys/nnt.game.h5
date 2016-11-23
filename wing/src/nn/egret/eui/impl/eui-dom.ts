@@ -3,10 +3,16 @@ module eui {
     export class DivU
     extends eui.Group
     {
-        protected onPartBinded = _EUIExtPROTO.onPartBinded;
         public slots:string = null;
         public tag:any = null;
-        goBack = _EUIBaseExtPROTO.goBack;
+
+        onPartBinded(name:string, target:any) {
+            _EUIExt.onPartBinded(this, name, target);
+        }
+
+        goBack() {
+            _EUIExt.goBack(this);
+        }
 
         constructor() {
             super();

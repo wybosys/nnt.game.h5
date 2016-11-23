@@ -1,11 +1,10 @@
 module eui {
 
     export class _EUIDataGroupExt
-    extends _EUIExt
     {
-        onPartBinded(name:string, target:any) {
-            super.onPartBinded(name, target);
-            let self = <any>this;
+        static onPartBinded(self:any, name:string, target:any) {
+            _EUIExt.onPartBinded(self, name, target);
+
             let Name = _EUIExt.Propname(name);
 
             // 如果提供条目点击
@@ -96,7 +95,5 @@ module eui {
             return d;
         }
     }
-
-    export var _EUIDataGroupExtPROTO = _EUIDataGroupExt.prototype;        
     
 }
