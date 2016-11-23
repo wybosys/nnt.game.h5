@@ -530,7 +530,7 @@ module eui {
 
     export var _EUIBaseExtPROTO = _EUIBaseExt.prototype;
 
-    export function ConvertPoint(fromsp:egret.DisplayObject|hd.CComponent, pt:nn.Point, tosp:egret.DisplayObject|hd.CComponent):nn.Point {
+    export function ConvertPoint(fromsp:egret.DisplayObject|nn.CComponent, pt:nn.Point, tosp:egret.DisplayObject|nn.CComponent):nn.Point {
         let from:egret.DisplayObject;
         if (fromsp instanceof nn.CComponent)
             from = (<nn.CComponent>fromsp).handle();
@@ -542,15 +542,15 @@ module eui {
         else 
             to = <egret.DisplayObject>tosp;
         if (from == null)
-            from = (<nn.IComponent><any>hd.Application.shared.gameLayer)._imp;
+            from = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
         if (to == null)
-            to = (<nn.IComponent><any>hd.Application.shared.gameLayer)._imp;
+            to = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
         from.localToGlobal(pt.x, pt.y, gs_convertpt);
         to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
         return new nn.Point(gs_convertpt.x, gs_convertpt.y);
     }
     
-    export function ConvertRect(fromsp:egret.DisplayObject|hd.CComponent, rc:nn.Rect, tosp:egret.DisplayObject|hd.CComponent):nn.Rect {
+    export function ConvertRect(fromsp:egret.DisplayObject|nn.CComponent, rc:nn.Rect, tosp:egret.DisplayObject|nn.CComponent):nn.Rect {
         let from:egret.DisplayObject;
         if (fromsp instanceof nn.CComponent)
             from = (<nn.CComponent>fromsp).handle();
@@ -562,9 +562,9 @@ module eui {
         else 
             to = <egret.DisplayObject>tosp;
         if (from == null)
-            from = (<nn.IComponent><any>hd.Application.shared.gameLayer)._imp;
+            from = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
         if (to == null)
-            to = (<nn.IComponent><any>hd.Application.shared.gameLayer)._imp;
+            to = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
         from.localToGlobal(rc.x, rc.y, gs_convertpt);
         to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
         return new nn.Rect(gs_convertpt.x, gs_convertpt.y,

@@ -60,7 +60,7 @@ module eui {
         
         /** 获得视图隶属的dialog对象 */
         static FromView(cv:egret.DisplayObject):DialogU {
-            return <any>hd.findParentByType(cv, DialogU);
+            return <any>nn.findParentByType(cv, DialogU);
         }
 
         protected _initSignals() {
@@ -75,7 +75,7 @@ module eui {
         // 检查一下是否具有desktop控件，用来更新下数据绑定
         childrenCreated() {
             super.childrenCreated();
-            let dsk = <_ExtDesktop>hd.Desktop.FromView(nn.CComponent.FromImp(this));
+            let dsk = <_ExtDesktop>nn.Desktop.FromView(nn.CComponent.FromImp(this));
             let dlg = <DesktopU>this.getChildByName(DesktopU.IDRKEY);
             if (dlg) {
                 this.popupMode = dsk.popupMode = dlg.popupMode;
@@ -86,7 +86,7 @@ module eui {
 
         onLoaded() {
             super.onLoaded();
-            let dsk = <_ExtDesktop>hd.Desktop.FromView(nn.CComponent.FromImp(this));
+            let dsk = <_ExtDesktop>nn.Desktop.FromView(nn.CComponent.FromImp(this));
             dsk._doOpen2();
 
             // 打开的动画
@@ -162,13 +162,13 @@ module eui {
         addFilter(ui:UiType) {
             let c = nn.BridgedComponent.Wrapper(ui);
             this._filters.add(c);
-            let dsk = <_ExtDesktop>hd.Desktop.FromView(nn.CComponent.FromImp(this));
+            let dsk = <_ExtDesktop>nn.Desktop.FromView(nn.CComponent.FromImp(this));
             if (dsk)
                 dsk.addFilter(c);
         }
 
         updateFilters() {
-            let dsk = <_ExtDesktop>hd.Desktop.FromView(nn.CComponent.FromImp(this));
+            let dsk = <_ExtDesktop>nn.Desktop.FromView(nn.CComponent.FromImp(this));
             if (dsk)
                 dsk.updateFilters();
         }

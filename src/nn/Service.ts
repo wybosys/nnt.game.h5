@@ -588,9 +588,6 @@ module nn {
             this._shared._service.fetch(cnt);
         }
 
-        /** 当前注册的类型 */
-        protected _types = new Map<string, any>();
-
         /** 设置成默认的实现 
             @param cls 默认使用的服务类型，如果是null则使用manager选择的服务
         */

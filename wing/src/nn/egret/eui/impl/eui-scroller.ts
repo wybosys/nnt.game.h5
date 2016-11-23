@@ -6,7 +6,7 @@ module eui {
         protected onPartBinded = _EUIExtPROTO.onPartBinded;
 
         static FromView(e:egret.DisplayObject):ScrollerU {
-            return <any>hd.findParentByType(e, ScrollerU);
+            return <any>nn.findParentByType(e, ScrollerU);
         }
 
         scrollToEdge(e:egret.DisplayObject, edge:nn.EDGE) {
