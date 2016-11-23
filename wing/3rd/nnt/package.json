@@ -3,8 +3,8 @@
 	"version": "2.5.0",
 	"modules": [
 		{
-			"name": "hd",
-			"description": "hd",
+			"name": "nnt",
+			"description": "nnt",
 			"files": [
                 "Javascript.d.ts",
                 "Javascript.js"

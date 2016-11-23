@@ -8,8 +8,8 @@
 			"support",
 			"publish"
 		],
-		"ios_path": "n2egret.ios",
-		"android_path": "n2egret.aos"
+		"ios_path": "nnt.ios",
+		"android_path": "nnt.aos"
 	},
 	"publish": {
 		"web": 0,
@@ -41,8 +41,8 @@
             "path": "3rd/lzma"
         },
 		{
-			"name": "hd",
-			"path": "3rd/hd"
+			"name": "nnt",
+			"path": "3rd/nnt"
 		},
 		{
 			"name": "particle",
