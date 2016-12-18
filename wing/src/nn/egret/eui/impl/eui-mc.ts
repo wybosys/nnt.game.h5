@@ -21,7 +21,8 @@ module eui {
         }
 
         dispose() {
-            this._mc.drop();
+            if (this._hmc)
+                this._hmc.drop();
             if (this._signals) {
                 this._signals.dispose();
                 this._signals = undefined;
@@ -68,19 +69,19 @@ module eui {
                 nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
                 break;
             case nn.SignalChanged:
-                this._mc.signals.redirect(nn.SignalChanged, this);
+                this.mc().signals.redirect(nn.SignalChanged, this);
                 break;
             case nn.SignalUpdated:
-                this._mc.signals.redirect(nn.SignalUpdated, this);
+                this.mc().signals.redirect(nn.SignalUpdated, this);
                 break;
             case nn.SignalStart:
-                this._mc.signals.redirect(nn.SignalStart, this);
+                this.mc().signals.redirect(nn.SignalStart, this);
                 break;
             case nn.SignalEnd:
-                this._mc.signals.redirect(nn.SignalEnd, this);
+                this.mc().signals.redirect(nn.SignalEnd, this);
                 break;
             case nn.SignalDone:
-                this._mc.signals.redirect(nn.SignalDone, this);
+                this.mc().signals.redirect(nn.SignalDone, this);
                 break;
             }
         }
@@ -135,28 +136,35 @@ module eui {
         public flashMode:boolean = false;
         
         /** 填充模式 */
-        public fillMode:number = nn.FillMode.ASPECTSTRETCH;
+        public fillMode:number = 0x3000;//nn.FillMode.ASPECTSTRETCH;
 
         /** 调整序列帧的对齐位置 */
-        public clipAlign:number = nn.POSITION.CENTER;
+        public clipAlign:number = 4;//nn.POSITION.CENTER;
 
         /** 切换clipSource时清空原来的clip */
         clearOnChanging:boolean = true;
 
-        private _mc = new nn.MovieClip();
+        private _hmc:nn.MovieClip;
+        private mc():nn.MovieClip {
+            if (this._hmc)
+                return this._hmc;
+            this._hmc = new nn.MovieClip();
+            return this._hmc;
+        }
         
         createChildren() {
             super.createChildren();
+
+            let mc = this.mc();
+            mc.count = this.playCount;
+            mc.autoPlay = this.autoPlay;
+            mc.location = 0;
+            mc.flashMode = this.flashMode;
+            mc.fillMode = this.fillMode;
+            mc.clipAlign = this.clipAlign;
+            mc.clearOnChanging = this.clearOnChanging;
             
-            this._mc.count = this.playCount;
-            this._mc.autoPlay = this.autoPlay;
-            this._mc.location = 0;
-            this._mc.flashMode = this.flashMode;
-            this._mc.fillMode = this.fillMode;
-            this._mc.clipAlign = this.clipAlign;
-            this._mc.clearOnChanging = this.clearOnChanging;
-            
-            this.addChild(this._mc.handle());
+            this.addChild(mc.handle());
         }
 
         commitProperties() {
@@ -171,27 +179,28 @@ module eui {
         }
 
         get clipSource():nn.ClipConfig {
-            return this._mc.clipSource;
+            return this.mc().clipSource;
         }
         set clipSource(cfg:nn.ClipConfig) {
-            this._mc.clipSource = cfg;
+            this.mc().clipSource = cfg;
         }
 
         protected updateDisplayList(unscaledWidth:number, unscaledHeight:number) {
             super.updateDisplayList(unscaledWidth, unscaledHeight);
             // 设置mc和当前的容器大小一致
-            this._mc.frame = new nn.Rect(0, 0, unscaledWidth, unscaledHeight);
-            this._mc.flushLayout();
+            let mc = this.mc();
+            mc.frame = new nn.Rect(0, 0, unscaledWidth, unscaledHeight);
+            mc.flushLayout();
         }
 
         /** 播放 */
         play() {
-            this._mc.play();
+            this.mc().play();
         }
 
         /** 停止 */
         stop() {
-            this._mc.stop();
+            this.mc().stop();
         }        
     }
 

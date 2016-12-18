@@ -31,8 +31,9 @@ module eui {
                 this._signals.dispose();
                 this._signals = undefined;
             }
-            
-            this._bone.drop();
+
+            if (this._hbone)
+                this._hbone.drop();
         }
 
         drop() {
@@ -78,24 +79,25 @@ module eui {
         }
         
         _signalConnected(sig:string, s?:nn.Slot) {
+            let bone = this.bone();
             switch (sig) {
             case nn.SignalClicked:
                 nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
                 break;
             case nn.SignalChanged:
-                this._bone.signals.redirect(nn.SignalChanged, this);
+                bone.signals.redirect(nn.SignalChanged, this);
                 break;
             case nn.SignalUpdated:
-                this._bone.signals.redirect(nn.SignalUpdated, this);
+                bone.signals.redirect(nn.SignalUpdated, this);
                 break;
             case nn.SignalStart:
-                this._bone.signals.redirect(nn.SignalStart, this);
+                bone.signals.redirect(nn.SignalStart, this);
                 break;
             case nn.SignalEnd:
-                this._bone.signals.redirect(nn.SignalEnd, this);
+                bone.signals.redirect(nn.SignalEnd, this);
                 break;
             case nn.SignalDone:
-                this._bone.signals.redirect(nn.SignalDone, this);
+                bone.signals.redirect(nn.SignalDone, this);
                 break;
             }
         }
@@ -190,20 +192,27 @@ module eui {
 
         /** 自动播放 */
         public autoPlay:boolean = true;
-
-        private _bone = new nn.Bones();
+        
+        private _hbone:nn.Bones;
+        private bone():nn.Bones {
+            if (this._hbone)
+                return this._hbone;
+            this._hbone = new nn.Bones();
+            return this._hbone;
+        }
 
         createChildren() {
             super.createChildren();
 
-            this._bone.autoPlay = this.autoPlay;
-            this._bone.count = this.playCount;
-            this._bone.additionScale = this.additionScale;
-            this._bone.fillMode = this.fillMode;
-            this._bone.clipAlign = this.clipAlign;
-            this._bone.motion = this.motion;
+            let bone = this.bone();
+            bone.autoPlay = this.autoPlay;
+            bone.count = this.playCount;
+            bone.additionScale = this.additionScale;
+            bone.fillMode = this.fillMode;
+            bone.clipAlign = this.clipAlign;
+            bone.motion = this.motion;
 
-            this.addChild(this._bone.handle());
+            this.addChild(bone.handle());
         }
 
         commitProperties() {
@@ -219,26 +228,30 @@ module eui {
         }
 
         get boneSource():nn.BoneSource {
-            return this._bone.boneSource;
+            let bone = this.bone();
+            return bone.boneSource;
         }
         set boneSource(cfg:nn.BoneSource) {
-            this._bone.boneSource = cfg;
+            let bone = this.bone();
+            bone.boneSource = cfg;
         }
 
         protected updateDisplayList(unscaledWidth:number, unscaledHeight:number) {
             super.updateDisplayList(unscaledWidth, unscaledHeight);
+            
+            let bone = this.bone();
             // 设置bone和当前的容器大小一致
-            this._bone.frame = new nn.Rect(0, 0, unscaledWidth, unscaledHeight);
-            this._bone.flushLayout();
+            bone.frame = new nn.Rect(0, 0, unscaledWidth, unscaledHeight);
+            bone.flushLayout();
         }
 
         /** 播放 */
         play() {
-            this._bone.play();
+            this.bone().play();
         }
 
         stop() {
-            this._bone.stop();
+            this.bone().stop();
         }
     }
 

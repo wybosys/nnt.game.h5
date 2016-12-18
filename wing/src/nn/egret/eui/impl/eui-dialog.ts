@@ -4,7 +4,7 @@ module eui {
     export class DesktopU
     extends eui.ComponentU
     {
-        static IDRKEY = "::hde::idrkey::desktop";
+        static IDRKEY = "::nneui::idrkey::desktop";
         
         constructor() {
             super();
