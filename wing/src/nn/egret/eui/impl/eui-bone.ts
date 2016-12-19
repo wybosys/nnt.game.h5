@@ -179,10 +179,10 @@ module eui {
         public additionScale:number = 1;
         
         /** 填充模式 */
-        public fillMode:number = nn.FillMode.ASPECTSTRETCH;
+        public fillMode:number = 0x3000;//nn.FillMode.ASPECTSTRETCH;
         
         /** 序列帧的对齐位置 */
-        public clipAlign:number = nn.POSITION.CENTER;
+        public clipAlign:number = 4;//nn.POSITION.CENTER;
 
         /** 动作名称 */
         public motion:string = null;
