@@ -1211,9 +1211,10 @@ declare module tiled {
          * @param gid tileset中的格子id
          * @param tilemap TMXTilemap实例
          * @param tileset TMXTileset实例
+         * @param decodeAnimation 是否解析动画，娇正无限嵌套
          * @version Egret 3.0.3
          */
-        constructor(tileX: number, tileY: number, gid: number, tilemap: tiled.TMXTilemap, tileset: tiled.TMXTileset);
+        constructor(tileX: number, tileY: number, gid: number, tilemap: tiled.TMXTilemap, tileset: tiled.TMXTileset, decodeAnimation?: boolean);
         /**
          * 获取在tileset所对应的格子id
          * @version Egret 3.0.3

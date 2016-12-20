@@ -329,7 +329,7 @@ var tiled;
          * @param data 传入的Tileset数据
          */
         p.parseTileset = function (data) {
-            return new tiled.TMXTileset(data, this);
+            return new tiled.TMXTileset(this, data);
         };
         /**
          * 解析imagelayer(此类型的图层不参与渲染方向更新)
@@ -432,7 +432,7 @@ var tiled;
         function TMXAnimationFrame(tilemap, tileset, col, row, data) {
             this._tiledid = +data.attributes.tileid;
             this._duration = +data.attributes.duration;
-            this._tile = new tiled.TMXTile(col, row, this._tiledid + tileset.firstgid, tilemap, tileset);
+            this._tile = new tiled.TMXTile(col, row, this._tiledid + tileset.firstgid, tilemap, tileset, false);
         }
         var d = __define,c=TMXAnimationFrame,p=c.prototype;
         d(p, "tile"
@@ -1121,8 +1121,9 @@ var tiled;
                 for (var y = 0; y < this.rows; y++) {
                     for (var x = 0; x < this.cols; x++) {
                         var gid = data[idx];
-                        if (gid !== 0)
+                        if (gid !== 0) {
                             this.setTile(x, y, gid);
+                        }
                         idx++;
                     }
                 }
@@ -1560,7 +1561,7 @@ var tiled;
          * @version Egret 3.0.3
          */
         p.getObjectCount = function () {
-            return this._objects.length;
+            return this._childrens.length;
         };
         /**
          * 根据索引获取TMXObject实例
@@ -2283,9 +2284,11 @@ var tiled;
          * @param gid tileset中的格子id
          * @param tilemap TMXTilemap实例
          * @param tileset TMXTileset实例
+         * @param decodeAnimation 是否解析动画，娇正无限嵌套
          * @version Egret 3.0.3
          */
-        function TMXTile(tileX, tileY, gid, tilemap, tileset) {
+        function TMXTile(tileX, tileY, gid, tilemap, tileset, decodeAnimation) {
+            if (decodeAnimation === void 0) { decodeAnimation = true; }
             _super.call(this);
             this._tileset = tileset;
             this._tileX = tileX;
@@ -2313,7 +2316,8 @@ var tiled;
                                 this._image = new tiled.TMXImage(child, this.tilemap.baseURL);
                                 break;
                             case tiled.TMXConstants.ANIMATION:
-                                this._animation = new tiled.TMXAnimation(tilemap, tileset, tileX, tileY, child);
+                                if (decodeAnimation)
+                                    this._animation = new tiled.TMXAnimation(tilemap, tileset, tileX, tileY, child);
                                 break;
                         }
                     }
@@ -2720,23 +2724,23 @@ var tiled;
                 isImage = renderer.isImage;
             }
             this._transformMatrix.identity();
-            var _scalex = isObject ? renderer.width / renderTexture.textureWidth : 1;
-            var _scaley = isObject ? renderer.height / renderTexture.textureHeight : 1;
+            var _scalex = isObject ? rect.width / renderTexture.textureWidth : 1;
+            var _scaley = isObject ? rect.height / renderTexture.textureHeight : 1;
             if (tile.flippedAD) {
                 this._transformMatrix.scale(-1 * _scalex, -1 * _scaley);
-                this._transformMatrix.translate(dx + renderer.width * _scalex, dy + renderer.height * _scaley);
+                this._transformMatrix.translate(dx + rect.width * _scalex, dy + rect.height * _scaley);
             }
             else if (tile.flippedY) {
                 this._transformMatrix.scale(1 * _scalex, -1 * _scaley);
-                this._transformMatrix.translate(dx, dy + renderer.height * _scaley);
+                this._transformMatrix.translate(dx, dy + rect.height * _scaley);
             }
             else if (tile.flippedX) {
                 this._transformMatrix.scale(-1 * _scalex, 1 * _scaley);
-                this._transformMatrix.translate(dx + renderer.width * _scalex, dy);
+                this._transformMatrix.translate(dx + rect.width * _scalex, dy);
             }
             else {
                 this._transformMatrix.scale(_scalex, _scaley);
-                this._transformMatrix.translate(dx, dy + (isObject ? (renderTexture.textureHeight - renderer.height) : 0));
+                this._transformMatrix.translate(dx, dy + (isObject ? (renderTexture.textureHeight - rect.height) : 0));
             }
             if (tile.bitmap == null)
                 tile.bitmap = new egret.Bitmap();
