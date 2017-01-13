@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys,os,shutil
+
+fromlib = sys.argv[1]
+
+def copylib(name):
+    if os.path.isdir(name):
+        shutil.rmtree(name)
+    shutil.copytree(fromlib + '/' + name + '/libsrc/', name)
+
+copylib('base64texture')
+copylib('greensock')
+copylib('jszip')
+copylib('md5')
+copylib('particle')
+copylib('physics')
+copylib('socket.io')
+copylib('tiled')
+
