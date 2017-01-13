@@ -1,7 +1,6 @@
 var Base64Texture = (function () {
     function Base64Texture() {
     }
-    var d = __define,c=Base64Texture,p=c.prototype;
     /**
      * @param base64 字符串
      */
@@ -15,5 +14,3 @@ var Base64Texture = (function () {
     };
     return Base64Texture;
 }());
-egret.registerClass(Base64Texture,'Base64Texture');
-
