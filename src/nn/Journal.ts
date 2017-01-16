@@ -43,7 +43,7 @@ module nn.journal {
     }
 
     /** 打印日志 */
-    export function toString(rcds = _records):string {
+    export function recordsStringify(rcds = _records):string {
         let sb = new StringBuilder();
         rcds.forEach((e:JournalRecord)=>{
             recordStringify(e, sb);
