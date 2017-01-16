@@ -1,3 +1,4 @@
+/// <reference path="egret-core.ts" />
 /// <reference path="../Application.ts" />
 
 declare let document_class;
@@ -12,7 +13,7 @@ module nn {
     {
         constructor() {
             super();
-            
+          
             // 通用的app事件
             egret.MainContext.instance.stage.addEventListener(egret.Event.ACTIVATE, this.onActivated, this);
             egret.MainContext.instance.stage.addEventListener(egret.Event.DEACTIVATE, this.onDeactived, this);
@@ -24,7 +25,7 @@ module nn {
         get fontFamily():string {
             return egret.TextField.default_fontFamily;
         }
-    }    
+    }
     
     // ------------------实现egret需要的加载过程 ------------------------
     
@@ -99,13 +100,13 @@ module nn {
             super();
             _AppStage.shared = this;
             this.addEventListener(egret.Event.ADDED_TO_STAGE, this.__stage_added, this);
-            // 帧控制
-            FramesManager.launch(this);            
         }
 
         private __stage_added() {
             // 创建 APP 首页面的实例
-            this.appMain = new CLAZZ_MAIN();
+            let app = new CLAZZ_MAIN();
+            app.frames.launch(this);
+            this.appMain = app;
             this.addChild(this.appMain.handle());
             
             // 更新大小

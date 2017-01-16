@@ -880,7 +880,7 @@ module nn {
         }
     }
 
-    class _FramesManager
+    export class _FramesManager
     extends CFramesManager
     {
         launch(c:egret.DisplayObject) {
