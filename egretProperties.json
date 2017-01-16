@@ -41,10 +41,6 @@
             "path": "3rd/lzma"
         },
 		{
-			"name": "nnt",
-			"path": "3rd/nnt"
-		},
-		{
 			"name": "particle",
 			"path": "3rd/particle"
 		},

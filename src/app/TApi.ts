@@ -45,7 +45,13 @@ module app.model {
                 var ret = 'http://gameapi.wyb.u1.hgame.com/web/index.php?r=redirect/redirect';
                 var p = {};
                 p['url'] = this.host + this.action;
-                p['method'] = this.method == nn.HttpMethod.POST ? 'post' : 'get';
+                /* 莫名其妙报错
+                if (nn.HttpMethod.POST == this.method)
+                    p['method'] = 'post';
+                else
+                    p['method'] = 'get';
+                */
+                p['method'] = 'get';
                 p['fields'] = '&' + nn.URL.MapToField(this.fields());
                 p['uid'] = nn.Application.shared.uniqueId;
                 

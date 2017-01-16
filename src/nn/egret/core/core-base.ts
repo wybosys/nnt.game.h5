@@ -550,7 +550,7 @@ module nn {
         }
 
         set frame(rc:Rect) {
-            this.setFrame(rc);
+            this.setFrame(rc, true);
         }
         get frame():Rect {
             let x = this._imp.x;
@@ -574,7 +574,7 @@ module nn {
             return new Rect(x, y, w, h);
         }
         
-        setFrame(rc:Rect) {
+        setFrame(rc:Rect, anchor:boolean = true) {
             let x = rc.x * ScaleFactorX;
             let y = rc.y * ScaleFactorY;
             let w = rc.width * ScaleFactorW;
@@ -587,7 +587,7 @@ module nn {
             }
 
             // 计算锚点
-            if (this._anchorPoint) {
+            if (anchor && this._anchorPoint) {
                 let dx = this._anchorPoint.x * w;
                 let dy = this._anchorPoint.y * h;
                 this._imp.anchorOffsetX = dx;

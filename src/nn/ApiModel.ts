@@ -87,7 +87,7 @@ module nn {
         static HTTPS:string = "https://" + document.domain;
 
         /** 获得请求的类型 */
-        method = HttpMethod.GET;
+        method:HttpMethod = HttpMethod.GET;
 
         /** 是否跨域 */
         iscross():boolean {
