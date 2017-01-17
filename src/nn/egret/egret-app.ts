@@ -100,13 +100,16 @@ module nn {
             super();
             _AppStage.shared = this;
             this.addEventListener(egret.Event.ADDED_TO_STAGE, this.__stage_added, this);
+
+            // 开启帧监听，负责自动刷新布局、显示状态等功能
+            FramesManager.launch(this);
         }
 
         private __stage_added() {
             // 创建 APP 首页面的实例
             let app = new CLAZZ_MAIN();
             this.appMain = app;
-            this.addChild(this.appMain.handle());
+            this.addChild(app.handle());
             
             // 更新大小
             egret.MainContext.instance.stage.setContentSize(_AppStage.StageBounds.width, _AppStage.StageBounds.height);
