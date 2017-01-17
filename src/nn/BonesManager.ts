@@ -116,7 +116,13 @@ module nn {
         }
     }
 
-    export var BonesManager = new _BonesManager();
+    let _bonesManager:_BonesManager;
+    function BonesManager():_BonesManager {
+        if (_bonesManager)
+            return _bonesManager;
+        _bonesManager = new _BonesManager();
+        return _bonesManager;
+    }
 
     type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
 
@@ -389,7 +395,7 @@ module nn {
             
             if (<any>bs instanceof BoneConfig) {
                 let cfg = <BoneConfig>bs;
-                BonesManager.instance(cfg, (bn:BoneData)=>{
+                BonesManager().instance(cfg, (bn:BoneData)=>{
                     if (this._bs != bs)
                         return;
                     this.setBoneData(bn);
@@ -398,7 +404,7 @@ module nn {
                 let tp = typeof(<any>bs);
                 if (tp == 'string') {
                     let cfg = new BoneConfig(<string>bs);
-                    BonesManager.instance(cfg, (bn:BoneData)=>{
+                    BonesManager().instance(cfg, (bn:BoneData)=>{
                         if (this._bs != bs)
                             return;
                         this.setBoneData(bn);

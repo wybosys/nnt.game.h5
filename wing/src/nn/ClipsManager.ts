@@ -73,7 +73,7 @@ module nn {
                 this.__needreverse = true;
                 this.tryReverseMovieClipData();
             }
-                        
+            
             super.dispose();
         }
 
@@ -120,21 +120,21 @@ module nn {
             self._cs = cs;
             
             // 加载新的资源数据
-            ClipsManager.instance(cs,
-                                  (mc:egret.MovieClipData, f:_ClipFactory)=>{
-                                      if (self.__disposed || false == ObjectT.IsEqual(cs, self._cs))
-                                          return;
-                                      if (cs.additionScale != null)
-                                          self.additionScale = cs.additionScale;
-                                      if (cs.fps)
-                                          self.fps = cs.fps;
-                                      // 释放当前的
-                                      if (pcs) {
-                                          self.stop();
-                                      }
-                                      // 设置期望的
-                                      self._setMovieClipData(mc, f);
-                                  }, self);
+            ClipsManager().instance(cs,
+                                    (mc:egret.MovieClipData, f:_ClipFactory)=>{
+                                        if (self.__disposed || false == ObjectT.IsEqual(cs, self._cs))
+                                            return;
+                                        if (cs.additionScale != null)
+                                            self.additionScale = cs.additionScale;
+                                        if (cs.fps)
+                                            self.fps = cs.fps;
+                                        // 释放当前的
+                                        if (pcs) {
+                                            self.stop();
+                                        }
+                                        // 设置期望的
+                                        self._setMovieClipData(mc, f);
+                                    }, self);
         }
         get clipSource():ClipSource {
             return this._cs;
@@ -314,7 +314,7 @@ module nn {
                 frm.add((arc.x + arc.width * this.flashAnchorPoint.x) * s,
                         (arc.y + arc.height * this.flashAnchorPoint.y) * s);
             }
-                
+            
             this.impSetFrame(frm.integral(), this._mc);
         }
         
@@ -365,7 +365,7 @@ module nn {
            @name 资源名称，资源由 json\bmp 组成，如过传入的时候没有带后缀，则自动加上后缀
            @res 动作文件，通常为 _json
            @tex 素材平成，通常为 _png
-         */
+        */
         constructor(name?:string, res?:string, tex?:string) {
             this._name = name;
             this._frame = nonnull1st(null, res, name);
@@ -584,6 +584,12 @@ module nn {
         }        
     }
 
-    export let ClipsManager = new _ClipsManager();
+    let _clipsManager:_ClipsManager;
+    function ClipsManager():_ClipsManager {
+        if (_clipsManager)
+            return _clipsManager;
+        _clipsManager = new _ClipsManager();
+        return _clipsManager;
+    }
     
 }
