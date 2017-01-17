@@ -2,7 +2,7 @@
 
 module nn {
 
-    export var COPYRIGHT:string = "SHANGHAI wybosys INC.";
+    export var COPYRIGHT:string = "WYBOSYS";
     export var AUTHOR:string = "WYBOSYS@GMAIL.COM";
 
     // 判断版本
