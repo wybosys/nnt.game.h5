@@ -105,7 +105,6 @@ module nn {
         private __stage_added() {
             // 创建 APP 首页面的实例
             let app = new CLAZZ_MAIN();
-            app.frames.launch(this);
             this.appMain = app;
             this.addChild(this.appMain.handle());
             
