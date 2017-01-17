@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "experimentalDecorators": false,
+        "lib":[
+            "es6","dom"
+        ]
+    },
+    "exclude": [
+        "node_modules",
+        "wing",
+        "tools",
+        "server",
+        "doc",
+        "support"
+    ]
+}
