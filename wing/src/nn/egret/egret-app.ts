@@ -87,8 +87,7 @@ module nn {
             super.$render(triggerByFrame, costTicker);
         }
     }    
-    if (!ISLIBRARY)
-        egret.sys.Player = _Player;
+    egret.sys.Player = _Player;
 
     // 需要控制一下 stage 的一些功能
     class _AppStage
@@ -137,7 +136,7 @@ module nn {
         // 初始化 Stage 架构
         static Init() {
             // 设置主业务入口类
-            CLAZZ_MAIN = ISLIBRARY ? _CloakMain : Main;
+            CLAZZ_MAIN = Main;
 
             // 判断支持的特性
             let features = CLAZZ_MAIN.Features();
@@ -280,51 +279,49 @@ module nn {
         static StageBounds:Rect;
     }
 
-    if (!ISLIBRARY) {
-        Js.OverrideFunction(egret, 'updateAllScreens', function(orifn:()=>void) {
-            if (CLAZZ_MAIN == null)
-                return;
-            
-            // 如果键盘弹出，则认定为因为弹出键盘导致的尺寸修改
-            if (Keyboard.visible)
-                return;
-            log("尺寸改变");            
-            
-            // 重新计算一下舞台的大小
-            _AppStage.UpdateBounds();
-            
-            // 刷新首页的尺寸        
-            _AppStage.shared.updateLayout();        
+    Js.OverrideFunction(egret, 'updateAllScreens', function(orifn:()=>void) {
+        if (CLAZZ_MAIN == null)
+            return;
+        
+        // 如果键盘弹出，则认定为因为弹出键盘导致的尺寸修改
+        if (Keyboard.visible)
+            return;
+        log("尺寸改变");            
+        
+        // 重新计算一下舞台的大小
+        _AppStage.UpdateBounds();
+        
+        // 刷新首页的尺寸        
+        _AppStage.shared.updateLayout();        
 
-            // 激活信号            
-            emit(CApplication.shared, SignalFrameChanged);
+        // 激活信号            
+        emit(CApplication.shared, SignalFrameChanged);
 
-            // 调用原始的实现
-            orifn.call(this);
-        });
+        // 调用原始的实现
+        orifn.call(this);
+    });
 
-        // 需要替换查找入口类的函数，使得我们可以插入非业务类作为主入口
-        Js.OverrideFunction(egret, 'getDefinitionByName', (orifn:(name:string)=>any, name:string):any=>{
-            if (name == 'Main')
-                return _AppStage;
-            return orifn(name);
-        });
+    // 需要替换查找入口类的函数，使得我们可以插入非业务类作为主入口
+    Js.OverrideFunction(egret, 'getDefinitionByName', (orifn:(name:string)=>any, name:string):any=>{
+        if (name == 'Main')
+            return _AppStage;
+        return orifn(name);
+    });
 
-        // 替换掉默认的屏幕适配        
-        class ScreenAdapter
-        extends egret.sys.DefaultScreenAdapter
-        {
-            calculateStageSize(scaleMode: string, screenWidth: number, screenHeight: number, contentWidth: number, contentHeight: number): egret.sys.StageDisplaySize {
-                // 如果是标准PC浏览器，使用设计尺寸直接计算
-                if (Device.shared.isPurePC)
-                    return super.calculateStageSize(scaleMode, screenWidth, screenHeight, contentWidth, contentHeight);
-                // 否则手机上使用实时适配出来的舞台大小计算
-                return super.calculateStageSize(scaleMode, screenWidth, screenHeight, StageBounds.width, StageBounds.height);
-            }
+    // 替换掉默认的屏幕适配        
+    class ScreenAdapter
+    extends egret.sys.DefaultScreenAdapter
+    {
+        calculateStageSize(scaleMode: string, screenWidth: number, screenHeight: number, contentWidth: number, contentHeight: number): egret.sys.StageDisplaySize {
+            // 如果是标准PC浏览器，使用设计尺寸直接计算
+            if (Device.shared.isPurePC)
+                return super.calculateStageSize(scaleMode, screenWidth, screenHeight, contentWidth, contentHeight);
+            // 否则手机上使用实时适配出来的舞台大小计算
+            return super.calculateStageSize(scaleMode, screenWidth, screenHeight, StageBounds.width, StageBounds.height);
         }
-        // 替换掉系统的adapter
-        egret.sys.screenAdapter = new ScreenAdapter();
     }
+    // 替换掉系统的adapter
+    egret.sys.screenAdapter = new ScreenAdapter();
     
     loader.webstart = ()=>{            
         // 创建舞台

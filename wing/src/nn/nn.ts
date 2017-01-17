@@ -27,7 +27,6 @@ module nn {
     }
 
     declare var __tag_debug;
-    declare var __tag_library;
     declare var __tag_verbose;
     declare var __tag_version;
     declare var __tag_publish;
@@ -77,8 +76,6 @@ module nn {
             var p;
             if (p = egret.getOption('debug'))
                 __tag_debug = p == 'true';
-            if (p = egret.getOption('library'))
-                __tag_library = p == 'true';
             if (p = egret.getOption('verbose'))
                 __tag_verbose = p == 'true';
             if (p = egret.getOption('version'))
@@ -94,8 +91,6 @@ module nn {
 
     // 测试版标志
     export var ISDEBUG:boolean = typeof(__tag_debug) == 'undefined' ? false : __tag_debug;
-    // 是否作为库(仅提供功能类)而不是框架(约束整个开发流程)
-    export var ISLIBRARY:boolean = typeof(__tag_library) == 'undefined' ? false : __tag_library;
     // 打印日志标志
     export var VERBOSE:boolean = typeof(__tag_verbose) == 'undefined' ? false : __tag_verbose;
     // 版本号
@@ -106,7 +101,6 @@ module nn {
     // 如果是runtime，需要提供
     /*
       options[@"debug"] = @"true";
-      options[@"library"] = @"false";
       options[@"verbose"] = @"true";
       options[@"version"] = @"1.0.0";
       options[@"publish"] = @"false";   

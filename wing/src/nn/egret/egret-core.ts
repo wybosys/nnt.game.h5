@@ -78,10 +78,6 @@ module nn {
         };
     }
 
-    // 如过采用的是library模式，因为不存在application，则需要关掉安全启动定时器的功能
-    if (ISLIBRARY)
-        CTimer.SAFE_TIMER_ENABLED = false;
-    
     Defer = (cb:Function, ctx:any, ...p:any[]) => {
         egret.callLater.apply(null, [cb, ctx].concat(p));
     }
