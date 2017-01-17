@@ -7,7 +7,6 @@
 		"native": 1,
 		"path": "bin-release"
 	},
-	"egret_version": "3.2.5",
 	"modules": [
 		{
 			"name": "egret"
@@ -26,10 +25,6 @@
 		},
 		{
 			"name": "res"
-		},
-		{
-			"name": "nnt",
-			"path": "3rd/nnt"
 		}
 	]
 }

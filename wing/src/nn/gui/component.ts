@@ -293,6 +293,7 @@ module nn {
 
         /** 外沿的尺寸 */
         frame:Rect;
+        abstract setFrame(rc:Rect, anchor:boolean);
 
         /** 内部坐标使用浮点 */
         floatCoordinate:boolean;
