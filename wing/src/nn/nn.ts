@@ -8,23 +8,33 @@ module nn {
     // 判断版本
     export var ISHTML5 = egret.Capabilities.runtimeType == "web";
     export var ISNATIVE = !ISHTML5;
+
+    class CLocation
+    {
+        protocol:string = "http:";
+    }
     
     class CDocument
     {
-        domain:string = "http://localhost";
+        domain:string = "localhost";
+        location:CLocation = new CLocation();
         getElementsByTagName(name:string):any[] {
             return [];
-        }
+        }        
     }
+    
     class CNavigator
     {
         platform:string = "native";
         userAgent:string = "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X; en-us) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53";
     }
+    
     if (ISNATIVE && typeof(document) == 'undefined') {
         document = <any> new CDocument();
         navigator = <any> new CNavigator();
     }
+
+    export var ISHTTPS:boolean = document.location.protocol == "https:";
 
     declare var __tag_debug;
     declare var __tag_verbose;
@@ -104,6 +114,6 @@ module nn {
       options[@"verbose"] = @"true";
       options[@"version"] = @"1.0.0";
       options[@"publish"] = @"false";   
-     */
+    */
     
 }
