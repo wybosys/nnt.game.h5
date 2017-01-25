@@ -463,7 +463,7 @@ module nn {
     class _ClipsManager
     {
         // 如果是同一种config，则只生成一份factorydata
-        private _factorys = new Map<number, _ClipFactory>();
+        private _factorys = new KvObject<number, _ClipFactory>();
         
         // 根据配置实例化序列帧
         instance(cfg:ClipConfig,

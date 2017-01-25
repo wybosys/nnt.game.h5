@@ -71,10 +71,10 @@ module nn {
             }
         }
 
-        protected _children:Map<any, State>;
-        get children():Map<any, State> {
+        protected _children:KvObject<any, State>;
+        get children():KvObject<any, State> {
             if (this._children == null)
-                this._children = new Map<any, State>();
+                this._children = new KvObject<any, State>();
             return this._children;
         }
 
@@ -210,7 +210,7 @@ module nn {
             return this._states[state];
         }
         
-        private _states = new Map<any, any>();
+        private _states = new KvObject<any, any>();
 
         // 通过回调来设置具体控件怎么应用状态
         cbset:(obj:any) => void;

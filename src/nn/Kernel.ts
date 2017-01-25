@@ -5495,7 +5495,7 @@ module nn {
         url:string;
         
         /** fields */
-        fields:Map<string, any>;
+        fields:KvObject<string, any>;
 
         /** 获取的数据 */
         data:any;
@@ -6042,7 +6042,7 @@ module nn {
         
         private _ins:(...p:any[])=>T;
         private _ctx:any;
-        private _pl = new Map<any, Array<T> >();
+        private _pl = new KvObject<any, Array<T> >();
     }
 
     export class ReusesPool <T>
@@ -6105,7 +6105,7 @@ module nn {
         private _use:(k:any, o:T)=>void;
         private _unuse:(k:any, o:T)=>void;
         private _ctx:any;
-        private _pl = new Map<any, Array<T> >();
+        private _pl = new KvObject<any, Array<T> >();
         private _useds = new Array<T>();
         private _unuseds = new Array<T>();
     }
@@ -6270,7 +6270,7 @@ module nn {
             return this.get(idr).getNumber(idr + "::" + key, def);
         }
 
-        private _storages = new Map<string, Storage>();
+        private _storages = new KvObject<string, Storage>();
         static shared = new CryptoStorages();
     }
 
@@ -6370,7 +6370,7 @@ module nn {
     implements IShared
     {
         // 存储所有的对象，用来做带key的查找
-        protected _maps = new Map<any, CacheRecord>();
+        protected _maps = new KvObject<any, CacheRecord>();
         protected _records = new Array<CacheRecord>();
         
         // 是否启用

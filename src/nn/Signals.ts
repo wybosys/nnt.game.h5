@@ -276,7 +276,7 @@ module nn {
             this.owner = owner;
         }
         
-        private _slots = new Map<string, Slots>();
+        private _slots = new KvObject<string, Slots>();
 
         // 信号的主体   
         owner:any;
@@ -571,7 +571,7 @@ module nn {
     }
 
     export class EventWeakDispatcher {
-        private _slots = new Map<string, _EventWeak>();
+        private _slots = new KvObject<string, _EventWeak>();
 
         add<T>(idr:string, cb:(e:T)=>void, cbctx:any) {
             let fnd = this._slots[idr];

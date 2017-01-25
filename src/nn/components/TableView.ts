@@ -567,7 +567,7 @@ module nn {
         // 单元格高度的查找表, index => height
         private _rowHeights = new Array<number>();
         // 重用的元素列表, idr => [ItemView]
-        private _reuseItems = new Map<any, Array<any> >();
+        private _reuseItems = new KvObject<any, Array<any> >();
         
         // 移动后需要计算一下当前需要显示的单元格
         onPositionChanged() {
