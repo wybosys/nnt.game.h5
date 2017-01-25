@@ -278,13 +278,13 @@ module nn {
         }
         
         /** 游戏的元素都画到这一层上 */
-        protected _gameLayer:_GameLayer;
+        protected _gameLayer:Navigation;
         get gameLayer():Navigation {
             return this._gameLayer;
         }
 
         /** 自定义的桌面弹出都放到这一层上 */
-        protected _desktopLayer:_DesktopLayer;
+        protected _desktopLayer:Navigation;
         get desktopLayer():Sprite {
             return this._desktopLayer;
         }

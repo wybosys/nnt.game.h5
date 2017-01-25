@@ -8,8 +8,15 @@ module nn {
         }
     }
 
+    export interface IBonesManager {
+        turboMode:boolean;
+        fps:number;
+        instance(cfg:BoneConfig, cb:(bn:BoneData)=>void, ctx?:any);
+    }
+
     class _BonesManager
     extends SObject
+    implements IBonesManager
     {
         constructor() {
             super();
@@ -117,17 +124,17 @@ module nn {
     }
 
     let _bonesManager:_BonesManager;
-    function BonesManager():_BonesManager {
+    function BonesManager():IBonesManager {
         if (_bonesManager)
             return _bonesManager;
         _bonesManager = new _BonesManager();
         return _bonesManager;
     }
 
-    type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
+    export type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
 
     /** 骨骼动画 */
-    class BoneData
+    export class BoneData
     {
         constructor(am:ArmatureSource) {
             this._armature = am;

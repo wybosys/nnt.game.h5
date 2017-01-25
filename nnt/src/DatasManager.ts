@@ -1,8 +1,12 @@
 module nn {
 
+    export interface IDatasManager {        
+    }
+
     /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
     class _DatasManager
     extends nn.SObject
+    implements IDatasManager
     {
         constructor() {
             super();
@@ -14,6 +18,6 @@ module nn {
         }
     }
 
-    export var DatasManager = new _DatasManager();
+    export var DatasManager:IDatasManager = new _DatasManager();
     
 }
