@@ -517,6 +517,20 @@ module nn.loader {
     export let webstart:()=>void; // 应用启动时调用
     export let nativestart:()=>void; // 本地化应用启动时
     export let runtimestart:()=>void; // RUNTIME化应用启动时
+
+    // 为了保证框架的实例化不依赖于生成的js加载顺序，提供当框架所有js都加载后才运行的函数
+    let _LOADED_OPERATIONS = new Array<()=>void>();
+    export function InBoot(fn:()=>void) {
+        _LOADED_OPERATIONS.push(fn);
+    }
+
+    // 执行加载的动作
+    export function InvokeBoot() {
+        _LOADED_OPERATIONS.forEach((e:()=>void)=>{
+            e();
+        });
+        _LOADED_OPERATIONS.length = 0;
+    }
     
 }
 

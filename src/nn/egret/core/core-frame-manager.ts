@@ -23,6 +23,8 @@ module nn {
         }
     }
 
-    FramesManager = new _FramesManager();
+    loader.InBoot(()=>{
+        FramesManager = new _FramesManager();
+    });
 
 }

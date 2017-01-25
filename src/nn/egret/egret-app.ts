@@ -323,7 +323,10 @@ module nn {
     // 替换掉系统的adapter
     egret.sys.screenAdapter = new ScreenAdapter();
     
-    loader.webstart = ()=>{            
+    loader.webstart = ()=>{
+        // 执行加载动作
+        loader.InvokeBoot();
+        
         // 创建舞台
         _AppStage.Init();
         
