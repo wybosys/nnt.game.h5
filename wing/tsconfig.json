@@ -1,17 +1,23 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "experimentalDecorators": false,
+        "outDir": "bin-debug",
+        "experimentalDecorators": true,
         "lib":[
-            "es6","dom"
+            "es6",
+            "dom",
+            "es2015.promise"
         ]
     },
-    "exclude": [
+    "exclude": [        
+        ".n2~",
         "node_modules",
         "wing",
         "tools",
         "server",
         "doc",
-        "support"
+        "support",
+        "3rd",
+        "publish"
     ]
 }
