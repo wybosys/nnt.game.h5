@@ -1131,7 +1131,7 @@ module nn {
                 this._set.clear();
             }
             
-            private _set = new Set<T>();
+            private _set = new CSet<T>();
         }
 
     /** 提供操作基础对象的工具函数 */
@@ -2157,43 +2157,44 @@ module nn {
     export class SetT
     {
         /** 删除对象 */
-        static RemoveObject<T>(s:Set<T>, o:T) {
+        static RemoveObject<T>(s:SetType<T>, o:T) {
             s.delete(o);
         }
         
         /** 复制 */
-        static Clone<T>(s:Set<T>):Set<T> {
-            let r = new Set<T>();
-            s.forEach((o:T)=>{
+        static Clone<T>(s:SetType<T>):SetType<T> {
+            let r = new CSet<T>();
+            (<any>s).forEach((o:T)=>{
                 r.add(o);
             }, this);
             return r;
         }
 
         /** 转换到 array */
-        static ToArray<T>(s:Set<T>):Array<T> {
+        static ToArray<T>(s:SetType<T>):Array<T> {
             let r = new Array<T>();
-            s.forEach((o:T)=>{
+            (<any>s).forEach((o:T)=>{
                 r.push(o);
             }, this);
             return r;
         }
 
         /** 清空 */
-        static Clear<T>(set:Set<T>, cb?:(o:T)=>void, ctx?:any) {
-            if (set.size == 0)
+        static Clear<T>(s:SetType<T>, cb?:(o:T)=>void, ctx?:any) {
+            if (s.size == 0)
                 return;
-            cb && set.forEach(cb, ctx);
-            set.clear();
+            if (cb)
+                (<any>s).forEach(cb, ctx);
+            s.clear();
         }
 
         /** 带保护的清空，以避免边际效应 */
-        static SafeClear<T>(set:Set<T>, cb:(o:T)=>void, ctx?:any) {
-            if (set.size == 0)
+        static SafeClear<T>(s:SetType<T>, cb:(o:T)=>void, ctx?:any) {
+            if (s.size == 0)
                 return;
-            let s = SetT.Clone(set);
-            set.clear();
-            s.forEach(cb, ctx);
+            let ns:any = SetT.Clone(s);
+            s.clear();
+            ns.forEach(cb, ctx);
         }
     }
 
@@ -2201,12 +2202,12 @@ module nn {
     export class MapT
     {
         /** 获取 */
-        static Get<K, V>(m:Map<K, V>, k:K):V {
+        static Get<K, V>(m:MapType<K, V>, k:K):V {
             return m[<any>k];
         }
 
         /** 获取所有的value */
-        static GetValues<K, V>(m:Map<K, V>):Array<V> {
+        static GetValues<K, V>(m:MapType<K, V>):Array<V> {
             let r = [];
             this.Foreach(m, (k, v)=>{
                 r.push(v);
@@ -2215,12 +2216,12 @@ module nn {
         }
 
         /** 增加 */
-        static Add<K, V>(m:Map<K, V>, k:K, v:V) {
+        static Add<K, V>(m:MapType<K, V>, k:K, v:V) {
             m[<any>k] = v;
         }
         
         /** 遍历 */
-        static Foreach<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>void, ctx?:any) {
+        static Foreach<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>void, ctx?:any) {
             let keys = Object.keys(m);
             keys.forEach((k:any)=>{
                 fun.call(ctx, k, m[k]);
@@ -2228,7 +2229,7 @@ module nn {
         }
 
         /** 转换 */
-        static ToArray<K, V, T>(m:Map<K, V>, fun:(k:string, v:V)=>T, ctx?:any):Array<T> {
+        static ToArray<K, V, T>(m:MapType<K, V>, fun:(k:string, v:V)=>T, ctx?:any):Array<T> {
             let r = [];
             let keys = Object.keys(m);
             keys.forEach((k:any)=>{
@@ -2238,7 +2239,7 @@ module nn {
             return r;
         }
 
-        static SafeToArray<K, V, T>(m:Map<K, V>, fun:(k:string, v:V)=>T, ctx?:any):Array<T> {
+        static SafeToArray<K, V, T>(m:MapType<K, V>, fun:(k:string, v:V)=>T, ctx?:any):Array<T> {
             let r = [];
             let keys = Object.keys(m);
             keys.forEach((k:any)=>{
@@ -2250,7 +2251,7 @@ module nn {
         }
 
         /** 取值 */
-        static QueryObject<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):[K, V] {
+        static QueryObject<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):[K, V] {
             let keys = Object.keys(m);
             for (let i = 0; i < keys.length; ++i) {
                 let k = keys[i];
@@ -2260,7 +2261,7 @@ module nn {
             return null;
         }
 
-        static QueryObjects<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):Map<K, V> {
+        static QueryObjects<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):MapType<K, V> {
             let keys = Object.keys(m);
             let r:any = {};
             keys.forEach((k)=>{
@@ -2272,12 +2273,12 @@ module nn {
         }
 
         /** 获取值 */
-        static QueryValue<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):V {
+        static QueryValue<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):V {
             let fnd = this.QueryObject(m, fun, ctx);
             return fnd ? fnd[1] : null;
         }
 
-        static QueryValues<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):V[] {
+        static QueryValues<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):V[] {
             let keys = Object.keys(m);
             let r:any = [];
             keys.forEach((k)=>{
@@ -2288,12 +2289,12 @@ module nn {
             return r;
         }
 
-        static QueryKey<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):K {
+        static QueryKey<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):K {
             let fnd = this.QueryObject(m, fun, ctx);
             return fnd ? fnd[0] : null;
         }
 
-        static QueryKeys<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):K[] {
+        static QueryKeys<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):K[] {
             let keys = Object.keys(m);
             let r:any = [];
             keys.forEach((k)=>{
@@ -2305,19 +2306,19 @@ module nn {
         }
 
         /** 判断是否为空 */
-        static IsEmpty<K, V>(m:Map<K, V>):boolean {
+        static IsEmpty<K, V>(m:MapType<K, V>):boolean {
             if (m == null)
                 return true;
             return Object.keys(m).length == 0;
         }
 
         /** 删除key的元素 */
-        static RemoveKey<K, V>(m:Map<K, V>, k:K) {
+        static RemoveKey<K, V>(m:MapType<K, V>, k:K) {
             delete m[<any>k];
         }
 
         /** 清空 */
-        static Clear<K, V>(m:Map<K, V>, cb?:(k:K, o:V)=>void, ctx?:any) {
+        static Clear<K, V>(m:MapType<K, V>, cb?:(k:K, o:V)=>void, ctx?:any) {
             MapT.Foreach(m, (k:K, v:V)=>{
                 if (cb)
                     cb.call(ctx, k, v);
@@ -2326,7 +2327,7 @@ module nn {
         }
 
         /** 合并 */
-        static Concat(l:Map<any, any>, r:Map<any, any>) {
+        static Concat(l:MapType<any, any>, r:MapType<any, any>) {
             if (l == null)
                 return r;
             if (r == null)
@@ -2337,8 +2338,8 @@ module nn {
         }
 
         /** 复制 */
-        static Clone<K, V>(l:Map<K, V>):Map<K, V> {
-            let r = new Map<K, V>();
+        static Clone<K, V>(l:MapType<K, V>):MapType<K, V> {
+            let r = new KvObject<K, V>();
             MapT.Foreach(l, (k:any, v)=>{
                 r[k] = v;
             }, this);
@@ -2351,7 +2352,7 @@ module nn {
         }
 
         /** 使用下标获取对象 */
-        static ObjectAtIndex<K, V>(m:Map<K, V>, idx:number, def?:V):V {
+        static ObjectAtIndex<K, V>(m:MapType<K, V>, idx:number, def?:V):V {
             let keys = Object.keys(m);
             let k = at(keys, idx, null);
             if (k == null)
@@ -2359,30 +2360,8 @@ module nn {
             return m[k];
         }
 
-        static ES6ObjectAtIndex<K, V>(m:Map<K, V>, idx:number, def?:V):V {
-            if (!Js.ECMA6_NATIVE) {
-                return MapT.ObjectAtIndex(m, idx, def);
-            }
-
-            /** 发现 Safari 中的 iterator 没有实现 next
-                let iter = (<any>m).values();
-                let o;
-                while (o = iter.next()) {
-                if (idx-- == 0)
-                return o.value;
-                }            
-                return def;
-            */
-            let ret = def;
-            m.forEach((v:V, k:K)=>{
-                if (idx-- == 0)
-                    ret = v;
-            }, this);
-            return ret;
-        }
-
         /** 转换成普通Object */
-        static Simplify<K, V>(m:Map<K, V>):Object {
+        static Simplify<K, V>(m:MapType<K, V>):Object {
             let obj = {};
             this.Foreach(m, (k, v)=>{
                 obj[<any>k] = <any>v;
@@ -4349,7 +4328,7 @@ module nn {
             }
         }
 
-        fields = new Map<string, string>();
+        fields = new KvObject<string, string>();
         domain = '';
 
         toString():string {
@@ -4366,7 +4345,7 @@ module nn {
             return r;
         }
 
-        static MapToField(m:Map<any, any>):string {
+        static MapToField(m:KvObject<any, any>):string {
             let arr = [];
             MapT.Foreach(m, (k, v)=>{
                 arr.push(k + "=" + this.encode(v));
@@ -4727,7 +4706,7 @@ module nn {
 
         // 例如egret，timer不能通过全局静态变量启动，所以如过是被静态对象启动，则需要把timer延迟到application加载成功后启动
         static SAFE_TIMER_ENABLED = true;
-        static SAFE_TIMERS = new Set<CTimer>();
+        static SAFE_TIMERS = new CSet<CTimer>();
 
         /** tick 的次数 */
         count:number = -1;
@@ -5517,7 +5496,7 @@ module nn {
         url:string;
         
         /** fields */
-        fields:Map<string, any>;
+        fields:KvObject<string, any>;
 
         /** 获取的数据 */
         data:any;
@@ -6064,7 +6043,7 @@ module nn {
         
         private _ins:(...p:any[])=>T;
         private _ctx:any;
-        private _pl = new Map<any, Array<T> >();
+        private _pl = new KvObject<any, Array<T> >();
     }
 
     export class ReusesPool <T>
@@ -6127,7 +6106,7 @@ module nn {
         private _use:(k:any, o:T)=>void;
         private _unuse:(k:any, o:T)=>void;
         private _ctx:any;
-        private _pl = new Map<any, Array<T> >();
+        private _pl = new KvObject<any, Array<T> >();
         private _useds = new Array<T>();
         private _unuseds = new Array<T>();
     }
@@ -6292,7 +6271,7 @@ module nn {
             return this.get(idr).getNumber(idr + "::" + key, def);
         }
 
-        private _storages = new Map<string, Storage>();
+        private _storages = new KvObject<string, Storage>();
         static shared = new CryptoStorages();
     }
 
@@ -6392,7 +6371,7 @@ module nn {
     implements IShared
     {
         // 存储所有的对象，用来做带key的查找
-        protected _maps = new Map<any, CacheRecord>();
+        protected _maps = new KvObject<any, CacheRecord>();
         protected _records = new Array<CacheRecord>();
         
         // 是否启用
@@ -6497,6 +6476,6 @@ module nn {
 }
 
 /** 当native时，直接用set会出现key为ui时第二次加入时崩溃，所以需要转成安全的set */
-function NewSet<T>():Set<T> {
-    return <any> (nn.ISHTML5 ? new Set<T>() : new nn.SafeSet<T>());
+function NewSet<T>():nn.SetType<T> {
+    return <any> (nn.ISHTML5 ? new nn.CSet<T>() : new nn.SafeSet<T>());
 }

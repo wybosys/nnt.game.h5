@@ -153,8 +153,8 @@ module nn {
         }
         
         // cache-key 和 sources 的对照表
-        private _sources = new Map<any, Array<string> >();
-        private _keys = new Map<string, any>();
+        private _sources = new KvObject<any, Array<string> >();
+        private _keys = new KvObject<string, any>();
     }
     
     class _ResCacheObject
@@ -392,7 +392,7 @@ module nn {
         }
 
         // 正在加载的资源包
-        private _capsules = new Map<number, ResCapsule>();
+        private _capsules = new KvObject<number, ResCapsule>();
 
         // 用来转发事件
         private _ewd = new EventWeakDispatcher();

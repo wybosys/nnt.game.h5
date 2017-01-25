@@ -285,10 +285,10 @@ module nn {
                 return cb;
             }
             
-            protected _listeners:Map<any, Function>;
-            protected get listeners():Map<any, Function> {
+            protected _listeners:KvObject<any, Function>;
+            protected get listeners():KvObject<any, Function> {
                 if (this._listeners == null)
-                    this._listeners = new Map<any, Function>();                
+                    this._listeners = new KvObject<any, Function>();                
                 return this._listeners;
             }
         }

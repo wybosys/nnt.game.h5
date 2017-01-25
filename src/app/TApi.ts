@@ -21,7 +21,7 @@ module app.model {
             return true;
         }
 
-        fields():Map<string, string> {
+        fields():KvObject<string, string> {
             if (this.useproxy() && this.method == nn.HttpMethod.POST) {
                 var r = new Map<string, string>();
                 var p = {};
@@ -74,7 +74,7 @@ module app.model {
             return super.urlForLog();
         }
 
-        fieldsForLog():Map<string, string> {
+        fieldsForLog():KvObject<string, string> {
             if (nn.ISDEBUG)
                 return this.params;
             return super.fieldsForLog();

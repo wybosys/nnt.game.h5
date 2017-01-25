@@ -10,8 +10,8 @@ module nn {
      /** 自定义动画对象 */
     export class Animator
     {
-        _preproperties = new Map<string, any>();
-        _properties = new Map<string, any>();
+        _preproperties = new KvObject<string, any>();
+        _properties = new KvObject<string, any>();
 
         /** 类似于 iOS 的反向设置模式 */
         backMode:boolean;

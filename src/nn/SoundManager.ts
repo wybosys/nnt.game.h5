@@ -352,7 +352,7 @@ module nn {
         }
 
         // 映射文件和播放器
-        protected _sounds = new Map<string, SoundPlayer>();
+        protected _sounds = new KvObject<string, SoundPlayer>();
 
         // 当前正在独奏的播放器
         private _soloplayer:SoundPlayer;
@@ -398,7 +398,7 @@ module nn {
             super();
         }
 
-        protected _tracks = new Map<any, SoundTrack>();
+        protected _tracks = new KvObject<any, SoundTrack>();
 
         /** 默认资源组 */
         resourceGroups:string[];
