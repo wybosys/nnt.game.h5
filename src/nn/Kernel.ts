@@ -2201,12 +2201,12 @@ module nn {
     export class MapT
     {
         /** 获取 */
-        static Get<K, V>(m:Map<K, V>, k:K):V {
+        static Get<K, V>(m:MapType<K, V>, k:K):V {
             return m[<any>k];
         }
 
         /** 获取所有的value */
-        static GetValues<K, V>(m:Map<K, V>):Array<V> {
+        static GetValues<K, V>(m:MapType<K, V>):Array<V> {
             let r = [];
             this.Foreach(m, (k, v)=>{
                 r.push(v);
@@ -2215,12 +2215,12 @@ module nn {
         }
 
         /** 增加 */
-        static Add<K, V>(m:Map<K, V>, k:K, v:V) {
+        static Add<K, V>(m:MapType<K, V>, k:K, v:V) {
             m[<any>k] = v;
         }
         
         /** 遍历 */
-        static Foreach<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>void, ctx?:any) {
+        static Foreach<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>void, ctx?:any) {
             let keys = Object.keys(m);
             keys.forEach((k:any)=>{
                 fun.call(ctx, k, m[k]);
@@ -2228,7 +2228,7 @@ module nn {
         }
 
         /** 转换 */
-        static ToArray<K, V, T>(m:Map<K, V>, fun:(k:string, v:V)=>T, ctx?:any):Array<T> {
+        static ToArray<K, V, T>(m:MapType<K, V>, fun:(k:string, v:V)=>T, ctx?:any):Array<T> {
             let r = [];
             let keys = Object.keys(m);
             keys.forEach((k:any)=>{
@@ -2238,7 +2238,7 @@ module nn {
             return r;
         }
 
-        static SafeToArray<K, V, T>(m:Map<K, V>, fun:(k:string, v:V)=>T, ctx?:any):Array<T> {
+        static SafeToArray<K, V, T>(m:MapType<K, V>, fun:(k:string, v:V)=>T, ctx?:any):Array<T> {
             let r = [];
             let keys = Object.keys(m);
             keys.forEach((k:any)=>{
@@ -2250,7 +2250,7 @@ module nn {
         }
 
         /** 取值 */
-        static QueryObject<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):[K, V] {
+        static QueryObject<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):[K, V] {
             let keys = Object.keys(m);
             for (let i = 0; i < keys.length; ++i) {
                 let k = keys[i];
@@ -2260,7 +2260,7 @@ module nn {
             return null;
         }
 
-        static QueryObjects<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):Map<K, V> {
+        static QueryObjects<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):MapType<K, V> {
             let keys = Object.keys(m);
             let r:any = {};
             keys.forEach((k)=>{
@@ -2272,12 +2272,12 @@ module nn {
         }
 
         /** 获取值 */
-        static QueryValue<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):V {
+        static QueryValue<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):V {
             let fnd = this.QueryObject(m, fun, ctx);
             return fnd ? fnd[1] : null;
         }
 
-        static QueryValues<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):V[] {
+        static QueryValues<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):V[] {
             let keys = Object.keys(m);
             let r:any = [];
             keys.forEach((k)=>{
@@ -2288,12 +2288,12 @@ module nn {
             return r;
         }
 
-        static QueryKey<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):K {
+        static QueryKey<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):K {
             let fnd = this.QueryObject(m, fun, ctx);
             return fnd ? fnd[0] : null;
         }
 
-        static QueryKeys<K, V>(m:Map<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):K[] {
+        static QueryKeys<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):K[] {
             let keys = Object.keys(m);
             let r:any = [];
             keys.forEach((k)=>{
@@ -2305,19 +2305,19 @@ module nn {
         }
 
         /** 判断是否为空 */
-        static IsEmpty<K, V>(m:Map<K, V>):boolean {
+        static IsEmpty<K, V>(m:MapType<K, V>):boolean {
             if (m == null)
                 return true;
             return Object.keys(m).length == 0;
         }
 
         /** 删除key的元素 */
-        static RemoveKey<K, V>(m:Map<K, V>, k:K) {
+        static RemoveKey<K, V>(m:MapType<K, V>, k:K) {
             delete m[<any>k];
         }
 
         /** 清空 */
-        static Clear<K, V>(m:Map<K, V>, cb?:(k:K, o:V)=>void, ctx?:any) {
+        static Clear<K, V>(m:MapType<K, V>, cb?:(k:K, o:V)=>void, ctx?:any) {
             MapT.Foreach(m, (k:K, v:V)=>{
                 if (cb)
                     cb.call(ctx, k, v);
@@ -2326,7 +2326,7 @@ module nn {
         }
 
         /** 合并 */
-        static Concat(l:Map<any, any>, r:Map<any, any>) {
+        static Concat(l:MapType<any, any>, r:MapType<any, any>) {
             if (l == null)
                 return r;
             if (r == null)
@@ -2337,8 +2337,8 @@ module nn {
         }
 
         /** 复制 */
-        static Clone<K, V>(l:Map<K, V>):Map<K, V> {
-            let r = new Map<K, V>();
+        static Clone<K, V>(l:MapType<K, V>):MapType<K, V> {
+            let r = new KvObject<K, V>();
             MapT.Foreach(l, (k:any, v)=>{
                 r[k] = v;
             }, this);
@@ -2351,7 +2351,7 @@ module nn {
         }
 
         /** 使用下标获取对象 */
-        static ObjectAtIndex<K, V>(m:Map<K, V>, idx:number, def?:V):V {
+        static ObjectAtIndex<K, V>(m:MapType<K, V>, idx:number, def?:V):V {
             let keys = Object.keys(m);
             let k = at(keys, idx, null);
             if (k == null)
@@ -2359,30 +2359,8 @@ module nn {
             return m[k];
         }
 
-        static ES6ObjectAtIndex<K, V>(m:Map<K, V>, idx:number, def?:V):V {
-            if (!Js.ECMA6_NATIVE) {
-                return MapT.ObjectAtIndex(m, idx, def);
-            }
-
-            /** 发现 Safari 中的 iterator 没有实现 next
-                let iter = (<any>m).values();
-                let o;
-                while (o = iter.next()) {
-                if (idx-- == 0)
-                return o.value;
-                }            
-                return def;
-            */
-            let ret = def;
-            m.forEach((v:V, k:K)=>{
-                if (idx-- == 0)
-                    ret = v;
-            }, this);
-            return ret;
-        }
-
         /** 转换成普通Object */
-        static Simplify<K, V>(m:Map<K, V>):Object {
+        static Simplify<K, V>(m:MapType<K, V>):Object {
             let obj = {};
             this.Foreach(m, (k, v)=>{
                 obj[<any>k] = <any>v;
@@ -4349,7 +4327,7 @@ module nn {
             }
         }
 
-        fields = new Map<string, string>();
+        fields = new KvObject<string, string>();
         domain = '';
 
         toString():string {
@@ -4366,7 +4344,7 @@ module nn {
             return r;
         }
 
-        static MapToField(m:Map<any, any>):string {
+        static MapToField(m:KvObject<any, any>):string {
             let arr = [];
             MapT.Foreach(m, (k, v)=>{
                 arr.push(k + "=" + this.encode(v));

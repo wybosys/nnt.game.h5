@@ -5,7 +5,7 @@ module nn {
 
     declare var Map;
     declare var Set;
-    var ECMA6_NATIVE:boolean = true;
+    export let ECMA6_NATIVE:boolean = true;
     if (typeof(Map) == 'undefined')
         ECMA6_NATIVE = false;
 
@@ -192,5 +192,7 @@ module nn {
 
         forEach:(cb:(o:V)=>void, ctx?:any)=>void = ECMA6_NATIVE ? this._n_foreach : this._i_foreach;
     }
+
+    export type MapType<K,V> = KvObject<K,V> | Object;
 
 }
