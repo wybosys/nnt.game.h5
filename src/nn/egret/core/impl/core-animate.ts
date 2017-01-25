@@ -312,7 +312,7 @@ module nn {
         }
 
         // uiobj
-        private _targets = new Set<egret.DisplayObject>();
+        private _targets = new CSet<egret.DisplayObject>();
         // 变化前、变化后、持续、时间函数、附加数据
         private _steps = new Array<DAnimateStep>();
 

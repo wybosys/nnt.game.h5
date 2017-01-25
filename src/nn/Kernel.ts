@@ -1131,7 +1131,7 @@ module nn {
                 this._set.clear();
             }
             
-            private _set = new Set<T>();
+            private _set = new CSet<T>();
         }
 
     /** 提供操作基础对象的工具函数 */
@@ -2157,43 +2157,44 @@ module nn {
     export class SetT
     {
         /** 删除对象 */
-        static RemoveObject<T>(s:Set<T>, o:T) {
+        static RemoveObject<T>(s:SetType<T>, o:T) {
             s.delete(o);
         }
         
         /** 复制 */
-        static Clone<T>(s:Set<T>):Set<T> {
-            let r = new Set<T>();
-            s.forEach((o:T)=>{
+        static Clone<T>(s:SetType<T>):SetType<T> {
+            let r = new CSet<T>();
+            (<any>s).forEach((o:T)=>{
                 r.add(o);
             }, this);
             return r;
         }
 
         /** 转换到 array */
-        static ToArray<T>(s:Set<T>):Array<T> {
+        static ToArray<T>(s:SetType<T>):Array<T> {
             let r = new Array<T>();
-            s.forEach((o:T)=>{
+            (<any>s).forEach((o:T)=>{
                 r.push(o);
             }, this);
             return r;
         }
 
         /** 清空 */
-        static Clear<T>(set:Set<T>, cb?:(o:T)=>void, ctx?:any) {
-            if (set.size == 0)
+        static Clear<T>(s:SetType<T>, cb?:(o:T)=>void, ctx?:any) {
+            if (s.size == 0)
                 return;
-            cb && set.forEach(cb, ctx);
-            set.clear();
+            if (cb)
+                (<any>s).forEach(cb, ctx);
+            s.clear();
         }
 
         /** 带保护的清空，以避免边际效应 */
-        static SafeClear<T>(set:Set<T>, cb:(o:T)=>void, ctx?:any) {
-            if (set.size == 0)
+        static SafeClear<T>(s:SetType<T>, cb:(o:T)=>void, ctx?:any) {
+            if (s.size == 0)
                 return;
-            let s = SetT.Clone(set);
-            set.clear();
-            s.forEach(cb, ctx);
+            let ns:any = SetT.Clone(s);
+            s.clear();
+            ns.forEach(cb, ctx);
         }
     }
 
@@ -4705,7 +4706,7 @@ module nn {
 
         // 例如egret，timer不能通过全局静态变量启动，所以如过是被静态对象启动，则需要把timer延迟到application加载成功后启动
         static SAFE_TIMER_ENABLED = true;
-        static SAFE_TIMERS = new Set<CTimer>();
+        static SAFE_TIMERS = new CSet<CTimer>();
 
         /** tick 的次数 */
         count:number = -1;
@@ -6475,6 +6476,6 @@ module nn {
 }
 
 /** 当native时，直接用set会出现key为ui时第二次加入时崩溃，所以需要转成安全的set */
-function NewSet<T>():Set<T> {
-    return <any> (nn.ISHTML5 ? new Set<T>() : new nn.SafeSet<T>());
+function NewSet<T>():nn.SetType<T> {
+    return <any> (nn.ISHTML5 ? new nn.CSet<T>() : new nn.SafeSet<T>());
 }

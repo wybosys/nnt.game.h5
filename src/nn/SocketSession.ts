@@ -203,9 +203,9 @@ module nn {
                 mdl.signals.connect(SignalSucceed, cb, cbctx);
 
             var cmd = ObjectClass(mdl).Command;
-            var arr:Set<SocketModel> = this._ntfMdls[cmd];
+            var arr:CSet<SocketModel> = this._ntfMdls[cmd];
             if (arr == null) {
-                arr = new Set<SocketModel>();
+                arr = new CSet<SocketModel>();
                 this._ntfMdls[cmd] = arr;
             }
             arr.add(mdl);
@@ -280,7 +280,7 @@ module nn {
         private _seqMdls = new KvObject<number, SocketModel>();
 
         // Notify模型对照表, type => [model]
-        private _ntfMdls = new KvObject<number, Set<SocketModel> >();
+        private _ntfMdls = new KvObject<number, CSet<SocketModel> >();
 
         /*
           定义为:
@@ -343,7 +343,7 @@ module nn {
             // 处理数据时需要分为ReqRsp和Ntf两种处理
 
             // 处理 ntf 数据
-            var mdls:Set<SocketModel> = this._ntfMdls[header.cmd];
+            var mdls:CSet<SocketModel> = this._ntfMdls[header.cmd];
             if (mdls && mdls.size) {
                 var arr = this._ntfMdls[header.cmd];
 

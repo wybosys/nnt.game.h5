@@ -80,8 +80,9 @@ module nn {
             this._ft.past = now - this._ft.start;
             this._ft.now = now;
 
+            // 标准set的foreach需要传入3个参数，但是后两个我们都不会去使用
             let cost = this._ft.cost;
-            this.RENDERS.forEach((each:IFrameRender)=>{
+            (<any>this.RENDERS).forEach((each:IFrameRender)=>{
                 each.onRender(cost);
             }, this);
         }
