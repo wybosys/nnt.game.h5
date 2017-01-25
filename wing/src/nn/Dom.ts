@@ -1,5 +1,3 @@
-/// <reference path="Typescript.ts" />
-
 module nn {
     
     export class HtmlBuilder

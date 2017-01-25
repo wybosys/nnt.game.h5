@@ -1,5 +1,3 @@
-/// <reference path="impl/eui-animate.ts" />
-
 module eui {   
 
     export class ItemInfo

@@ -1,6 +1,3 @@
-/// <reference path="eui-base.ts" />
-/// <reference path="eui-impl.ts" />
-
 module nn {
 
     export class Application

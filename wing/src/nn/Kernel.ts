@@ -1,6 +1,3 @@
-/// <reference path="nn.ts" />
-/// <reference path="Typescript.ts" />
-
 /** 三态 bool */
 type tribool = number;
 let tritrue = 1; // 类同于 true

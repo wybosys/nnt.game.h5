@@ -1,6 +1,3 @@
-/// <reference path="egret-core.ts" />
-/// <reference path="../Application.ts" />
-
 declare let document_class;
 declare let document_orientation;
 if (typeof(document_class) == 'undefined')
@@ -323,7 +320,10 @@ module nn {
     // 替换掉系统的adapter
     egret.sys.screenAdapter = new ScreenAdapter();
     
-    loader.webstart = ()=>{            
+    loader.webstart = ()=>{
+        // 执行加载动作
+        loader.InvokeBoot();
+        
         // 创建舞台
         _AppStage.Init();
         

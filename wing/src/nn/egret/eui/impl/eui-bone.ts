@@ -1,5 +1,3 @@
-/// <reference path="../eui-impl.ts" />
-
 module eui {
 
     class BoneConfig
