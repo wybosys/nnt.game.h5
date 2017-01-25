@@ -22,6 +22,16 @@ module nn {
         }
     }
 
+    export interface IRestSession extends ISObject {
+        SID:string;
+        post(m:Model, cb?:(s?:Slot)=>void, cbctx?:any);
+        fetch(m:Model,
+              cbsuc?:(s?:Slot)=>void, cbctx?:any,
+              cbfail?:(s?:Slot)=>void, cbend?:()=>void);
+        fetchs(ms:Array<Model>,
+               cbsuc?:(ss?:Array<Slot>)=>void, cbctx?:any);
+    }
+
     class _RestSession
     extends SObject
     {
@@ -148,7 +158,7 @@ module nn {
 
     }
 
-    export var RestSession = new _RestSession();
+    export var RestSession:IRestSession = new _RestSession();
 
     /** 基本的通过URL来访问数据的模型对象 */
     export class UrlModel

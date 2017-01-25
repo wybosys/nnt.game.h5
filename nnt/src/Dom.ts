@@ -419,9 +419,17 @@ module nn {
             return Integral(v * ScaleFactorSize);
         }
     }
+
+    export interface IDom {
+        openLink(url:string);
+        simulateLink(url:string);
+        openUrl(url:string);
+        simulateClick(cb:()=>void, ctx?:any);
+    }
     
     class _Dom
     extends dom.DomObject
+    implements IDom
     {
         constructor() {
             super();
@@ -496,6 +504,6 @@ module nn {
         }
     }
 
-    export let Dom = new _Dom();
+    export let Dom:IDom = new _Dom();
     
 }

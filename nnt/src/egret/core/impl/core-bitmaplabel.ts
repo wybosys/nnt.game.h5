@@ -19,7 +19,7 @@ module nn {
             this.fontSize = CLabel.FontSize;
         }
         
-        protected _lbl = new ExtBitmapText();
+        protected _lbl:any = new ExtBitmapText();
 
         updateLayout() {
             super.updateLayout();

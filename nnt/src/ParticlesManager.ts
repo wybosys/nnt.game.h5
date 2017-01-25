@@ -1,7 +1,12 @@
 module nn {
 
-    class _ParticlesManager {
+    export interface IParticlesManager {
+        instanceParticle(name:string):particle.ParticleSystem;
+    }
 
+    class _ParticlesManager
+    implements IParticlesManager
+    {
         instanceParticle(name:string):particle.ParticleSystem {
             var tex = RES.getRes(name + "_png");
             if (tex == null) {
@@ -21,11 +26,10 @@ module nn {
             }
 
             return r;
-        }
-        
+        }       
     }
 
-    export var ParticlesManager = new _ParticlesManager();
+    export var ParticlesManager:IParticlesManager = new _ParticlesManager();
 
     export class Particle
     extends Widget

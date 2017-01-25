@@ -154,11 +154,15 @@ module nn {
     export function any_cast<T>(obj:any):T {
         return obj;
     }
+
+    export interface ISObject {
+        signals:Signals;
+    }
     
     /** 带有信号的基类
         @brief 如果不能直接基类，需要实现信号的相关函数 */
     export class SObject
-    implements IRefObject
+    implements IRefObject, ISObject
     {
         /** 构造函数 */
         constructor() {
@@ -2808,7 +2812,7 @@ module nn {
     }
 
     // 第一位如果是0，为了兼容性，则代表alpha是1，而不是0，如果需要设定alpha，请直接使用 Color 对象
-    type ARGBValue = number; 
+    export type ARGBValue = number; 
     export type ColorType = Color | ARGBValue | string;
 
     /** 颜色数值，rgb为24位，alpha规约到0-1的float */
@@ -3390,7 +3394,7 @@ module nn {
     }
 
     // 相对坐标使用数值类型
-    type rnumber = number | string;
+    export type rnumber = number | string;
 
     /** 相对尺寸 */
     export class RRect
@@ -6444,8 +6448,13 @@ module nn {
         static shared = new Memcache();
     }
 
+    export class IScripts {
+        require(p:string|Array<string>, cb?:()=>void, ctx?:any);        
+    }
+
     declare var require;
     class _Scripts
+    implements IScripts
     {
         require(p:string|Array<string>, cb?:()=>void, ctx?:any) {
             if (ISHTML5) {
@@ -6472,7 +6481,7 @@ module nn {
         }
     }
 
-    export let Scripts = new _Scripts();
+    export let Scripts:IScripts = new _Scripts();
 }
 
 /** 当native时，直接用set会出现key为ui时第二次加入时崩溃，所以需要转成安全的set */

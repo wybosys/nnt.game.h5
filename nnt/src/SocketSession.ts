@@ -104,7 +104,7 @@ module nn {
                     warn('dsl ' + cfg + ' not found');
                     return null;
                 }
-                // mdls = dcodeIO.ProtoBuf.loadProto(proto);
+                /// mdls = dcodeIO.ProtoBuf.loadProto(proto);
                 this._cfgs[cfg] = mdls;
             }
             var cls = mdls.build(name);
@@ -160,9 +160,21 @@ module nn {
 
         protected _hdl:WebSocket;
     }
+
+    export interface ISocketSession extends ISObject {
+        connector:CSocketConnector;
+        watch(mdl:SocketModel,
+              cb?:(s?:Slot)=>void, cbctx?:any);
+        unwatch(mdl:SocketModel);
+        fetch(mdl:SocketModel,
+              cb?:(s?:Slot)=>void, cbctx?:any,
+              cbfail?:(s?:Slot)=>void, cbend?:()=>void);
+        host:string;
+        open();
+    }
     
     class _SocketSession
-    extends SObject
+    extends SObject implements ISocketSession
     {
         constructor() {
             super();
@@ -405,5 +417,5 @@ module nn {
         private _pb = new ProtoBufImpl();
     }
 
-    export var SocketSession = new _SocketSession();
+    export var SocketSession:ISocketSession = new _SocketSession();
 }

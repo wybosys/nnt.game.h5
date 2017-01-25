@@ -780,8 +780,8 @@ module nn {
             }
         }
 
-        private _touch:Touch;
-        get touch():Touch {
+        private _touch:CTouch;
+        get touch():CTouch {
             if (this._touch == null)
                 this._touch = new Touch();
             return this._touch;
