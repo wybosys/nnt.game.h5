@@ -8,7 +8,9 @@ fromlib = sys.argv[1]
 def copylib(name):
     if os.path.isdir(name):
         shutil.rmtree(name)
-    shutil.copytree(fromlib + '/' + name + '/libsrc/', name)
+    shutil.copytree(fromlib+'/'+name+'/libsrc/', name)
+    shutil.copyfile(fromlib+'/'+name+'/libsrc/bin/'+name+'/'+name+'.d.ts',
+    "header/"+name+'.d.ts')
 
 copylib('base64texture')
 copylib('greensock')
