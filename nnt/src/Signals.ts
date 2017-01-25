@@ -132,7 +132,7 @@ module nn {
         }
     }
     
-    export class Slots {
+    class Slots {
 
         // 保存所有插槽
         slots = new Array<Slot>();
@@ -187,7 +187,7 @@ module nn {
         /** 对所有插槽激发信号 
             @note 返回被移除的插槽的对象
          */
-        emit(data:any, tunnel:SlotTunnel):Set<any> {
+        emit(data:any, tunnel:SlotTunnel):CSet<any> {
             if (this.isblocked())
                 return null;
 
@@ -217,7 +217,7 @@ module nn {
 
             // 删除用完的slot
             if (ids) {
-                let r = new Set<any>();
+                let r = new CSet<any>();
                 nn.ArrayT.RemoveObjectsInIndexArray(this.slots, ids)
                     .forEach((o:Slot):boolean=>{
                         if (o.target)
@@ -276,7 +276,7 @@ module nn {
             this.owner = owner;
         }
         
-        private _slots = new Map<string, Slots>();
+        private _slots = new KvObject<string, Slots>();
 
         // 信号的主体   
         owner:any;
@@ -456,12 +456,12 @@ module nn {
         */
         cast(sig:string) {
             if (this._castings == null) {
-                this._castings = new Set<string>();
+                this._castings = new CSet<string>();
                 Defer(this._doCastings, this);
             }
             this._castings.add(sig);
         }
-        private _castings:Set<string>;
+        private _castings:CSet<string>;
         private _doCastings() {
             if (this._castings == null)
                 return;
@@ -494,7 +494,7 @@ module nn {
             if (cb == null && target == null)
             {
                 // 清除sig的所有插槽，自动断开反向引用
-                let targets = new Set<any>();
+                let targets = new CSet<any>();
                 nn.ArrayT.Clear(ss.slots, (o:Slot)=>{
                     if (o.target)
                         targets.add(o.target);
@@ -541,7 +541,7 @@ module nn {
         }
 
         // 反向登记，当自身 dispose 时，需要和对方断开
-        private __invtargets = new Set<Signals>();
+        private __invtargets = new CSet<Signals>();
         private __inv_connect(tgt:any) {
             if (tgt == null || tgt.signals == null)
                 return;
@@ -571,7 +571,7 @@ module nn {
     }
 
     export class EventWeakDispatcher {
-        private _slots = new Map<string, _EventWeak>();
+        private _slots = new KvObject<string, _EventWeak>();
 
         add<T>(idr:string, cb:(e:T)=>void, cbctx:any) {
             let fnd = this._slots[idr];

@@ -1,6 +1,6 @@
 module nn {
 
-    export type TiledSource = string;
+    type TiledSource = string;
     
     export class TiledMap
     extends Sprite

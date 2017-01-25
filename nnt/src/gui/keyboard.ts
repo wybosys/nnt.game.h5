@@ -6,7 +6,7 @@ module nn {
         code:number;
     }
 
-    export class _Keyboard
+    class _Keyboard
     extends SObject
     {
         protected _initSignals() {

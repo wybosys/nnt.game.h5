@@ -81,6 +81,7 @@
                 "./Signals.ts", 
                 "./SocketSession.ts", 
                 "./SoundManager.ts", 
+                "./Stl.ts", 
                 "./TiledMap.ts", 
                 "./Typescript.ts"
             ], 

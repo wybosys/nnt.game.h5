@@ -5,7 +5,7 @@ module nn {
         return str;
     }
     
-    export class _i18n {
+    class _i18n {
         
         constructor() {            
         }

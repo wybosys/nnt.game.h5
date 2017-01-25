@@ -26,14 +26,14 @@ module nn {
         pathKey:string;
 
         // 重用控件，以避免大量制作成员变量来承载简单控件
-        private _reuseUis:Map<any, any>;
+        private _reuseUis:KvObject<any, any>;
         reuse(idr:any, cb:()=>any, ctx:any):any;
         reuse(idr:any, cls:any):any;
         reuse(idr:any):any;
         reuse(...params:any[]):any
         {
             if (this._reuseUis == null)
-                this._reuseUis = new Map<string, any>();
+                this._reuseUis = new KvObject<string, any>();
             let obj = this._reuseUis[params[0]];
             if (obj == null) {
                 if (params.length == 3) {

@@ -154,8 +154,8 @@ module nn {
             ler.launchEntry(cls, data);
         }        
         
-        private _entries = new KvMap<string, EntryClassType>();
-        private _entriesdata = new KvMap<string, EntrySettings>();
+        private _entries = new KvObject<string, EntryClassType>();
+        private _entriesdata = new KvObject<string, EntrySettings>();
 
         toString():string {
             let t = [];
@@ -208,7 +208,7 @@ module nn {
             return this._launchers[str];
         }
         
-        private _launchers = new KvMap<string, ILauncher>();
+        private _launchers = new KvObject<string, ILauncher>();
 
         toString():string {
             let t = [];

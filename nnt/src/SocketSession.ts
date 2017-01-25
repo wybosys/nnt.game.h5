@@ -16,7 +16,7 @@ module nn {
             this._signals.register(SignalTimeout);
         }
 
-        fields():KvMap<string, any> {
+        fields():KvObject<string, any> {
             return this.params;
         }
 
@@ -37,7 +37,7 @@ module nn {
         static Command:any;
 
         /** 参数 */
-        params = new KvMap<string, any>();
+        params = new KvObject<string, any>();
 
         /** 反解析 */
         protected unserialize(rsp:any):boolean {
@@ -80,7 +80,7 @@ module nn {
         }
     }
 
-    export class ProtoBufHeader
+    class ProtoBufHeader
     {
         cmd:number;
         seqid:number;
@@ -95,7 +95,7 @@ module nn {
     {
         classForModel(cfg:string, name:string):any {
             var key = cfg + ':/:' + name;
-            if (this._tpls.has(key))
+            if (this._tpls[key])
                 return this._tpls[key];
             var mdls = this._cfgs[cfg];
             if (mdls == null) {
@@ -104,7 +104,7 @@ module nn {
                     warn('dsl ' + cfg + ' not found');
                     return null;
                 }
-                //mdls = dcodeIO.ProtoBuf.loadProto(proto);
+                // mdls = dcodeIO.ProtoBuf.loadProto(proto);
                 this._cfgs[cfg] = mdls;
             }
             var cls = mdls.build(name);
@@ -114,8 +114,8 @@ module nn {
             return cls;
         }        
         
-        private _tpls = new KvMap<string, any>();
-        private _cfgs = new KvMap<string, any>();
+        private _tpls = new KvObject<string, any>();
+        private _cfgs = new KvObject<string, any>();
     }
 
     export class WebSocketConnector
@@ -161,7 +161,7 @@ module nn {
         protected _hdl:WebSocket;
     }
     
-    export class _SocketSession
+    class _SocketSession
     extends SObject
     {
         constructor() {
@@ -203,9 +203,9 @@ module nn {
                 mdl.signals.connect(SignalSucceed, cb, cbctx);
 
             var cmd = ObjectClass(mdl).Command;
-            var arr:Set<SocketModel> = this._ntfMdls[cmd];
+            var arr:CSet<SocketModel> = this._ntfMdls[cmd];
             if (arr == null) {
-                arr = new Set<SocketModel>();
+                arr = new CSet<SocketModel>();
                 this._ntfMdls[cmd] = arr;
             }
             arr.add(mdl);
@@ -277,10 +277,10 @@ module nn {
         private _seqId = 0;
 
         // Req&Response模型对照表, seq => model
-        private _seqMdls = new KvMap<number, SocketModel>();
+        private _seqMdls = new KvObject<number, SocketModel>();
 
         // Notify模型对照表, type => [model]
-        private _ntfMdls = new KvMap<number, Set<SocketModel> >();
+        private _ntfMdls = new KvObject<number, CSet<SocketModel> >();
 
         /*
           定义为:
@@ -343,7 +343,7 @@ module nn {
             // 处理数据时需要分为ReqRsp和Ntf两种处理
 
             // 处理 ntf 数据
-            var mdls:Set<SocketModel> = this._ntfMdls[header.cmd];
+            var mdls:CSet<SocketModel> = this._ntfMdls[header.cmd];
             if (mdls && mdls.size) {
                 var arr = this._ntfMdls[header.cmd];
 

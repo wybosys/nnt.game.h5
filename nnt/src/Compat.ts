@@ -195,103 +195,6 @@ module Js {
         return o.toString();
     };
 
-    export class CMap <K, V> {
-
-        clear() {
-            for (var k in this) {
-                delete this[k];
-            }
-        }
-
-        delete(k:K) {
-            delete this[<any>k];
-        }
-
-        forEach(cb:(k:K, v:V)=>void, ctx?:any) {
-            var ks = Object.keys(this);
-            ks.forEach(function(k) {
-                cb.call(ctx, this[k], k);
-            }, this);
-        }
-
-        has(k:K):boolean {
-            return this.hasOwnProperty(<any>k);
-        }
-
-        get length():number {
-            return Object.keys(this).length;
-        }
-
-        set(k:K, v:V) {
-            this[<any>k] = v;
-        }
-
-        get(k:K) {
-            return this[<any>k];
-        }
-        
-    }
-
-    declare var Map;
-    export var ECMA6_NATIVE:boolean = false;
-    if (typeof(Map) == 'undefined') {
-        Map = CMap;
-        ECMA6_NATIVE = false;
-    } else {
-        ECMA6_NATIVE = true;
-    }
-
-    export class CSet <V> {
-
-        private __map = new CMap<any, V>();
-        private __arr = new Array<V>();
-
-        add(o:V):boolean {
-            var k = hashKey(o);
-            if (this.__map[k] != undefined)
-                return false;
-            this.__map[k] = true;
-            this.__arr.push(o);
-            return true;
-        }
-
-        has(o:V):boolean {
-            var k = hashKey(o);
-            return this.__map[k] != undefined;       
-        }
-
-        delete(o:V):boolean {
-            var k = hashKey(o);
-            if (this.__map[k] == undefined)
-                return false;
-            this.__map.delete(k);
-            var idx = this.__arr.indexOf(o);
-            this.__arr.splice(idx, 1);
-            return true;
-        }
-
-        get size():number {
-            return this.__arr.length;
-        }
-
-        clear() {
-            if (this.__arr.length) {
-                this.__map.clear();
-                this.__arr.length = 0;
-            }
-        }
-
-        forEach(cb:(o:V)=>void, ctx?:any) {
-            if (this.__arr.length)
-                this.__arr.forEach(cb, ctx);
-        }
-
-    }
-
-    declare var Set;
-    if (typeof(Set) == 'undefined')
-        Set = CSet;
-
     function GetArguments(arg) {
         var r = [];
         var l = arg.length;
@@ -702,8 +605,4 @@ module Js {
         return callstack.join("\n");
     }
     
-}
-
-// 用来提供使用Object来模拟Map的对象类型
-class KvMap <K, V> {
 }
