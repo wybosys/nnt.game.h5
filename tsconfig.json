@@ -18,9 +18,7 @@
         "doc",
         "support",
         "3rd",
-        "publish"
-    ],
-    "include":[
-        "3rd/header"
+        "publish",
+        "resource"
     ]
 }

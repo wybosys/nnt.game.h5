@@ -32,6 +32,10 @@
 		{
 			"name": "dragonbones"
 		},
+		{
+			"name": "promise",
+			"path": "3rd/promise"
+		},
         {
             "name": "jszip",
             "path": "3rd/jszip"
