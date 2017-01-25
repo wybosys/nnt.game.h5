@@ -20,7 +20,7 @@ module nn {
         }
     }
 
-    class ExtTextField
+    export class ExtTextField
     extends egret.TextField
     {
         constructor() {

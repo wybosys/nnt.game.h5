@@ -1,6 +1,6 @@
 module nn {
 
-    class ExtBitmapText
+    export class ExtBitmapText
     extends egret.BitmapText
     {
         constructor() {

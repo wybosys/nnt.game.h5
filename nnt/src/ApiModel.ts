@@ -43,7 +43,7 @@ module nn {
         keyForCache():string {
             return this.host + '|' + this.action + '|' + JSON.stringify(this.paramsForCache());
         }
-        paramsForCache():Map<string, string> {
+        paramsForCache():KvMap<string, string> {
             return this.params;
         }
         valueForCache():any {
@@ -54,7 +54,7 @@ module nn {
         action:string = '';
 
         /** 参数 */
-        params = new Map<string, string>();
+        params = new KvMap<string, string>();
 
         /** 域 */
         host:string;
@@ -109,7 +109,7 @@ module nn {
         }
 
         /** 可用的参数 */
-        fields():Map<string, string> {
+        fields():KvMap<string, string> {
             return this.params;
         }
 
@@ -149,7 +149,7 @@ module nn {
         protected urlForLog():string {
             return this.url();
         }
-        protected fieldsForLog():Map<string, string> {
+        protected fieldsForLog():KvMap<string, string> {
             return this.fields();
         }
 

@@ -391,7 +391,7 @@ module nn {
         }
     }
 
-    class _SoundManager
+    export class _SoundManager
     extends SObject
     {
         constructor() {

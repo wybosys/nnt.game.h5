@@ -71,10 +71,10 @@ module nn {
             }
         }
 
-        protected _children:Map<any, State>;
-        get children():Map<any, State> {
+        protected _children:KvMap<any, State>;
+        get children():KvMap<any, State> {
             if (this._children == null)
-                this._children = new Map<any, State>();
+                this._children = new KvMap<any, State>();
             return this._children;
         }
 

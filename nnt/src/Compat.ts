@@ -703,3 +703,7 @@ module Js {
     }
     
 }
+
+// 用来提供使用Object来模拟Map的对象类型
+class KvMap <K, V> {
+}

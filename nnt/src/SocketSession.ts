@@ -16,7 +16,7 @@ module nn {
             this._signals.register(SignalTimeout);
         }
 
-        fields():Map<string, any> {
+        fields():KvMap<string, any> {
             return this.params;
         }
 
@@ -37,7 +37,7 @@ module nn {
         static Command:any;
 
         /** 参数 */
-        params = new Map<string, any>();
+        params = new KvMap<string, any>();
 
         /** 反解析 */
         protected unserialize(rsp:any):boolean {
@@ -80,7 +80,7 @@ module nn {
         }
     }
 
-    class ProtoBufHeader
+    export class ProtoBufHeader
     {
         cmd:number;
         seqid:number;
@@ -104,7 +104,7 @@ module nn {
                     warn('dsl ' + cfg + ' not found');
                     return null;
                 }
-                // mdls = dcodeIO.ProtoBuf.loadProto(proto);
+                //mdls = dcodeIO.ProtoBuf.loadProto(proto);
                 this._cfgs[cfg] = mdls;
             }
             var cls = mdls.build(name);
@@ -114,8 +114,8 @@ module nn {
             return cls;
         }        
         
-        private _tpls = new Map<string, any>();
-        private _cfgs = new Map<string, any>();
+        private _tpls = new KvMap<string, any>();
+        private _cfgs = new KvMap<string, any>();
     }
 
     export class WebSocketConnector
@@ -161,7 +161,7 @@ module nn {
         protected _hdl:WebSocket;
     }
     
-    class _SocketSession
+    export class _SocketSession
     extends SObject
     {
         constructor() {
@@ -277,10 +277,10 @@ module nn {
         private _seqId = 0;
 
         // Req&Response模型对照表, seq => model
-        private _seqMdls = new Map<number, SocketModel>();
+        private _seqMdls = new KvMap<number, SocketModel>();
 
         // Notify模型对照表, type => [model]
-        private _ntfMdls = new Map<number, Set<SocketModel> >();
+        private _ntfMdls = new KvMap<number, Set<SocketModel> >();
 
         /*
           定义为:
