@@ -1,5 +1,3 @@
-/// <reference path="../ResManager.ts" />
-
 module nn {
 
     // 当元素添加到舞台上

@@ -1,5 +1,3 @@
-/// <reference path="Engine.ts" />
-
 module nn {
 
     export var COPYRIGHT:string = "WYBOSYS";

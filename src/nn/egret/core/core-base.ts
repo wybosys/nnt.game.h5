@@ -1,5 +1,3 @@
-/// <reference path="../egret-core.ts" />
-
 module nn {
 
     let gs_convertpt = new egret.Point();

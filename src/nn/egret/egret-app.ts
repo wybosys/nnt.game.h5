@@ -1,6 +1,3 @@
-/// <reference path="egret-core.ts" />
-/// <reference path="../Application.ts" />
-
 declare let document_class;
 declare let document_orientation;
 if (typeof(document_class) == 'undefined')

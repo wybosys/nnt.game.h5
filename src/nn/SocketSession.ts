@@ -1,6 +1,3 @@
-/// <reference path="Kernel.ts" />
-/// <reference path="Signals.ts" />
-
 module nn {    
 
     export class SocketModel

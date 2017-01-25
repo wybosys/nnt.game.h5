@@ -1,5 +1,3 @@
-/// <reference path="Architect.ts" />
-
 module nn {
     
     class _GameLayer
