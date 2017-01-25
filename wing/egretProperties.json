@@ -1,6 +1,13 @@
 {
 	"native": {
-		"path_ignore": []
+		"path_ignore": [
+			"doc",
+			"wing",
+			"tools",
+			"server",
+			"support",
+			"publish"
+		]
 	},
 	"publish": {
 		"web": 0,
@@ -25,6 +32,10 @@
 		},
 		{
 			"name": "res"
+		},
+		{
+			"name": "promise",
+			"path": "3rd/promise"
 		}
 	]
 }

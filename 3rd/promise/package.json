@@ -1,0 +1,14 @@
+{
+	"name": "egret",
+	"version": "2.5.0",
+	"modules": [
+		{
+			"name": "promise",
+			"description": "promise",
+			"files": [
+                "promise.min.js"
+            ],
+			"root": "src"
+		}
+	]
+}
