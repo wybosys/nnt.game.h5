@@ -753,7 +753,10 @@ module nn {
             exception(err);
         }
         return r;
-    }            
+    }
+
+    declare let Map;
+    declare let Set;
     
     /** 带保护的判断对象是不是空 */
     export function IsEmpty(o:any):boolean {
