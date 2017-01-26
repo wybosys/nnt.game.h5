@@ -1,6 +1,6 @@
 
 class Main
-extends nn.Application
+extends nn.EuiApplication
 {
     constructor() {
         super();

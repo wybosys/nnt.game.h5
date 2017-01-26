@@ -138,7 +138,7 @@ module eui {
 
         private __imp_updateitem:any;
         
-        updateRenderer(renderer:eui.IItemRenderer, itemIndex:number, data:any):eui.IItemRenderer {
+        updateRenderer(renderer:eui.IItemRenderer, itemIndex:number, data:any):eui.IItemRenderer {            
             // 绑定render的belong，为了业务层可以方便的从item直接拿到list所在的父实体
             (<any>renderer).belong = this.belong;
             

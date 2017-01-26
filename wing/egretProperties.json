@@ -36,6 +36,10 @@
 		{
 			"name": "promise",
 			"path": "3rd/promise"
+		},
+		{
+			"name": "nnt",
+			"path": "nnt"
 		}
 	]
 }

@@ -415,14 +415,15 @@ module eui {
         }
     }
 
-    // 避免暴露到wing中
-    export let _eui = eui;
-
     /** 业务非wing重用模块继承该类型 */
     export class SpriteU
-    extends _eui.ComponentU
+    extends eeui.ComponentU
     {
     }
+
+    //模块化后需要按照eui的要求做一下附加处理，负责继承spriteu实现的itemrenderer不会被listu识别
+    declare function __reflect(...p);
+    __reflect(SpriteU.prototype, "eui.SpritteU", ["eui.IItemRenderer"]);
     
     nn.EntryCheckSettings = (cls:any, data:nn.EntrySettings):boolean=>{
         if (data.singletone) {
