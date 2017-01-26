@@ -1,11 +1,6 @@
 module nn {
 
-    export interface IParticlesManager {
-        instanceParticle(name:string):particle.ParticleSystem;
-    }
-
-    class _ParticlesManager
-    implements IParticlesManager
+    export class _ParticlesManager
     {
         instanceParticle(name:string):particle.ParticleSystem {
             var tex = RES.getRes(name + "_png");
@@ -29,7 +24,7 @@ module nn {
         }       
     }
 
-    export var ParticlesManager:IParticlesManager = new _ParticlesManager();
+    export let ParticlesManager = new _ParticlesManager();
 
     export class Particle
     extends Widget

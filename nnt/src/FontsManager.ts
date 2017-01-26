@@ -3,13 +3,7 @@ module nn {
     export let FontFilePattern = /\.(ttf|otf|woff)$/i;
     export let FontKeyPattern = /(.+)_(?:ttf|otf|woff)$/i;
 
-    export interface IFontsManager {
-        add(name:string, url:string);
-        font(name:string):string;
-    }
-
-    class _FontsManager
-    implements IFontsManager
+    export class _FontsManager
     {
         add(name:string, url:string) {
             this._fonts[name] = url;
@@ -61,7 +55,7 @@ module nn {
         }
     }
 
-    export let FontsManager:IFontsManager = new _FontsManager();
+    export let FontsManager = new _FontsManager();
     
     let WebUriCheckPattern = /^[\w]+:\/\/.+$/i;
 

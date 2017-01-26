@@ -284,7 +284,7 @@ module nn {
         }
 
         /** 自定义的桌面弹出都放到这一层上 */
-        protected _desktopLayer:Navigation;
+        protected _desktopLayer:Sprite;
         get desktopLayer():Sprite {
             return this._desktopLayer;
         }

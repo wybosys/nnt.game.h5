@@ -80,7 +80,7 @@ module nn {
     let WebUriCheckPattern = /^([\w]+):\/\/(.+)$/i;
 
     // 资源池
-    class _ResMemcache
+    export class _ResMemcache
     extends Memcache
     {
         constructor() {
@@ -337,40 +337,8 @@ module nn {
     EgretItemTypeMap[ResType.SOUND] = RES.ResourceItem.TYPE_SOUND;
     EgretItemTypeMap[ResType.BINARY] = RES.ResourceItem.TYPE_BIN;
 
-    export interface IResManager {
-        multiRes:boolean;
-        directory:string;
-        loadConfig<T>(file:string, cb:(e:T)=>void, ctx:any);
-        capsules(grps:ReqResource[]):ResCapsule;
-        removeCapsule(cp:ResCapsule);
-        isGroupsArrayLoaded(grps:string[]):boolean;
-        getResAsync(key:string, priority:RES.LoadPriority,
-                    cb:(rcd:ICacheRecord)=>void, ctx?:any);
-        getResUrl(key:string):string;
-        getSources(srcs:[[string, ResType]], priority:RES.LoadPriority,
-                   cb:(ds:[ICacheRecord])=>void, ctx:any);
-        getResByUrl(src:UriSource, priority:RES.LoadPriority,
-                    cb:(rcd:ICacheRecord|CacheRecord)=>void, ctx:any, type:ResType);
-        hasAsyncUri(uri:UriSource):boolean;
-        getSourceByType(src:UriSource, priority:RES.LoadPriority,
-                        cb:(ds:ICacheRecord)=>void, ctx:any, type:ResType);
-        getJson(src:UriSource, priority:RES.LoadPriority,
-                cb:(obj:ICacheJson)=>void, ctx:any);
-        getText(src:UriSource, priority:RES.LoadPriority,
-                cb:(obj:ICacheText)=>void, ctx:any);
-        getTexture(src:TextureSource, priority:RES.LoadPriority,
-                   cb:(tex:ICacheTexture)=>void, ctx:any);
-        getBitmapFont(src:FontSource, priority:RES.LoadPriority,
-                      cb:(fnt:ICacheFont)=>void, ctx:any);
-        getSound(src:SoundSource, priority:RES.LoadPriority,
-                 cb:(snd:ICacheSound)=>void, ctx:any);
-        getBinary(src:UriSource, priority:RES.LoadPriority,
-                  cb:(snd:ICacheBinary)=>void, ctx:any);        
-    }
-
-    class _ResManager
+    export class _ResManager
     extends SObject
-    implements IResManager
     {
         constructor() {
             super();
@@ -773,7 +741,7 @@ module nn {
     }
 
     /** 全局唯一的资源管理实体 */
-    export let ResManager:IResManager = new _ResManager();
+    export let ResManager = new _ResManager();
 
     /** 使用约定的方式获取资源名称 */
     export class ResName

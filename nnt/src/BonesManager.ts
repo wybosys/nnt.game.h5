@@ -8,15 +8,8 @@ module nn {
         }
     }
 
-    export interface IBonesManager {
-        turboMode:boolean;
-        fps:number;
-        instance(cfg:BoneConfig, cb:(bn:BoneData)=>void, ctx?:any);
-    }
-
-    class _BonesManager
+    export class _BonesManager
     extends SObject
-    implements IBonesManager
     {
         constructor() {
             super();
@@ -124,7 +117,7 @@ module nn {
     }
 
     let _bonesManager:_BonesManager;
-    function BonesManager():IBonesManager {
+    export function BonesManager():_BonesManager {
         if (_bonesManager)
             return _bonesManager;
         _bonesManager = new _BonesManager();

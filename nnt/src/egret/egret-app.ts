@@ -76,12 +76,12 @@ module nn {
             }
         }
 
-        $render(triggerByFrame: boolean, costTicker: number) {
+        $render(triggerByFrame:boolean) {
             if (DEBUG) {
                 // 打开fps的统计
                 this['showFPS'] = COLLECT_INSTRUMENT;
             }
-            super.$render(triggerByFrame, costTicker);
+            super.$render(triggerByFrame);
         }
     }    
     egret.sys.Player = _Player;

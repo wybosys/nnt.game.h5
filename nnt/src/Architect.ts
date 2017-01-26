@@ -72,17 +72,17 @@ module nn {
     export type EntryClassType = Function | IEntryClass;
 
     export interface IEntriesManager {
-        register(entryClass:EntryClassType, data = EntrySettings.Default);
+        register(entryClass:EntryClassType, data?:EntrySettings);
         invoke(entry:any|string, launcher:EntryLauncherType, ext?:any);
     }
 
     class _EntriesManager
-    extends IEntriesManager
+    implements IEntriesManager
     {
         /** 注册一个模块
             @param entryClass类
         */
-        register(entryClass:EntryClassType, data = EntrySettings.Default) {
+        register(entryClass:EntryClassType, data:EntrySettings = EntrySettings.Default) {
             let idr:string;
             if (typeof(entryClass) == 'object') {
                 let o = <IEntryClass>entryClass;
@@ -177,7 +177,7 @@ module nn {
     // 应用实例管理器
     export let EntriesManager:IEntriesManager = new _EntriesManager();
 
-    export interface ILaunchersManager {
+    export interface ILaunchersManager extends ISObject {
         register(obj:ILauncher);
         unregister(obj:ILauncher);
         find(str:string):ILauncher;
