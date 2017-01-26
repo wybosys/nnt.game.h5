@@ -133,7 +133,7 @@ module nn {
         // 初始化 Stage 架构
         static Init() {
             // 设置主业务入口类
-            CLAZZ_MAIN = egret.getDefinitionByName("Main");
+            CLAZZ_MAIN = eval("Main");
 
             // 判断支持的特性
             let features = CLAZZ_MAIN.Features();

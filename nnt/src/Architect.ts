@@ -71,13 +71,7 @@ module nn {
     export type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
     export type EntryClassType = Function | IEntryClass;
 
-    export interface IEntriesManager {
-        register(entryClass:EntryClassType, data?:EntrySettings);
-        invoke(entry:any|string, launcher:EntryLauncherType, ext?:any);
-    }
-
-    class _EntriesManager
-    implements IEntriesManager
+    export class _EntriesManager
     {
         /** 注册一个模块
             @param entryClass类
@@ -175,17 +169,10 @@ module nn {
     export let EntryCheckSettings:(cls:any, data:EntrySettings)=>boolean;
 
     // 应用实例管理器
-    export let EntriesManager:IEntriesManager = new _EntriesManager();
+    export let EntriesManager = new _EntriesManager();
 
-    export interface ILaunchersManager extends ISObject {
-        register(obj:ILauncher);
-        unregister(obj:ILauncher);
-        find(str:string):ILauncher;
-    }
-    
-    class _LaunchersManager
+    export class _LaunchersManager
     extends nn.SObject
-    implements ILaunchersManager
     {
         constructor() {
             super();
@@ -233,5 +220,5 @@ module nn {
     }
 
     // 应用入口管理器
-    export let LaunchersManager:ILaunchersManager = new _LaunchersManager();
+    export let LaunchersManager = new _LaunchersManager();
 }
