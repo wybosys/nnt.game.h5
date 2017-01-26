@@ -68,7 +68,7 @@ module nn {
             this.add(this.lblEnvSize).br();
             this.add(this.lblNavi).br();
 
-            Application.shared.signals.connect(SignalFrameChanged, this.updateData, this);
+            CApplication.shared.signals.connect(SignalFrameChanged, this.updateData, this);
         }
 
         lblOrientation = new IPLabel();
