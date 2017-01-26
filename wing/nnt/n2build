@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import json, os, re
+
+def listfiles(dir, rets = None, blacklist = None, whitelist = None, depth = -1):
+    if depth == 0:
+        return rets
+    elif depth != -1:
+        depth -= 1
+    if rets == None:
+        rets = []
+    if os.path.isdir(dir) == False:
+        return rets
+    for each in os.listdir(dir):
+        # 如果是文件夹则不过滤直接迭代
+        path = dir + '/' + each
+        if os.path.isdir(path):
+            listfiles(path, rets, blacklist, whitelist, depth)
+        else:
+            # 黑名单过滤
+            ignore = False
+            if blacklist:
+                for be in blacklist:
+                    ignore = len(be.findall(each))
+                    if ignore:
+                        break        
+                if ignore:
+                    continue
+            # 白名单过滤
+            if whitelist:
+                for we in whitelist:
+                    ignore = not len(we.findall(each))
+                    if not ignore:
+                        break
+                if ignore:
+                    continue
+            rets.append(path)
+    return rets
+
+#produce package.json
+def packagejson():
+    os.chdir("src")
+    files = listfiles('.', whitelist=[re.compile(r'\.ts$')])
+    os.chdir("..")
+    jsobj = {"name":"egret","version":"4.0.0","modules":[{"name":"nnt","description":"nnt","files":files,"root":"src"}]}
+    open("package.json", "w").write(json.dumps(jsobj, indent=4))
+
+def main():
+    packagejson()
+
+if __name__=="__main__":
+    main()
