@@ -49,7 +49,7 @@ module nn {
             this.signals.connect(SignalAddedToStage, this.__dsk_addedtostage, this);
 
             // 保证一直是满屏大小
-            Application.shared.signals.connect(SignalFrameChanged, this.__dsk_sizechanged, this);
+            CApplication.shared.signals.connect(SignalFrameChanged, this.__dsk_sizechanged, this);
         }
 
         dispose() {
@@ -273,7 +273,7 @@ module nn {
         static _AllOpenings = new Array<Desktop>();
         protected doOpen() {
             if (this.desktopLayer == null)
-                this.desktopLayer = Application.shared.gameLayer;
+                this.desktopLayer = CApplication.shared.gameLayer;
 
             if (this._onlyFiltersTouchEnabled)
                 Desktop._AllNeedFilters.push(this);

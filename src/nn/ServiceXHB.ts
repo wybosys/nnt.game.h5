@@ -225,7 +225,7 @@ module nn {
         }
         
         auth(c:svc.AuthContent) {
-            let fs = Application.shared.url.fields;
+            let fs = CApplication.shared.url.fields;
             if (ServiceXHB.IsCurrent())
             {
                 c.pid = '';
@@ -239,7 +239,7 @@ module nn {
             {
                 let oid = fs['openid'];
                 if (oid == null)
-                    oid = Application.shared.uniqueId;
+                    oid = CApplication.shared.uniqueId;
                 c.pid = oid;
             }
 

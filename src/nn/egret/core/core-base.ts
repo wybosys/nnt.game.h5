@@ -208,7 +208,7 @@ module nn {
                     } else {
                         let cls = this.clazzResourceProgress;
                         if (cls == null)
-                            cls = Application.shared.clazzResourceProgress.type;
+                            cls = CApplication.shared.clazzResourceProgress.type;
                         let loading = new cls();
                         res.signals.connect(SignalChanged, (s:Slot)=>{
                             (<IProgress>loading).progressValue = s.data;
@@ -841,7 +841,7 @@ module nn {
 
         convertPointTo(pt:Point, des:CComponent):Point {
             let from:egret.DisplayObject = this._imp;
-            let to:egret.DisplayObject = des ? (<IComponent><any>des)._imp : (<IComponent><any>Application.shared.gameLayer)._imp;
+            let to:egret.DisplayObject = des ? (<IComponent><any>des)._imp : (<IComponent><any>CApplication.shared.gameLayer)._imp;
             from.localToGlobal(pt.x * ScaleFactorX, pt.y * ScaleFactorY, gs_convertpt);
             to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
             gs_convertpt.x *= ScaleFactorDeX;
@@ -851,7 +851,7 @@ module nn {
         
         convertRectTo(rc:Rect, des:CComponent):Rect {
             let from:egret.DisplayObject = this._imp;
-            let to:egret.DisplayObject = des ? (<IComponent><any>des)._imp : (<IComponent><any>Application.shared.gameLayer)._imp;
+            let to:egret.DisplayObject = des ? (<IComponent><any>des)._imp : (<IComponent><any>CApplication.shared.gameLayer)._imp;
             from.localToGlobal(rc.x * ScaleFactorX, rc.y * ScaleFactorY, gs_convertpt);
             to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
             gs_convertpt.x *= ScaleFactorDeX;

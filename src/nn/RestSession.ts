@@ -173,7 +173,7 @@ module nn {
                 var p = {};
                 p['url'] = this.request;
                 p['method'] = this.method == HttpMethod.POST ? 'post' : 'get';
-                p['uid'] = Application.shared.uniqueId;
+                p['uid'] = CApplication.shared.uniqueId;
                 ret += '&data=';
                 ret += URL.encode(JSON.stringify(p));
                 return ret;
