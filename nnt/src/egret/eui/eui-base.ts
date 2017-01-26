@@ -416,7 +416,7 @@ module eui {
     }
 
     // 避免暴露到wing中
-    var _eui = eui;
+    export let _eui = eui;
 
     /** 业务非wing重用模块继承该类型 */
     export class SpriteU

@@ -151,9 +151,9 @@ module eui {
         else 
             to = <egret.DisplayObject>tosp;
         if (from == null)
-            from = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
+            from = (<nn.IComponent><any>nn.CApplication.shared.gameLayer)._imp;
         if (to == null)
-            to = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
+            to = (<nn.IComponent><any>nn.CApplication.shared.gameLayer)._imp;
         from.localToGlobal(pt.x, pt.y, gs_convertpt);
         to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
         return new nn.Point(gs_convertpt.x, gs_convertpt.y);
@@ -171,9 +171,9 @@ module eui {
         else 
             to = <egret.DisplayObject>tosp;
         if (from == null)
-            from = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
+            from = (<nn.IComponent><any>nn.CApplication.shared.gameLayer)._imp;
         if (to == null)
-            to = (<nn.IComponent><any>nn.Application.shared.gameLayer)._imp;
+            to = (<nn.IComponent><any>nn.CApplication.shared.gameLayer)._imp;
         from.localToGlobal(rc.x, rc.y, gs_convertpt);
         to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
         return new nn.Rect(gs_convertpt.x, gs_convertpt.y,
