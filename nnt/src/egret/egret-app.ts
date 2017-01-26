@@ -23,6 +23,8 @@ module nn {
             return egret.TextField.default_fontFamily;
         }
     }
+
+    export let EUI_MODE:boolean = false;
     
     // ------------------实现egret需要的加载过程 ------------------------
     

@@ -1,8 +1,12 @@
 module nn {
     
-    export class Application
+    export class CoreApplication
     extends EgretApp
     {
+        constructor() {
+            super();
+        }
+        
         onActivated() {
             super.onActivated();
             Application.shared = CApplication.shared;
