@@ -234,10 +234,10 @@ extends TTabPage
         this._btnFull.text = "FULLSCREEN";
         this._btnFull.backgroundImage = "btn_png";
         this._btnFull.signals.connect(nn.SignalClicked, ()=>{
-            if (nn.Application.shared.isFullscreen)
-                nn.Application.shared.exitFullscreen();
+            if (nn.CApplication.shared.isFullscreen)
+                nn.CApplication.shared.exitFullscreen();
             else
-                nn.Application.shared.enterFullscreen();
+                nn.CApplication.shared.enterFullscreen();
         }, this);
         this.addChild(this._btnFull);
 

@@ -18,6 +18,6 @@ extends nn.Sprite
 
     updateData() {
         super.updateData();
-        this.lblAppId.text = nn.Application.shared.uniqueId;
+        this.lblAppId.text = nn.CApplication.shared.uniqueId;
     }
 }

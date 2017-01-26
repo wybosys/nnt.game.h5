@@ -184,106 +184,106 @@ extends nn.Sprite
 
     _cb0() {
         let v = new TTableNormal();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb1() {
         let v = new TTableHov();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb2() {
         let v = new TGraphics();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb3() {
         let v = new TAnimation();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb4() {
         let v = new TDesktop();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb5() {
         let v = new TApi();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb6() {
         let v = new TBones();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb7() {
         let v = new TParticle();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb8() {
         //let v = new TDynamic();
-        //nn.Application.shared.viewStack.push(v);
+        //nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb9() {
         let v = new TWidgets();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb10() {
         let v = new TImageFilter();
-        nn.Application.shared.viewStack.push(v);        
+        nn.CApplication.shared.viewStack.push(v);        
     }
 
     _cb11() {
         let v = new TUnitTest();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb12() {
         let v = new TSound();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb13() {
         let v = new TServices();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb14() {
         let v = new TLayout();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb15() {
         let v = new TTiledMap();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb16() {
         let v = new TCollection();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb17() {
         let v = new TTransform();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb18() {
         let v = new TBenchmark();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb19() {
         let v = new TLapack();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 
     _cb20() {
         let v = new TCodec();
-        nn.Application.shared.viewStack.push(v);
+        nn.CApplication.shared.viewStack.push(v);
     }
 }

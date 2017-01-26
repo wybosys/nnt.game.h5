@@ -48,9 +48,9 @@ extends nn.Sprite
         this._btnPost.signals.connect(nn.SignalClicked, ()=>{
             if (nn.ServicesManager.shared.service.support(nn.svc.Feature.SHARE)) {
                 var cnt = new nn.svc.ShareContent();
-                cnt.url = nn.Application.shared.url.toString();
+                cnt.url = nn.CApplication.shared.url.toString();
                 cnt.title = "测试分享";
-                cnt.image = nn.Application.shared.icon;
+                cnt.image = nn.CApplication.shared.icon;
                 nn.ServicesManager.fetch(cnt, ()=>{
                     nn.dump(cnt, 1);
                 }, this);

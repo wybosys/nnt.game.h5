@@ -59,6 +59,10 @@
 		{
 			"name": "greensock",
 			"path": "3rd/greensock"
+		},
+		{
+			"name": "nnt",
+			"path": "nnt"
 		}
 	]
 }

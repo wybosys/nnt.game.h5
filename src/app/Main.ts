@@ -26,7 +26,7 @@ extends nn.HudProgress
 }
 
 class Main
-extends nn.Application
+extends nn.CoreApplication
 {
     constructor() {
         super();

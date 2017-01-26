@@ -27,7 +27,7 @@ module app.model {
                 var p = {};
                 p['url'] = this.host + this.action;
                 p['method'] = this.method == nn.HttpMethod.POST ? 'post' : 'get';
-                p['uid'] = nn.Application.shared.uniqueId;
+                p['uid'] = nn.CApplication.shared.uniqueId;
                 p['fields'] = nn.URL.MapToField(super.fields());
                 r['data'] = JSON.stringify(p);
                 return r;
@@ -53,7 +53,7 @@ module app.model {
                 */
                 p['method'] = 'get';
                 p['fields'] = '&' + nn.URL.MapToField(this.fields());
-                p['uid'] = nn.Application.shared.uniqueId;
+                p['uid'] = nn.CApplication.shared.uniqueId;
                 
                 ret += '&pack=base64&data=';
                 ret += nn.URL.pack(JSON.stringify(p));

@@ -10,7 +10,7 @@ extends nn.Sprite
         this.label.backgroundColor = nn.Color.Random();
         this.addChild(this.label);
 
-        nn.Application.shared.gameLayer.signals.connect(nn.SignalClicked, this._actGlobalClicked, this);
+        nn.CApplication.shared.gameLayer.signals.connect(nn.SignalClicked, this._actGlobalClicked, this);
     }
 
     updateLayout() {
