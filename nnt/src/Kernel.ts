@@ -754,9 +754,6 @@ module nn {
         }
         return r;
     }
-
-    declare let Map;
-    declare let Set;
     
     /** 带保护的判断对象是不是空 */
     export function IsEmpty(o:any):boolean {
@@ -771,9 +768,11 @@ module nn {
         if (o instanceof Array) {
             return (<any>o).length == 0;
         }
-        if (o instanceof Map) {
-            if (o.size)
-                return true;
+        if (o instanceof CMap) {
+            return (<CMap<any, any> >o).length != 0;
+        }
+        if (o instanceof CSet) {
+            return (<CSet<any> >o).size != 0;
         }
         return Object.keys(o).length == 0;
     }
@@ -864,7 +863,7 @@ module nn {
                     }, this);
                     this._sck.pop();
                 }
-                else if (o instanceof Map) {
+                else if (o instanceof CMap) {
                     let t:any = {'__':'Map', '--':[[], []]};
                     top.push(t);
                     
@@ -2825,7 +2824,7 @@ module nn {
             let rgb = (<number>c) & 0xffffff;
             let a = (((<number>c) >> 24) & 0xff) * Color._1_255;
             return [rgb, a>0?a:1];
-        } break;
+        }
         case 'string': {
             let s = (<string>c).toLowerCase();
             switch (s) {
@@ -2840,13 +2839,11 @@ module nn {
                 let rgb = v & 0xffffff;
                 let a = ((v >> 24) & 0xff) * Color._1_255;
                 return [rgb, a>0?a:1];
-            } break;
-            }
-        } break;
+            }}
+        }
         default: {
             return [(<Color>c).rgb, (<Color>c).alphaf];
-        } break;
-        }
+        }}
     }
 
     /** 线段 */
@@ -6451,13 +6448,8 @@ module nn {
         static shared = new Memcache();
     }
 
-    export class IScripts {
-        require(p:string|Array<string>, cb?:()=>void, ctx?:any);        
-    }
-
     declare var require;
-    class _Scripts
-    implements IScripts
+    export class _Scripts
     {
         require(p:string|Array<string>, cb?:()=>void, ctx?:any) {
             if (ISHTML5) {
@@ -6484,7 +6476,7 @@ module nn {
         }
     }
 
-    export let Scripts:IScripts = new _Scripts();
+    export let Scripts = new _Scripts();
 }
 
 /** 当native时，直接用set会出现key为ui时第二次加入时崩溃，所以需要转成安全的set */

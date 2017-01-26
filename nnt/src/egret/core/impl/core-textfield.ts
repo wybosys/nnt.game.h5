@@ -141,6 +141,10 @@ module nn {
     
 }
 
+module egret.web {
+    declare let $cacheTextAdapter;
+}
+
 // 解决textfield没有按键通知的问题
 if (nn.ISHTML5) {        
     let FUNC_TEXTHOOK = egret.web['$cacheTextAdapter'];

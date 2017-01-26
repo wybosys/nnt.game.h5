@@ -1,6 +1,6 @@
 module nn {
     
-    class _GameLayer
+    export class _GameLayer
     extends Navigation
     {
         set root(spr:CComponent) {
@@ -11,7 +11,7 @@ module nn {
         }
     }
 
-    class _DesktopLayer
+    export class _DesktopLayer
     extends Sprite
     {        
     }
@@ -278,13 +278,13 @@ module nn {
         }
         
         /** 游戏的元素都画到这一层上 */
-        protected _gameLayer:Navigation;
+        protected _gameLayer:_GameLayer;
         get gameLayer():Navigation {
             return this._gameLayer;
         }
 
         /** 自定义的桌面弹出都放到这一层上 */
-        protected _desktopLayer:Sprite;
+        protected _desktopLayer:_DesktopLayer;
         get desktopLayer():Sprite {
             return this._desktopLayer;
         }

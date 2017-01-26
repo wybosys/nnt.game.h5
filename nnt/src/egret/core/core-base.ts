@@ -3,7 +3,7 @@ module nn {
     let gs_convertpt = new egret.Point();
     let gs_convertrc = new egret.Rectangle();
     
-    class Touch
+    export class Touch
     extends CTouch
     {
         get target():any {
@@ -780,8 +780,8 @@ module nn {
             }
         }
 
-        private _touch:CTouch;
-        get touch():CTouch {
+        private _touch:Touch;
+        get touch():Touch {
             if (this._touch == null)
                 this._touch = new Touch();
             return this._touch;
