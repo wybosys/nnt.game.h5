@@ -420,7 +420,7 @@ module nn {
         }
     }
     
-    class _Dom
+    export class _Dom
     extends dom.DomObject
     {
         constructor() {

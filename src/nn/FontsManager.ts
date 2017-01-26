@@ -3,7 +3,7 @@ module nn {
     export let FontFilePattern = /\.(ttf|otf|woff)$/i;
     export let FontKeyPattern = /(.+)_(?:ttf|otf|woff)$/i;
 
-    class _FontsManager
+    export class _FontsManager
     {
         add(name:string, url:string) {
             this._fonts[name] = url;

@@ -132,7 +132,7 @@ module nn {
         }
     }
     
-    class Slots {
+    export class Slots {
 
         // 保存所有插槽
         slots = new Array<Slot>();

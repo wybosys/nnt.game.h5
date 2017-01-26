@@ -53,7 +53,7 @@ module nn {
             }
         }
         
-        protected _lbl = new ExtTextField();
+        protected _lbl:any = new ExtTextField();
 
         // 文本框的实现比其它空间特殊，因为会输入或者直接点击，所以需要返回的是实现的实体
         protected hitTestClient(x:number, y:number):egret.DisplayObject {

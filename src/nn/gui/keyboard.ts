@@ -6,6 +6,10 @@ module nn {
         code:number;
     }
 
+    export interface IKeyboard extends ISObject {
+        visible:boolean;
+    }
+
     class _Keyboard
     extends SObject
     {
@@ -27,6 +31,6 @@ module nn {
         }
     }
     
-    export let Keyboard = new _Keyboard();
+    export let Keyboard:IKeyboard = new _Keyboard();
     
 }

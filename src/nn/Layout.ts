@@ -109,11 +109,11 @@ module nn {
         abstract clear();
     }
 
-    type layoutcb_t = ((obj:any, rc:Rect) => void)|((obj:any, rc:Rect, data:any) => void);
-    type hboxcb_t = ((box:HBox) => void) | ((box:HBox, data:any) => void);
-    type vboxcb_t = ((box:VBox) => void) | ((box:VBox, data:any) => void);
+    export type layoutcb_t = ((obj:any, rc:Rect) => void)|((obj:any, rc:Rect, data:any) => void);
+    export type hboxcb_t = ((box:HBox) => void) | ((box:HBox, data:any) => void);
+    export type vboxcb_t = ((box:VBox) => void) | ((box:VBox, data:any) => void);
 
-    class LinearSegment {
+    export class LinearSegment {
         val:number;
         isp:boolean;
         obj:any;
@@ -412,14 +412,14 @@ module nn {
         }
     }
     
-    type layoutflowcb_t = (obj:any, rc:Rect, data?:any) => void;
+    export type layoutflowcb_t = (obj:any, rc:Rect, data?:any) => void;
     
     export enum FlowOption {
         Fix = 0,
         Stretch = 1,
     };
 
-    class FlowSegment {
+    export class FlowSegment {
 
         w:number;
         h:number;

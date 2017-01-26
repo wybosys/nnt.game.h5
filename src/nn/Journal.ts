@@ -8,7 +8,7 @@ module nn {
 
 module nn.journal {
         
-    interface JournalRecord
+    export interface JournalRecord
     {
         time:DateTime;
         snapshot:Object;

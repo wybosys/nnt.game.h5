@@ -391,8 +391,16 @@ module nn {
         }
     }
 
+    export interface ISoundManager {
+        track(idr:string):SoundTrack;
+        background:SoundTrack;
+        effect:SoundTrack;
+        enable:boolean;
+    }
+
     class _SoundManager
     extends SObject
+    implements ISoundManager
     {
         constructor() {
             super();
@@ -452,6 +460,6 @@ module nn {
         }
     }
 
-    export var SoundManager = new _SoundManager();
+    export var SoundManager:ISoundManager = new _SoundManager();
     
 }
