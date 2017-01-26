@@ -76,12 +76,12 @@ module nn {
             }
         }
 
-        $render(triggerByFrame:boolean) {
+        $render(triggerByFrame:boolean, costTicker:number) {
             if (DEBUG) {
                 // 打开fps的统计
                 this['showFPS'] = COLLECT_INSTRUMENT;
             }
-            super.$render(triggerByFrame);
+            super.$render(triggerByFrame, costTicker);
         }
     }    
     egret.sys.Player = _Player;
@@ -133,7 +133,7 @@ module nn {
         // 初始化 Stage 架构
         static Init() {
             // 设置主业务入口类
-            CLAZZ_MAIN = Main;
+            CLAZZ_MAIN = egret.getDefinitionByName("Main");
 
             // 判断支持的特性
             let features = CLAZZ_MAIN.Features();
@@ -306,7 +306,7 @@ module nn {
     });
 
     // 替换掉默认的屏幕适配        
-    class ScreenAdapter
+    class ExtScreenAdapter
     extends egret.sys.DefaultScreenAdapter
     {
         calculateStageSize(scaleMode: string, screenWidth: number, screenHeight: number, contentWidth: number, contentHeight: number): egret.sys.StageDisplaySize {
@@ -318,7 +318,7 @@ module nn {
         }
     }
     // 替换掉系统的adapter
-    egret.sys.screenAdapter = new ScreenAdapter();
+    egret.sys.screenAdapter = new ExtScreenAdapter();
     
     loader.webstart = ()=>{
         // 执行加载动作
