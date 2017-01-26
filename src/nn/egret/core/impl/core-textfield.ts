@@ -1,3 +1,5 @@
+/// <reference path="./core-label.ts" />
+
 module nn {
 
     export class TextField
@@ -124,7 +126,7 @@ module nn {
             if (this._signals)
                 this._signals.emit(SignalFocusLost);
         }
-                
+        
         private __lbl_changed(e:any) {
             this._scaleToFit && this.doScaleToFit();
             this._signals.emit(SignalChanged, this.text);
@@ -135,6 +137,38 @@ module nn {
             if (this._labelPlaceholder)
                 this._labelPlaceholder.setFrame(this.boundsForLayout());
         }
-    }
+    }    
     
 }
+
+module egret.web {
+    declare let $cacheTextAdapter;
+}
+
+// 解决textfield没有按键通知的问题
+if (nn.ISHTML5) {        
+    let FUNC_TEXTHOOK = egret.web['$cacheTextAdapter'];
+    egret.web['$cacheTextAdapter'] = function(adapter, stage, container, canvas) {
+        FUNC_TEXTHOOK(adapter, stage, container, canvas);
+        let s = adapter._simpleElement;
+        let m = adapter._multiElement;
+        function FUNC_TEXTONPRESS(e) {
+            let textfield = adapter._stageText.$textfield;
+            if (textfield) {
+                let ui = textfield.parent;
+                if (ui._need_fix_textadapter && ui._signals) {
+                    if (ui.keyboard == null)
+                        ui.keyboard = new nn.CKeyboard();
+                    ui.keyboard.key = e.key;
+                    ui.keyboard.code = e.keyCode;
+                    ui._signals.emit(nn.SignalKeyPress, ui.keyboard);
+                }
+            }
+        };
+        if (s && s.onkeypress != FUNC_TEXTHOOK)
+            s.onkeypress = FUNC_TEXTONPRESS;
+        if (m && m.onkeypress != FUNC_TEXTHOOK)
+            m.onkeypress = FUNC_TEXTONPRESS;
+    };            
+}        
+

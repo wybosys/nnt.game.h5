@@ -154,11 +154,15 @@ module nn {
     export function any_cast<T>(obj:any):T {
         return obj;
     }
+
+    export interface ISObject {
+        signals:Signals;
+    }
     
     /** 带有信号的基类
         @brief 如果不能直接基类，需要实现信号的相关函数 */
     export class SObject
-    implements IRefObject
+    implements IRefObject, ISObject
     {
         /** 构造函数 */
         constructor() {
@@ -749,7 +753,7 @@ module nn {
             exception(err);
         }
         return r;
-    }            
+    }
     
     /** 带保护的判断对象是不是空 */
     export function IsEmpty(o:any):boolean {
@@ -764,9 +768,11 @@ module nn {
         if (o instanceof Array) {
             return (<any>o).length == 0;
         }
-        if (o instanceof Map) {
-            if (o.size)
-                return true;
+        if (o instanceof CMap) {
+            return (<CMap<any, any> >o).length != 0;
+        }
+        if (o instanceof CSet) {
+            return (<CSet<any> >o).size != 0;
         }
         return Object.keys(o).length == 0;
     }
@@ -857,7 +863,7 @@ module nn {
                     }, this);
                     this._sck.pop();
                 }
-                else if (o instanceof Map) {
+                else if (o instanceof CMap) {
                     let t:any = {'__':'Map', '--':[[], []]};
                     top.push(t);
                     
@@ -2808,7 +2814,7 @@ module nn {
     }
 
     // 第一位如果是0，为了兼容性，则代表alpha是1，而不是0，如果需要设定alpha，请直接使用 Color 对象
-    type ARGBValue = number; 
+    export type ARGBValue = number; 
     export type ColorType = Color | ARGBValue | string;
 
     /** 颜色数值，rgb为24位，alpha规约到0-1的float */
@@ -2818,7 +2824,7 @@ module nn {
             let rgb = (<number>c) & 0xffffff;
             let a = (((<number>c) >> 24) & 0xff) * Color._1_255;
             return [rgb, a>0?a:1];
-        } break;
+        }
         case 'string': {
             let s = (<string>c).toLowerCase();
             switch (s) {
@@ -2833,13 +2839,11 @@ module nn {
                 let rgb = v & 0xffffff;
                 let a = ((v >> 24) & 0xff) * Color._1_255;
                 return [rgb, a>0?a:1];
-            } break;
-            }
-        } break;
+            }}
+        }
         default: {
             return [(<Color>c).rgb, (<Color>c).alphaf];
-        } break;
-        }
+        }}
     }
 
     /** 线段 */
@@ -3390,7 +3394,7 @@ module nn {
     }
 
     // 相对坐标使用数值类型
-    type rnumber = number | string;
+    export type rnumber = number | string;
 
     /** 相对尺寸 */
     export class RRect
@@ -6445,7 +6449,7 @@ module nn {
     }
 
     declare var require;
-    class _Scripts
+    export class _Scripts
     {
         require(p:string|Array<string>, cb?:()=>void, ctx?:any) {
             if (ISHTML5) {

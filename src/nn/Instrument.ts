@@ -16,7 +16,7 @@ module nn {
     declare let webix:any;
     declare let $$:any;
 
-    class IPLabel
+    export class IPLabel
     extends dom.Label
     {
         constructor() {
@@ -24,7 +24,7 @@ module nn {
         }        
     }
 
-    class ProfilerPanel
+    export class ProfilerPanel
     extends dom.Sprite
     {
         constructor() {
@@ -58,7 +58,7 @@ module nn {
         }
     }
 
-    class SystemInfoPanel
+    export class SystemInfoPanel
     extends dom.Sprite
     {
         constructor() {
@@ -91,7 +91,7 @@ module nn {
         }
     }
 
-    class InstrumentPanel
+    export class InstrumentPanel
     extends dom.Sprite
     {
         constructor() {
@@ -162,7 +162,7 @@ module nn {
         }
     }
 
-    class DebugPanel
+    export class DebugPanel
     extends dom.Sprite
     {
         constructor() {

@@ -1,6 +1,6 @@
 module nn {
     
-    class _GameLayer
+    export class _GameLayer
     extends Navigation
     {
         set root(spr:CComponent) {
@@ -11,7 +11,7 @@ module nn {
         }
     }
 
-    class _DesktopLayer
+    export class _DesktopLayer
     extends Sprite
     {        
     }

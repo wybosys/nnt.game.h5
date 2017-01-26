@@ -80,7 +80,7 @@ module nn {
     let WebUriCheckPattern = /^([\w]+):\/\/(.+)$/i;
 
     // 资源池
-    class _ResMemcache
+    export class _ResMemcache
     extends Memcache
     {
         constructor() {
@@ -337,7 +337,7 @@ module nn {
     EgretItemTypeMap[ResType.SOUND] = RES.ResourceItem.TYPE_SOUND;
     EgretItemTypeMap[ResType.BINARY] = RES.ResourceItem.TYPE_BIN;
 
-    class _ResManager
+    export class _ResManager
     extends SObject
     {
         constructor() {

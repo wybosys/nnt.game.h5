@@ -5,8 +5,8 @@ class KvObject <K, V> {}
 
 module nn {
 
-    declare var Map;
-    declare var Set;
+    declare let Map;
+    declare let Set;
     export let ECMA6_NATIVE:boolean = true;
     if (typeof(Map) == 'undefined')
         ECMA6_NATIVE = false;
@@ -49,7 +49,7 @@ module nn {
         }
 
         private _i_foreach(cb:(k:K, v:V)=>void, ctx?:any) {
-            var ks = Object.keys(this._imp);
+            let ks = Object.keys(this._imp);
             ks.forEach(function(k) {
                 cb.call(ctx, k, this._imp[k]);
             }, this);            
@@ -121,7 +121,7 @@ module nn {
         }
 
         private _i_add(o:V):boolean {
-            var k = Js.hashKey(o);
+            let k = Js.hashKey(o);
             if (this._map[k] != undefined)
                 return false;
             this._map[k] = true;
@@ -136,7 +136,7 @@ module nn {
         }
 
         private _i_has(o:V):boolean {
-            var k = Js.hashKey(o);
+            let k = Js.hashKey(o);
             return this._map[k] != undefined;       
         }
 
@@ -147,11 +147,11 @@ module nn {
         }
 
         private _i_delete(o:V):boolean {
-            var k = Js.hashKey(o);
+            let k = Js.hashKey(o);
             if (this._map[k] == undefined)
                 return false;
             this._map.delete(k);
-            var idx = this._arr.indexOf(o);
+            let idx = this._arr.indexOf(o);
             this._arr.splice(idx, 1);
             return true;
         }
@@ -196,6 +196,6 @@ module nn {
     }
 
     export type MapType<K,V> = KvObject<K,V> | Object;
-    export type SetType<V> = CSet<V> | Set<V>;
+    export type SetType<V> = CSet<V>;// | Set<V>;
 
 }

@@ -4,8 +4,11 @@ module nn {
     export function T(str:string):string {
         return str;
     }
+
+    export interface I18N {
+    }
     
-    class _i18n {
+    class _i18n implements I18N {
         
         constructor() {            
         }
@@ -15,6 +18,6 @@ module nn {
         
     }
 
-    export var i18n = new _i18n();
+    export var i18n:I18N = new _i18n();
     
 }

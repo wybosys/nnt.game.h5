@@ -96,31 +96,3 @@ module nn {
         return orifn(value);
     });    
 }
-
-module egret.web {    
-    if (nn.ISHTML5) {        
-        let FUNC_TEXTHOOK = egret.web['$cacheTextAdapter'];
-        egret.web['$cacheTextAdapter'] = function(adapter, stage, container, canvas) {
-            FUNC_TEXTHOOK(adapter, stage, container, canvas);
-            let s = adapter._simpleElement;
-            let m = adapter._multiElement;
-            function FUNC_TEXTONPRESS(e) {
-                let textfield = adapter._stageText.$textfield;
-                if (textfield) {
-                    let ui = textfield.parent;
-                    if (ui._need_fix_textadapter && ui._signals) {
-                        if (ui.keyboard == null)
-                            ui.keyboard = new nn.CKeyboard();
-                        ui.keyboard.key = e.key;
-                        ui.keyboard.code = e.keyCode;
-                        ui._signals.emit(nn.SignalKeyPress, ui.keyboard);
-                    }
-                }
-            };
-            if (s && s.onkeypress != FUNC_TEXTHOOK)
-                s.onkeypress = FUNC_TEXTONPRESS;
-            if (m && m.onkeypress != FUNC_TEXTHOOK)
-                m.onkeypress = FUNC_TEXTONPRESS;
-        };            
-    }        
-}

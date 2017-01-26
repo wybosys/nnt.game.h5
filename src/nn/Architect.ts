@@ -62,21 +62,21 @@ module nn {
         protected _managers = new Array<Manager>();
     }
 
-    interface IEntryClass {
+    export interface IEntryClass {
         name:string;
         clazz:()=>Function;
     }
 
-    type EntryIdrToLauncherIdr = (entryidr:string)=>string;
-    type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
-    type EntryClassType = Function | IEntryClass;
+    export type EntryIdrToLauncherIdr = (entryidr:string)=>string;
+    export type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
+    export type EntryClassType = Function | IEntryClass;
 
-    class _EntriesManager
+    export class _EntriesManager
     {
         /** 注册一个模块
             @param entryClass类
         */
-        register(entryClass:EntryClassType, data = EntrySettings.Default) {
+        register(entryClass:EntryClassType, data:EntrySettings = EntrySettings.Default) {
             let idr:string;
             if (typeof(entryClass) == 'object') {
                 let o = <IEntryClass>entryClass;
@@ -170,8 +170,8 @@ module nn {
 
     // 应用实例管理器
     export let EntriesManager = new _EntriesManager();
-    
-    class _LaunchersManager
+
+    export class _LaunchersManager
     extends nn.SObject
     {
         constructor() {

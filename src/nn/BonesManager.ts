@@ -8,7 +8,7 @@ module nn {
         }
     }
 
-    class _BonesManager
+    export class _BonesManager
     extends SObject
     {
         constructor() {
@@ -117,17 +117,17 @@ module nn {
     }
 
     let _bonesManager:_BonesManager;
-    function BonesManager():_BonesManager {
+    export function BonesManager():_BonesManager {
         if (_bonesManager)
             return _bonesManager;
         _bonesManager = new _BonesManager();
         return _bonesManager;
     }
 
-    type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
+    export type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
 
     /** 骨骼动画 */
-    class BoneData
+    export class BoneData
     {
         constructor(am:ArmatureSource) {
             this._armature = am;

@@ -14,6 +14,5 @@ module nn {
         }
     }
 
-    export var DatasManager = new _DatasManager();
-    
+    export let DatasManager = new _DatasManager();    
 }
