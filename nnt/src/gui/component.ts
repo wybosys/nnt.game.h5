@@ -362,7 +362,7 @@ module nn {
                 if (cls.ClazzResourceProgress) {
                     let clsloading = cls.ClazzResourceProgress;
                     if (clsloading == null)
-                        clsloading = Application.shared.clazzResourceProgress.type;
+                        clsloading = CApplication.shared.clazzResourceProgress.type;
                     let loading = new clsloading();
                     res.signals.connect(SignalChanged, (s:Slot)=>{
                         (<IProgress>loading).progressValue = s.data;
@@ -403,7 +403,7 @@ module nn {
                 if (cls.ClazzResourceProgress) {
                     let clsloading = cls.ClazzResourceProgress;
                     if (clsloading == null)
-                        clsloading = Application.shared.clazzResourceProgress.type;
+                        clsloading = CApplication.shared.clazzResourceProgress.type;
                     let loading = new clsloading();
                     res.signals.connect(SignalChanged, (s:Slot)=>{
                         (<IProgress>loading).progressValue = s.data;

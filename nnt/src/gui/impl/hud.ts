@@ -28,7 +28,7 @@ module nn {
 
         protected instanceDesktop():Desktop {
             let desk = new Desktop(this);
-            desk.desktopLayer = Application.shared.desktopLayer;
+            desk.desktopLayer = CApplication.shared.desktopLayer;
             desk.backgroundColor = null;
             desk.backgroundImage = null;
             return desk;
@@ -50,7 +50,7 @@ module nn {
         }
         
         static Text(str:any, delay:number = 2):Hud {
-            let hud:HudText = <any>Application.shared.clazzHudText.instance();
+            let hud:HudText = <any>CApplication.shared.clazzHudText.instance();
             hud.message = str;
             hud.open();
             Delay(delay, function() {
@@ -60,7 +60,7 @@ module nn {
         }
         
         static Error(str:any, delay:number = 2):Hud {
-            let hud:HudText = <any>Application.shared.clazzHudText.instance();
+            let hud:HudText = <any>CApplication.shared.clazzHudText.instance();
             hud.message = str;
             hud.mode = false;
             hud.open();
@@ -76,7 +76,7 @@ module nn {
                 HudProgress.__hud_progress.open();
                 return;
             }
-            let hud:HudProgress = <any>Application.shared.clazzHudProgress.instance();
+            let hud:HudProgress = <any>CApplication.shared.clazzHudProgress.instance();
             hud.open();
             return hud;
         }

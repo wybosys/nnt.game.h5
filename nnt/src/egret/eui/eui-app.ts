@@ -24,15 +24,6 @@ module nn {
             }, this));
         }
         
-        protected onLoaded() {
-            super.onLoaded();
-        }
-        
-        onActivated() {
-            super.onActivated();
-            Application.shared = CApplication.shared;
-        }
-
         /** 设置根页面 */
         set root(sp:eui.ComponentU) {
             sp.width = StageBounds.width;

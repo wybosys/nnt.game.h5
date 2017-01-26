@@ -6243,7 +6243,7 @@ module nn {
                 // debug不启用加密
                 if (!ISDEBUG) {
                     let c = new CrytoString();
-                    c.key = Application.shared.idfa + "::" + idr;
+                    c.key = CApplication.shared.idfa + "::" + idr;
                     st.codec = c;
                 }
                 this._storages[idr] = st;

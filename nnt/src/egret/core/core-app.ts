@@ -6,12 +6,7 @@ module nn {
         constructor() {
             super();
         }
-        
-        onActivated() {
-            super.onActivated();
-            Application.shared = CApplication.shared;
-        }
-        
+                
         /** 设置根页面 */
         set root(sp:CComponent) {
             this._gameLayer.root = sp;
