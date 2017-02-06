@@ -232,7 +232,7 @@ module nn {
             } else {
                 ScaleFactorX = stageBounds.width / this.DesignBounds.width;
                 ScaleFactorY = stageBounds.height / this.DesignBounds.height;
-                if (Mask.isset(FillMode.STRETCH, fillMode)) {
+                if ((fillMode & FillMode.MASK_MAJOR) == FillMode.STRETCH) {
                     ScaleFactorW = ScaleFactorX;
                     ScaleFactorH = ScaleFactorY;
                 } else {

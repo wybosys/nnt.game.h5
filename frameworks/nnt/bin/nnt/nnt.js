@@ -10973,7 +10973,7 @@ var nn;
             else {
                 nn.ScaleFactorX = stageBounds.width / this.DesignBounds.width;
                 nn.ScaleFactorY = stageBounds.height / this.DesignBounds.height;
-                if (nn.Mask.isset(nn.FillMode.STRETCH, fillMode)) {
+                if ((fillMode & nn.FillMode.MASK_MAJOR) == nn.FillMode.STRETCH) {
                     nn.ScaleFactorW = nn.ScaleFactorX;
                     nn.ScaleFactorH = nn.ScaleFactorY;
                 }
