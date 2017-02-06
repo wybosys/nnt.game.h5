@@ -39,7 +39,8 @@ let FEATURES = [
     {text:'TRANSFORM'},
     {text:'TBENCHMARK'},
     {text:'LAPACK'},
-    {text:'CODEC'}
+    {text:'CODEC'},
+    {text:'FIT'}
 ];
 
 class TSignalObject
@@ -284,6 +285,11 @@ extends nn.Sprite
 
     _cb20() {
         let v = new TCodec();
+        nn.CApplication.shared.viewStack.push(v);
+    }
+
+    _cb21() {
+        let v = new TFit();
         nn.CApplication.shared.viewStack.push(v);
     }
 }
