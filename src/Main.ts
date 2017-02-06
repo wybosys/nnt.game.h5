@@ -74,7 +74,7 @@ extends nn.CoreApplication
     }
 
     static ScreenFillMode():nn.FillMode {
-        return nn.FillMode.ASPECTSTRETCH;
+        return nn.FillMode.STRETCH;
     }
 
     static Features():nn.FrameworkFeature {
