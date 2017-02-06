@@ -2458,7 +2458,7 @@ declare module nn {
         private _loadingScreen;
         private __app_addedtostage();
         /** 延期加载的capsules */
-        capsules(reqs: ReqResource[]): ResCapsule;
+        capsules(reqs: ReqResource[]): CResCapsule;
         protected _preloadConfig(oper: OperationGroup): void;
         protected onLoadingScreenStart(): void;
         private _cbResLoadChanged(s);
@@ -2673,6 +2673,7 @@ declare module nn {
         constructor();
         fontFamily: string;
     }
+    let EUI_MODE: boolean;
 }
 declare module egret {
     var VERSION: number;
@@ -2921,6 +2922,12 @@ declare module nn {
     }
 }
 declare module nn {
+    abstract class CDom extends Component {
+        /** html源代码 */
+        text: string;
+    }
+}
+declare module nn {
     class ExtHtmlTextParser extends egret.HtmlTextParser {
         constructor();
         parser(htmltext: string): Array<egret.ITextElement>;
@@ -2966,51 +2973,6 @@ declare module nn {
     }
 }
 declare module nn {
-    class FrameTimer {
-        constructor();
-        /** 起始时间 ms */
-        start: number;
-        /** 点前的时间点 */
-        now: number;
-        /** 消耗时间 */
-        cost: number;
-        /** 过去了的时间 */
-        past: number;
-        /** 次数统计 */
-        count: number;
-    }
-    interface IFrameRender {
-        onRender(cost: number): any;
-    }
-    abstract class CFramesManager {
-        private _blayouts;
-        private _bzpositions;
-        private _bappears;
-        private _bcaches;
-        private _bmcs;
-        static _layoutthreshold: number;
-        protected onPrepare(): void;
-        protected onRendering(): void;
-        RENDERS: CSet<IFrameRender>;
-        /** 强制更新下一帧 */
-        abstract invalidate(): any;
-        /** 布局 */
-        needsLayout(c: CComponent): void;
-        cancelLayout(c: CComponent): void;
-        /** 调整Z顺序 */
-        needsZPosition(c: CComponent): void;
-        /** 显示 */
-        needsAppear(c: CComponent): void;
-        /** 刷新图形缓存 */
-        needsCache(c: CComponent): void;
-        /** 刷新内存缓存 */
-        needsGC(mc: Memcache): void;
-        abstract launch(c: any): any;
-        private _ft;
-    }
-    let FramesManager: CFramesManager;
-}
-declare module nn {
     var COPYRIGHT: string;
     var AUTHOR: string;
     var ISHTML5: boolean;
@@ -3022,6 +2984,97 @@ declare module nn {
     var VERBOSE: boolean;
     var APPVERSION: string;
     var PUBLISH: boolean;
+}
+declare module nn {
+    enum ResPriority {
+        NORMAL = 0,
+        CLIP = 1,
+    }
+    let ResCurrentPriority: ResPriority;
+    /** 使用UriSource均代表支持
+        1, resdepo 的 key
+        2, http/https:// 的远程url
+        3, assets:// 直接访问资源目录下的文件
+        4, <module>://<资源的key(命名方式和resdepto的默认一致)>
+    */
+    type UriSource = string;
+    enum ResType {
+        JSON = 0,
+        TEXTURE = 1,
+        TEXT = 2,
+        FONT = 3,
+        SOUND = 4,
+        BINARY = 5,
+        JSREF = 6,
+    }
+    let ResPartKey: string;
+    type ResourceGroup = string;
+    class ResourceEntity {
+        constructor(src: UriSource, t: ResType);
+        source: UriSource;
+        type: ResType;
+        readonly hashCode: number;
+    }
+    type ReqResource = ResourceGroup | ResourceEntity;
+    abstract class CResCapsule extends SObject {
+        constructor(reqres: ReqResource[]);
+        dispose(): void;
+        protected _initSignals(): void;
+        private _isloading;
+        load(cb?: () => void, ctx?: any): void;
+        protected abstract loadOne(rr: ReqResource, cb: () => void, ctx: any): any;
+        protected abstract total(): number;
+        hashKey(): number;
+        static HashKey(reqres: ReqResource[]): number;
+        protected _total: number;
+        protected _idx: number;
+        protected _reqRes: Array<ReqResource>;
+    }
+    abstract class CResManager extends SObject {
+        constructor();
+        /** 是否支持多分辨率架构 */
+        multiRes: boolean;
+        /** Manager 依赖的目录名，其他资源目录均通过附加此目录来定位 */
+        private _directory;
+        directory: string;
+        /** 加载一个资源配置 */
+        abstract loadConfig(file: string, cb: (e: any) => void, ctx: any): any;
+        /** 缓存控制 */
+        cacheEnabled: boolean;
+        /** 资源包管理 */
+        abstract capsules(grps: ReqResource[]): CResCapsule;
+        abstract removeCapsule(cp: CResCapsule): any;
+        /** 一组资源是否已经加载 */
+        abstract isGroupsArrayLoaded(grps: string[]): boolean;
+        /** 尝试加载 */
+        abstract tryGetRes(key: string): ICacheRecord;
+        /** 异步加载资源，和 getRes 的区别不仅是同步异步，而且异步可以忽略掉 group 的状态直接加载资源*/
+        abstract getResAsync(key: string, priority: ResPriority, cb: (rcd: ICacheRecord) => void, ctx?: any): any;
+        /** 获取 key 对应资源 url */
+        abstract getResUrl(key: string): string;
+        /** 根据 src - type 的对照数组来加载资源数组 */
+        getSources(srcs: [[string, ResType]], priority: ResPriority, cb: (ds: [ICacheRecord]) => void, ctx: any): void;
+        /** 异步直接加载远程资源 */
+        abstract getResByUrl(src: UriSource, priority: ResPriority, cb: (rcd: ICacheRecord | CacheRecord) => void, ctx: any, type: ResType): any;
+        abstract hasAsyncUri(uri: UriSource): boolean;
+        /** 根据类型来获得指定的资源 */
+        getSourceByType(src: UriSource, priority: ResPriority, cb: (ds: ICacheRecord) => void, ctx: any, type: ResType): void;
+        getJson(src: UriSource, priority: ResPriority, cb: (obj: ICacheRecord) => void, ctx: any): void;
+        getText(src: UriSource, priority: ResPriority, cb: (obj: ICacheRecord) => void, ctx: any): void;
+        getTexture(src: TextureSource, priority: ResPriority, cb: (tex: ICacheRecord) => void, ctx: any): void;
+        getBitmapFont(src: FontSource, priority: ResPriority, cb: (fnt: ICacheRecord) => void, ctx: any): void;
+        getSound(src: SoundSource, priority: ResPriority, cb: (snd: ICacheRecord) => void, ctx: any): void;
+        getBinary(src: UriSource, priority: ResPriority, cb: (snd: ICacheRecord) => void, ctx: any): void;
+    }
+    /** 全局唯一的资源管理实体 */
+    let ResManager: CResManager;
+    /** 使用约定的方式获取资源名称 */
+    class ResName {
+        /** 普通 */
+        static normal(name: string): string;
+        /** 高亮 */
+        static hl(name: string): string;
+    }
 }
 declare module nn.svc {
     enum Feature {
@@ -3659,80 +3712,49 @@ declare module nn {
     let Dom: _Dom;
 }
 declare module nn {
-    abstract class CDom extends Component {
-        /** html源代码 */
-        text: string;
-    }
-}
-declare module nn {
-    class EntrySettings {
-        /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
-        singletone: boolean;
-        /** 其他数据 */
-        ext: any;
-        static Default: EntrySettings;
-    }
-    interface IEntry {
-        /** 模块的配置 */
-        entrySettings?: EntrySettings;
-    }
-    interface ILauncher {
-        /** 处理模块的启动
-            @param cls 待启动模块的类
-            @param data 附加的参数
-        */
-        launchEntry(cls: any, data?: any): any;
-    }
-    abstract class Manager extends SObject {
-        /** 初始化自己和其它manager或者其它对象之间的关系 */
-        abstract onLoaded(): any;
-        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
-        onDataLoaded(): void;
-    }
-    abstract class Managers extends SObject {
-        register<T>(obj: T): T;
-        onLoaded(): void;
-        onDataLoaded(): void;
-        protected _managers: Manager[];
-    }
-    interface IEntryClass {
-        name: string;
-        clazz: () => Function;
-    }
-    type EntryIdrToLauncherIdr = (entryidr: string) => string;
-    type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
-    type EntryClassType = Function | IEntryClass;
-    class _EntriesManager {
-        /** 注册一个模块
-            @param entryClass类
-        */
-        register(entryClass: EntryClassType, data?: EntrySettings): void;
-        /** 启动一个模块
-            @param entry 类或者标类名
-            @param launcher 启动点的标示号或者启动点的实例
-            @pram data 附加的参数
-        */
-        invoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
-        protected _doInvoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
-        private _entries;
-        private _entriesdata;
-        toString(): string;
-    }
-    let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
-    let EntriesManager: _EntriesManager;
-    class _LaunchersManager extends nn.SObject {
+    class FrameTimer {
         constructor();
-        protected _initSignals(): void;
-        /** 注册一个启动器 */
-        register(obj: ILauncher): void;
-        /** 取消 */
-        unregister(obj: ILauncher): void;
-        /** 查找一个启动器 */
-        find(str: string): ILauncher;
-        private _launchers;
-        toString(): string;
+        /** 起始时间 ms */
+        start: number;
+        /** 点前的时间点 */
+        now: number;
+        /** 消耗时间 */
+        cost: number;
+        /** 过去了的时间 */
+        past: number;
+        /** 次数统计 */
+        count: number;
     }
-    let LaunchersManager: _LaunchersManager;
+    interface IFrameRender {
+        onRender(cost: number): any;
+    }
+    abstract class CFramesManager {
+        private _blayouts;
+        private _bzpositions;
+        private _bappears;
+        private _bcaches;
+        private _bmcs;
+        static _layoutthreshold: number;
+        protected onPrepare(): void;
+        protected onRendering(): void;
+        RENDERS: CSet<IFrameRender>;
+        /** 强制更新下一帧 */
+        abstract invalidate(): any;
+        /** 布局 */
+        needsLayout(c: CComponent): void;
+        cancelLayout(c: CComponent): void;
+        /** 调整Z顺序 */
+        needsZPosition(c: CComponent): void;
+        /** 显示 */
+        needsAppear(c: CComponent): void;
+        /** 刷新图形缓存 */
+        needsCache(c: CComponent): void;
+        /** 刷新内存缓存 */
+        needsGC(mc: Memcache): void;
+        abstract launch(c: any): any;
+        private _ft;
+    }
+    let FramesManager: CFramesManager;
 }
 declare module nn {
     /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
@@ -4931,124 +4953,10 @@ declare module nn {
         stopAnimation(): void;
     }
 }
+declare module egret {
+    var VERSION_2_5_6: any;
+}
 declare module nn {
-    /** 使用UriSource均代表支持
-        1, resdepo 的 key
-        2, http/https:// 的远程url
-        3, assets:// 直接访问资源目录下的文件
-        4, <module>://<资源的key(命名方式和resdepto的默认一致)>
-    */
-    type UriSource = string;
-    enum ResType {
-        JSON = 0,
-        TEXTURE = 1,
-        TEXT = 2,
-        FONT = 3,
-        SOUND = 4,
-        BINARY = 5,
-        JSREF = 6,
-    }
-    interface ICacheJson extends ICacheRecord {
-        use(): any;
-    }
-    interface ICacheTexture extends ICacheRecord {
-        use(): egret.Texture;
-    }
-    interface ICacheText extends ICacheRecord {
-        use(): string;
-    }
-    interface ICacheFont extends ICacheRecord {
-        use(): egret.BitmapFont;
-    }
-    interface ICacheSound extends ICacheRecord {
-        use(): egret.Sound;
-    }
-    interface ICacheBinary extends ICacheRecord {
-        use(): any;
-    }
-    let ResPartKey: string;
-    type ResourceGroup = string;
-    class ResourceEntity {
-        constructor(src: UriSource, t: ResType);
-        source: UriSource;
-        type: ResType;
-        readonly hashCode: number;
-    }
-    type ReqResource = ResourceGroup | ResourceEntity;
-    class _ResMemcache extends Memcache {
-        constructor();
-        protected doRemoveObject(rcd: CacheRecord): void;
-        private _hashCode;
-        static IDR_HASHCODE: string;
-        add(source: string, data: any): ICacheRecord;
-        query(source: string): ICacheRecord;
-        private _sources;
-        private _keys;
-    }
-    class ResCapsule extends SObject {
-        constructor(reqres: ReqResource[], ewd: EventWeakDispatcher);
-        dispose(): void;
-        protected _initSignals(): void;
-        private _isloading;
-        load(cb?: () => void, ctx?: any): void;
-        protected loadOne(rr: ReqResource, cb: () => void, ctx: any): void;
-        protected total(): number;
-        hashKey(): number;
-        static HashKey(reqres: ReqResource[]): number;
-        private _total;
-        private _idx;
-        protected _reqRes: Array<ReqResource>;
-        private _ewd;
-    }
-    class _ResManager extends SObject {
-        constructor();
-        /** 是否支持多分辨率架构 */
-        multiRes: boolean;
-        /** Manager 依赖的目录名，其他资源目录均通过附加此目录来定位 */
-        private _directory;
-        directory: string;
-        private _capsules;
-        private _ewd;
-        /** 加载一个资源配置 */
-        loadConfig<T>(file: string, cb: (e: T) => void, ctx: any): void;
-        private _cfg_loaded(e);
-        private _grp_complete(e);
-        private _grp_failed(e);
-        private _grp_progress(e);
-        capsules(grps: ReqResource[]): ResCapsule;
-        removeCapsule(cp: ResCapsule): void;
-        isGroupsArrayLoaded(grps: string[]): boolean;
-        /** 尝试加载 */
-        protected tryGetRes(key: string): ICacheRecord;
-        /** 异步加载资源，和 getRes 的区别不仅是同步异步，而且异步可以忽略掉 group 的状态直接加载资源*/
-        getResAsync(key: string, priority: RES.LoadPriority, cb: (rcd: ICacheRecord) => void, ctx?: any): void;
-        if(DEBUG: any): void;
-        /** 获取 key 对应资源 url */
-        getResUrl(key: string): string;
-        /** 根据 src - type 的对照数组来加载资源数组 */
-        getSources(srcs: [[string, ResType]], priority: RES.LoadPriority, cb: (ds: [ICacheRecord]) => void, ctx: any): void;
-        /** 异步直接加载远程资源 */
-        getResByUrl(src: UriSource, priority: RES.LoadPriority, cb: (rcd: ICacheRecord | CacheRecord) => void, ctx: any, type: ResType): void;
-        hasAsyncUri(uri: UriSource): boolean;
-        /** 根据类型来获得指定的资源 */
-        getSourceByType(src: UriSource, priority: RES.LoadPriority, cb: (ds: ICacheRecord) => void, ctx: any, type: ResType): void;
-        getJson(src: UriSource, priority: RES.LoadPriority, cb: (obj: ICacheJson) => void, ctx: any): void;
-        getText(src: UriSource, priority: RES.LoadPriority, cb: (obj: ICacheText) => void, ctx: any): void;
-        getTexture(src: TextureSource, priority: RES.LoadPriority, cb: (tex: ICacheTexture) => void, ctx: any): void;
-        getBitmapFont(src: FontSource, priority: RES.LoadPriority, cb: (fnt: ICacheFont) => void, ctx: any): void;
-        getSound(src: SoundSource, priority: RES.LoadPriority, cb: (snd: ICacheSound) => void, ctx: any): void;
-        getBinary(src: UriSource, priority: RES.LoadPriority, cb: (snd: ICacheBinary) => void, ctx: any): void;
-        cache: _ResMemcache;
-    }
-    /** 全局唯一的资源管理实体 */
-    let ResManager: _ResManager;
-    /** 使用约定的方式获取资源名称 */
-    class ResName {
-        /** 普通 */
-        static normal(name: string): string;
-        /** 高亮 */
-        static hl(name: string): string;
-    }
 }
 declare module nn {
     class _CrossLoader {
@@ -5072,10 +4980,68 @@ declare module nn {
         urlForLog(): string;
     }
 }
-declare module egret {
-    var VERSION_2_5_6: any;
+declare module RES {
 }
 declare module nn {
+    interface ICacheJson extends ICacheRecord {
+        use(): any;
+    }
+    interface ICacheTexture extends ICacheRecord {
+        use(): egret.Texture;
+    }
+    interface ICacheText extends ICacheRecord {
+        use(): string;
+    }
+    interface ICacheFont extends ICacheRecord {
+        use(): egret.BitmapFont;
+    }
+    interface ICacheSound extends ICacheRecord {
+        use(): egret.Sound;
+    }
+    interface ICacheBinary extends ICacheRecord {
+        use(): any;
+    }
+    class _ResMemcache extends Memcache {
+        constructor();
+        protected doRemoveObject(rcd: CacheRecord): void;
+        private _hashCode;
+        static IDR_HASHCODE: string;
+        add(source: string, data: any): ICacheRecord;
+        query(source: string): ICacheRecord;
+        private _sources;
+        private _keys;
+    }
+    class ResCapsule extends CResCapsule {
+        constructor(reqres: ReqResource[], ewd: EventWeakDispatcher);
+        dispose(): void;
+        private _ewd;
+        protected loadOne(rr: ReqResource, cb: () => void, ctx: any): void;
+        protected total(): number;
+    }
+    class _ResManager extends CResManager {
+        constructor();
+        private _ewd;
+        cache: _ResMemcache;
+        loadConfig(file: string, cb: (e: any) => void, ctx: any): void;
+        cacheEnabled: boolean;
+        private _cfg_loaded(e);
+        private _grp_complete(e);
+        private _grp_failed(e);
+        private _grp_progress(e);
+        isGroupsArrayLoaded(grps: string[]): boolean;
+        private _capsules;
+        capsules(grps: ReqResource[]): CResCapsule;
+        removeCapsule(cp: CResCapsule): void;
+        tryGetRes(key: string): ICacheRecord;
+        getResAsync(key: string, priority: ResPriority, cb: (rcd: ICacheRecord) => void, ctx?: any): void;
+        if(DEBUG: any): void;
+        getResUrl(key: string): string;
+        getResByUrl(src: UriSource, priority: ResPriority, cb: (rcd: ICacheRecord | CacheRecord) => void, ctx: any, type: ResType): void;
+        hasAsyncUri(uri: UriSource): boolean;
+        getTexture(src: TextureSource, priority: ResPriority, cb: (tex: ICacheTexture) => void, ctx: any): void;
+        getBitmapFont(src: FontSource, priority: ResPriority, cb: (fnt: ICacheFont) => void, ctx: any): void;
+        getSound(src: SoundSource, priority: ResPriority, cb: (snd: ICacheSound) => void, ctx: any): void;
+    }
 }
 declare module nn {
     class ServiceMock extends svc.Service {
@@ -5158,12 +5124,57 @@ declare module nn {
         detectService(): any;
     }
 }
-declare module RES {
-    enum LoadPriority {
-        NORMAL = 0,
-        CLIP = 1,
+declare module nn {
+    interface IGridDataSource {
+        /** 多少个元素 */
+        numberOfItems(): number;
+        /** 元素的类型 */
+        classForItem(row: number, col: number, idx: number): any;
+        /** 更新元素 */
+        updateItem(item: any, row: number, col: number, idx: number): any;
     }
-    let CurrentPriority: LoadPriority;
+    class GridCellsItem extends Sprite {
+        constructor(cols: number, cls: any);
+        spacing: number;
+        updateLayout(): void;
+        itemAtIndex(idx: number): CComponent;
+        setItemAtIndex(item: CComponent, idx: number): void;
+        updateData(): void;
+        reuseAll(pool: IReusesPool): void;
+        private cells;
+    }
+    class GridViewCell extends Sprite {
+        private _item;
+        item: CComponent;
+        updateData(): void;
+        updateLayout(): void;
+    }
+    class GridViewContent extends TableViewContent {
+        constructor();
+        gridDataSource: IGridDataSource;
+        /** 默认的元素类型 */
+        itemClass: any;
+        /** 一行有几个 */
+        numberOfColumns: number;
+        /** 用来实现gridcell的类型 */
+        gridCellClass: typeof GridViewCell;
+        protected instanceItem(type: any): GridCellsItem;
+        protected instanceGridItem(cls: any): any;
+        protected updateRow(item: GridCellsItem, cell: TableViewCell, row: number): void;
+        protected addOneReuseItem(item: GridCellsItem): void;
+        private _reuseGridItems;
+    }
+    class GridView extends TableView implements IGridDataSource {
+        constructor();
+        protected instanceTable(): TableViewContent;
+        readonly grid: GridViewContent;
+        numberOfItems(): number;
+        /** 元素的类型 */
+        classForItem(row: number, col: number, idx: number): any;
+        /** 更新元素 */
+        updateItem(item: any, row: number, col: number, idx: number): void;
+        numberOfRows(): number;
+    }
 }
 declare module nn {
     class SocketModel extends SObject {
@@ -5291,71 +5302,6 @@ declare module nn {
     var SoundManager: ISoundManager;
 }
 declare module nn {
-    interface IGridDataSource {
-        /** 多少个元素 */
-        numberOfItems(): number;
-        /** 元素的类型 */
-        classForItem(row: number, col: number, idx: number): any;
-        /** 更新元素 */
-        updateItem(item: any, row: number, col: number, idx: number): any;
-    }
-    class GridCellsItem extends Sprite {
-        constructor(cols: number, cls: any);
-        spacing: number;
-        updateLayout(): void;
-        itemAtIndex(idx: number): CComponent;
-        setItemAtIndex(item: CComponent, idx: number): void;
-        updateData(): void;
-        reuseAll(pool: IReusesPool): void;
-        private cells;
-    }
-    class GridViewCell extends Sprite {
-        private _item;
-        item: CComponent;
-        updateData(): void;
-        updateLayout(): void;
-    }
-    class GridViewContent extends TableViewContent {
-        constructor();
-        gridDataSource: IGridDataSource;
-        /** 默认的元素类型 */
-        itemClass: any;
-        /** 一行有几个 */
-        numberOfColumns: number;
-        /** 用来实现gridcell的类型 */
-        gridCellClass: typeof GridViewCell;
-        protected instanceItem(type: any): GridCellsItem;
-        protected instanceGridItem(cls: any): any;
-        protected updateRow(item: GridCellsItem, cell: TableViewCell, row: number): void;
-        protected addOneReuseItem(item: GridCellsItem): void;
-        private _reuseGridItems;
-    }
-    class GridView extends TableView implements IGridDataSource {
-        constructor();
-        protected instanceTable(): TableViewContent;
-        readonly grid: GridViewContent;
-        numberOfItems(): number;
-        /** 元素的类型 */
-        classForItem(row: number, col: number, idx: number): any;
-        /** 更新元素 */
-        updateItem(item: any, row: number, col: number, idx: number): void;
-        numberOfRows(): number;
-    }
-}
-declare module nn {
-    type TiledSource = string;
-    class TiledMap extends Sprite {
-        constructor();
-        dispose(): void;
-        protected _map: tiled.TMXTilemap;
-        private _data;
-        private _url;
-        private _tiledSource;
-        tiledSource: TiledSource;
-        updateLayout(): void;
-    }
-}
-declare module nn {
     let FontFilePattern: RegExp;
     let FontKeyPattern: RegExp;
     class _FontsManager {
@@ -5379,6 +5325,89 @@ declare module nn {
         static Bitmap(texture: string, config: string): FontConfig;
     }
     type FontSource = FontConfig | UriSource | COriginType;
+}
+declare module nn {
+    type TiledSource = string;
+    class TiledMap extends Sprite {
+        constructor();
+        dispose(): void;
+        protected _map: tiled.TMXTilemap;
+        private _data;
+        private _url;
+        private _tiledSource;
+        tiledSource: TiledSource;
+        updateLayout(): void;
+    }
+}
+declare module nn {
+    class EntrySettings {
+        /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
+        singletone: boolean;
+        /** 其他数据 */
+        ext: any;
+        static Default: EntrySettings;
+    }
+    interface IEntry {
+        /** 模块的配置 */
+        entrySettings?: EntrySettings;
+    }
+    interface ILauncher {
+        /** 处理模块的启动
+            @param cls 待启动模块的类
+            @param data 附加的参数
+        */
+        launchEntry(cls: any, data?: any): any;
+    }
+    abstract class Manager extends SObject {
+        /** 初始化自己和其它manager或者其它对象之间的关系 */
+        abstract onLoaded(): any;
+        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
+        onDataLoaded(): void;
+    }
+    abstract class Managers extends SObject {
+        register<T>(obj: T): T;
+        onLoaded(): void;
+        onDataLoaded(): void;
+        protected _managers: Manager[];
+    }
+    interface IEntryClass {
+        name: string;
+        clazz: () => Function;
+    }
+    type EntryIdrToLauncherIdr = (entryidr: string) => string;
+    type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
+    type EntryClassType = Function | IEntryClass;
+    class _EntriesManager {
+        /** 注册一个模块
+            @param entryClass类
+        */
+        register(entryClass: EntryClassType, data?: EntrySettings): void;
+        /** 启动一个模块
+            @param entry 类或者标类名
+            @param launcher 启动点的标示号或者启动点的实例
+            @pram data 附加的参数
+        */
+        invoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
+        protected _doInvoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
+        private _entries;
+        private _entriesdata;
+        toString(): string;
+    }
+    let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
+    let EntriesManager: _EntriesManager;
+    class _LaunchersManager extends nn.SObject {
+        constructor();
+        protected _initSignals(): void;
+        /** 注册一个启动器 */
+        register(obj: ILauncher): void;
+        /** 取消 */
+        unregister(obj: ILauncher): void;
+        /** 查找一个启动器 */
+        find(str: string): ILauncher;
+        private _launchers;
+        toString(): string;
+    }
+    let LaunchersManager: _LaunchersManager;
 }
 declare module nn {
     /** 弹出的对话框类型

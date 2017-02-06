@@ -55,7 +55,7 @@ module nn {
             if (this._imageSource == ds)
                 return;
             this._imageSource = ds;
-            ResManager.getTexture(ds, RES.LoadPriority.NORMAL, (tex:ICacheTexture)=>{
+            ResManager.getTexture(ds, ResPriority.NORMAL, (tex:ICacheTexture)=>{
                 if (ds != this._imageSource)
                     return;
                 this._setTexture(tex.use());

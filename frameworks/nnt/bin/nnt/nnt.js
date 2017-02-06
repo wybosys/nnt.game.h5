@@ -7851,7 +7851,7 @@ var nn;
                     this._imp.addChildAt(this._backgroundImageView, 0);
                     this.setNeedsLayout();
                 }
-                nn.ResManager.getTexture(ts, RES.LoadPriority.NORMAL, function (tex) {
+                nn.ResManager.getTexture(ts, nn.ResPriority.NORMAL, function (tex) {
                     if (_this._backgroundImageSource != ts)
                         return; // 多次设置以最后一次为准
                     impSetTexture(_this._backgroundImageView, tex.use());
@@ -9306,7 +9306,7 @@ var nn;
                 // 绑定app的句柄
                 CApplication.shared = _this;
                 // 读取预定义
-                nn.ResManager.cache.enable = nn.val(_this.config['resource.gc'], true);
+                nn.ResManager.cacheEnabled = nn.val(_this.config['resource.gc'], true);
                 // 需要启动预启动的定时器
                 if (nn.CTimer.SAFE_TIMER_ENABLED) {
                     nn.CTimer.SAFE_TIMER_ENABLED = false;
@@ -9369,11 +9369,11 @@ var nn;
             // 加载配置文件
             oper.add(new nn.OperationClosure(function (oper) {
                 var cfg = _this.configFile + '?v=' + _this.version;
-                nn.ResManager.getResByUrl(cfg, RES.LoadPriority.NORMAL, function (obj) {
+                nn.ResManager.getResByUrl(cfg, nn.ResPriority.NORMAL, function (obj) {
                     _this.config = obj.val;
                     // 如果需要处理debug的config文件
                     if (app.debug.CONFIG) {
-                        nn.ResManager.getResByUrl('~debug.json', RES.LoadPriority.NORMAL, function (obj) {
+                        nn.ResManager.getResByUrl('~debug.json', nn.ResPriority.NORMAL, function (obj) {
                             var cfg = obj.val;
                             Object.keys(cfg).forEach(function (e) {
                                 _this.config[e] = cfg[e];
@@ -12132,7 +12132,7 @@ var nn;
                 if (this._imageSource == ds)
                     return;
                 this._imageSource = ds;
-                nn.ResManager.getTexture(ds, RES.LoadPriority.NORMAL, function (tex) {
+                nn.ResManager.getTexture(ds, nn.ResPriority.NORMAL, function (tex) {
                     if (ds != _this._imageSource)
                         return;
                     _this._setTexture(tex.use());
@@ -12188,6 +12188,17 @@ var nn;
         return Picture;
     }(Bitmap));
     nn.Picture = Picture;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var CDom = (function (_super) {
+        __extends(CDom, _super);
+        function CDom() {
+            return _super.apply(this, arguments) || this;
+        }
+        return CDom;
+    }(nn.Component));
+    nn.CDom = CDom;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -12569,114 +12580,6 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    var FrameTimer = (function () {
-        function FrameTimer() {
-            /** 消耗时间 */
-            this.cost = 0;
-            /** 过去了的时间 */
-            this.past = 0;
-            /** 次数统计 */
-            this.count = 0;
-            this.start = this.now = nn.DateTime.Pass();
-        }
-        return FrameTimer;
-    }());
-    nn.FrameTimer = FrameTimer;
-    var CFramesManager = (function () {
-        function CFramesManager() {
-            this._blayouts = NewSet();
-            this._bzpositions = NewSet();
-            this._bappears = NewSet();
-            this._bcaches = NewSet();
-            this._bmcs = NewSet();
-            this.RENDERS = NewSet();
-            this._ft = new FrameTimer();
-        }
-        CFramesManager.prototype.onPrepare = function () {
-            if (nn.ISDEBUG) {
-                ++this._ft.count;
-            }
-            // 刷新一下布局
-            ++CFramesManager._layoutthreshold;
-            nn.SetT.SafeClear(this._blayouts, function (c) {
-                if (!c.__disposed) {
-                    c._islayouting = true;
-                    c.updateLayout();
-                    c._islayouting = false;
-                }
-            });
-            --CFramesManager._layoutthreshold;
-            // 调整z顺序
-            nn.SetT.SafeClear(this._bzpositions, function (c) {
-                if (!c.__disposed)
-                    c.updateZPosition();
-            });
-            // 当布局结束才激发已显示
-            nn.SetT.SafeClear(this._bappears, function (c) {
-                if (!c.__disposed && !c.isAppeared)
-                    c.onAppeared();
-            });
-            // 更新图形缓存
-            nn.SetT.Clear(this._bcaches, function (c) {
-                if (!c.__disposed)
-                    c.flushCache();
-            });
-            // 更新内存缓存
-            nn.SetT.Clear(this._bmcs, function (mc) {
-                mc.gc();
-            });
-        };
-        CFramesManager.prototype.onRendering = function () {
-            var now = nn.DateTime.Pass();
-            this._ft.cost = now - this._ft.now;
-            this._ft.past = now - this._ft.start;
-            this._ft.now = now;
-            // 标准set的foreach需要传入3个参数，但是后两个我们都不会去使用
-            var cost = this._ft.cost;
-            this.RENDERS.forEach(function (each) {
-                each.onRender(cost);
-            }, this);
-        };
-        /** 布局 */
-        CFramesManager.prototype.needsLayout = function (c) {
-            if (CFramesManager._layoutthreshold == 0) {
-                this._blayouts.add(c);
-                this.invalidate();
-            }
-            else {
-                c.updateLayout();
-            }
-        };
-        CFramesManager.prototype.cancelLayout = function (c) {
-            this._blayouts.delete(c);
-        };
-        /** 调整Z顺序 */
-        CFramesManager.prototype.needsZPosition = function (c) {
-            this._bzpositions.add(c);
-            this.invalidate();
-        };
-        /** 显示 */
-        CFramesManager.prototype.needsAppear = function (c) {
-            this._bappears.add(c);
-            this.invalidate();
-        };
-        /** 刷新图形缓存 */
-        CFramesManager.prototype.needsCache = function (c) {
-            this._bcaches.add(c);
-            this.invalidate();
-        };
-        /** 刷新内存缓存 */
-        CFramesManager.prototype.needsGC = function (mc) {
-            this._bmcs.add(mc);
-            this.invalidate();
-        };
-        return CFramesManager;
-    }());
-    CFramesManager._layoutthreshold = 0;
-    nn.CFramesManager = CFramesManager;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
     nn.COPYRIGHT = "WYBOSYS";
     nn.AUTHOR = "WYBOSYS@GMAIL.COM";
     // 判断版本
@@ -12778,6 +12681,295 @@ var nn;
       options[@"version"] = @"1.0.0";
       options[@"publish"] = @"false";
     */
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    // RES为单线程模型，所以可以直接扩展来进行加载的排序控制
+    // 增加优先级的定义：普通UI资源 > Clip(Bone) 的加载
+    var ResPriority;
+    (function (ResPriority) {
+        ResPriority[ResPriority["NORMAL"] = 0] = "NORMAL";
+        ResPriority[ResPriority["CLIP"] = 1] = "CLIP";
+    })(ResPriority = nn.ResPriority || (nn.ResPriority = {}));
+    ;
+    // 不需要做Stack的模式，因为所有获取资源的地方必须传入priority的定义
+    nn.ResCurrentPriority = ResPriority.NORMAL;
+    var ResType;
+    (function (ResType) {
+        ResType[ResType["JSON"] = 0] = "JSON";
+        ResType[ResType["TEXTURE"] = 1] = "TEXTURE";
+        ResType[ResType["TEXT"] = 2] = "TEXT";
+        ResType[ResType["FONT"] = 3] = "FONT";
+        ResType[ResType["SOUND"] = 4] = "SOUND";
+        ResType[ResType["BINARY"] = 5] = "BINARY";
+        ResType[ResType["JSREF"] = 6] = "JSREF";
+    })(ResType = nn.ResType || (nn.ResType = {}));
+    ;
+    nn.ResPartKey = "::res::part";
+    var ResourceEntity = (function () {
+        function ResourceEntity(src, t) {
+            this.source = src;
+            this.type = t;
+        }
+        Object.defineProperty(ResourceEntity.prototype, "hashCode", {
+            get: function () {
+                return nn.StringT.Hash(this.source + ":" + this.type);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return ResourceEntity;
+    }());
+    nn.ResourceEntity = ResourceEntity;
+    // 检查是否属于uri的规范
+    var WebUriCheckPattern = /^([\w]+):\/\/(.+)$/i;
+    // 资源包
+    var CResCapsule = (function (_super) {
+        __extends(CResCapsule, _super);
+        function CResCapsule(reqres) {
+            var _this = _super.call(this) || this;
+            _this._reqRes = reqres;
+            return _this;
+        }
+        CResCapsule.prototype.dispose = function () {
+            this._reqRes = undefined;
+            _super.prototype.dispose.call(this);
+        };
+        CResCapsule.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalDone);
+            this._signals.register(nn.SignalFailed);
+            this._signals.register(nn.SignalChanged);
+        };
+        CResCapsule.prototype.load = function (cb, ctx) {
+            var _this = this;
+            // 如果为空，直接回调
+            if (nn.IsEmpty(this._reqRes)) {
+                if (cb)
+                    cb.call(ctx);
+                return;
+            }
+            // 监听结束的消息
+            if (cb)
+                this.signals.connect(nn.SignalDone, cb, ctx);
+            // 如果正在加载，则直接返回等待
+            if (this._isloading)
+                return;
+            this._isloading = true;
+            this._total = this.total();
+            this._idx = 0;
+            // 直接一次性加载所有的资源
+            var reqid = 0;
+            this._reqRes.forEach(function (e) {
+                if (e == null)
+                    return;
+                _this.loadOne(e, function () {
+                    if (_this._reqRes.length != ++reqid)
+                        return;
+                    // 加载完成
+                    // 移除时会自动析构，需要保护生命期
+                    _this.grab();
+                    // 从管理器中移除
+                    nn.ResManager.removeCapsule(_this);
+                    // 完成加载
+                    _this._isloading = false;
+                    // 回调结束的事件
+                    _this.signals.emit(nn.SignalDone);
+                    _this.drop();
+                }, _this);
+            });
+        };
+        CResCapsule.prototype.hashKey = function () {
+            return CResCapsule.HashKey(this._reqRes);
+        };
+        CResCapsule.HashKey = function (reqres) {
+            var a = [];
+            reqres.forEach(function (rr) {
+                if (rr instanceof ResourceEntity)
+                    a.push(rr.hashCode);
+                else
+                    a.push(rr);
+            });
+            return nn.StringT.Hash(a.join('::'));
+        };
+        return CResCapsule;
+    }(nn.SObject));
+    nn.CResCapsule = CResCapsule;
+    var CResManager = (function (_super) {
+        __extends(CResManager, _super);
+        function CResManager() {
+            return _super.call(this) || this;
+        }
+        Object.defineProperty(CResManager.prototype, "directory", {
+            get: function () {
+                return this._directory;
+            },
+            set: function (nm) {
+                this._directory = nm;
+                // 仿照 android，不同尺寸适配不同分辨率的资源
+                if (this.multiRes) {
+                    switch (nn.Device.shared.screenType) {
+                        case nn.ScreenType.NORMAL: break;
+                        case nn.ScreenType.LOW:
+                            this._directory += '_m';
+                            break;
+                        case nn.ScreenType.EXTRALOW:
+                            this._directory += '_l';
+                            break;
+                        case nn.ScreenType.EXTRAHIGH:
+                            this._directory += '_xh';
+                            break;
+                        case nn.ScreenType.HIGH:
+                            this._directory += '_h';
+                            break;
+                    }
+                }
+                // 如果是发布模式，则使用发布图片
+                if (nn.PUBLISH) {
+                    // RELEASE模式下才需要拼装资源目录
+                    if (!nn.ISDEBUG)
+                        this._directory = this._directory + '_' + nn.APPVERSION;
+                }
+                // 保护一下路径末尾
+                this._directory += '/';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /** 根据 src - type 的对照数组来加载资源数组 */
+        CResManager.prototype.getSources = function (srcs, priority, cb, ctx) {
+            var _this = this;
+            if (nn.length(srcs) == 0) {
+                cb.call(ctx, []);
+                return;
+            }
+            var res = [];
+            var proc = function (src, idx) {
+                _this.getSourceByType(src[0], priority, function (ds) {
+                    res.push(ds);
+                    if (++idx == srcs.length) {
+                        cb.call(ctx, res);
+                    }
+                    else {
+                        proc(srcs[idx], idx);
+                    }
+                }, _this, src[1]);
+            };
+            proc(srcs[0], 0);
+        };
+        /** 根据类型来获得指定的资源 */
+        CResManager.prototype.getSourceByType = function (src, priority, cb, ctx, type) {
+            if (src == null) {
+                cb.call(ctx, new nn.CacheRecord());
+                return;
+            }
+            // 处理特殊类型
+            if (type == ResType.JSREF) {
+                nn.Scripts.require(src, function () {
+                    cb.call(ctx);
+                }, this);
+                return;
+            }
+            // 附加参数
+            var part;
+            // 判断是否有附加控制用 # 来隔开
+            var parts = src.split('#');
+            src = parts[0];
+            part = parts[1];
+            // 如果是 uri
+            var res = src.match(WebUriCheckPattern);
+            if (res != null) {
+                var scheme = res[1];
+                var path = res[2];
+                if (scheme == 'http' || scheme == 'https') {
+                    this.getResByUrl(src, priority, function (rcd) {
+                        rcd.prop(nn.ResPartKey, part);
+                        cb.call(ctx, rcd);
+                    }, this, type);
+                }
+                else if (scheme == 'file') {
+                    this.getResByUrl(path, priority, function (rcd) {
+                        rcd.prop(nn.ResPartKey, part);
+                        cb.call(ctx, rcd);
+                    }, this, type);
+                }
+                else if (scheme == 'assets') {
+                    var url = this.directory + 'assets/' + path;
+                    this.getResByUrl(url, priority, function (rcd) {
+                        rcd.prop(nn.ResPartKey, part);
+                        cb.call(ctx, rcd);
+                    }, this, type);
+                }
+            }
+            else {
+                var rcd = nn.ResManager.tryGetRes(src);
+                // 如果直接取得了 Res，则直接设定，否则需要通过异步来取得对应的资源
+                if (rcd.val != null) {
+                    rcd.prop(nn.ResPartKey, part);
+                    cb.call(ctx, rcd);
+                }
+                else {
+                    nn.ResManager.getResAsync(src, priority, function (rcd) {
+                        rcd.prop(nn.ResPartKey, part);
+                        cb.call(ctx, rcd);
+                    }, this);
+                }
+            }
+        };
+        CResManager.prototype.getJson = function (src, priority, cb, ctx) {
+            this.getSourceByType(src, priority, cb, ctx, ResType.JSON);
+        };
+        CResManager.prototype.getText = function (src, priority, cb, ctx) {
+            this.getSourceByType(src, priority, cb, ctx, ResType.TEXT);
+        };
+        CResManager.prototype.getTexture = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            this.getSourceByType(src, priority, cb, ctx, ResType.TEXTURE);
+        };
+        CResManager.prototype.getBitmapFont = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            this.getSourceByType(src, priority, cb, ctx, ResType.FONT);
+        };
+        CResManager.prototype.getSound = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            this.getSourceByType(src, priority, cb, ctx, ResType.SOUND);
+        };
+        CResManager.prototype.getBinary = function (src, priority, cb, ctx) {
+            this.getSourceByType(src, priority, cb, ctx, ResType.BINARY);
+        };
+        return CResManager;
+    }(nn.SObject));
+    nn.CResManager = CResManager;
+    /** 使用约定的方式获取资源名称 */
+    var ResName = (function () {
+        function ResName() {
+        }
+        /** 普通 */
+        ResName.normal = function (name) {
+            return name.replace('_hl', '');
+        };
+        /** 高亮 */
+        ResName.hl = function (name) {
+            return this.normal(name) + '_hl';
+        };
+        return ResName;
+    }());
+    nn.ResName = ResName;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -14401,204 +14593,111 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    var CDom = (function (_super) {
-        __extends(CDom, _super);
-        function CDom() {
-            return _super.apply(this, arguments) || this;
+    var FrameTimer = (function () {
+        function FrameTimer() {
+            /** 消耗时间 */
+            this.cost = 0;
+            /** 过去了的时间 */
+            this.past = 0;
+            /** 次数统计 */
+            this.count = 0;
+            this.start = this.now = nn.DateTime.Pass();
         }
-        return CDom;
-    }(nn.Component));
-    nn.CDom = CDom;
-})(nn || (nn = {}));
-// 标准APP架构
-var nn;
-(function (nn) {
-    var EntrySettings = (function () {
-        function EntrySettings() {
-            /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
-            this.singletone = true;
-        }
-        return EntrySettings;
+        return FrameTimer;
     }());
-    EntrySettings.Default = new EntrySettings();
-    nn.EntrySettings = EntrySettings;
-    var Manager = (function (_super) {
-        __extends(Manager, _super);
-        function Manager() {
-            return _super.apply(this, arguments) || this;
+    nn.FrameTimer = FrameTimer;
+    var CFramesManager = (function () {
+        function CFramesManager() {
+            this._blayouts = NewSet();
+            this._bzpositions = NewSet();
+            this._bappears = NewSet();
+            this._bcaches = NewSet();
+            this._bmcs = NewSet();
+            this.RENDERS = NewSet();
+            this._ft = new FrameTimer();
         }
-        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
-        Manager.prototype.onDataLoaded = function () {
-        };
-        return Manager;
-    }(nn.SObject));
-    nn.Manager = Manager;
-    var Managers = (function (_super) {
-        __extends(Managers, _super);
-        function Managers() {
-            var _this = _super.apply(this, arguments) || this;
-            _this._managers = new Array();
-            return _this;
-        }
-        Managers.prototype.register = function (obj) {
-            this._managers.push(obj);
-            return obj;
-        };
-        Managers.prototype.onLoaded = function () {
-            this._managers.forEach(function (e) {
-                e.onLoaded();
+        CFramesManager.prototype.onPrepare = function () {
+            if (nn.ISDEBUG) {
+                ++this._ft.count;
+            }
+            // 刷新一下布局
+            ++CFramesManager._layoutthreshold;
+            nn.SetT.SafeClear(this._blayouts, function (c) {
+                if (!c.__disposed) {
+                    c._islayouting = true;
+                    c.updateLayout();
+                    c._islayouting = false;
+                }
+            });
+            --CFramesManager._layoutthreshold;
+            // 调整z顺序
+            nn.SetT.SafeClear(this._bzpositions, function (c) {
+                if (!c.__disposed)
+                    c.updateZPosition();
+            });
+            // 当布局结束才激发已显示
+            nn.SetT.SafeClear(this._bappears, function (c) {
+                if (!c.__disposed && !c.isAppeared)
+                    c.onAppeared();
+            });
+            // 更新图形缓存
+            nn.SetT.Clear(this._bcaches, function (c) {
+                if (!c.__disposed)
+                    c.flushCache();
+            });
+            // 更新内存缓存
+            nn.SetT.Clear(this._bmcs, function (mc) {
+                mc.gc();
             });
         };
-        Managers.prototype.onDataLoaded = function () {
-            this._managers.forEach(function (e) {
-                e.onDataLoaded();
-            });
+        CFramesManager.prototype.onRendering = function () {
+            var now = nn.DateTime.Pass();
+            this._ft.cost = now - this._ft.now;
+            this._ft.past = now - this._ft.start;
+            this._ft.now = now;
+            // 标准set的foreach需要传入3个参数，但是后两个我们都不会去使用
+            var cost = this._ft.cost;
+            this.RENDERS.forEach(function (each) {
+                each.onRender(cost);
+            }, this);
         };
-        return Managers;
-    }(nn.SObject));
-    nn.Managers = Managers;
-    var _EntriesManager = (function () {
-        function _EntriesManager() {
-            this._entries = new KvObject();
-            this._entriesdata = new KvObject();
-        }
-        /** 注册一个模块
-            @param entryClass类
-        */
-        _EntriesManager.prototype.register = function (entryClass, data) {
-            if (data === void 0) { data = EntrySettings.Default; }
-            var idr;
-            if (typeof (entryClass) == 'object') {
-                var o = entryClass;
-                idr = o.name;
+        /** 布局 */
+        CFramesManager.prototype.needsLayout = function (c) {
+            if (CFramesManager._layoutthreshold == 0) {
+                this._blayouts.add(c);
+                this.invalidate();
             }
             else {
-                idr = nn.Classname(entryClass);
+                c.updateLayout();
             }
-            this._entries[idr] = entryClass;
-            this._entriesdata[idr] = data;
         };
-        /** 启动一个模块
-            @param entry 类或者标类名
-            @param launcher 启动点的标示号或者启动点的实例
-            @pram data 附加的参数
-        */
-        _EntriesManager.prototype.invoke = function (entry, launcher, ext) {
-            this._doInvoke(entry, launcher, ext);
+        CFramesManager.prototype.cancelLayout = function (c) {
+            this._blayouts.delete(c);
         };
-        _EntriesManager.prototype._doInvoke = function (entry, launcher, ext) {
-            var _this = this;
-            if (entry == null) {
-                nn.warn("不能打开空的实例");
-                return;
-            }
-            var idr = typeof (entry) == 'string' ? entry : nn.Classname(entry);
-            var cls = this._entries[idr];
-            if (typeof (cls) == 'object') {
-                // 复杂定义一个类型，为了支持动态入口逻辑
-                var o = cls;
-                cls = o.clazz();
-            }
-            if (cls == null) {
-                nn.fatal("找不到实体类型 " + idr + "，请检查是否没有注册到EntriesManager");
-                return;
-            }
-            // 在launchers中查启动点
-            var ler;
-            if (typeof (launcher) == 'string')
-                ler = nn.LaunchersManager.find(launcher);
-            if (ler == null && typeof (launcher) == 'function') {
-                var leridr_1 = launcher(idr);
-                ler = nn.LaunchersManager.find(leridr_1);
-                // 如果ler为null，则代表目标模块还没有加载，需要先加载目标模块，待之准备好后，再加载当前模块
-                if (ler == null) {
-                    var wait_1 = function (s) {
-                        if (s.data != leridr_1)
-                            return;
-                        nn.LaunchersManager.signals.disconnect(nn.SignalChanged, wait_1);
-                        var data = _this._entriesdata[idr];
-                        // 重新查找，此次不可能查不到
-                        ler = nn.LaunchersManager.find(leridr_1);
-                        ler.launchEntry(cls, data);
-                    };
-                    nn.LaunchersManager.signals.connect(nn.SignalChanged, wait_1, null);
-                    this._doInvoke(leridr_1, launcher);
-                    return;
-                }
-            }
-            if (ler == null && typeof (launcher) == 'object')
-                ler = launcher;
-            if (ler == null) {
-                nn.fatal("没有找到停靠点" + launcher);
-                return;
-            }
-            // 加载最终的模块
-            var data = this._entriesdata[idr];
-            if (!nn.EntryCheckSettings(cls, data))
-                return;
-            // 检查是否可以打开
-            if (data == null)
-                data = new EntrySettings();
-            data.ext = ext;
-            ler.launchEntry(cls, data);
+        /** 调整Z顺序 */
+        CFramesManager.prototype.needsZPosition = function (c) {
+            this._bzpositions.add(c);
+            this.invalidate();
         };
-        _EntriesManager.prototype.toString = function () {
-            var t = [];
-            nn.MapT.Foreach(this._entries, function (k) {
-                t.push(k);
-            });
-            return t.join(';');
+        /** 显示 */
+        CFramesManager.prototype.needsAppear = function (c) {
+            this._bappears.add(c);
+            this.invalidate();
         };
-        return _EntriesManager;
+        /** 刷新图形缓存 */
+        CFramesManager.prototype.needsCache = function (c) {
+            this._bcaches.add(c);
+            this.invalidate();
+        };
+        /** 刷新内存缓存 */
+        CFramesManager.prototype.needsGC = function (mc) {
+            this._bmcs.add(mc);
+            this.invalidate();
+        };
+        return CFramesManager;
     }());
-    nn._EntriesManager = _EntriesManager;
-    // 应用实例管理器
-    nn.EntriesManager = new _EntriesManager();
-    var _LaunchersManager = (function (_super) {
-        __extends(_LaunchersManager, _super);
-        function _LaunchersManager() {
-            var _this = _super.call(this) || this;
-            _this._launchers = new KvObject();
-            return _this;
-        }
-        _LaunchersManager.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalChanged);
-        };
-        /** 注册一个启动器 */
-        _LaunchersManager.prototype.register = function (obj) {
-            var idr = nn.Classname(obj);
-            var fnd = this._launchers[idr];
-            if (fnd) {
-                nn.warn('LaunchersManager 已经注册过 ' + idr);
-                return;
-            }
-            this._launchers[idr] = obj;
-            // 直接设置UI对象中的对应标记，用来当UI关闭时释放该停靠点
-            obj.__need_remove_from_launchersmanager = true;
-            this.signals.emit(nn.SignalChanged, idr);
-        };
-        /** 取消 */
-        _LaunchersManager.prototype.unregister = function (obj) {
-            var idr = nn.Classname(obj);
-            nn.MapT.RemoveKey(this._launchers, idr);
-        };
-        /** 查找一个启动器 */
-        _LaunchersManager.prototype.find = function (str) {
-            return this._launchers[str];
-        };
-        _LaunchersManager.prototype.toString = function () {
-            var t = [];
-            nn.MapT.Foreach(this._launchers, function (k) {
-                t.push(k);
-            });
-            return t.join(';');
-        };
-        return _LaunchersManager;
-    }(nn.SObject));
-    nn._LaunchersManager = _LaunchersManager;
-    // 应用入口管理器
-    nn.LaunchersManager = new _LaunchersManager();
+    CFramesManager._layoutthreshold = 0;
+    nn.CFramesManager = CFramesManager;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -14868,7 +14967,7 @@ var nn;
                 [skeleton, nn.ResType.JSON],
                 [place, nn.ResType.JSON],
                 [texture, nn.ResType.TEXTURE]
-            ], RES.LoadPriority.CLIP, function (ds) {
+            ], nn.ResPriority.CLIP, function (ds) {
                 var sd = ds[0].use();
                 if (sd == null) {
                     nn.warn("bone-skcfg " + skeleton + " not found");
@@ -15878,7 +15977,7 @@ var nn;
                 nn.ResManager.getSources([
                     [frame, nn.ResType.JSON],
                     [tex, nn.ResType.TEXTURE]
-                ], RES.LoadPriority.CLIP, function (ds) {
+                ], nn.ResPriority.CLIP, function (ds) {
                     var djson = ds[0].use();
                     var dtex = ds[1].use();
                     if (djson == null) {
@@ -18520,7 +18619,7 @@ var nn;
                 if (this._fontSource == fs)
                     return;
                 this._fontSource = fs;
-                nn.ResManager.getBitmapFont(fs, RES.LoadPriority.NORMAL, function (font) {
+                nn.ResManager.getBitmapFont(fs, nn.ResPriority.NORMAL, function (font) {
                     if (fs != _this._fontSource)
                         return;
                     _this._lbl.font = font.use();
@@ -20800,616 +20899,97 @@ var nn;
     }(nn.Widget));
     nn.Particle = Particle;
 })(nn || (nn = {}));
+var egret;
+(function (egret) {
+    egret.VERSION_2_5_6 = egret.MAKE_VERSION(2, 5, 6);
+})(egret || (egret = {}));
 var nn;
 (function (nn) {
-    var ResType;
-    (function (ResType) {
-        ResType[ResType["JSON"] = 0] = "JSON";
-        ResType[ResType["TEXTURE"] = 1] = "TEXTURE";
-        ResType[ResType["TEXT"] = 2] = "TEXT";
-        ResType[ResType["FONT"] = 3] = "FONT";
-        ResType[ResType["SOUND"] = 4] = "SOUND";
-        ResType[ResType["BINARY"] = 5] = "BINARY";
-        ResType[ResType["JSREF"] = 6] = "JSREF";
-    })(ResType = nn.ResType || (nn.ResType = {}));
-    ;
-    nn.ResPartKey = "::res::part";
-    var ResourceEntity = (function () {
-        function ResourceEntity(src, t) {
-            this.source = src;
-            this.type = t;
+    nn.IMP_TIMEPASS = function () {
+        return egret.getTimer() * 0.001;
+    };
+    nn.IMP_CREATE_TIMER = function (duration, count) {
+        return new egret.Timer(duration * 1000, count);
+    };
+    nn.IMP_START_TIMER = function (tmr, cb, ctx) {
+        tmr.addEventListener(egret.TimerEvent.TIMER, cb, ctx);
+        tmr.start();
+    };
+    nn.IMP_STOP_TIMER = function (tmr, cb, ctx) {
+        tmr.stop();
+        tmr.removeEventListener(egret.TimerEvent.TIMER, cb, ctx);
+    };
+    // 需要判断一下是使用LocalStorage还是使用SessionStorage
+    var _storageMode = (function () {
+        var key = "::n2::test::localstorage::mode";
+        if (egret.localStorage.setItem(key, "test")) {
+            egret.localStorage.removeItem(key);
+            return 0;
         }
-        Object.defineProperty(ResourceEntity.prototype, "hashCode", {
-            get: function () {
-                return nn.StringT.Hash(this.source + ":" + this.type);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return ResourceEntity;
-    }());
-    nn.ResourceEntity = ResourceEntity;
-    // 检查是否属于uri的规范
-    var WebUriCheckPattern = /^([\w]+):\/\/(.+)$/i;
-    // 资源池
-    var _ResMemcache = (function (_super) {
-        __extends(_ResMemcache, _super);
-        function _ResMemcache() {
-            var _this = _super.call(this) || this;
-            // 自定义个hashCode
-            _this._hashCode = 0;
-            // cache-key 和 sources 的对照表
-            _this._sources = new KvObject();
-            _this._keys = new KvObject();
-            _this.enable = true;
-            return _this;
+        if (window && window.sessionStorage) {
+            try {
+                window.sessionStorage.setItem(key, "test");
+                window.sessionStorage.removeItem(key);
+                return 1;
+            }
+            catch (e) { } // 不支持sessionStorage
         }
-        _ResMemcache.prototype.doRemoveObject = function (rcd) {
-            var _this = this;
-            _super.prototype.doRemoveObject.call(this, rcd);
-            var srcs = this._sources[rcd.key];
-            srcs.forEach(function (e) {
-                RES.destroyRes(e);
-                if (nn.VERBOSE)
-                    nn.log("释放资源 " + e);
-                delete _this._keys[e];
-            });
-            delete this._sources[rcd.key];
+        return -1;
+    })();
+    if (_storageMode == 0) {
+        nn.IMP_STORAGE_GET = egret.localStorage.getItem;
+        nn.IMP_STORAGE_SET = egret.localStorage.setItem;
+        nn.IMP_STORAGE_DEL = egret.localStorage.removeItem;
+        nn.IMP_STORAGE_CLEAR = egret.localStorage.clear;
+    }
+    else if (_storageMode == 1) {
+        nn.IMP_STORAGE_GET = function (k) {
+            return window.sessionStorage.getItem(k);
         };
-        // 根据source添加data
-        _ResMemcache.prototype.add = function (source, data) {
-            // 根据data的不同计算对应的key
-            var key;
-            if (data == null) {
-                key = "::mc::null";
-            }
-            else if ('hashCode' in data) {
-                key = data.hashCode;
-            }
-            else if (typeof (data) == 'object') {
-                key = data[_ResMemcache.IDR_HASHCODE];
-                if (key == null) {
-                    key = '::mc::' + this._hashCode++;
-                    data[_ResMemcache.IDR_HASHCODE] = key;
-                }
-            }
-            else {
-                var rcd = new nn.CacheRecord();
-                rcd.val = data;
-                return rcd;
-            }
-            var srcs = this._sources[key];
-            if (srcs == null) {
-                srcs = [source];
-                this._sources[key] = srcs;
-            }
-            else {
-                srcs.push(source);
-            }
-            this._keys[source] = key;
-            // 添加到缓存中
-            var obj = new _ResCacheObject();
-            obj.key = key;
-            obj.data = data;
-            return this.cache(obj);
+        nn.IMP_STORAGE_SET = function (k, v) {
+            window.sessionStorage.setItem(k, v);
         };
-        _ResMemcache.prototype.query = function (source) {
-            var key = this._keys[source];
-            return _super.prototype.query.call(this, key);
+        nn.IMP_STORAGE_DEL = function (k) {
+            window.sessionStorage.removeItem(k);
         };
-        return _ResMemcache;
-    }(nn.Memcache));
-    _ResMemcache.IDR_HASHCODE = '::mc::hashCode';
-    nn._ResMemcache = _ResMemcache;
-    var _ResCacheObject = (function () {
-        function _ResCacheObject() {
-            this.cacheFlush = true;
-            this.cacheUpdated = true;
-            this.cacheTime = -1;
+        nn.IMP_STORAGE_CLEAR = function () {
+            window.sessionStorage.clear();
+        };
+    }
+    else {
+        var __g_storage_1 = {};
+        nn.IMP_STORAGE_GET = function (key) {
+            return __g_storage_1[key];
+        };
+        nn.IMP_STORAGE_SET = function (key, v) {
+            __g_storage_1[key] = v;
+        };
+        nn.IMP_STORAGE_DEL = function (key) {
+            delete __g_storage_1[key];
+        };
+        nn.IMP_STORAGE_CLEAR = function () {
+            __g_storage_1 = {};
+        };
+    }
+    nn.Defer = function (cb, ctx) {
+        var p = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            p[_i - 2] = arguments[_i];
         }
-        _ResCacheObject.prototype.keyForCache = function () {
-            return this.key;
-        };
-        _ResCacheObject.prototype.valueForCache = function () {
-            return this.data;
-        };
-        return _ResCacheObject;
-    }());
-    // 资源包
-    var ResCapsule = (function (_super) {
-        __extends(ResCapsule, _super);
-        function ResCapsule(reqres, ewd) {
-            var _this = _super.call(this) || this;
-            _this._reqRes = reqres;
-            _this._ewd = ewd;
-            return _this;
-        }
-        ResCapsule.prototype.dispose = function () {
-            this._ewd = undefined;
-            this._reqRes = undefined;
-            _super.prototype.dispose.call(this);
-        };
-        ResCapsule.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalDone);
-            this._signals.register(nn.SignalFailed);
-            this._signals.register(nn.SignalChanged);
-        };
-        ResCapsule.prototype.load = function (cb, ctx) {
-            var _this = this;
-            // 如果为空，直接回调
-            if (nn.IsEmpty(this._reqRes)) {
-                if (cb)
-                    cb.call(ctx);
-                return;
-            }
-            // 监听结束的消息
-            if (cb)
-                this.signals.connect(nn.SignalDone, cb, ctx);
-            // 如果正在加载，则直接返回等待
-            if (this._isloading)
-                return;
-            this._isloading = true;
-            this._total = this.total();
-            this._idx = 0;
-            // 直接一次性加载所有的资源
-            var reqid = 0;
-            this._reqRes.forEach(function (e) {
-                if (e == null)
-                    return;
-                _this.loadOne(e, function () {
-                    if (_this._reqRes.length != ++reqid)
-                        return;
-                    // 加载完成
-                    // 移除时会自动析构，需要保护生命期
-                    _this.grab();
-                    // 从管理器中移除
-                    nn.ResManager.removeCapsule(_this);
-                    // 完成加载
-                    _this._isloading = false;
-                    // 回调结束的事件
-                    _this.signals.emit(nn.SignalDone);
-                    _this.drop();
-                }, _this);
-            });
-        };
-        ResCapsule.prototype.loadOne = function (rr, cb, ctx) {
-            var _this = this;
-            var curidx = 0;
-            // 判断是加载资源组，还是直接加载资源
-            if (rr instanceof ResourceEntity) {
-                var re = rr;
-                nn.ResManager.getSourceByType(re.source, RES.LoadPriority.NORMAL, function (rcd) {
-                    if (_this.signals.isConnected(nn.SignalChanged)) {
-                        curidx = 1;
-                        _this._idx += 1;
-                        // 发出消息
-                        _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
-                    }
-                    cb.call(ctx);
-                }, this, re.type);
-            }
-            else {
-                var grp = rr;
-                if (RES.isGroupLoaded(grp)) {
-                    if (this.signals.isConnected(nn.SignalChanged)) {
-                        var len = RES.getGroupByName(grp).length;
-                        curidx = len;
-                        this._idx += len;
-                        this.signals.emit(nn.SignalChanged, new nn.Percentage(this._total, this._idx));
-                    }
-                    cb.call(ctx);
-                }
-                else {
-                    this._ewd.add("::res::group::" + grp, cb, ctx);
-                    if (this.signals.isConnected(nn.SignalChanged)) {
-                        this._ewd.add("::res::group::progress::" + grp, function (e) {
-                            // 计算进度
-                            var delta = e.itemsLoaded - curidx;
-                            curidx = e.itemsLoaded;
-                            _this._idx += delta;
-                            // 发出消息
-                            _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
-                        }, this);
-                    }
-                    RES.loadGroup(grp);
-                }
-            }
-        };
-        ResCapsule.prototype.total = function () {
-            var r = 0;
-            this._reqRes.forEach(function (rr) {
-                if (rr instanceof ResourceEntity)
-                    r += 1;
-                else
-                    r += RES.getGroupByName(rr).length;
-            });
-            return r;
-        };
-        ResCapsule.prototype.hashKey = function () {
-            return ResCapsule.HashKey(this._reqRes);
-        };
-        ResCapsule.HashKey = function (reqres) {
-            var a = [];
-            reqres.forEach(function (rr) {
-                if (rr instanceof ResourceEntity)
-                    a.push(rr.hashCode);
-                else
-                    a.push(rr);
-            });
-            return nn.StringT.Hash(a.join('::'));
-        };
-        return ResCapsule;
-    }(nn.SObject));
-    nn.ResCapsule = ResCapsule;
-    var EgretItemTypeMap = {};
-    EgretItemTypeMap[ResType.JSON] = RES.ResourceItem.TYPE_JSON;
-    EgretItemTypeMap[ResType.TEXTURE] = RES.ResourceItem.TYPE_IMAGE;
-    EgretItemTypeMap[ResType.TEXT] = RES.ResourceItem.TYPE_TEXT;
-    EgretItemTypeMap[ResType.FONT] = RES.ResourceItem.TYPE_FONT;
-    EgretItemTypeMap[ResType.SOUND] = RES.ResourceItem.TYPE_SOUND;
-    EgretItemTypeMap[ResType.BINARY] = RES.ResourceItem.TYPE_BIN;
-    var _ResManager = (function (_super) {
-        __extends(_ResManager, _super);
-        function _ResManager() {
-            var _this = _super.call(this) || this;
-            // 正在加载的资源包
-            _this._capsules = new KvObject();
-            // 用来转发事件
-            _this._ewd = new nn.EventWeakDispatcher();
-            // 资源的缓存管理
-            _this.cache = new _ResMemcache();
-            // config 只在manager中处理，其他事件转到包中处理
-            RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, _this._cfg_loaded, _this);
-            RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, _this._grp_complete, _this);
-            RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, _this._grp_failed, _this);
-            RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, _this._grp_progress, _this);
-            // 切换为4线程下载资源
-            RES.setMaxLoadingThread(4);
-            return _this;
-        }
-        Object.defineProperty(_ResManager.prototype, "directory", {
-            get: function () {
-                return this._directory;
-            },
-            set: function (nm) {
-                this._directory = nm;
-                // 仿照 android，不同尺寸适配不同分辨率的资源
-                if (this.multiRes) {
-                    switch (nn.Device.shared.screenType) {
-                        case nn.ScreenType.NORMAL: break;
-                        case nn.ScreenType.LOW:
-                            this._directory += '_m';
-                            break;
-                        case nn.ScreenType.EXTRALOW:
-                            this._directory += '_l';
-                            break;
-                        case nn.ScreenType.EXTRAHIGH:
-                            this._directory += '_xh';
-                            break;
-                        case nn.ScreenType.HIGH:
-                            this._directory += '_h';
-                            break;
-                    }
-                }
-                // 如果是发布模式，则使用发布图片
-                if (nn.PUBLISH) {
-                    // RELEASE模式下才需要拼装资源目录
-                    if (!nn.ISDEBUG)
-                        this._directory = this._directory + '_' + nn.APPVERSION;
-                }
-                // 保护一下路径末尾
-                this._directory += '/';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /** 加载一个资源配置 */
-        _ResManager.prototype.loadConfig = function (file, cb, ctx) {
-            this._ewd.add("::res::config", cb, ctx);
-            // 如过file是绝对地址，则不添加directory
-            if (file.indexOf('://') == -1)
-                file = this.directory + file;
-            RES.loadConfig(file, this.directory);
-        };
-        _ResManager.prototype._cfg_loaded = function (e) {
-            var idr = "::res::config";
-            this._ewd.invoke(idr, e, false);
-            this._ewd.remove(idr);
-        };
-        _ResManager.prototype._grp_complete = function (e) {
-            var idr0 = "::res::group::" + e.groupName;
-            var idr1 = "::res::group::progress::" + e.groupName;
-            this._ewd.invoke(idr0, e, false);
-            this._ewd.remove(idr0);
-            this._ewd.remove(idr1);
-        };
-        _ResManager.prototype._grp_failed = function (e) {
-            this._grp_complete(e);
-        };
-        _ResManager.prototype._grp_progress = function (e) {
-            var item = e.resItem;
-            // 增加其他数据文件
-            if (item.type == RES.ResourceItem.TYPE_BIN) {
-                // 增加字体
-                if (nn.FontFilePattern.test(item.url)) {
-                    nn.FontsManager.add(item.name, item.url);
-                }
-            }
-            var idr = "::res::group::progress::" + e.groupName;
-            this._ewd.invoke(idr, e, false);
-        };
-        _ResManager.prototype.capsules = function (grps) {
-            var k = ResCapsule.HashKey(grps);
-            var cp = this._capsules[k];
-            if (cp == null) {
-                cp = new ResCapsule(grps, this._ewd);
-                this._capsules[k] = cp;
-            }
-            return cp;
-        };
-        _ResManager.prototype.removeCapsule = function (cp) {
-            var k = cp.hashKey();
-            cp.drop();
-            delete this._capsules[k];
-        };
-        _ResManager.prototype.isGroupsArrayLoaded = function (grps) {
-            if (grps) {
-                for (var i = 0; i < grps.length; ++i) {
-                    if (RES.isGroupLoaded(grps[i]) == false)
-                        return false;
-                }
-            }
-            return true;
-        };
-        /** 尝试加载 */
-        _ResManager.prototype.tryGetRes = function (key) {
-            var rcd = this.cache.query(key);
-            if (rcd == null) {
-                var d = RES.getRes(key);
-                if (d) {
-                    rcd = this.cache.add(key, d);
-                }
-                else {
-                    return new nn.CacheRecord();
-                }
-            }
-            return rcd;
-        };
-        /** 异步加载资源，和 getRes 的区别不仅是同步异步，而且异步可以忽略掉 group 的状态直接加载资源*/
-        _ResManager.prototype.getResAsync = function (key, priority, cb, ctx) {
-            var _this = this;
-            if (nn.length(key) == 0) {
-                cb.call(ctx, new nn.CacheRecord());
-                return;
-            }
-            var rcd = this.cache.query(key);
-            if (rcd == null) {
-                RES.CurrentPriority = priority;
-                RES.getResAsync(key, function (d) {
-                    if (d) {
-                        rcd = _this.cache.add(key, d);
-                    }
-                    else {
-                        rcd = new nn.CacheRecord();
-                        nn.warn("res " + key + " not found");
-                    }
-                    cb.call(ctx, rcd);
-                }, this);
-            }
-            else {
-                cb.call(ctx, rcd);
-            }
-        };
-        _ResManager.prototype.if = function (DEBUG) {
-            if (RES.configInstance == undefined)
-                nn.fatal('ResManager 存在兼容问题');
-        };
-        /** 获取 key 对应资源 url */
-        _ResManager.prototype.getResUrl = function (key) {
-            var obj = RES.configInstance.keyMap[key];
-            if (obj == null) {
-                nn.warn("res " + key + " not found");
-                return null;
-            }
-            return obj.url;
-        };
-        /** 根据 src - type 的对照数组来加载资源数组 */
-        _ResManager.prototype.getSources = function (srcs, priority, cb, ctx) {
-            var _this = this;
-            if (nn.length(srcs) == 0) {
-                cb.call(ctx, []);
-                return;
-            }
-            var res = [];
-            var proc = function (src, idx) {
-                _this.getSourceByType(src[0], priority, function (ds) {
-                    res.push(ds);
-                    if (++idx == srcs.length) {
-                        cb.call(ctx, res);
-                    }
-                    else {
-                        proc(srcs[idx], idx);
-                    }
-                }, _this, src[1]);
-            };
-            proc(srcs[0], 0);
-        };
-        /** 异步直接加载远程资源 */
-        _ResManager.prototype.getResByUrl = function (src, priority, cb, ctx, type) {
-            var _this = this;
-            // 如果位于缓存中，则直接返回
-            var rcd = this.cache.query(src);
-            if (rcd != null) {
-                cb.call(ctx, rcd);
-                return;
-            }
-            // 不在缓存中，需要直接获得
-            RES.CurrentPriority = priority;
-            RES.getResByUrl(src, function (d) {
-                // 添加到缓存
-                rcd = _this.cache.add(src, d);
-                // 回调
-                cb.call(ctx, rcd);
-            }, this, EgretItemTypeMap[type]);
-        };
-        _ResManager.prototype.hasAsyncUri = function (uri) {
-            return this.cache.query(uri) != null;
-        };
-        /** 根据类型来获得指定的资源 */
-        _ResManager.prototype.getSourceByType = function (src, priority, cb, ctx, type) {
-            if (src == null) {
-                cb.call(ctx, new nn.CacheRecord());
-                return;
-            }
-            // 处理特殊类型
-            if (type == ResType.JSREF) {
-                nn.Scripts.require(src, function () {
-                    cb.call(ctx);
-                }, this);
-                return;
-            }
-            // 附加参数
-            var part;
-            // 判断是否有附加控制用 # 来隔开
-            var parts = src.split('#');
-            src = parts[0];
-            part = parts[1];
-            // 如果是 uri
-            var res = src.match(WebUriCheckPattern);
-            if (res != null) {
-                var scheme = res[1];
-                var path = res[2];
-                if (scheme == 'http' || scheme == 'https') {
-                    this.getResByUrl(src, priority, function (rcd) {
-                        rcd.prop(nn.ResPartKey, part);
-                        cb.call(ctx, rcd);
-                    }, this, type);
-                }
-                else if (scheme == 'file') {
-                    this.getResByUrl(path, priority, function (rcd) {
-                        rcd.prop(nn.ResPartKey, part);
-                        cb.call(ctx, rcd);
-                    }, this, type);
-                }
-                else if (scheme == 'assets') {
-                    var url = this.directory + 'assets/' + path;
-                    this.getResByUrl(url, priority, function (rcd) {
-                        rcd.prop(nn.ResPartKey, part);
-                        cb.call(ctx, rcd);
-                    }, this, type);
-                }
-            }
-            else {
-                var rcd = nn.ResManager.tryGetRes(src);
-                // 如果直接取得了 Res，则直接设定，否则需要通过异步来取得对应的资源
-                if (rcd.val != null) {
-                    rcd.prop(nn.ResPartKey, part);
-                    cb.call(ctx, rcd);
-                }
-                else {
-                    nn.ResManager.getResAsync(src, priority, function (rcd) {
-                        rcd.prop(nn.ResPartKey, part);
-                        cb.call(ctx, rcd);
-                    }, this);
-                }
-            }
-        };
-        _ResManager.prototype.getJson = function (src, priority, cb, ctx) {
-            this.getSourceByType(src, priority, cb, ctx, ResType.JSON);
-        };
-        _ResManager.prototype.getText = function (src, priority, cb, ctx) {
-            this.getSourceByType(src, priority, cb, ctx, ResType.TEXT);
-        };
-        _ResManager.prototype.getTexture = function (src, priority, cb, ctx) {
-            if (src instanceof nn.COriginType) {
-                var t = new nn.CacheRecord();
-                t.val = src.imp;
-                cb.call(ctx, t);
-                return;
-            }
-            if (src instanceof egret.Texture) {
-                var t = new nn.CacheRecord();
-                t.val = src;
-                cb.call(ctx, t);
-                return;
-            }
-            this.getSourceByType(src, priority, cb, ctx, ResType.TEXTURE);
-        };
-        _ResManager.prototype.getBitmapFont = function (src, priority, cb, ctx) {
-            if (src instanceof nn.COriginType) {
-                var t = new nn.CacheRecord();
-                t.val = src.imp;
-                cb.call(ctx, t);
-                return;
-            }
-            if (src instanceof egret.BitmapFont) {
-                var t = new nn.CacheRecord();
-                t.val = src;
-                cb.call(ctx, t);
-                return;
-            }
-            // 通过配置来获得
-            if (src instanceof nn.FontConfig) {
-                var cfg = src;
-                if (cfg.name) {
-                    this.getSourceByType(cfg.name, priority, cb, ctx, ResType.FONT);
-                }
-                else {
-                    // 通过两个配置文件来获得
-                    this.getSources([[cfg.texture, ResType.TEXTURE],
-                        [cfg.config, ResType.JSON]], priority, function (ds) {
-                        var tex = ds[0];
-                        var cfg = ds[1];
-                        // todo 现在为简化font缓存处理(直接调用use逻辑避免tex和cfg被释放)
-                        var t = new nn.CacheRecord();
-                        t.val = new egret.BitmapFont(tex.use(), cfg.use());
-                        cb.call(ctx, t);
-                    }, this);
-                }
-                return;
-            }
-            // 通过key来获得
-            this.getSourceByType(src, priority, cb, ctx, ResType.FONT);
-        };
-        _ResManager.prototype.getSound = function (src, priority, cb, ctx) {
-            if (src instanceof nn.COriginType) {
-                var t = new nn.CacheRecord();
-                t.val = src.imp;
-                cb.call(ctx, t);
-                return;
-            }
-            if (src instanceof egret.Sound) {
-                var t = new nn.CacheRecord();
-                t.val = src;
-                cb.call(ctx, t);
-                return;
-            }
-            this.getSourceByType(src, priority, cb, ctx, ResType.SOUND);
-        };
-        _ResManager.prototype.getBinary = function (src, priority, cb, ctx) {
-            this.getSourceByType(src, priority, cb, ctx, ResType.BINARY);
-        };
-        return _ResManager;
-    }(nn.SObject));
-    nn._ResManager = _ResManager;
-    /** 全局唯一的资源管理实体 */
-    nn.ResManager = new _ResManager();
-    /** 使用约定的方式获取资源名称 */
-    var ResName = (function () {
-        function ResName() {
-        }
-        /** 普通 */
-        ResName.normal = function (name) {
-            return name.replace('_hl', '');
-        };
-        /** 高亮 */
-        ResName.hl = function (name) {
-            return this.normal(name) + '_hl';
-        };
-        return ResName;
-    }());
-    nn.ResName = ResName;
+        egret.callLater.apply(null, [cb, ctx].concat(p));
+    };
+    // 将point伪装成egret.point
+    var __PROTO = nn.Point.prototype;
+    __PROTO.setTo = function (x, y) {
+        this.x = x;
+        this.y = y;
+    };
+    // 解决egret-inspector显示的是实现类而不是业务类的名称
+    Js.OverrideFunction(egret, 'getQualifiedClassName', function (orifn, value) {
+        if ('_fmui' in value)
+            return value._fmui.descriptionName;
+        return orifn(value);
+    });
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -21563,97 +21143,447 @@ var nn;
     }(nn.Model));
     nn.UrlModel = UrlModel;
 })(nn || (nn = {}));
-var egret;
-(function (egret) {
-    egret.VERSION_2_5_6 = egret.MAKE_VERSION(2, 5, 6);
-})(egret || (egret = {}));
+// 对egret的RES模块进行功能扩展
+var RES;
+(function (RES) {
+    var ExtResourceItem = (function (_super) {
+        __extends(ExtResourceItem, _super);
+        function ExtResourceItem(name, url, type) {
+            var _this = _super.call(this, name, url, type) || this;
+            _this._priority = nn.ResCurrentPriority;
+            return _this;
+        }
+        return ExtResourceItem;
+    }(RES.ResourceItem));
+    var ExtLazyLoadList = (function () {
+        function ExtLazyLoadList() {
+            this.length = 0;
+            // 不通的等级定义不同的队列
+            this.items = [
+                new Array(),
+                new Array()
+            ];
+        }
+        ExtLazyLoadList.prototype.push = function (item) {
+            var arr = this.items[item._priority];
+            arr.push(item);
+            ++this.length;
+        };
+        ExtLazyLoadList.prototype.pop = function () {
+            if (this.length == 0)
+                return null;
+            var arr = this.items[nn.ResPriority.NORMAL];
+            var poped = arr.pop();
+            if (poped == null) {
+                arr = this.items[nn.ResPriority.CLIP];
+                poped = arr.pop();
+            }
+            --this.length;
+            return poped;
+        };
+        return ExtLazyLoadList;
+    }());
+    RES.ResourceItem = ExtResourceItem;
+    // 使用ext换掉原来的lazy以提供附加的优先级控制
+    var lazyLoadListChanged;
+    var PROTO = RES.ResourceLoader.prototype;
+    var funcLoadItem = PROTO.loadItem;
+    PROTO.loadItem = function (resItem) {
+        var self = this;
+        if (!lazyLoadListChanged) {
+            if (self.lazyLoadList == null)
+                nn.fatal("Egret引擎升级RES的LazyLoadList方法，请检查引擎修改");
+            self.lazyLoadList = new ExtLazyLoadList();
+            lazyLoadListChanged = true;
+        }
+        funcLoadItem.call(self, resItem);
+    };
+})(RES || (RES = {}));
 var nn;
 (function (nn) {
-    nn.IMP_TIMEPASS = function () {
-        return egret.getTimer() * 0.001;
-    };
-    nn.IMP_CREATE_TIMER = function (duration, count) {
-        return new egret.Timer(duration * 1000, count);
-    };
-    nn.IMP_START_TIMER = function (tmr, cb, ctx) {
-        tmr.addEventListener(egret.TimerEvent.TIMER, cb, ctx);
-        tmr.start();
-    };
-    nn.IMP_STOP_TIMER = function (tmr, cb, ctx) {
-        tmr.stop();
-        tmr.removeEventListener(egret.TimerEvent.TIMER, cb, ctx);
-    };
-    // 需要判断一下是使用LocalStorage还是使用SessionStorage
-    var _storageMode = (function () {
-        var key = "::n2::test::localstorage::mode";
-        if (egret.localStorage.setItem(key, "test")) {
-            egret.localStorage.removeItem(key);
-            return 0;
+    // 资源池
+    var _ResMemcache = (function (_super) {
+        __extends(_ResMemcache, _super);
+        function _ResMemcache() {
+            var _this = _super.call(this) || this;
+            // 自定义个hashCode
+            _this._hashCode = 0;
+            // cache-key 和 sources 的对照表
+            _this._sources = new KvObject();
+            _this._keys = new KvObject();
+            _this.enable = true;
+            return _this;
         }
-        if (window && window.sessionStorage) {
-            try {
-                window.sessionStorage.setItem(key, "test");
-                window.sessionStorage.removeItem(key);
-                return 1;
+        _ResMemcache.prototype.doRemoveObject = function (rcd) {
+            var _this = this;
+            _super.prototype.doRemoveObject.call(this, rcd);
+            var srcs = this._sources[rcd.key];
+            srcs.forEach(function (e) {
+                RES.destroyRes(e);
+                if (nn.VERBOSE)
+                    nn.log("释放资源 " + e);
+                delete _this._keys[e];
+            });
+            delete this._sources[rcd.key];
+        };
+        // 根据source添加data
+        _ResMemcache.prototype.add = function (source, data) {
+            // 根据data的不同计算对应的key
+            var key;
+            if (data == null) {
+                key = "::mc::null";
             }
-            catch (e) { } // 不支持sessionStorage
+            else if ('hashCode' in data) {
+                key = data.hashCode;
+            }
+            else if (typeof (data) == 'object') {
+                key = data[_ResMemcache.IDR_HASHCODE];
+                if (key == null) {
+                    key = '::mc::' + this._hashCode++;
+                    data[_ResMemcache.IDR_HASHCODE] = key;
+                }
+            }
+            else {
+                var rcd = new nn.CacheRecord();
+                rcd.val = data;
+                return rcd;
+            }
+            var srcs = this._sources[key];
+            if (srcs == null) {
+                srcs = [source];
+                this._sources[key] = srcs;
+            }
+            else {
+                srcs.push(source);
+            }
+            this._keys[source] = key;
+            // 添加到缓存中
+            var obj = new _ResCacheObject();
+            obj.key = key;
+            obj.data = data;
+            return this.cache(obj);
+        };
+        _ResMemcache.prototype.query = function (source) {
+            var key = this._keys[source];
+            return _super.prototype.query.call(this, key);
+        };
+        return _ResMemcache;
+    }(nn.Memcache));
+    _ResMemcache.IDR_HASHCODE = '::mc::hashCode';
+    nn._ResMemcache = _ResMemcache;
+    var _ResCacheObject = (function () {
+        function _ResCacheObject() {
+            this.cacheFlush = true;
+            this.cacheUpdated = true;
+            this.cacheTime = -1;
         }
-        return -1;
-    })();
-    if (_storageMode == 0) {
-        nn.IMP_STORAGE_GET = egret.localStorage.getItem;
-        nn.IMP_STORAGE_SET = egret.localStorage.setItem;
-        nn.IMP_STORAGE_DEL = egret.localStorage.removeItem;
-        nn.IMP_STORAGE_CLEAR = egret.localStorage.clear;
-    }
-    else if (_storageMode == 1) {
-        nn.IMP_STORAGE_GET = function (k) {
-            return window.sessionStorage.getItem(k);
+        _ResCacheObject.prototype.keyForCache = function () {
+            return this.key;
         };
-        nn.IMP_STORAGE_SET = function (k, v) {
-            window.sessionStorage.setItem(k, v);
+        _ResCacheObject.prototype.valueForCache = function () {
+            return this.data;
         };
-        nn.IMP_STORAGE_DEL = function (k) {
-            window.sessionStorage.removeItem(k);
-        };
-        nn.IMP_STORAGE_CLEAR = function () {
-            window.sessionStorage.clear();
-        };
-    }
-    else {
-        var __g_storage_1 = {};
-        nn.IMP_STORAGE_GET = function (key) {
-            return __g_storage_1[key];
-        };
-        nn.IMP_STORAGE_SET = function (key, v) {
-            __g_storage_1[key] = v;
-        };
-        nn.IMP_STORAGE_DEL = function (key) {
-            delete __g_storage_1[key];
-        };
-        nn.IMP_STORAGE_CLEAR = function () {
-            __g_storage_1 = {};
-        };
-    }
-    nn.Defer = function (cb, ctx) {
-        var p = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            p[_i - 2] = arguments[_i];
+        return _ResCacheObject;
+    }());
+    var ResCapsule = (function (_super) {
+        __extends(ResCapsule, _super);
+        function ResCapsule(reqres, ewd) {
+            var _this = _super.call(this, reqres) || this;
+            _this._ewd = ewd;
+            return _this;
         }
-        egret.callLater.apply(null, [cb, ctx].concat(p));
-    };
-    // 将point伪装成egret.point
-    var __PROTO = nn.Point.prototype;
-    __PROTO.setTo = function (x, y) {
-        this.x = x;
-        this.y = y;
-    };
-    // 解决egret-inspector显示的是实现类而不是业务类的名称
-    Js.OverrideFunction(egret, 'getQualifiedClassName', function (orifn, value) {
-        if ('_fmui' in value)
-            return value._fmui.descriptionName;
-        return orifn(value);
-    });
+        ResCapsule.prototype.dispose = function () {
+            this._ewd = undefined;
+            _super.prototype.dispose.call(this);
+        };
+        ResCapsule.prototype.loadOne = function (rr, cb, ctx) {
+            var _this = this;
+            var curidx = 0;
+            // 判断是加载资源组，还是直接加载资源
+            if (rr instanceof nn.ResourceEntity) {
+                var re = rr;
+                nn.ResManager.getSourceByType(re.source, nn.ResPriority.NORMAL, function (rcd) {
+                    if (_this.signals.isConnected(nn.SignalChanged)) {
+                        curidx = 1;
+                        _this._idx += 1;
+                        // 发出消息
+                        _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
+                    }
+                    cb.call(ctx);
+                }, this, re.type);
+            }
+            else {
+                var grp = rr;
+                if (RES.isGroupLoaded(grp)) {
+                    if (this.signals.isConnected(nn.SignalChanged)) {
+                        var len = RES.getGroupByName(grp).length;
+                        curidx = len;
+                        this._idx += len;
+                        this.signals.emit(nn.SignalChanged, new nn.Percentage(this._total, this._idx));
+                    }
+                    cb.call(ctx);
+                }
+                else {
+                    this._ewd.add("::res::group::" + grp, cb, ctx);
+                    if (this.signals.isConnected(nn.SignalChanged)) {
+                        this._ewd.add("::res::group::progress::" + grp, function (e) {
+                            // 计算进度
+                            var delta = e.itemsLoaded - curidx;
+                            curidx = e.itemsLoaded;
+                            _this._idx += delta;
+                            // 发出消息
+                            _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
+                        }, this);
+                    }
+                    RES.loadGroup(grp);
+                }
+            }
+        };
+        ResCapsule.prototype.total = function () {
+            var r = 0;
+            this._reqRes.forEach(function (rr) {
+                if (rr instanceof nn.ResourceEntity)
+                    r += 1;
+                else
+                    r += RES.getGroupByName(rr).length;
+            });
+            return r;
+        };
+        return ResCapsule;
+    }(nn.CResCapsule));
+    nn.ResCapsule = ResCapsule;
+    var EgretItemTypeMap = {};
+    EgretItemTypeMap[nn.ResType.JSON] = RES.ResourceItem.TYPE_JSON;
+    EgretItemTypeMap[nn.ResType.TEXTURE] = RES.ResourceItem.TYPE_IMAGE;
+    EgretItemTypeMap[nn.ResType.TEXT] = RES.ResourceItem.TYPE_TEXT;
+    EgretItemTypeMap[nn.ResType.FONT] = RES.ResourceItem.TYPE_FONT;
+    EgretItemTypeMap[nn.ResType.SOUND] = RES.ResourceItem.TYPE_SOUND;
+    EgretItemTypeMap[nn.ResType.BINARY] = RES.ResourceItem.TYPE_BIN;
+    var _ResManager = (function (_super) {
+        __extends(_ResManager, _super);
+        function _ResManager() {
+            var _this = _super.call(this) || this;
+            // 用来转发事件
+            _this._ewd = new nn.EventWeakDispatcher();
+            // 资源的缓存管理
+            _this.cache = new _ResMemcache();
+            // 正在加载的资源包
+            _this._capsules = new KvObject();
+            // config 只在manager中处理，其他事件转到包中处理
+            RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, _this._cfg_loaded, _this);
+            RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, _this._grp_complete, _this);
+            RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, _this._grp_failed, _this);
+            RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, _this._grp_progress, _this);
+            // 切换为4线程下载资源
+            RES.setMaxLoadingThread(4);
+            return _this;
+        }
+        _ResManager.prototype.loadConfig = function (file, cb, ctx) {
+            this._ewd.add("::res::config", cb, ctx);
+            // 如过file是绝对地址，则不添加directory
+            if (file.indexOf('://') == -1)
+                file = this.directory + file;
+            RES.loadConfig(file, this.directory);
+        };
+        Object.defineProperty(_ResManager.prototype, "cacheEnabled", {
+            get: function () {
+                return this.cache.enable;
+            },
+            set: function (v) {
+                this.cache.enable = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        _ResManager.prototype._cfg_loaded = function (e) {
+            var idr = "::res::config";
+            this._ewd.invoke(idr, e, false);
+            this._ewd.remove(idr);
+        };
+        _ResManager.prototype._grp_complete = function (e) {
+            var idr0 = "::res::group::" + e.groupName;
+            var idr1 = "::res::group::progress::" + e.groupName;
+            this._ewd.invoke(idr0, e, false);
+            this._ewd.remove(idr0);
+            this._ewd.remove(idr1);
+        };
+        _ResManager.prototype._grp_failed = function (e) {
+            this._grp_complete(e);
+        };
+        _ResManager.prototype._grp_progress = function (e) {
+            var item = e.resItem;
+            // 增加其他数据文件
+            if (item.type == RES.ResourceItem.TYPE_BIN) {
+                // 增加字体
+                if (nn.FontFilePattern.test(item.url)) {
+                    nn.FontsManager.add(item.name, item.url);
+                }
+            }
+            var idr = "::res::group::progress::" + e.groupName;
+            this._ewd.invoke(idr, e, false);
+        };
+        _ResManager.prototype.isGroupsArrayLoaded = function (grps) {
+            if (grps) {
+                for (var i = 0; i < grps.length; ++i) {
+                    if (RES.isGroupLoaded(grps[i]) == false)
+                        return false;
+                }
+            }
+            return true;
+        };
+        _ResManager.prototype.capsules = function (grps) {
+            var k = ResCapsule.HashKey(grps);
+            var cp = this._capsules[k];
+            if (cp == null) {
+                cp = new ResCapsule(grps, this._ewd);
+                this._capsules[k] = cp;
+            }
+            return cp;
+        };
+        _ResManager.prototype.removeCapsule = function (cp) {
+            var k = cp.hashKey();
+            cp.drop();
+            delete this._capsules[k];
+        };
+        _ResManager.prototype.tryGetRes = function (key) {
+            var rcd = this.cache.query(key);
+            if (rcd == null) {
+                var d = RES.getRes(key);
+                if (d) {
+                    rcd = this.cache.add(key, d);
+                }
+                else {
+                    return new nn.CacheRecord();
+                }
+            }
+            return rcd;
+        };
+        _ResManager.prototype.getResAsync = function (key, priority, cb, ctx) {
+            var _this = this;
+            if (nn.length(key) == 0) {
+                cb.call(ctx, new nn.CacheRecord());
+                return;
+            }
+            var rcd = this.cache.query(key);
+            if (rcd == null) {
+                nn.ResCurrentPriority = priority;
+                RES.getResAsync(key, function (d) {
+                    if (d) {
+                        rcd = _this.cache.add(key, d);
+                    }
+                    else {
+                        rcd = new nn.CacheRecord();
+                        nn.warn("res " + key + " not found");
+                    }
+                    cb.call(ctx, rcd);
+                }, this);
+            }
+            else {
+                cb.call(ctx, rcd);
+            }
+        };
+        _ResManager.prototype.if = function (DEBUG) {
+            if (RES.configInstance == undefined)
+                nn.fatal('ResManager 存在兼容问题');
+        };
+        _ResManager.prototype.getResUrl = function (key) {
+            var obj = RES.configInstance.keyMap[key];
+            if (obj == null) {
+                nn.warn("res " + key + " not found");
+                return null;
+            }
+            return obj.url;
+        };
+        _ResManager.prototype.getResByUrl = function (src, priority, cb, ctx, type) {
+            var _this = this;
+            // 如果位于缓存中，则直接返回
+            var rcd = this.cache.query(src);
+            if (rcd != null) {
+                cb.call(ctx, rcd);
+                return;
+            }
+            // 不在缓存中，需要直接获得
+            nn.ResCurrentPriority = priority;
+            RES.getResByUrl(src, function (d) {
+                // 添加到缓存
+                rcd = _this.cache.add(src, d);
+                // 回调
+                cb.call(ctx, rcd);
+            }, this, EgretItemTypeMap[type]);
+        };
+        _ResManager.prototype.hasAsyncUri = function (uri) {
+            return this.cache.query(uri) != null;
+        };
+        _ResManager.prototype.getTexture = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            if (src instanceof egret.Texture) {
+                var t = new nn.CacheRecord();
+                t.val = src;
+                cb.call(ctx, t);
+                return;
+            }
+            this.getSourceByType(src, priority, cb, ctx, nn.ResType.TEXTURE);
+        };
+        _ResManager.prototype.getBitmapFont = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            if (src instanceof egret.BitmapFont) {
+                var t = new nn.CacheRecord();
+                t.val = src;
+                cb.call(ctx, t);
+                return;
+            }
+            // 通过配置来获得
+            if (src instanceof nn.FontConfig) {
+                var cfg = src;
+                if (cfg.name) {
+                    this.getSourceByType(cfg.name, priority, cb, ctx, nn.ResType.FONT);
+                }
+                else {
+                    // 通过两个配置文件来获得
+                    this.getSources([[cfg.texture, nn.ResType.TEXTURE],
+                        [cfg.config, nn.ResType.JSON]], priority, function (ds) {
+                        var tex = ds[0];
+                        var cfg = ds[1];
+                        // todo 现在为简化font缓存处理(直接调用use逻辑避免tex和cfg被释放)
+                        var t = new nn.CacheRecord();
+                        t.val = new egret.BitmapFont(tex.use(), cfg.use());
+                        cb.call(ctx, t);
+                    }, this);
+                }
+                return;
+            }
+            // 通过key来获得
+            this.getSourceByType(src, priority, cb, ctx, nn.ResType.FONT);
+        };
+        _ResManager.prototype.getSound = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            if (src instanceof egret.Sound) {
+                var t = new nn.CacheRecord();
+                t.val = src;
+                cb.call(ctx, t);
+                return;
+            }
+            this.getSourceByType(src, priority, cb, ctx, nn.ResType.SOUND);
+        };
+        return _ResManager;
+    }(nn.CResManager));
+    nn._ResManager = _ResManager;
+    nn.ResManager = new _ResManager();
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -22346,72 +22276,185 @@ var nn;
     // 小伙伴平台有时会去修改location.href但是会提供一个fullGameUrl解决之后获取location错误的问题
     Js.siteUrl = hGame.fullGameUrl;
 })(nn || (nn = {}));
-// 对egret的RES模块进行功能扩展
-var RES;
-(function (RES) {
-    // RES为单线程模型，所以可以直接扩展来进行加载的排序控制
-    // 增加优先级的定义：普通UI资源 > Clip(Bone) 的加载
-    var LoadPriority;
-    (function (LoadPriority) {
-        LoadPriority[LoadPriority["NORMAL"] = 0] = "NORMAL";
-        LoadPriority[LoadPriority["CLIP"] = 1] = "CLIP";
-    })(LoadPriority = RES.LoadPriority || (RES.LoadPriority = {}));
-    ;
-    // 不需要做Stack的模式，因为所有获取资源的地方必须传入priority的定义
-    RES.CurrentPriority = LoadPriority.NORMAL;
-    var ExtResourceItem = (function (_super) {
-        __extends(ExtResourceItem, _super);
-        function ExtResourceItem(name, url, type) {
-            var _this = _super.call(this, name, url, type) || this;
-            _this._priority = RES.CurrentPriority;
+var nn;
+(function (nn) {
+    var GridCellsItem = (function (_super) {
+        __extends(GridCellsItem, _super);
+        function GridCellsItem(cols, cls) {
+            var _this = _super.call(this) || this;
+            _this.spacing = 0;
+            _this.cells = new Array();
+            for (var i = 0; i < cols; ++i) {
+                var cell = new cls();
+                _this.addChild(cell);
+                _this.cells.push(cell);
+            }
             return _this;
         }
-        return ExtResourceItem;
-    }(RES.ResourceItem));
-    var ExtLazyLoadList = (function () {
-        function ExtLazyLoadList() {
-            this.length = 0;
-            // 不通的等级定义不同的队列
-            this.items = [
-                new Array(),
-                new Array()
-            ];
-        }
-        ExtLazyLoadList.prototype.push = function (item) {
-            var arr = this.items[item._priority];
-            arr.push(item);
-            ++this.length;
+        GridCellsItem.prototype.updateLayout = function () {
+            _super.prototype.updateLayout.call(this);
+            var box = new nn.HBox(this);
+            box.spacing = this.spacing;
+            this.cells.forEach(function (c) {
+                box.addFlex(1, c);
+            });
+            box.apply();
         };
-        ExtLazyLoadList.prototype.pop = function () {
-            if (this.length == 0)
-                return null;
-            var arr = this.items[LoadPriority.NORMAL];
-            var poped = arr.pop();
-            if (poped == null) {
-                arr = this.items[LoadPriority.CLIP];
-                poped = arr.pop();
+        GridCellsItem.prototype.itemAtIndex = function (idx) {
+            return this.cells[idx].item;
+        };
+        GridCellsItem.prototype.setItemAtIndex = function (item, idx) {
+            this.cells[idx].item = item;
+        };
+        GridCellsItem.prototype.updateData = function () {
+            _super.prototype.updateData.call(this);
+            this.cells.forEach(function (c) {
+                c.updateData();
+            });
+        };
+        GridCellsItem.prototype.reuseAll = function (pool) {
+            this.cells.forEach(function (c) {
+                var item = c.item;
+                if (item == null)
+                    return;
+                // 重用为了避免释放
+                nn.grab(item);
+                c.item = null;
+                pool.unuse(nn.Classname(item), item);
+            });
+        };
+        return GridCellsItem;
+    }(nn.Sprite));
+    nn.GridCellsItem = GridCellsItem;
+    var GridViewCell = (function (_super) {
+        __extends(GridViewCell, _super);
+        function GridViewCell() {
+            return _super.apply(this, arguments) || this;
+        }
+        Object.defineProperty(GridViewCell.prototype, "item", {
+            get: function () {
+                return this._item;
+            },
+            set: function (item) {
+                if (this._item == item)
+                    return;
+                if (this._item)
+                    this.removeChild(this._item);
+                this._item = item;
+                if (item)
+                    this.addChild(item);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        GridViewCell.prototype.updateData = function () {
+            _super.prototype.updateData.call(this);
+            if (this._item)
+                this._item.updateData();
+        };
+        GridViewCell.prototype.updateLayout = function () {
+            _super.prototype.updateLayout.call(this);
+            if (this._item)
+                this._item.frame = this.boundsForLayout();
+        };
+        return GridViewCell;
+    }(nn.Sprite));
+    nn.GridViewCell = GridViewCell;
+    var GridViewContent = (function (_super) {
+        __extends(GridViewContent, _super);
+        function GridViewContent() {
+            var _this = _super.call(this) || this;
+            /** 用来实现gridcell的类型 */
+            _this.gridCellClass = GridViewCell;
+            // 重用griditems
+            _this._reuseGridItems = new nn.SimpleReusesPool(_this.instanceGridItem, _this);
+            _this.rowClass = GridCellsItem;
+            return _this;
+        }
+        Object.defineProperty(GridViewContent.prototype, "gridDataSource", {
+            get: function () {
+                return this.dataSource;
+            },
+            set: function (ds) {
+                this.dataSource = ds;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        // 实例化rowitem
+        GridViewContent.prototype.instanceItem = function (type) {
+            var r = new type(this.numberOfColumns, this.gridCellClass);
+            r.spacing = this.spacing;
+            return r;
+        };
+        // 实例化griditem
+        GridViewContent.prototype.instanceGridItem = function (cls) {
+            return new cls();
+        };
+        // 设置item
+        GridViewContent.prototype.updateRow = function (item, cell, row) {
+            var colscnt = this.numberOfColumns;
+            var cnt = this.gridDataSource.numberOfItems();
+            // 逐个
+            for (var col = 0; col < colscnt; ++col) {
+                var idx = row * colscnt + col;
+                if (idx >= cnt) {
+                    // 越界
+                    item.setItemAtIndex(null, col);
+                }
+                else {
+                    var cls = this.gridDataSource.classForItem(row, col, idx);
+                    var idr = nn.Classname(cls);
+                    var ci = this._reuseGridItems.use(idr, null, [cls]);
+                    item.setItemAtIndex(ci, col);
+                    // 刷新格子
+                    this.gridDataSource.updateItem(ci, row, col, idx);
+                }
             }
-            --this.length;
-            return poped;
+            _super.prototype.updateRow.call(this, item, cell, row);
         };
-        return ExtLazyLoadList;
-    }());
-    RES.ResourceItem = ExtResourceItem;
-    // 使用ext换掉原来的lazy以提供附加的优先级控制
-    var lazyLoadListChanged;
-    var PROTO = RES.ResourceLoader.prototype;
-    var funcLoadItem = PROTO.loadItem;
-    PROTO.loadItem = function (resItem) {
-        var self = this;
-        if (!lazyLoadListChanged) {
-            if (self.lazyLoadList == null)
-                nn.fatal("Egret引擎升级RES的LazyLoadList方法，请检查引擎修改");
-            self.lazyLoadList = new ExtLazyLoadList();
-            lazyLoadListChanged = true;
+        // 如果cellsitem被重用，则需要把内部的items也重用
+        GridViewContent.prototype.addOneReuseItem = function (item) {
+            item.reuseAll(this._reuseGridItems);
+            _super.prototype.addOneReuseItem.call(this, item);
+        };
+        return GridViewContent;
+    }(nn.TableViewContent));
+    nn.GridViewContent = GridViewContent;
+    var GridView = (function (_super) {
+        __extends(GridView, _super);
+        function GridView() {
+            return _super.call(this) || this;
         }
-        funcLoadItem.call(self, resItem);
-    };
-})(RES || (RES = {}));
+        GridView.prototype.instanceTable = function () {
+            return new GridViewContent();
+        };
+        Object.defineProperty(GridView.prototype, "grid", {
+            get: function () {
+                return this._table;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        GridView.prototype.numberOfItems = function () {
+            return 0;
+        };
+        /** 元素的类型 */
+        GridView.prototype.classForItem = function (row, col, idx) {
+            return this._table.itemClass;
+        };
+        /** 更新元素 */
+        GridView.prototype.updateItem = function (item, row, col, idx) {
+        };
+        GridView.prototype.numberOfRows = function () {
+            var cnt = this.numberOfItems();
+            var cols = this._table.numberOfColumns;
+            return Math.ceil(cnt / cols);
+        };
+        return GridView;
+    }(nn.TableView));
+    nn.GridView = GridView;
+})(nn || (nn = {}));
 var nn;
 (function (nn) {
     var SocketModel = (function (_super) {
@@ -22488,7 +22531,7 @@ var nn;
                 return this._tpls[key];
             var mdls = this._cfgs[cfg];
             if (mdls == null) {
-                var proto = nn.ResManager.getText(cfg + '_dsl', RES.LoadPriority.NORMAL, null, null);
+                var proto = nn.ResManager.getText(cfg + '_dsl', nn.ResPriority.NORMAL, null, null);
                 if (proto == null) {
                     nn.warn('dsl ' + cfg + ' not found');
                     return null;
@@ -22852,7 +22895,7 @@ var nn;
             if (this._hdl == null) {
                 if (this.resourceGroups) {
                     nn.ResManager.capsules(this.resourceGroups).load(function () {
-                        nn.ResManager.getSound(_this._mediaSource, RES.LoadPriority.NORMAL, function (snd) {
+                        nn.ResManager.getSound(_this._mediaSource, nn.ResPriority.NORMAL, function (snd) {
                             if (snd == null)
                                 return;
                             _this.setHdl(snd.use());
@@ -22863,7 +22906,7 @@ var nn;
                     }, this);
                 }
                 else {
-                    nn.ResManager.getSound(this._mediaSource, RES.LoadPriority.NORMAL, function (snd) {
+                    nn.ResManager.getSound(this._mediaSource, nn.ResPriority.NORMAL, function (snd) {
                         if (snd == null)
                             return;
                         _this.setHdl(snd.use());
@@ -23171,254 +23214,6 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    var GridCellsItem = (function (_super) {
-        __extends(GridCellsItem, _super);
-        function GridCellsItem(cols, cls) {
-            var _this = _super.call(this) || this;
-            _this.spacing = 0;
-            _this.cells = new Array();
-            for (var i = 0; i < cols; ++i) {
-                var cell = new cls();
-                _this.addChild(cell);
-                _this.cells.push(cell);
-            }
-            return _this;
-        }
-        GridCellsItem.prototype.updateLayout = function () {
-            _super.prototype.updateLayout.call(this);
-            var box = new nn.HBox(this);
-            box.spacing = this.spacing;
-            this.cells.forEach(function (c) {
-                box.addFlex(1, c);
-            });
-            box.apply();
-        };
-        GridCellsItem.prototype.itemAtIndex = function (idx) {
-            return this.cells[idx].item;
-        };
-        GridCellsItem.prototype.setItemAtIndex = function (item, idx) {
-            this.cells[idx].item = item;
-        };
-        GridCellsItem.prototype.updateData = function () {
-            _super.prototype.updateData.call(this);
-            this.cells.forEach(function (c) {
-                c.updateData();
-            });
-        };
-        GridCellsItem.prototype.reuseAll = function (pool) {
-            this.cells.forEach(function (c) {
-                var item = c.item;
-                if (item == null)
-                    return;
-                // 重用为了避免释放
-                nn.grab(item);
-                c.item = null;
-                pool.unuse(nn.Classname(item), item);
-            });
-        };
-        return GridCellsItem;
-    }(nn.Sprite));
-    nn.GridCellsItem = GridCellsItem;
-    var GridViewCell = (function (_super) {
-        __extends(GridViewCell, _super);
-        function GridViewCell() {
-            return _super.apply(this, arguments) || this;
-        }
-        Object.defineProperty(GridViewCell.prototype, "item", {
-            get: function () {
-                return this._item;
-            },
-            set: function (item) {
-                if (this._item == item)
-                    return;
-                if (this._item)
-                    this.removeChild(this._item);
-                this._item = item;
-                if (item)
-                    this.addChild(item);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        GridViewCell.prototype.updateData = function () {
-            _super.prototype.updateData.call(this);
-            if (this._item)
-                this._item.updateData();
-        };
-        GridViewCell.prototype.updateLayout = function () {
-            _super.prototype.updateLayout.call(this);
-            if (this._item)
-                this._item.frame = this.boundsForLayout();
-        };
-        return GridViewCell;
-    }(nn.Sprite));
-    nn.GridViewCell = GridViewCell;
-    var GridViewContent = (function (_super) {
-        __extends(GridViewContent, _super);
-        function GridViewContent() {
-            var _this = _super.call(this) || this;
-            /** 用来实现gridcell的类型 */
-            _this.gridCellClass = GridViewCell;
-            // 重用griditems
-            _this._reuseGridItems = new nn.SimpleReusesPool(_this.instanceGridItem, _this);
-            _this.rowClass = GridCellsItem;
-            return _this;
-        }
-        Object.defineProperty(GridViewContent.prototype, "gridDataSource", {
-            get: function () {
-                return this.dataSource;
-            },
-            set: function (ds) {
-                this.dataSource = ds;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        // 实例化rowitem
-        GridViewContent.prototype.instanceItem = function (type) {
-            var r = new type(this.numberOfColumns, this.gridCellClass);
-            r.spacing = this.spacing;
-            return r;
-        };
-        // 实例化griditem
-        GridViewContent.prototype.instanceGridItem = function (cls) {
-            return new cls();
-        };
-        // 设置item
-        GridViewContent.prototype.updateRow = function (item, cell, row) {
-            var colscnt = this.numberOfColumns;
-            var cnt = this.gridDataSource.numberOfItems();
-            // 逐个
-            for (var col = 0; col < colscnt; ++col) {
-                var idx = row * colscnt + col;
-                if (idx >= cnt) {
-                    // 越界
-                    item.setItemAtIndex(null, col);
-                }
-                else {
-                    var cls = this.gridDataSource.classForItem(row, col, idx);
-                    var idr = nn.Classname(cls);
-                    var ci = this._reuseGridItems.use(idr, null, [cls]);
-                    item.setItemAtIndex(ci, col);
-                    // 刷新格子
-                    this.gridDataSource.updateItem(ci, row, col, idx);
-                }
-            }
-            _super.prototype.updateRow.call(this, item, cell, row);
-        };
-        // 如果cellsitem被重用，则需要把内部的items也重用
-        GridViewContent.prototype.addOneReuseItem = function (item) {
-            item.reuseAll(this._reuseGridItems);
-            _super.prototype.addOneReuseItem.call(this, item);
-        };
-        return GridViewContent;
-    }(nn.TableViewContent));
-    nn.GridViewContent = GridViewContent;
-    var GridView = (function (_super) {
-        __extends(GridView, _super);
-        function GridView() {
-            return _super.call(this) || this;
-        }
-        GridView.prototype.instanceTable = function () {
-            return new GridViewContent();
-        };
-        Object.defineProperty(GridView.prototype, "grid", {
-            get: function () {
-                return this._table;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        GridView.prototype.numberOfItems = function () {
-            return 0;
-        };
-        /** 元素的类型 */
-        GridView.prototype.classForItem = function (row, col, idx) {
-            return this._table.itemClass;
-        };
-        /** 更新元素 */
-        GridView.prototype.updateItem = function (item, row, col, idx) {
-        };
-        GridView.prototype.numberOfRows = function () {
-            var cnt = this.numberOfItems();
-            var cols = this._table.numberOfColumns;
-            return Math.ceil(cnt / cols);
-        };
-        return GridView;
-    }(nn.TableView));
-    nn.GridView = GridView;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    var TiledMap = (function (_super) {
-        __extends(TiledMap, _super);
-        function TiledMap() {
-            return _super.call(this) || this;
-        }
-        TiledMap.prototype.dispose = function () {
-            if (this._map) {
-                this._map.destory();
-                this._map = undefined;
-            }
-            this._data = undefined;
-            _super.prototype.dispose.call(this);
-        };
-        Object.defineProperty(TiledMap.prototype, "tiledSource", {
-            get: function () {
-                return this._tiledSource;
-            },
-            set: function (ts) {
-                if (this._tiledSource == ts)
-                    return;
-                // 移除旧的
-                if (this._map) {
-                    this._imp.removeChild(this._map);
-                    this._map.destory();
-                    this._map = undefined;
-                    this._data = undefined;
-                }
-                this._tiledSource = ts;
-                if (ts) {
-                    var d = RES.getRes(ts);
-                    if (typeof (d) != 'string') {
-                        nn.warn('TiledMap 的资源文件类型错误: ' + ts + ' 的类型应该为 text，清通过ResDepo工具修改');
-                        return;
-                    }
-                    this._data = egret.XML.parse(d);
-                    this._url = nn.ResManager.getResUrl(ts);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TiledMap.prototype.updateLayout = function () {
-            _super.prototype.updateLayout.call(this);
-            if (this._data == null)
-                return;
-            var rc = this.boundsForLayout();
-            // 判断是否要重新生成一下
-            if (this._map) {
-                if (this._map.renderwidth * nn.ScaleFactorDeW != rc.width ||
-                    this._map.renderheight * nn.ScaleFactorDeH != rc.height) {
-                    this._imp.removeChild(this._map);
-                    this._map.destory();
-                    this._map = undefined;
-                }
-            }
-            // 生成一个新的map
-            if (this._map == null) {
-                this._map = new tiled.TMXTilemap(rc.width, rc.height, this._data, this._url);
-                this._map.render();
-                this._imp.addChild(this._map);
-            }
-            this.impSetFrame(rc, this._map);
-        };
-        return TiledMap;
-    }(nn.Sprite));
-    nn.TiledMap = TiledMap;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
     nn.FontFilePattern = /\.(ttf|otf|woff)$/i;
     nn.FontKeyPattern = /(.+)_(?:ttf|otf|woff)$/i;
     var _FontsManager = (function () {
@@ -23516,6 +23311,265 @@ var nn;
         return FontConfig;
     }());
     nn.FontConfig = FontConfig;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var TiledMap = (function (_super) {
+        __extends(TiledMap, _super);
+        function TiledMap() {
+            return _super.call(this) || this;
+        }
+        TiledMap.prototype.dispose = function () {
+            if (this._map) {
+                this._map.destory();
+                this._map = undefined;
+            }
+            this._data = undefined;
+            _super.prototype.dispose.call(this);
+        };
+        Object.defineProperty(TiledMap.prototype, "tiledSource", {
+            get: function () {
+                return this._tiledSource;
+            },
+            set: function (ts) {
+                if (this._tiledSource == ts)
+                    return;
+                // 移除旧的
+                if (this._map) {
+                    this._imp.removeChild(this._map);
+                    this._map.destory();
+                    this._map = undefined;
+                    this._data = undefined;
+                }
+                this._tiledSource = ts;
+                if (ts) {
+                    var d = RES.getRes(ts);
+                    if (typeof (d) != 'string') {
+                        nn.warn('TiledMap 的资源文件类型错误: ' + ts + ' 的类型应该为 text，清通过ResDepo工具修改');
+                        return;
+                    }
+                    this._data = egret.XML.parse(d);
+                    this._url = nn.ResManager.getResUrl(ts);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TiledMap.prototype.updateLayout = function () {
+            _super.prototype.updateLayout.call(this);
+            if (this._data == null)
+                return;
+            var rc = this.boundsForLayout();
+            // 判断是否要重新生成一下
+            if (this._map) {
+                if (this._map.renderwidth * nn.ScaleFactorDeW != rc.width ||
+                    this._map.renderheight * nn.ScaleFactorDeH != rc.height) {
+                    this._imp.removeChild(this._map);
+                    this._map.destory();
+                    this._map = undefined;
+                }
+            }
+            // 生成一个新的map
+            if (this._map == null) {
+                this._map = new tiled.TMXTilemap(rc.width, rc.height, this._data, this._url);
+                this._map.render();
+                this._imp.addChild(this._map);
+            }
+            this.impSetFrame(rc, this._map);
+        };
+        return TiledMap;
+    }(nn.Sprite));
+    nn.TiledMap = TiledMap;
+})(nn || (nn = {}));
+// 标准APP架构
+var nn;
+(function (nn) {
+    var EntrySettings = (function () {
+        function EntrySettings() {
+            /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
+            this.singletone = true;
+        }
+        return EntrySettings;
+    }());
+    EntrySettings.Default = new EntrySettings();
+    nn.EntrySettings = EntrySettings;
+    var Manager = (function (_super) {
+        __extends(Manager, _super);
+        function Manager() {
+            return _super.apply(this, arguments) || this;
+        }
+        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
+        Manager.prototype.onDataLoaded = function () {
+        };
+        return Manager;
+    }(nn.SObject));
+    nn.Manager = Manager;
+    var Managers = (function (_super) {
+        __extends(Managers, _super);
+        function Managers() {
+            var _this = _super.apply(this, arguments) || this;
+            _this._managers = new Array();
+            return _this;
+        }
+        Managers.prototype.register = function (obj) {
+            this._managers.push(obj);
+            return obj;
+        };
+        Managers.prototype.onLoaded = function () {
+            this._managers.forEach(function (e) {
+                e.onLoaded();
+            });
+        };
+        Managers.prototype.onDataLoaded = function () {
+            this._managers.forEach(function (e) {
+                e.onDataLoaded();
+            });
+        };
+        return Managers;
+    }(nn.SObject));
+    nn.Managers = Managers;
+    var _EntriesManager = (function () {
+        function _EntriesManager() {
+            this._entries = new KvObject();
+            this._entriesdata = new KvObject();
+        }
+        /** 注册一个模块
+            @param entryClass类
+        */
+        _EntriesManager.prototype.register = function (entryClass, data) {
+            if (data === void 0) { data = EntrySettings.Default; }
+            var idr;
+            if (typeof (entryClass) == 'object') {
+                var o = entryClass;
+                idr = o.name;
+            }
+            else {
+                idr = nn.Classname(entryClass);
+            }
+            this._entries[idr] = entryClass;
+            this._entriesdata[idr] = data;
+        };
+        /** 启动一个模块
+            @param entry 类或者标类名
+            @param launcher 启动点的标示号或者启动点的实例
+            @pram data 附加的参数
+        */
+        _EntriesManager.prototype.invoke = function (entry, launcher, ext) {
+            this._doInvoke(entry, launcher, ext);
+        };
+        _EntriesManager.prototype._doInvoke = function (entry, launcher, ext) {
+            var _this = this;
+            if (entry == null) {
+                nn.warn("不能打开空的实例");
+                return;
+            }
+            var idr = typeof (entry) == 'string' ? entry : nn.Classname(entry);
+            var cls = this._entries[idr];
+            if (typeof (cls) == 'object') {
+                // 复杂定义一个类型，为了支持动态入口逻辑
+                var o = cls;
+                cls = o.clazz();
+            }
+            if (cls == null) {
+                nn.fatal("找不到实体类型 " + idr + "，请检查是否没有注册到EntriesManager");
+                return;
+            }
+            // 在launchers中查启动点
+            var ler;
+            if (typeof (launcher) == 'string')
+                ler = nn.LaunchersManager.find(launcher);
+            if (ler == null && typeof (launcher) == 'function') {
+                var leridr_1 = launcher(idr);
+                ler = nn.LaunchersManager.find(leridr_1);
+                // 如果ler为null，则代表目标模块还没有加载，需要先加载目标模块，待之准备好后，再加载当前模块
+                if (ler == null) {
+                    var wait_1 = function (s) {
+                        if (s.data != leridr_1)
+                            return;
+                        nn.LaunchersManager.signals.disconnect(nn.SignalChanged, wait_1);
+                        var data = _this._entriesdata[idr];
+                        // 重新查找，此次不可能查不到
+                        ler = nn.LaunchersManager.find(leridr_1);
+                        ler.launchEntry(cls, data);
+                    };
+                    nn.LaunchersManager.signals.connect(nn.SignalChanged, wait_1, null);
+                    this._doInvoke(leridr_1, launcher);
+                    return;
+                }
+            }
+            if (ler == null && typeof (launcher) == 'object')
+                ler = launcher;
+            if (ler == null) {
+                nn.fatal("没有找到停靠点" + launcher);
+                return;
+            }
+            // 加载最终的模块
+            var data = this._entriesdata[idr];
+            if (!nn.EntryCheckSettings(cls, data))
+                return;
+            // 检查是否可以打开
+            if (data == null)
+                data = new EntrySettings();
+            data.ext = ext;
+            ler.launchEntry(cls, data);
+        };
+        _EntriesManager.prototype.toString = function () {
+            var t = [];
+            nn.MapT.Foreach(this._entries, function (k) {
+                t.push(k);
+            });
+            return t.join(';');
+        };
+        return _EntriesManager;
+    }());
+    nn._EntriesManager = _EntriesManager;
+    // 应用实例管理器
+    nn.EntriesManager = new _EntriesManager();
+    var _LaunchersManager = (function (_super) {
+        __extends(_LaunchersManager, _super);
+        function _LaunchersManager() {
+            var _this = _super.call(this) || this;
+            _this._launchers = new KvObject();
+            return _this;
+        }
+        _LaunchersManager.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalChanged);
+        };
+        /** 注册一个启动器 */
+        _LaunchersManager.prototype.register = function (obj) {
+            var idr = nn.Classname(obj);
+            var fnd = this._launchers[idr];
+            if (fnd) {
+                nn.warn('LaunchersManager 已经注册过 ' + idr);
+                return;
+            }
+            this._launchers[idr] = obj;
+            // 直接设置UI对象中的对应标记，用来当UI关闭时释放该停靠点
+            obj.__need_remove_from_launchersmanager = true;
+            this.signals.emit(nn.SignalChanged, idr);
+        };
+        /** 取消 */
+        _LaunchersManager.prototype.unregister = function (obj) {
+            var idr = nn.Classname(obj);
+            nn.MapT.RemoveKey(this._launchers, idr);
+        };
+        /** 查找一个启动器 */
+        _LaunchersManager.prototype.find = function (str) {
+            return this._launchers[str];
+        };
+        _LaunchersManager.prototype.toString = function () {
+            var t = [];
+            nn.MapT.Foreach(this._launchers, function (k) {
+                t.push(k);
+            });
+            return t.join(';');
+        };
+        return _LaunchersManager;
+    }(nn.SObject));
+    nn._LaunchersManager = _LaunchersManager;
+    // 应用入口管理器
+    nn.LaunchersManager = new _LaunchersManager();
 })(nn || (nn = {}));
 var nn;
 (function (nn) {

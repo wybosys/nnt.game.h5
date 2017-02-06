@@ -125,7 +125,7 @@ module nn {
             {
                 if (this.resourceGroups) {
                     ResManager.capsules(this.resourceGroups).load(()=>{
-                        ResManager.getSound(this._mediaSource, RES.LoadPriority.NORMAL, (snd:ICacheSound)=>{
+                        ResManager.getSound(this._mediaSource, ResPriority.NORMAL, (snd:ICacheSound)=>{
                             if (snd == null)
                                 return;
                             this.setHdl(snd.use());
@@ -135,7 +135,7 @@ module nn {
                         }, this);
                     }, this);
                 } else {
-                    ResManager.getSound(this._mediaSource, RES.LoadPriority.NORMAL, (snd:ICacheSound)=>{
+                    ResManager.getSound(this._mediaSource, ResPriority.NORMAL, (snd:ICacheSound)=>{
                         if (snd == null)
                             return;
                         this.setHdl(snd.use());

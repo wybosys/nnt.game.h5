@@ -507,7 +507,7 @@ module nn {
                 ResManager.getSources([
                     [frame, ResType.JSON],
                     [tex, ResType.TEXTURE]
-                ], RES.LoadPriority.CLIP, (ds:ICacheRecord[])=>{
+                ], ResPriority.CLIP, (ds:ICacheRecord[])=>{
                     let djson = ds[0].use();
                     let dtex = ds[1].use();
                     

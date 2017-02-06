@@ -99,7 +99,7 @@ module nn {
                 return this._tpls[key];
             var mdls = this._cfgs[cfg];
             if (mdls == null) {
-                var proto = ResManager.getText(cfg + '_dsl', RES.LoadPriority.NORMAL, null, null);
+                var proto = ResManager.getText(cfg + '_dsl', ResPriority.NORMAL, null, null);
                 if (proto == null) {
                     warn('dsl ' + cfg + ' not found');
                     return null;
