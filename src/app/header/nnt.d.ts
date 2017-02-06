@@ -1942,110 +1942,6 @@ declare module nn {
     }
 }
 declare module nn {
-    /** 页面过渡的动画 */
-    interface ITransition extends IReference {
-        play(appear: CComponent, disappear: CComponent): any;
-    }
-    /** 自定义动画对象 */
-    class Animator {
-        _preproperties: KvObject<string, any>;
-        _properties: KvObject<string, any>;
-        /** 类似于 iOS 的反向设置模式 */
-        backMode: boolean;
-        /** 增量移动 */
-        translate(dpt: Point): Animator;
-        translatex(x: number): Animator;
-        translatey(y: number): Animator;
-        /** 倍数移动 */
-        stranslate(dpt: Point): Animator;
-        /** 移动到点 */
-        moveto(dpt: Point): Animator;
-        movetox(v: number): Animator;
-        movetoy(v: number): Animator;
-        /** 增量缩放倍数 */
-        scale(dpt: Point): Animator;
-        scaleto(dpt: Point): Animator;
-        /** 旋转 */
-        rotate(ang: Angle): this;
-        /** 淡入淡出 */
-        fade(to: number, from?: number): Animator;
-        fadeIn(alpha?: number): Animator;
-        fadeOut(alpha?: number): Animator;
-        /** 任意参数做动画 */
-        change(key: string, to: any, from?: any): Animator;
-    }
-    class TimeFunction {
-        static IN: number;
-        static OUT: number;
-        static INOUT: number;
-        static Pow: (pow: any, inout?: number) => Function;
-        static Quad: (inout?: number) => Function;
-        static Bounce: (inout?: number) => Function;
-        static Elastic: (amplitude?: any, period?: any, inout?: number) => Function;
-        static Circ: (inout?: number) => Function;
-        static Back: (amount?: number, inout?: number) => Function;
-    }
-    abstract class CAnimate extends SObject {
-        constructor();
-        dispose(): void;
-        static Duration: number;
-        /** 播放几次 */
-        count: number;
-        /** 动画的标记 */
-        tag: any;
-        protected _firedCount: number;
-        _initSignals(): void;
-        /** 设置重复的次数 */
-        repeat(count: number): this;
-        /** 清空所有 */
-        abstract clear(): any;
-        /** 结束所有动画 */
-        abstract stop(): any;
-        /** 链接对象 */
-        abstract bind(tgt: CComponent): this;
-        /** 取消对象 */
-        abstract unbind(tgt: CComponent): any;
-        abstract unbindAll(): any;
-        /** 下一步 */
-        abstract next(props: any, duration: number, tf: Function): this;
-        abstract to(duration: number, tf: Function, ani: (ani: Animator) => void, ctx?: any): this;
-        then(ani: (ani: Animator) => void, ctx?: any, duration?: number, tf?: Function): this;
-        /** 等待 */
-        abstract wait(duration: number, passive?: boolean): this;
-        /** 执行函数 */
-        abstract invoke(fun: Function, ctx?: any): this;
-        /** 结束 */
-        complete(cb: (s: Slot) => void, ctx?: any): this;
-        /** 播放 */
-        abstract play(reverse?: boolean): this;
-        /** 暂停 */
-        abstract pause(): any;
-        /** 恢复 */
-        abstract resume(): any;
-        /** 暂停的状态 */
-        abstract isPaused(): boolean;
-        /** 动画结束是否恢复原来的状态 */
-        autoReset: boolean;
-        /** 动画结束是否自动解除绑定 */
-        autoUnbind: boolean;
-        /** 动画结束后是否自动释放 */
-        autoDrop: boolean;
-        /** 复制 */
-        clone(): this;
-        /** 直接停止对象动画 */
-        static Stop(tgt: CComponent): void;
-        inTo(duration: number, cb: (animator: Animator) => void, ctx?: any, tf?: Function): this;
-        outTo(duration: number, cb: (animator: Animator) => void, ctx?: any, tf?: Function): this;
-        tremble(duration?: number, tf?: Function): this;
-    }
-    abstract class CTween {
-        /** 激活一个对象添加动画 */
-        static Get(c: CComponent, props?: any): any;
-        /** 删除对象的全部动画 */
-        static Stop(c: CComponent): void;
-    }
-}
-declare module nn {
     class Touch extends CTouch {
         readonly target: any;
         readonly currentTarget: any;
@@ -2152,6 +2048,110 @@ declare module nn {
         renderToTexture(): TextureSource;
     }
     function impSetTexture(bmp: egret.Bitmap, tex: egret.Texture): void;
+}
+declare module nn {
+    /** 页面过渡的动画 */
+    interface ITransition extends IReference {
+        play(appear: CComponent, disappear: CComponent): any;
+    }
+    /** 自定义动画对象 */
+    class Animator {
+        _preproperties: KvObject<string, any>;
+        _properties: KvObject<string, any>;
+        /** 类似于 iOS 的反向设置模式 */
+        backMode: boolean;
+        /** 增量移动 */
+        translate(dpt: Point): Animator;
+        translatex(x: number): Animator;
+        translatey(y: number): Animator;
+        /** 倍数移动 */
+        stranslate(dpt: Point): Animator;
+        /** 移动到点 */
+        moveto(dpt: Point): Animator;
+        movetox(v: number): Animator;
+        movetoy(v: number): Animator;
+        /** 增量缩放倍数 */
+        scale(dpt: Point): Animator;
+        scaleto(dpt: Point): Animator;
+        /** 旋转 */
+        rotate(ang: Angle): this;
+        /** 淡入淡出 */
+        fade(to: number, from?: number): Animator;
+        fadeIn(alpha?: number): Animator;
+        fadeOut(alpha?: number): Animator;
+        /** 任意参数做动画 */
+        change(key: string, to: any, from?: any): Animator;
+    }
+    class TimeFunction {
+        static IN: number;
+        static OUT: number;
+        static INOUT: number;
+        static Pow: (pow: any, inout?: number) => Function;
+        static Quad: (inout?: number) => Function;
+        static Bounce: (inout?: number) => Function;
+        static Elastic: (amplitude?: any, period?: any, inout?: number) => Function;
+        static Circ: (inout?: number) => Function;
+        static Back: (amount?: number, inout?: number) => Function;
+    }
+    abstract class CAnimate extends SObject {
+        constructor();
+        dispose(): void;
+        static Duration: number;
+        /** 播放几次 */
+        count: number;
+        /** 动画的标记 */
+        tag: any;
+        protected _firedCount: number;
+        _initSignals(): void;
+        /** 设置重复的次数 */
+        repeat(count: number): this;
+        /** 清空所有 */
+        abstract clear(): any;
+        /** 结束所有动画 */
+        abstract stop(): any;
+        /** 链接对象 */
+        abstract bind(tgt: CComponent): this;
+        /** 取消对象 */
+        abstract unbind(tgt: CComponent): any;
+        abstract unbindAll(): any;
+        /** 下一步 */
+        abstract next(props: any, duration: number, tf: Function): this;
+        abstract to(duration: number, tf: Function, ani: (ani: Animator) => void, ctx?: any): this;
+        then(ani: (ani: Animator) => void, ctx?: any, duration?: number, tf?: Function): this;
+        /** 等待 */
+        abstract wait(duration: number, passive?: boolean): this;
+        /** 执行函数 */
+        abstract invoke(fun: Function, ctx?: any): this;
+        /** 结束 */
+        complete(cb: (s: Slot) => void, ctx?: any): this;
+        /** 播放 */
+        abstract play(reverse?: boolean): this;
+        /** 暂停 */
+        abstract pause(): any;
+        /** 恢复 */
+        abstract resume(): any;
+        /** 暂停的状态 */
+        abstract isPaused(): boolean;
+        /** 动画结束是否恢复原来的状态 */
+        autoReset: boolean;
+        /** 动画结束是否自动解除绑定 */
+        autoUnbind: boolean;
+        /** 动画结束后是否自动释放 */
+        autoDrop: boolean;
+        /** 复制 */
+        clone(): this;
+        /** 直接停止对象动画 */
+        static Stop(tgt: CComponent): void;
+        inTo(duration: number, cb: (animator: Animator) => void, ctx?: any, tf?: Function): this;
+        outTo(duration: number, cb: (animator: Animator) => void, ctx?: any, tf?: Function): this;
+        tremble(duration?: number, tf?: Function): this;
+    }
+    abstract class CTween {
+        /** 激活一个对象添加动画 */
+        static Get(c: CComponent, props?: any): any;
+        /** 删除对象的全部动画 */
+        static Stop(c: CComponent): void;
+    }
 }
 declare module nn {
     class Animate extends CAnimate {
@@ -2261,42 +2261,6 @@ declare module nn {
     }
 }
 declare module nn {
-    class Navigation extends ViewStack {
-        constructor();
-        protected _addPage(page: StackPageType, aschild: boolean): void;
-        pages: Array<StackPageType>;
-    }
-    /** 用来进行导航的过渡特效，推进和推出 */
-    class TransitionNavigation extends Transition {
-        constructor(duration?: number);
-    }
-    /** 淡入淡出交替的过渡特效 */
-    class TransitionFade extends Transition {
-        constructor(duration?: number);
-    }
-}
-declare module nn {
-    class Widget extends Component {
-        constructor();
-        protected hitTest(x: number, y: number): any;
-    }
-    class Sprite extends Component implements IPage {
-        constructor();
-        pathKey: string;
-        private _reuseUis;
-        reuse(idr: any, cb: () => any, ctx: any): any;
-        reuse(idr: any, cls: any): any;
-        reuse(idr: any): any;
-    }
-    class SpriteWrapper extends Component {
-        constructor(cnt?: Component);
-        dispose(): void;
-        _contentView: Component;
-        contentView: Component;
-        updateLayout(): void;
-    }
-}
-declare module nn {
     abstract class CScrollView extends Component {
         constructor(cnt?: CComponent);
         protected _initSignals(): void;
@@ -2330,6 +2294,42 @@ declare module nn {
         stopDecelerating(): void;
         /** 使用scroll包裹一个空间来滑动 */
         static Wrapper(ui: CComponent): CScrollView;
+    }
+}
+declare module nn {
+    class Widget extends Component {
+        constructor();
+        protected hitTest(x: number, y: number): any;
+    }
+    class Sprite extends Component implements IPage {
+        constructor();
+        pathKey: string;
+        private _reuseUis;
+        reuse(idr: any, cb: () => any, ctx: any): any;
+        reuse(idr: any, cls: any): any;
+        reuse(idr: any): any;
+    }
+    class SpriteWrapper extends Component {
+        constructor(cnt?: Component);
+        dispose(): void;
+        _contentView: Component;
+        contentView: Component;
+        updateLayout(): void;
+    }
+}
+declare module nn {
+    class Navigation extends ViewStack {
+        constructor();
+        protected _addPage(page: StackPageType, aschild: boolean): void;
+        pages: Array<StackPageType>;
+    }
+    /** 用来进行导航的过渡特效，推进和推出 */
+    class TransitionNavigation extends Transition {
+        constructor(duration?: number);
+    }
+    /** 淡入淡出交替的过渡特效 */
+    class TransitionFade extends Transition {
+        constructor(duration?: number);
     }
 }
 declare module nn {
@@ -2395,6 +2395,38 @@ declare module nn {
         /** 文字停靠的边缘 */
         textSide: string;
     }
+}
+declare module Js {
+    var siteUrl: string;
+    var printf: () => string;
+    var guid: () => string;
+    var uuid: (len: any, radix: any) => string;
+    var getBrowserSize: () => {
+        width: number;
+        height: number;
+    };
+    var getScreenSize: () => {
+        width: number;
+        height: number;
+    };
+    var getBrowserOrientation: () => any;
+    var hashKey: (o: any) => any;
+    function OverrideGetSet(cls: any, name: any, oset: any, ounset: any): void;
+    function OverrideFunction(cls: any, funm: any, of: any): void;
+    function enterFullscreen(e: any): void;
+    function exitFullscreen(): void;
+    function isFullscreen(): boolean;
+    function loadScripts(list: any, cb: any, ctx: any): void;
+    function loadScript(src: any, cb: any, ctx: any): void;
+    function loadStyles(list: any, cb: any, ctx: any): void;
+    function loadStyle(src: any, cb: any, ctx: any): void;
+    const enum SOURCETYPE {
+        JS = 0,
+        CSS = 1,
+    }
+    function loadSources(list: any, cb: any, ctx: any): void;
+    function loadSource(src: any, cb: any, ctx: any): void;
+    function stacktrace(): string;
 }
 declare module nn {
     class _GameLayer extends Navigation {
@@ -2534,38 +2566,6 @@ declare module app.debug {
     let CONFIG: boolean;
     let BUILDDATE: number;
 }
-declare module Js {
-    var siteUrl: string;
-    var printf: () => string;
-    var guid: () => string;
-    var uuid: (len: any, radix: any) => string;
-    var getBrowserSize: () => {
-        width: number;
-        height: number;
-    };
-    var getScreenSize: () => {
-        width: number;
-        height: number;
-    };
-    var getBrowserOrientation: () => any;
-    var hashKey: (o: any) => any;
-    function OverrideGetSet(cls: any, name: any, oset: any, ounset: any): void;
-    function OverrideFunction(cls: any, funm: any, of: any): void;
-    function enterFullscreen(e: any): void;
-    function exitFullscreen(): void;
-    function isFullscreen(): boolean;
-    function loadScripts(list: any, cb: any, ctx: any): void;
-    function loadScript(src: any, cb: any, ctx: any): void;
-    function loadStyles(list: any, cb: any, ctx: any): void;
-    function loadStyle(src: any, cb: any, ctx: any): void;
-    const enum SOURCETYPE {
-        JS = 0,
-        CSS = 1,
-    }
-    function loadSources(list: any, cb: any, ctx: any): void;
-    function loadSource(src: any, cb: any, ctx: any): void;
-    function stacktrace(): string;
-}
 declare module nn {
     abstract class CBitmap extends Widget {
         constructor(res?: TextureSource);
@@ -2665,6 +2665,159 @@ declare module nn {
 }
 declare module tmp {
     function rtname(): string;
+}
+declare module nn {
+    class ExtHtmlTextParser extends egret.HtmlTextParser {
+        constructor();
+        parser(htmltext: string): Array<egret.ITextElement>;
+    }
+    class Label extends CLabel {
+        constructor();
+        _signalConnected(sig: string, s?: Slot): void;
+        protected _lbl: any;
+        protected hitTestClient(x: number, y: number): egret.DisplayObject;
+        updateLayout(): void;
+        bold: boolean;
+        italic: boolean;
+        stroke: number;
+        strokeColor: ColorType;
+        private _lineSpacing;
+        lineSpacing: number;
+        bestFrame(inrc?: Rect): Rect;
+        private _tfnsz;
+        protected _setFontSize(v: number): void;
+        fontSize: number;
+        protected _setTextAlign(a: string): void;
+        protected _setTextSide(s: string): void;
+        textAlign: string;
+        textSide: string;
+        protected _setText(s: string): boolean;
+        text: string;
+        attributedText: any;
+        private _htmlText;
+        htmlText: string;
+        protected _setTextFlow(tf: Array<egret.ITextElement>): void;
+        textColor: ColorType;
+        fontFamily: string;
+        numlines: number;
+        multilines: boolean;
+        textFlow: Array<egret.ITextElement>;
+        protected _scaleToFit: boolean;
+        scaleToFit: boolean;
+        protected doScaleToFit(): void;
+        appendText(s: string): void;
+        private _links;
+        href(re: RegExp, cb: (url: string) => void, ctx?: any): void;
+        private __lbl_link(e);
+    }
+}
+declare module nn {
+    class HtmlBuilder {
+        enter(element: string): this;
+        pop(): this;
+        style(key: string, value: string | number): this;
+        attr(key: string, value: string | number): this;
+        text(str: string): this;
+        toString(): string;
+        private _ele;
+        private _text;
+        private _style;
+        private _buf;
+    }
+    module dom {
+        let ScaleFactorX: number;
+        let ScaleFactorDeX: number;
+        let ScaleFactorY: number;
+        let ScaleFactorDeY: number;
+        let ScaleFactorSize: number;
+        let ScaleFactorDeSize: number;
+        type DomId = string | Element;
+        function getElementById(id: DomId): Element;
+        class DomObject extends SObject implements SignalsDelegate {
+            constructor(id?: DomId);
+            dispose(): void;
+            static From(id: DomId): DomObject;
+            protected _initSignals(): void;
+            _signalConnected(sig: string): void;
+            event: Event;
+            private __dom_clicked();
+            updateData(): void;
+            css: string;
+            _style: any;
+            readonly style: any;
+            content: string;
+            id: any;
+            getAttr(k: any, def?: any): any;
+            setAttr(k: any, v: any): void;
+            private _fontSize;
+            fontSize: number;
+            private _src;
+            src: string;
+            readonly width: number;
+            readonly height: number;
+            add(node: DomObject): DomObject;
+            protected preload(cb: () => void, ctx?: any): void;
+            protected onLoaded(): void;
+            br(): void;
+            remove(node: DomObject): void;
+            removeFromParent(): void;
+            private _visible;
+            visible: boolean;
+            setFrame(rc: nn.Rect): void;
+            private _node;
+            protected node: any;
+            protected method(mtdname: string): string;
+            parent: DomObject;
+            nodes: DomObject[];
+            /** 维护 listener */
+            listener(idr: any): Function;
+            bindListener(idr: any, cb: (e: any) => void): Function;
+            protected _listeners: KvObject<any, Function>;
+            protected readonly listeners: KvObject<any, Function>;
+        }
+        class Button extends DomObject {
+            constructor(id?: DomId);
+            _image: string;
+            image: string;
+        }
+        class Label extends DomObject {
+            constructor(id?: DomId);
+        }
+        class Image extends DomObject {
+            constructor(id?: DomId);
+        }
+        class Sprite extends DomObject {
+            constructor(id?: DomId);
+        }
+        class Desktop extends DomObject {
+            constructor(dom?: DomObject, id?: DomId);
+            clickedToClose: boolean;
+            _contentView: DomObject;
+            contentView: DomObject;
+            open(): void;
+            close(): void;
+            private __dsk_clicked();
+        }
+        function x(v: number): number;
+        function y(v: number): number;
+        function size(v: number): number;
+    }
+    class _Dom extends dom.DomObject {
+        constructor();
+        updateBounds(): void;
+        protected _initSignals(): void;
+        /** 打开新页面 */
+        openLink(url: string): void;
+        /** 模拟一次点击链接 */
+        simulateLink(url: string): void;
+        /** 打开页面 */
+        openUrl(url: string): void;
+        /** 模拟一次点击 */
+        private _waitclick;
+        simulateClick(cb: () => void, ctx?: any): void;
+        private __cb_simulate_click();
+    }
+    let Dom: _Dom;
 }
 declare let document_class: any;
 declare let document_orientation: any;
@@ -2922,54 +3075,74 @@ declare module nn {
     }
 }
 declare module nn {
-    abstract class CDom extends Component {
-        /** html源代码 */
-        text: string;
-    }
-}
-declare module nn {
-    class ExtHtmlTextParser extends egret.HtmlTextParser {
+    type ClipSource = ClipConfig;
+    abstract class CMovieClip extends Widget {
         constructor();
-        parser(htmltext: string): Array<egret.ITextElement>;
+        protected _initSignals(): void;
+        /** 播放次数，-1代表循环，默认为一次*/
+        count: number;
+        /** 帧率 */
+        fps: number;
+        /** 切换clipSource时清空原来的clip */
+        clearOnChanging: boolean;
+        /** 序列帧资源 */
+        clipSource: ClipSource;
+        /** 目标序列帧的名称 */
+        clip: string;
+        /** 序列帧播放的位置 */
+        location: number;
+        onAppeared(): void;
+        private __autopaused;
+        onDisappeared(): void;
+        /** 是否自动播放 */
+        autoPlay: boolean;
+        /** 是否正在播放 */
+        abstract isPlaying(): boolean;
+        /** 暂停动画 */
+        abstract stop(): any;
+        /** 播放动画 */
+        abstract play(): any;
+        /** 附加缩放 */
+        additionScale: number;
+        /** 填充方式 */
+        fillMode: FillMode;
+        /** 反方向播放 */
+        reverseMode: boolean;
+        /** 序列帧的对齐位置 */
+        clipAlign: POSITION;
+        /** flashMode 采用 flash 标记的锚点来显示动画
+            @note 这种模式下请设置 fillMode 为 CENTER
+        */
+        flashMode: boolean;
+        /** flashAnchor flash模式下使用的锚点信息 */
+        flashAnchorPoint: Point;
     }
-    class Label extends CLabel {
-        constructor();
-        _signalConnected(sig: string, s?: Slot): void;
-        protected _lbl: any;
-        protected hitTestClient(x: number, y: number): egret.DisplayObject;
-        updateLayout(): void;
-        bold: boolean;
-        italic: boolean;
-        stroke: number;
-        strokeColor: ColorType;
-        private _lineSpacing;
-        lineSpacing: number;
-        bestFrame(inrc?: Rect): Rect;
-        private _tfnsz;
-        protected _setFontSize(v: number): void;
-        fontSize: number;
-        protected _setTextAlign(a: string): void;
-        protected _setTextSide(s: string): void;
-        textAlign: string;
-        textSide: string;
-        protected _setText(s: string): boolean;
-        text: string;
-        attributedText: any;
-        private _htmlText;
-        htmlText: string;
-        protected _setTextFlow(tf: Array<egret.ITextElement>): void;
-        textColor: ColorType;
-        fontFamily: string;
-        numlines: number;
-        multilines: boolean;
-        textFlow: Array<egret.ITextElement>;
-        protected _scaleToFit: boolean;
-        scaleToFit: boolean;
-        protected doScaleToFit(): void;
-        appendText(s: string): void;
-        private _links;
-        href(re: RegExp, cb: (url: string) => void, ctx?: any): void;
-        private __lbl_link(e);
+    class ClipConfig implements IReqResources {
+        /**
+           @name 资源名称，资源由 json\bmp 组成，如过传入的时候没有带后缀，则自动加上后缀
+           @res 动作文件，通常为 _json
+           @tex 素材平成，通常为 _png
+        */
+        constructor(name?: string, res?: string, tex?: string);
+        private _frame;
+        private _texture;
+        frame: UriSource;
+        texture: UriSource;
+        /** 名字 */
+        private _name;
+        name: string;
+        /** OPT 帧速 */
+        fps: number;
+        /** OPT 依赖的资源组 */
+        resourceGroups: Array<string>;
+        /** OPT 附加缩放 */
+        additionScale: number;
+        /** OPT 是否为独立数据，否则同一个资源公用一份帧数据 */
+        key: string;
+        readonly hashCode: number;
+        isEqual(r: this): boolean;
+        getReqResources(): Array<ReqResource>;
+        toString(): string;
     }
 }
 declare module nn {
@@ -3604,114 +3777,6 @@ declare module nn {
     let SignalClose: string;
 }
 declare module nn {
-    class HtmlBuilder {
-        enter(element: string): this;
-        pop(): this;
-        style(key: string, value: string | number): this;
-        attr(key: string, value: string | number): this;
-        text(str: string): this;
-        toString(): string;
-        private _ele;
-        private _text;
-        private _style;
-        private _buf;
-    }
-    module dom {
-        let ScaleFactorX: number;
-        let ScaleFactorDeX: number;
-        let ScaleFactorY: number;
-        let ScaleFactorDeY: number;
-        let ScaleFactorSize: number;
-        let ScaleFactorDeSize: number;
-        type DomId = string | Element;
-        function getElementById(id: DomId): Element;
-        class DomObject extends SObject implements SignalsDelegate {
-            constructor(id?: DomId);
-            dispose(): void;
-            static From(id: DomId): DomObject;
-            protected _initSignals(): void;
-            _signalConnected(sig: string): void;
-            event: Event;
-            private __dom_clicked();
-            updateData(): void;
-            css: string;
-            _style: any;
-            readonly style: any;
-            content: string;
-            id: any;
-            getAttr(k: any, def?: any): any;
-            setAttr(k: any, v: any): void;
-            private _fontSize;
-            fontSize: number;
-            private _src;
-            src: string;
-            readonly width: number;
-            readonly height: number;
-            add(node: DomObject): DomObject;
-            protected preload(cb: () => void, ctx?: any): void;
-            protected onLoaded(): void;
-            br(): void;
-            remove(node: DomObject): void;
-            removeFromParent(): void;
-            private _visible;
-            visible: boolean;
-            setFrame(rc: nn.Rect): void;
-            private _node;
-            protected node: any;
-            protected method(mtdname: string): string;
-            parent: DomObject;
-            nodes: DomObject[];
-            /** 维护 listener */
-            listener(idr: any): Function;
-            bindListener(idr: any, cb: (e: any) => void): Function;
-            protected _listeners: KvObject<any, Function>;
-            protected readonly listeners: KvObject<any, Function>;
-        }
-        class Button extends DomObject {
-            constructor(id?: DomId);
-            _image: string;
-            image: string;
-        }
-        class Label extends DomObject {
-            constructor(id?: DomId);
-        }
-        class Image extends DomObject {
-            constructor(id?: DomId);
-        }
-        class Sprite extends DomObject {
-            constructor(id?: DomId);
-        }
-        class Desktop extends DomObject {
-            constructor(dom?: DomObject, id?: DomId);
-            clickedToClose: boolean;
-            _contentView: DomObject;
-            contentView: DomObject;
-            open(): void;
-            close(): void;
-            private __dsk_clicked();
-        }
-        function x(v: number): number;
-        function y(v: number): number;
-        function size(v: number): number;
-    }
-    class _Dom extends dom.DomObject {
-        constructor();
-        updateBounds(): void;
-        protected _initSignals(): void;
-        /** 打开新页面 */
-        openLink(url: string): void;
-        /** 模拟一次点击链接 */
-        simulateLink(url: string): void;
-        /** 打开页面 */
-        openUrl(url: string): void;
-        /** 模拟一次点击 */
-        private _waitclick;
-        simulateClick(cb: () => void, ctx?: any): void;
-        private __cb_simulate_click();
-    }
-    let Dom: _Dom;
-}
-declare module nn {
     class FrameTimer {
         constructor();
         /** 起始时间 ms */
@@ -3757,30 +3822,9 @@ declare module nn {
     let FramesManager: CFramesManager;
 }
 declare module nn {
-    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
-    class _DatasManager extends nn.SObject {
-        constructor();
-        _load(): void;
-    }
-    let DatasManager: _DatasManager;
-}
-declare module nn {
-    /** 用来将标准对象包装成业务对象 */
-    class BridgedComponent extends Component {
-        constructor(tgt: any);
-        static Wrapper(tgt: any): BridgedComponent;
-        static FromImp(tgt: any): BridgedComponent;
-        protected createImp(): void;
-        readonly signals: Signals;
-        protected _initSignals(): void;
-        readonly descriptionName: string;
-        bestFrame(): Rect;
-        bestPosition(): Point;
-        updateCache(): void;
-        grab(): void;
-        drop(): void;
-        onAppeared(): void;
-        onDisappeared(): void;
+    abstract class CDom extends Component {
+        /** html源代码 */
+        text: string;
     }
 }
 declare module nn.developer {
@@ -3805,100 +3849,22 @@ declare module nn.developer {
     }
 }
 declare module nn {
-    class _BonesManager extends SObject {
-        constructor();
-        /** 使用Fast加速骨骼动画 */
-        turboMode: boolean;
-        /** 默认骨骼的帧速 */
-        fps: number;
-        protected _factory: dragonBones.EgretFactory;
-        instance(cfg: BoneConfig, cb: (bn: BoneData) => void, ctx?: any): void;
-        protected instanceOne(character: string, skeleton: string, place: string, texture: string, fps: number, cb: (d: BoneData) => void, ctx?: any): void;
-    }
-    function BonesManager(): _BonesManager;
-    type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
-    /** 骨骼动画 */
-    class BoneData {
-        constructor(am: ArmatureSource);
-        private _armature;
-        armature: ArmatureSource;
-        addLoop(): void;
-        rmLoop(): void;
-        calcFrameProgress(mo: string, frame: number): number;
-        playMotion(motion: string, times: number, stopAtProgress?: number): void;
-        seekToMotion(motion: string, time: number): void;
-        hasMotion(val: string): boolean;
-        bestFrame(): Rect;
-        readonly display: egret.DisplayObject;
-    }
-    /** 骨骼的配置信息 */
-    class BoneConfig implements IReqResources {
-        /**
-           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
-           @character 角色名称，通常和name一致
-           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
-           @place 材质节点的位置配置文件，通常为 texture_json 结尾
-           @texture 图片文件，通常为 texture_png 结尾
-        */
-        constructor(name?: string, character?: string, skeleton?: string, place?: string, texture?: string);
-        resourceGroups: Array<string>;
-        protected _skeleton: string;
-        protected _place: string;
-        protected _texture: string;
-        protected _character: string;
-        fps: number;
-        protected _name: string;
-        name: string;
-        skeleton: string;
-        place: string;
-        texture: string;
-        character: string;
-        getReqResources(): Array<ReqResource>;
-    }
-    type BoneSource = BoneData | BoneConfig | UriSource;
-    /** 业务使用的骨骼显示类 */
-    class Bones extends Widget {
-        constructor();
+    /** 用来将标准对象包装成业务对象 */
+    class BridgedComponent extends Component {
+        constructor(tgt: any);
+        static Wrapper(tgt: any): BridgedComponent;
+        static FromImp(tgt: any): BridgedComponent;
+        protected createImp(): void;
+        readonly signals: Signals;
         protected _initSignals(): void;
-        dispose(): void;
-        private _playingState;
-        private _data;
-        protected getBoneData(): BoneData;
-        protected setBoneData(d: BoneData): void;
-        private _bs;
-        boneSource: BoneSource;
+        readonly descriptionName: string;
         bestFrame(): Rect;
-        /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
-        additionScale: number;
-        /** 骨骼填充的方式，默认为充满 */
-        fillMode: FillMode;
-        /** 对齐位置 */
-        clipAlign: POSITION;
-        updateLayout(): void;
-        /** 具体动作 */
-        private _motions;
-        motion: string;
-        pushMotion(val: string): void;
-        popMotion(): void;
-        /** 当前含有的所有动作 */
-        motions(): Array<string>;
-        /** 是否含有该动作 */
-        hasMotion(val: string): boolean;
-        /** 自动开始播放 */
-        autoPlay: boolean;
-        /** 播放次数控制
-            -1: 循环
-            0: 使用文件设置的次数
-            >0: 次数控制
-        */
-        count: number;
-        /** 播放 */
-        play(): void;
-        /** 停止播放 */
-        stop(): void;
-        private __db_start();
-        private __db_complete();
-        private __db_loopcomplete();
+        bestPosition(): Point;
+        updateCache(): void;
+        grab(): void;
+        drop(): void;
+        onAppeared(): void;
+        onDisappeared(): void;
     }
 }
 declare module nn {
@@ -3908,6 +3874,49 @@ declare module nn {
         root: CComponent;
     }
 }
+declare var LZString: {
+    compressToBase64: (input: any) => string;
+    decompressFromBase64: (input: any) => string;
+    compressToUTF16: (input: any) => string;
+    decompressFromUTF16: (compressed: any) => string;
+    compressToUint8Array: (uncompressed: any) => Uint8Array;
+    decompressFromUint8Array: (compressed: any) => string;
+    compressToEncodedURIComponent: (input: any) => string;
+    decompressFromEncodedURIComponent: (input: any) => string;
+    compress: (uncompressed: any) => string;
+    _compress: (uncompressed: any, bitsPerChar: any, getCharFromInt: any) => string;
+    decompress: (compressed: any) => string;
+    _decompress: (length: any, resetValue: any, getNextValue: any) => string;
+};
+declare module nn {
+    class CodecString implements ICodec {
+        encode(s: string): string;
+        decode(d: string): string;
+    }
+    class CodecUrl implements ICodec {
+        encode(s: string): string;
+        decode(d: string): string;
+    }
+    class CrytoString implements ICodec {
+        key: string;
+        private _iv;
+        iv: string;
+        encode(s: string): string;
+        decode(d: string): string;
+    }
+    class ZipArchiver implements IArchiver {
+        static Unavaliable: boolean;
+        load(d: any): boolean;
+        file(path: string, type: ResType, cb: (str: any) => void, ctx?: any): void;
+        private _hdl;
+    }
+    class LzmaArchiver implements IArchiver {
+        static Unavaliable: boolean;
+        load(d: any): boolean;
+        plain: string;
+        file(path: string, type: ResType, cb: (str: any) => void, ctx?: any): void;
+    }
+}
 declare module nn {
     class Font {
         static sizeOfString(str: string, fontSize: number, width: number, height: number): Size;
@@ -3915,89 +3924,18 @@ declare module nn {
     }
 }
 declare module nn {
-    type ClipSource = ClipConfig;
-    class MovieClip extends Widget {
+    class HttpConnector extends CHttpConnector {
         constructor();
-        protected _initSignals(): void;
-        _signalConnected(sig: string, s: Slot): void;
         dispose(): void;
-        /** 播放次数，-1代表循环，默认为一次*/
-        count: number;
-        /** 帧率 */
-        private _fps;
-        fps: number;
-        /** 切换clipSource时清空原来的clip */
-        clearOnChanging: boolean;
-        private _mc;
-        private _cs;
-        clipSource: ClipSource;
-        /** 目标序列帧的名称 */
-        _clip: string;
-        clip: string;
-        /** 序列帧播放的位置 */
-        _location: number;
-        location: number;
-        onAppeared(): void;
-        private __autopaused;
-        onDisappeared(): void;
-        /** 是否自动播放 */
-        autoPlay: boolean;
-        readonly isPlaying: boolean;
-        /** 暂停动画 */
-        stop(): void;
-        /** 播放动画 */
-        play(): void;
-        bestFrame(): Rect;
-        /** 附加缩放 */
-        additionScale: number;
-        /** 填充方式 */
-        fillMode: FillMode;
-        private _setMovieClipData(d, f);
-        /** 反方向播放 */
-        private _reverseMode;
-        reverseMode: boolean;
-        private __needreverse;
-        protected tryReverseMovieClipData(): void;
-        /** 序列帧的对齐位置 */
-        clipAlign: POSITION;
-        /** flashMode 采用 flash 标记的锚点来显示动画
-            @note 这种模式下请设置 fillMode 为 CENTER
-        */
-        private _flashMode;
-        flashMode: boolean;
-        /** flashAnchor flash模式下使用的锚点信息 */
-        flashAnchorPoint: Point;
-        updateLayout(): void;
-        protected _updateAnimation(): void;
-        private __cb_end(e);
-        private __cb_done(e);
-    }
-    class ClipConfig implements IReqResources {
-        /**
-           @name 资源名称，资源由 json\bmp 组成，如过传入的时候没有带后缀，则自动加上后缀
-           @res 动作文件，通常为 _json
-           @tex 素材平成，通常为 _png
-        */
-        constructor(name?: string, res?: string, tex?: string);
-        private _frame;
-        private _texture;
-        frame: UriSource;
-        texture: UriSource;
-        /** 名字 */
-        private _name;
-        name: string;
-        /** OPT 帧速 */
-        fps: number;
-        /** OPT 依赖的资源组 */
-        resourceGroups: Array<string>;
-        /** OPT 附加缩放 */
-        additionScale: number;
-        /** OPT 是否为独立数据，否则同一个资源公用一份帧数据 */
-        key: string;
-        readonly hashCode: number;
-        isEqual(r: this): boolean;
-        getReqResources(): Array<ReqResource>;
-        toString(): string;
+        protected _initSignals(): void;
+        _signalConnected(sig: string, s?: Slot): void;
+        private _imp;
+        start(): void;
+        useCredentials(): void;
+        private __cnt_completed(e);
+        private __cnt_error(e);
+        private _prg;
+        private __cnt_progress(e);
     }
 }
 declare module nn {
@@ -4047,99 +3985,57 @@ declare module nn {
     }
 }
 declare module nn {
-    /** Desktop默认依赖的执行队列，业务可以通过替换对来来手动划分不同的Desktop打开层级
-        @note 如果Desktop放到队列中，则当上一个dialog关闭时，下一个dialog才打开
-    */
-    let DesktopOperationQueue: OperationQueue;
-    /** 桌面，打开时铺平整个屏幕 */
-    class Desktop extends Component {
-        static BackgroundColor: Color;
-        static BackgroundImage: TextureSource;
-        constructor(ui?: CComponent);
-        dispose(): void;
-        static FromView(c: CComponent): Desktop;
-        private __dsk_sizechanged(s);
-        _initSignals(): void;
-        /** 高亮元素，在元素所在的位置镂空背景 */
-        _filters: CComponent[];
-        addFilter(ui: CComponent): void;
-        /** 是否打开高亮穿透的效果
-            @note 如果打开，只有filters的部分可以接受touch的事件
-        */
-        protected _onlyFiltersTouchEnabled: boolean;
-        onlyFiltersTouchEnabled: boolean;
-        static _AllNeedFilters: Desktop[];
-        hitTestInFilters(pt: Point): any;
-        onLoaded(): void;
-        private __dsk_addedtostage();
-        onAppeared(): void;
-        updateFilters(): void;
-        protected _contentView: CComponent;
-        contentView: CComponent;
-        /** 延迟指定时间后关闭
-            @note 因为可能open在队列中，如果由业务层处理，则不好把握什么时候当前dialog才打开
-        */
-        delayClose: number;
-        /** 桌面基于的层，默认为 Application.desktopLayer
-            @note 业务可以指定desktop是打开在全局，还是打开在指定的ui之内
-        */
-        desktopLayer: CComponent;
-        /** 是否已经打开
-            @note 如果open在队列中，则调用open后，当前parent仍然为null，但是逻辑上该dialog算是已经打开，所以需要使用独立的变量来维护打开状态
-        */
-        protected _isOpened: boolean;
-        readonly isOpened: boolean;
-        /** 队列控制时依赖的队列组，业务层设置为自己的队列实例来和标准desktop的队列隔离，避免多重desktop等待时造成业务中弹出的类似如tip的页面在业务dialog后等待的问题 */
-        queue: OperationQueue;
-        protected _oper: Operation;
-        /** 当在队列中打开时，需要延迟的时间
-            @note 同样因为如果打开在队列中，业务层无法很方便的控制打开前等待的时间
-        */
-        delayOpenInQueue: number;
-        /** 打开
-            @param queue, 是否放到队列中打开
-        */
-        open(queue?: boolean): void;
-        /** 接着其他对象打开 */
-        follow(otherContent: CComponent): void;
-        /** 替换打开 */
-        replace(otherContent: CComponent): void;
-        /** desktop打开的样式
-            @note 默认为弹出在desktopLayer，否则为push进desktopLayer
-            弹出不会隐藏后面的内容，push将根据对应的viewStack来决定是否背景的内容隐藏
-        */
-        popupMode: boolean;
-        _addIntoOpening: boolean;
-        static _AllOpenings: Desktop[];
-        protected doOpen(): void;
-        /** 关闭所有正在打开的desktop */
-        static CloseAllOpenings(): void;
-        /** 正在打开的desktop */
-        static Current(): Desktop;
-        /** 关闭 */
-        close(): void;
-        protected doClose(): void;
-        /** 点击桌面自动关闭 */
-        clickedToClose: boolean;
-        private __dsk_clicked();
-        /** 使用自适应来布局内容页面 */
-        adaptiveContentFrame: boolean;
-        updateLayout(): void;
+    class _FramesManager extends CFramesManager {
+        launch(c: egret.DisplayObject): void;
+        protected onPrepare(): void;
+        private __invalidating;
+        invalidate(): void;
     }
 }
 declare module nn {
-    class HttpConnector extends CHttpConnector {
+    /** 弹出的对话框类型
+        @note 通过返回 bestFrame 来决定对话框的大小 */
+    class Dialog extends Component implements IPage {
         constructor();
+        _initSignals(): void;
         dispose(): void;
-        protected _initSignals(): void;
-        _signalConnected(sig: string, s?: Slot): void;
-        private _imp;
-        start(): void;
-        useCredentials(): void;
-        private __cnt_completed(e);
-        private __cnt_error(e);
-        private _prg;
-        private __cnt_progress(e);
+        /** 获得视图隶属的dialog对象 */
+        static FromView(cv: CComponent): Dialog;
+        /** 路径标记 */
+        pathKey: string;
+        _filters: CSet<CComponent>;
+        addFilter(ui: CComponent): void;
+        onAppeared(): void;
+        onDisappeared(): void;
+        /** 是否让只有镂空的地方才能触摸 */
+        onlyFiltersTouchEnabled: boolean;
+        /** 延迟自动关闭 */
+        delayClose: number;
+        /** 在队列中延迟打开 */
+        delayOpenInQueue: number;
+        /** 依赖的队列 */
+        queue: OperationQueue;
+        /** 弹出的模式 */
+        popupMode: boolean;
+        /** 弹出依赖的层 */
+        desktopLayer: CComponent;
+        private _clickedToClose;
+        clickedToClose: boolean;
+        protected instanceDesktop(): Desktop;
+        /** 替换掉队列中对应的的dialog */
+        replace(link: CComponent): Desktop;
+        /** 打开
+            @param queue, 是否放到队列中打开，默认为 false
+        */
+        open(queue?: boolean): Desktop;
+        /** 打开在队列中的指定dialog之后 */
+        follow(link: CComponent): Desktop;
+        /** 关闭 */
+        close(): void;
+        /** 默认为0尺寸 */
+        bestFrame(): Rect;
+        /** 默认的位置，返回null代表使用对bestFrame进行偏移 */
+        bestPosition(): Point;
     }
 }
 declare module nn {
@@ -4213,12 +4109,6 @@ declare module nn {
     }
 }
 declare module nn {
-    class _FramesManager extends CFramesManager {
-        launch(c: egret.DisplayObject): void;
-        protected onPrepare(): void;
-        private __invalidating;
-        invalidate(): void;
-    }
 }
 declare module nn {
     class Slider extends Widget implements IProgress {
@@ -4236,6 +4126,74 @@ declare module nn {
     }
 }
 declare module nn {
+    class EntrySettings {
+        /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
+        singletone: boolean;
+        /** 其他数据 */
+        ext: any;
+        static Default: EntrySettings;
+    }
+    interface IEntry {
+        /** 模块的配置 */
+        entrySettings?: EntrySettings;
+    }
+    interface ILauncher {
+        /** 处理模块的启动
+            @param cls 待启动模块的类
+            @param data 附加的参数
+        */
+        launchEntry(cls: any, data?: any): any;
+    }
+    abstract class Manager extends SObject {
+        /** 初始化自己和其它manager或者其它对象之间的关系 */
+        abstract onLoaded(): any;
+        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
+        onDataLoaded(): void;
+    }
+    abstract class Managers extends SObject {
+        register<T>(obj: T): T;
+        onLoaded(): void;
+        onDataLoaded(): void;
+        protected _managers: Manager[];
+    }
+    interface IEntryClass {
+        name: string;
+        clazz: () => Function;
+    }
+    type EntryIdrToLauncherIdr = (entryidr: string) => string;
+    type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
+    type EntryClassType = Function | IEntryClass;
+    class _EntriesManager {
+        /** 注册一个模块
+            @param entryClass类
+        */
+        register(entryClass: EntryClassType, data?: EntrySettings): void;
+        /** 启动一个模块
+            @param entry 类或者标类名
+            @param launcher 启动点的标示号或者启动点的实例
+            @pram data 附加的参数
+        */
+        invoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
+        protected _doInvoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
+        private _entries;
+        private _entriesdata;
+        toString(): string;
+    }
+    let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
+    let EntriesManager: _EntriesManager;
+    class _LaunchersManager extends nn.SObject {
+        constructor();
+        protected _initSignals(): void;
+        /** 注册一个启动器 */
+        register(obj: ILauncher): void;
+        /** 取消 */
+        unregister(obj: ILauncher): void;
+        /** 查找一个启动器 */
+        find(str: string): ILauncher;
+        private _launchers;
+        toString(): string;
+    }
+    let LaunchersManager: _LaunchersManager;
 }
 declare module nn {
     /** tab的页面接口 */
@@ -4289,93 +4247,6 @@ declare module nn {
         popupTo(target: CComponent, autoopen?: boolean): Desktop;
         close(): void;
         protected _layoutTips(): void;
-    }
-}
-declare var LZString: {
-    compressToBase64: (input: any) => string;
-    decompressFromBase64: (input: any) => string;
-    compressToUTF16: (input: any) => string;
-    decompressFromUTF16: (compressed: any) => string;
-    compressToUint8Array: (uncompressed: any) => Uint8Array;
-    decompressFromUint8Array: (compressed: any) => string;
-    compressToEncodedURIComponent: (input: any) => string;
-    decompressFromEncodedURIComponent: (input: any) => string;
-    compress: (uncompressed: any) => string;
-    _compress: (uncompressed: any, bitsPerChar: any, getCharFromInt: any) => string;
-    decompress: (compressed: any) => string;
-    _decompress: (length: any, resetValue: any, getNextValue: any) => string;
-};
-declare module nn {
-    class CodecString implements ICodec {
-        encode(s: string): string;
-        decode(d: string): string;
-    }
-    class CodecUrl implements ICodec {
-        encode(s: string): string;
-        decode(d: string): string;
-    }
-    class CrytoString implements ICodec {
-        key: string;
-        private _iv;
-        iv: string;
-        encode(s: string): string;
-        decode(d: string): string;
-    }
-    class ZipArchiver implements IArchiver {
-        static Unavaliable: boolean;
-        load(d: any): boolean;
-        file(path: string, type: ResType, cb: (str: any) => void, ctx?: any): void;
-        private _hdl;
-    }
-    class LzmaArchiver implements IArchiver {
-        static Unavaliable: boolean;
-        load(d: any): boolean;
-        plain: string;
-        file(path: string, type: ResType, cb: (str: any) => void, ctx?: any): void;
-    }
-}
-declare module nn {
-    /** 按键数据 */
-    class CKeyboard {
-        key: string;
-        code: number;
-    }
-    interface IKeyboard extends ISObject {
-        visible: boolean;
-    }
-    let Keyboard: IKeyboard;
-}
-declare module nn {
-    class BitmapLabel extends CBitmapLabel {
-        constructor();
-        protected _lbl: any;
-        updateLayout(): void;
-        private _fontSize;
-        private _fontScale;
-        fontSize: number;
-        characterSpacing: number;
-        lineSpacing: number;
-        text: string;
-        private _fontSource;
-        fontSource: FontSource;
-    }
-}
-declare module nn {
-    class SelectionsGroup extends SObject {
-        constructor();
-        protected _initSignals(): void;
-        dispose(): void;
-        add(ui: CComponent & IState): void;
-        clear(): void;
-        elements(): any[];
-        private _cbStateChanged(e);
-        selection: number;
-        selectionItem: any;
-        indexOf(o: any): number;
-        readonly previousSelectionItem: any;
-        readonly length: number;
-        private _old;
-        private _store;
     }
 }
 declare module nn {
@@ -4459,6 +4330,98 @@ declare module nn {
     }
 }
 declare module nn {
+    /** 按键数据 */
+    class CKeyboard {
+        key: string;
+        code: number;
+    }
+    interface IKeyboard extends ISObject {
+        visible: boolean;
+    }
+    let Keyboard: IKeyboard;
+}
+declare module nn {
+    class BitmapLabel extends CBitmapLabel {
+        constructor();
+        protected _lbl: any;
+        updateLayout(): void;
+        private _fontSize;
+        private _fontScale;
+        fontSize: number;
+        characterSpacing: number;
+        lineSpacing: number;
+        text: string;
+        private _fontSource;
+        fontSource: FontSource;
+    }
+}
+declare module nn {
+    class MovieClip extends CMovieClip {
+        constructor();
+        _signalConnected(sig: string, s: Slot): void;
+        dispose(): void;
+        private _fps;
+        fps: number;
+        private _mc;
+        private _cs;
+        clipSource: ClipSource;
+        _clip: string;
+        clip: string;
+        _location: number;
+        location: number;
+        isPlaying(): boolean;
+        stop(): void;
+        play(): void;
+        bestFrame(): Rect;
+        private _setMovieClipData(d, f);
+        private _reverseMode;
+        reverseMode: boolean;
+        private __needreverse;
+        protected tryReverseMovieClipData(): void;
+        private _flashMode;
+        flashMode: boolean;
+        updateLayout(): void;
+        protected _updateAnimation(): void;
+        private __cb_end(e);
+        private __cb_done(e);
+    }
+}
+declare module nn {
+    class SelectionsGroup extends SObject {
+        constructor();
+        protected _initSignals(): void;
+        dispose(): void;
+        add(ui: CComponent & IState): void;
+        clear(): void;
+        elements(): any[];
+        private _cbStateChanged(e);
+        selection: number;
+        selectionItem: any;
+        indexOf(o: any): number;
+        readonly previousSelectionItem: any;
+        readonly length: number;
+        private _old;
+        private _store;
+    }
+}
+declare module nn {
+    /** 连续图片（背景） */
+    class ContinuousBitmap extends Widget {
+        constructor();
+        private _bmpn;
+        private _bmpb;
+        imageSource: TextureSource;
+        updateLayout(): void;
+        /** 方向，先默认实现为水平 */
+        direction: Direction;
+        private _pos;
+        /** 偏移的距离 */
+        offset(v: number): void;
+        /** 直接设置位置 */
+        position(v: number): void;
+    }
+}
+declare module nn {
     /** 承载不同状态对应的外观 */
     class State {
         constructor(props?: {});
@@ -4518,20 +4481,73 @@ declare module nn {
     }
 }
 declare module nn {
-    /** 连续图片（背景） */
-    class ContinuousBitmap extends Widget {
+    class Gesture extends SObject implements IGesture {
         constructor();
-        private _bmpn;
-        private _bmpb;
-        imageSource: TextureSource;
-        updateLayout(): void;
-        /** 方向，先默认实现为水平 */
+        dispose(): void;
+        protected _initSignals(): void;
+        attach(spr: Component): void;
+        protected doAttach(): void;
+        detach(): void;
+        protected doDetach(): void;
+        protected _spr: Component;
+    }
+    class GestureTap extends Gesture {
+        constructor();
+        protected doAttach(): void;
+        protected doDetach(): void;
+        private __cb_tap();
+        /** 统计次数 */
+        count: number;
+        /** 多少时间清空一次 */
+        interval: number;
+        private _tms;
+    }
+    class GestureLongTap extends Gesture {
+        constructor(duration?: number);
+        dispose(): void;
+        duration: number;
+        protected doAttach(): void;
+        protected doDetach(): void;
+        _tmr: SysTimer;
+        private __cb_touchbegin();
+        private __cb_touchend(s);
+        private __cb_touchmove();
+        private __cb_timer();
+    }
+    class GestureRecognizer extends SObject {
+        constructor();
+        protected _initSignals(): void;
+        /** 上次位置、当前位置 */
+        lastPosition: Point;
+        currentPosition: Point;
+        /** 上次时间、当前时间 */
+        lastTime: number;
+        currentTime: number;
+        /** 增量 */
+        deltaPosition: Point;
+        deltaTime: number;
+        /** 变动次数 */
+        stat: number;
+        /** 加速度 */
+        velocity: Point;
+        /** 最小间隔时间 */
+        thresholdInterval: number;
+        /** 重置 */
+        reset(): void;
+        /** 移动一次位置 */
+        addPosition(x: number, y: number): void;
+        protected doPosition(): void;
+        /** 主方向 */
+        majorDirection(threshold?: Point): Direction;
+    }
+    class GestureSwipe extends Gesture {
+        constructor();
+        protected doAttach(): void;
+        protected doDetach(): void;
+        private __cb_touchbegin(s);
+        private __cb_touchend(s);
+        _recognizer: GestureRecognizer;
         direction: Direction;
-        private _pos;
-        /** 偏移的距离 */
-        offset(v: number): void;
-        /** 直接设置位置 */
-        position(v: number): void;
     }
 }
 declare module nn {
@@ -4867,73 +4883,55 @@ declare module nn {
     }
 }
 declare module nn {
-    class Gesture extends SObject implements IGesture {
-        constructor();
-        dispose(): void;
-        protected _initSignals(): void;
-        attach(spr: Component): void;
-        protected doAttach(): void;
-        detach(): void;
-        protected doDetach(): void;
-        protected _spr: Component;
+    interface IGridDataSource {
+        /** 多少个元素 */
+        numberOfItems(): number;
+        /** 元素的类型 */
+        classForItem(row: number, col: number, idx: number): any;
+        /** 更新元素 */
+        updateItem(item: any, row: number, col: number, idx: number): any;
     }
-    class GestureTap extends Gesture {
-        constructor();
-        protected doAttach(): void;
-        protected doDetach(): void;
-        private __cb_tap();
-        /** 统计次数 */
-        count: number;
-        /** 多少时间清空一次 */
-        interval: number;
-        private _tms;
+    class GridCellsItem extends Sprite {
+        constructor(cols: number, cls: any);
+        spacing: number;
+        updateLayout(): void;
+        itemAtIndex(idx: number): CComponent;
+        setItemAtIndex(item: CComponent, idx: number): void;
+        updateData(): void;
+        reuseAll(pool: IReusesPool): void;
+        private cells;
     }
-    class GestureLongTap extends Gesture {
-        constructor(duration?: number);
-        dispose(): void;
-        duration: number;
-        protected doAttach(): void;
-        protected doDetach(): void;
-        _tmr: SysTimer;
-        private __cb_touchbegin();
-        private __cb_touchend(s);
-        private __cb_touchmove();
-        private __cb_timer();
+    class GridViewCell extends Sprite {
+        private _item;
+        item: CComponent;
+        updateData(): void;
+        updateLayout(): void;
     }
-    class GestureRecognizer extends SObject {
+    class GridViewContent extends TableViewContent {
         constructor();
-        protected _initSignals(): void;
-        /** 上次位置、当前位置 */
-        lastPosition: Point;
-        currentPosition: Point;
-        /** 上次时间、当前时间 */
-        lastTime: number;
-        currentTime: number;
-        /** 增量 */
-        deltaPosition: Point;
-        deltaTime: number;
-        /** 变动次数 */
-        stat: number;
-        /** 加速度 */
-        velocity: Point;
-        /** 最小间隔时间 */
-        thresholdInterval: number;
-        /** 重置 */
-        reset(): void;
-        /** 移动一次位置 */
-        addPosition(x: number, y: number): void;
-        protected doPosition(): void;
-        /** 主方向 */
-        majorDirection(threshold?: Point): Direction;
+        gridDataSource: IGridDataSource;
+        /** 默认的元素类型 */
+        itemClass: any;
+        /** 一行有几个 */
+        numberOfColumns: number;
+        /** 用来实现gridcell的类型 */
+        gridCellClass: typeof GridViewCell;
+        protected instanceItem(type: any): GridCellsItem;
+        protected instanceGridItem(cls: any): any;
+        protected updateRow(item: GridCellsItem, cell: TableViewCell, row: number): void;
+        protected addOneReuseItem(item: GridCellsItem): void;
+        private _reuseGridItems;
     }
-    class GestureSwipe extends Gesture {
+    class GridView extends TableView implements IGridDataSource {
         constructor();
-        protected doAttach(): void;
-        protected doDetach(): void;
-        private __cb_touchbegin(s);
-        private __cb_touchend(s);
-        _recognizer: GestureRecognizer;
-        direction: Direction;
+        protected instanceTable(): TableViewContent;
+        readonly grid: GridViewContent;
+        numberOfItems(): number;
+        /** 元素的类型 */
+        classForItem(row: number, col: number, idx: number): any;
+        /** 更新元素 */
+        updateItem(item: any, row: number, col: number, idx: number): void;
+        numberOfRows(): number;
     }
 }
 declare module nn {
@@ -5125,55 +5123,100 @@ declare module nn {
     }
 }
 declare module nn {
-    interface IGridDataSource {
-        /** 多少个元素 */
-        numberOfItems(): number;
-        /** 元素的类型 */
-        classForItem(row: number, col: number, idx: number): any;
-        /** 更新元素 */
-        updateItem(item: any, row: number, col: number, idx: number): any;
-    }
-    class GridCellsItem extends Sprite {
-        constructor(cols: number, cls: any);
-        spacing: number;
-        updateLayout(): void;
-        itemAtIndex(idx: number): CComponent;
-        setItemAtIndex(item: CComponent, idx: number): void;
-        updateData(): void;
-        reuseAll(pool: IReusesPool): void;
-        private cells;
-    }
-    class GridViewCell extends Sprite {
-        private _item;
-        item: CComponent;
-        updateData(): void;
-        updateLayout(): void;
-    }
-    class GridViewContent extends TableViewContent {
+    class _BonesManager extends SObject {
         constructor();
-        gridDataSource: IGridDataSource;
-        /** 默认的元素类型 */
-        itemClass: any;
-        /** 一行有几个 */
-        numberOfColumns: number;
-        /** 用来实现gridcell的类型 */
-        gridCellClass: typeof GridViewCell;
-        protected instanceItem(type: any): GridCellsItem;
-        protected instanceGridItem(cls: any): any;
-        protected updateRow(item: GridCellsItem, cell: TableViewCell, row: number): void;
-        protected addOneReuseItem(item: GridCellsItem): void;
-        private _reuseGridItems;
+        /** 使用Fast加速骨骼动画 */
+        turboMode: boolean;
+        /** 默认骨骼的帧速 */
+        fps: number;
+        protected _factory: dragonBones.EgretFactory;
+        instance(cfg: BoneConfig, cb: (bn: BoneData) => void, ctx?: any): void;
+        protected instanceOne(character: string, skeleton: string, place: string, texture: string, fps: number, cb: (d: BoneData) => void, ctx?: any): void;
     }
-    class GridView extends TableView implements IGridDataSource {
+    function BonesManager(): _BonesManager;
+    type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
+    /** 骨骼动画 */
+    class BoneData {
+        constructor(am: ArmatureSource);
+        private _armature;
+        armature: ArmatureSource;
+        addLoop(): void;
+        rmLoop(): void;
+        calcFrameProgress(mo: string, frame: number): number;
+        playMotion(motion: string, times: number, stopAtProgress?: number): void;
+        seekToMotion(motion: string, time: number): void;
+        hasMotion(val: string): boolean;
+        bestFrame(): Rect;
+        readonly display: egret.DisplayObject;
+    }
+    /** 骨骼的配置信息 */
+    class BoneConfig implements IReqResources {
+        /**
+           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
+           @character 角色名称，通常和name一致
+           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
+           @place 材质节点的位置配置文件，通常为 texture_json 结尾
+           @texture 图片文件，通常为 texture_png 结尾
+        */
+        constructor(name?: string, character?: string, skeleton?: string, place?: string, texture?: string);
+        resourceGroups: Array<string>;
+        protected _skeleton: string;
+        protected _place: string;
+        protected _texture: string;
+        protected _character: string;
+        fps: number;
+        protected _name: string;
+        name: string;
+        skeleton: string;
+        place: string;
+        texture: string;
+        character: string;
+        getReqResources(): Array<ReqResource>;
+    }
+    type BoneSource = BoneData | BoneConfig | UriSource;
+    /** 业务使用的骨骼显示类 */
+    class Bones extends Widget {
         constructor();
-        protected instanceTable(): TableViewContent;
-        readonly grid: GridViewContent;
-        numberOfItems(): number;
-        /** 元素的类型 */
-        classForItem(row: number, col: number, idx: number): any;
-        /** 更新元素 */
-        updateItem(item: any, row: number, col: number, idx: number): void;
-        numberOfRows(): number;
+        protected _initSignals(): void;
+        dispose(): void;
+        private _playingState;
+        private _data;
+        protected getBoneData(): BoneData;
+        protected setBoneData(d: BoneData): void;
+        private _bs;
+        boneSource: BoneSource;
+        bestFrame(): Rect;
+        /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
+        additionScale: number;
+        /** 骨骼填充的方式，默认为充满 */
+        fillMode: FillMode;
+        /** 对齐位置 */
+        clipAlign: POSITION;
+        updateLayout(): void;
+        /** 具体动作 */
+        private _motions;
+        motion: string;
+        pushMotion(val: string): void;
+        popMotion(): void;
+        /** 当前含有的所有动作 */
+        motions(): Array<string>;
+        /** 是否含有该动作 */
+        hasMotion(val: string): boolean;
+        /** 自动开始播放 */
+        autoPlay: boolean;
+        /** 播放次数控制
+            -1: 循环
+            0: 使用文件设置的次数
+            >0: 次数控制
+        */
+        count: number;
+        /** 播放 */
+        play(): void;
+        /** 停止播放 */
+        stop(): void;
+        private __db_start();
+        private __db_complete();
+        private __db_loopcomplete();
     }
 }
 declare module nn {
@@ -5340,118 +5383,91 @@ declare module nn {
     }
 }
 declare module nn {
-    class EntrySettings {
-        /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
-        singletone: boolean;
-        /** 其他数据 */
-        ext: any;
-        static Default: EntrySettings;
-    }
-    interface IEntry {
-        /** 模块的配置 */
-        entrySettings?: EntrySettings;
-    }
-    interface ILauncher {
-        /** 处理模块的启动
-            @param cls 待启动模块的类
-            @param data 附加的参数
-        */
-        launchEntry(cls: any, data?: any): any;
-    }
-    abstract class Manager extends SObject {
-        /** 初始化自己和其它manager或者其它对象之间的关系 */
-        abstract onLoaded(): any;
-        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
-        onDataLoaded(): void;
-    }
-    abstract class Managers extends SObject {
-        register<T>(obj: T): T;
-        onLoaded(): void;
-        onDataLoaded(): void;
-        protected _managers: Manager[];
-    }
-    interface IEntryClass {
-        name: string;
-        clazz: () => Function;
-    }
-    type EntryIdrToLauncherIdr = (entryidr: string) => string;
-    type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
-    type EntryClassType = Function | IEntryClass;
-    class _EntriesManager {
-        /** 注册一个模块
-            @param entryClass类
-        */
-        register(entryClass: EntryClassType, data?: EntrySettings): void;
-        /** 启动一个模块
-            @param entry 类或者标类名
-            @param launcher 启动点的标示号或者启动点的实例
-            @pram data 附加的参数
-        */
-        invoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
-        protected _doInvoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
-        private _entries;
-        private _entriesdata;
-        toString(): string;
-    }
-    let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
-    let EntriesManager: _EntriesManager;
-    class _LaunchersManager extends nn.SObject {
+    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
+    class _DatasManager extends nn.SObject {
         constructor();
-        protected _initSignals(): void;
-        /** 注册一个启动器 */
-        register(obj: ILauncher): void;
-        /** 取消 */
-        unregister(obj: ILauncher): void;
-        /** 查找一个启动器 */
-        find(str: string): ILauncher;
-        private _launchers;
-        toString(): string;
+        _load(): void;
     }
-    let LaunchersManager: _LaunchersManager;
+    let DatasManager: _DatasManager;
 }
 declare module nn {
-    /** 弹出的对话框类型
-        @note 通过返回 bestFrame 来决定对话框的大小 */
-    class Dialog extends Component implements IPage {
-        constructor();
-        _initSignals(): void;
+    /** Desktop默认依赖的执行队列，业务可以通过替换对来来手动划分不同的Desktop打开层级
+        @note 如果Desktop放到队列中，则当上一个dialog关闭时，下一个dialog才打开
+    */
+    let DesktopOperationQueue: OperationQueue;
+    /** 桌面，打开时铺平整个屏幕 */
+    class Desktop extends Component {
+        static BackgroundColor: Color;
+        static BackgroundImage: TextureSource;
+        constructor(ui?: CComponent);
         dispose(): void;
-        /** 获得视图隶属的dialog对象 */
-        static FromView(cv: CComponent): Dialog;
-        /** 路径标记 */
-        pathKey: string;
-        _filters: CSet<CComponent>;
+        static FromView(c: CComponent): Desktop;
+        private __dsk_sizechanged(s);
+        _initSignals(): void;
+        /** 高亮元素，在元素所在的位置镂空背景 */
+        _filters: CComponent[];
         addFilter(ui: CComponent): void;
-        onAppeared(): void;
-        onDisappeared(): void;
-        /** 是否让只有镂空的地方才能触摸 */
-        onlyFiltersTouchEnabled: boolean;
-        /** 延迟自动关闭 */
-        delayClose: number;
-        /** 在队列中延迟打开 */
-        delayOpenInQueue: number;
-        /** 依赖的队列 */
-        queue: OperationQueue;
-        /** 弹出的模式 */
-        popupMode: boolean;
-        /** 弹出依赖的层 */
-        desktopLayer: CComponent;
-        private _clickedToClose;
-        clickedToClose: boolean;
-        protected instanceDesktop(): Desktop;
-        /** 替换掉队列中对应的的dialog */
-        replace(link: CComponent): Desktop;
-        /** 打开
-            @param queue, 是否放到队列中打开，默认为 false
+        /** 是否打开高亮穿透的效果
+            @note 如果打开，只有filters的部分可以接受touch的事件
         */
-        open(queue?: boolean): Desktop;
-        /** 打开在队列中的指定dialog之后 */
-        follow(link: CComponent): Desktop;
+        protected _onlyFiltersTouchEnabled: boolean;
+        onlyFiltersTouchEnabled: boolean;
+        static _AllNeedFilters: Desktop[];
+        hitTestInFilters(pt: Point): any;
+        onLoaded(): void;
+        private __dsk_addedtostage();
+        onAppeared(): void;
+        updateFilters(): void;
+        protected _contentView: CComponent;
+        contentView: CComponent;
+        /** 延迟指定时间后关闭
+            @note 因为可能open在队列中，如果由业务层处理，则不好把握什么时候当前dialog才打开
+        */
+        delayClose: number;
+        /** 桌面基于的层，默认为 Application.desktopLayer
+            @note 业务可以指定desktop是打开在全局，还是打开在指定的ui之内
+        */
+        desktopLayer: CComponent;
+        /** 是否已经打开
+            @note 如果open在队列中，则调用open后，当前parent仍然为null，但是逻辑上该dialog算是已经打开，所以需要使用独立的变量来维护打开状态
+        */
+        protected _isOpened: boolean;
+        readonly isOpened: boolean;
+        /** 队列控制时依赖的队列组，业务层设置为自己的队列实例来和标准desktop的队列隔离，避免多重desktop等待时造成业务中弹出的类似如tip的页面在业务dialog后等待的问题 */
+        queue: OperationQueue;
+        protected _oper: Operation;
+        /** 当在队列中打开时，需要延迟的时间
+            @note 同样因为如果打开在队列中，业务层无法很方便的控制打开前等待的时间
+        */
+        delayOpenInQueue: number;
+        /** 打开
+            @param queue, 是否放到队列中打开
+        */
+        open(queue?: boolean): void;
+        /** 接着其他对象打开 */
+        follow(otherContent: CComponent): void;
+        /** 替换打开 */
+        replace(otherContent: CComponent): void;
+        /** desktop打开的样式
+            @note 默认为弹出在desktopLayer，否则为push进desktopLayer
+            弹出不会隐藏后面的内容，push将根据对应的viewStack来决定是否背景的内容隐藏
+        */
+        popupMode: boolean;
+        _addIntoOpening: boolean;
+        static _AllOpenings: Desktop[];
+        protected doOpen(): void;
+        /** 关闭所有正在打开的desktop */
+        static CloseAllOpenings(): void;
+        /** 正在打开的desktop */
+        static Current(): Desktop;
         /** 关闭 */
         close(): void;
-        /** 默认为0尺寸 */
-        bestFrame(): Rect;
-        /** 默认的位置，返回null代表使用对bestFrame进行偏移 */
-        bestPosition(): Point;
+        protected doClose(): void;
+        /** 点击桌面自动关闭 */
+        clickedToClose: boolean;
+        private __dsk_clicked();
+        /** 使用自适应来布局内容页面 */
+        adaptiveContentFrame: boolean;
+        updateLayout(): void;
     }
 }
