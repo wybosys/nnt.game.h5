@@ -245,7 +245,7 @@
 		},
 		{
 			"name":"btn",
-			"scale9grid":"22,45,4,7",
+			"scale9grid":"20,43,17,18",
 			"type":"image",
 			"url":"assets/scene/btn.png"
 		},

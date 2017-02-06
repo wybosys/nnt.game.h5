@@ -1,11 +1,12 @@
 module nn {
-
-    // 需要饮用 ScaleFactor
-    egret.Bitmap['$drawScale9GridImage'] = function (context, image, scale9Grid, clipX, clipY, clipWidth, clipHeight, offsetX, offsetY, textureWidth, textureHeight, surfaceWidth, surfaceHeight) {
-        var imageWidth = clipWidth;
-        var imageHeight = clipHeight;
-        surfaceWidth = surfaceWidth - (textureWidth - clipWidth * egret.$TextureScaleFactor);
-        surfaceHeight = surfaceHeight - (textureHeight - clipHeight * egret.$TextureScaleFactor);
+    
+    // 应用设置fillMode导致scaleFactor！=1，所以需要对egret的画法进行修正
+    egret.sys.BitmapNode['$updateTextureDataWithScale9Grid'] = function (node, scale9Grid, bitmapX, bitmapY, bitmapWidth, bitmapHeight, offsetX, offsetY, textureWidth, textureHeight, destW, destH)
+    {
+        var imageWidth = bitmapWidth;
+        var imageHeight = bitmapHeight;
+        destW = destW - (textureWidth - bitmapWidth * egret.$TextureScaleFactor);
+        destH = destH - (textureHeight - bitmapHeight * egret.$TextureScaleFactor);
         var targetW0 = scale9Grid.x - offsetX;
         var targetH0 = scale9Grid.y - offsetY;
         var sourceW0 = targetW0 / egret.$TextureScaleFactor;
@@ -30,18 +31,18 @@ module nn {
         targetW0 *= ScaleFactorW;
         targetH0 *= ScaleFactorH;
 
-        var sourceX0 = clipX;
+        var sourceX0 = bitmapX;
         var sourceX1 = sourceX0 + sourceW0;
         var sourceX2 = sourceX1 + sourceW1;
         var sourceW2 = imageWidth - sourceW0 - sourceW1;
-        var sourceY0 = clipY;
+        var sourceY0 = bitmapY;
         var sourceY1 = sourceY0 + sourceH0;
         var sourceY2 = sourceY1 + sourceH1;
         var sourceH2 = imageHeight - sourceH0 - sourceH1;
         var targetW2 = sourceW2 * egret.$TextureScaleFactor;
         var targetH2 = sourceH2 * egret.$TextureScaleFactor;
-        if ((sourceW0 + sourceW2) * egret.$TextureScaleFactor > surfaceWidth || (sourceH0 + sourceH2) * egret.$TextureScaleFactor > surfaceHeight) {
-            context.drawImage(image, clipX, clipY, clipWidth, clipHeight, offsetX, offsetY, surfaceWidth, surfaceHeight);
+        if ((sourceW0 + sourceW2) * egret.$TextureScaleFactor > destW || (sourceH0 + sourceH2) * egret.$TextureScaleFactor > destH) {
+            node.drawImage(bitmapX, bitmapY, bitmapWidth, bitmapHeight, offsetX, offsetY, destW, destH);
             return;
         }
 
@@ -51,12 +52,12 @@ module nn {
         
         var targetX0 = offsetX;
         var targetX1 = targetX0 + targetW0;
-        var targetX2 = targetX0 + (surfaceWidth - targetW2);
-        var targetW1 = surfaceWidth - targetW0 - targetW2;
+        var targetX2 = targetX0 + (destW - targetW2);
+        var targetW1 = destW - targetW0 - targetW2;
         var targetY0 = offsetY;
         var targetY1 = targetY0 + targetH0;
-        var targetY2 = targetY0 + surfaceHeight - targetH2;
-        var targetH1 = surfaceHeight - targetH0 - targetH2;
+        var targetY2 = targetY0 + destH - targetH2;
+        var targetH1 = destH - targetH0 - targetH2;
         //
         //             x0     x1     x2
         //          y0 +------+------+------+
@@ -73,27 +74,27 @@ module nn {
         //
         if (sourceH0 > 0) {
             if (sourceW0 > 0)
-                context.drawImage(image, sourceX0, sourceY0, sourceW0, sourceH0, targetX0, targetY0, targetW0, targetH0);
+                node.drawImage(sourceX0, sourceY0, sourceW0, sourceH0, targetX0, targetY0, targetW0, targetH0);
             if (sourceW1 > 0)
-                context.drawImage(image, sourceX1, sourceY0, sourceW1, sourceH0, targetX1, targetY0, targetW1, targetH0);
+                node.drawImage(sourceX1, sourceY0, sourceW1, sourceH0, targetX1, targetY0, targetW1, targetH0);
             if (sourceW2 > 0)
-                context.drawImage(image, sourceX2, sourceY0, sourceW2, sourceH0, targetX2, targetY0, targetW2, targetH0);
+                node.drawImage(sourceX2, sourceY0, sourceW2, sourceH0, targetX2, targetY0, targetW2, targetH0);
         }
         if (sourceH1 > 0) {
             if (sourceW0 > 0)
-                context.drawImage(image, sourceX0, sourceY1, sourceW0, sourceH1, targetX0, targetY1, targetW0, targetH1);
+                node.drawImage(sourceX0, sourceY1, sourceW0, sourceH1, targetX0, targetY1, targetW0, targetH1);
             if (sourceW1 > 0)
-                context.drawImage(image, sourceX1, sourceY1, sourceW1, sourceH1, targetX1, targetY1, targetW1, targetH1);
+                node.drawImage(sourceX1, sourceY1, sourceW1, sourceH1, targetX1, targetY1, targetW1, targetH1);
             if (sourceW2 > 0)
-                context.drawImage(image, sourceX2, sourceY1, sourceW2, sourceH1, targetX2, targetY1, targetW2, targetH1);
+                node.drawImage(sourceX2, sourceY1, sourceW2, sourceH1, targetX2, targetY1, targetW2, targetH1);
         }
         if (sourceH2 > 0) {
             if (sourceW0 > 0)
-                context.drawImage(image, sourceX0, sourceY2, sourceW0, sourceH2, targetX0, targetY2, targetW0, targetH2);
+                node.drawImage(sourceX0, sourceY2, sourceW0, sourceH2, targetX0, targetY2, targetW0, targetH2);
             if (sourceW1 > 0)
-                context.drawImage(image, sourceX1, sourceY2, sourceW1, sourceH2, targetX1, targetY2, targetW1, targetH2);
+                node.drawImage(sourceX1, sourceY2, sourceW1, sourceH2, targetX1, targetY2, targetW1, targetH2);
             if (sourceW2 > 0)
-                context.drawImage(image, sourceX2, sourceY2, sourceW2, sourceH2, targetX2, targetY2, targetW2, targetH2);
+                node.drawImage(sourceX2, sourceY2, sourceW2, sourceH2, targetX2, targetY2, targetW2, targetH2);
         }
     };
 }
