@@ -3204,6 +3204,14 @@ declare module nn {
     var PUBLISH: boolean;
 }
 declare module nn {
+    abstract class CParticle extends Widget {
+        constructor();
+        name: string;
+        abstract start(): any;
+        abstract stop(): any;
+    }
+}
+declare module nn {
     enum ResPriority {
         NORMAL = 0,
         CLIP = 1,
@@ -3986,52 +3994,87 @@ declare module nn {
     }
 }
 declare module nn {
-    class Button extends CButton {
-        constructor(state?: State);
-        dispose(): void;
-        fontSize: number;
-        textColor: ColorType;
-        text: string;
-        textAlign: string;
-        private _label;
-        label: Label;
-        protected _getLabel(): Label;
-        private _imageView;
-        imageView: Bitmap;
-        private _getImageView();
-        imageSource: TextureSource;
-        imageFillMode: FillMode;
-        bestFrame(inrc?: Rect): Rect;
-        updateLayout(): void;
-        stateNormal: State;
-        stateDisabled: State;
-        stateHighlight: State;
-        stateSelected: State;
-        protected _slavestates: States;
-        protected readonly slavestates: States;
-        protected onChangeState(obj: any): void;
-        private _disabled;
-        disabled: boolean;
-        touchEnabled: boolean;
-        private __btn_touchdown();
-        private __btn_touchup();
-        setSelection(sel: boolean): void;
-    }
-    class RadioButton extends Button implements IState {
-        constructor();
-        private _selectedState;
-        selectedState: State;
-        private _unselectedState;
-        unselectedState: State;
-        _selection: boolean;
-        setSelection(val: boolean): void;
-        isSelection(): boolean;
-        /** 是否支持点击已经选中的来直接反选 */
-        allowDeclick: boolean;
-        private __radio_clicked();
-    }
 }
 declare module nn {
+    /** Desktop默认依赖的执行队列，业务可以通过替换对来来手动划分不同的Desktop打开层级
+        @note 如果Desktop放到队列中，则当上一个dialog关闭时，下一个dialog才打开
+    */
+    let DesktopOperationQueue: OperationQueue;
+    /** 桌面，打开时铺平整个屏幕 */
+    class Desktop extends Component {
+        static BackgroundColor: Color;
+        static BackgroundImage: TextureSource;
+        constructor(ui?: CComponent);
+        dispose(): void;
+        static FromView(c: CComponent): Desktop;
+        private __dsk_sizechanged(s);
+        _initSignals(): void;
+        /** 高亮元素，在元素所在的位置镂空背景 */
+        _filters: CComponent[];
+        addFilter(ui: CComponent): void;
+        /** 是否打开高亮穿透的效果
+            @note 如果打开，只有filters的部分可以接受touch的事件
+        */
+        protected _onlyFiltersTouchEnabled: boolean;
+        onlyFiltersTouchEnabled: boolean;
+        static _AllNeedFilters: Desktop[];
+        hitTestInFilters(pt: Point): any;
+        onLoaded(): void;
+        private __dsk_addedtostage();
+        onAppeared(): void;
+        updateFilters(): void;
+        protected _contentView: CComponent;
+        contentView: CComponent;
+        /** 延迟指定时间后关闭
+            @note 因为可能open在队列中，如果由业务层处理，则不好把握什么时候当前dialog才打开
+        */
+        delayClose: number;
+        /** 桌面基于的层，默认为 Application.desktopLayer
+            @note 业务可以指定desktop是打开在全局，还是打开在指定的ui之内
+        */
+        desktopLayer: CComponent;
+        /** 是否已经打开
+            @note 如果open在队列中，则调用open后，当前parent仍然为null，但是逻辑上该dialog算是已经打开，所以需要使用独立的变量来维护打开状态
+        */
+        protected _isOpened: boolean;
+        readonly isOpened: boolean;
+        /** 队列控制时依赖的队列组，业务层设置为自己的队列实例来和标准desktop的队列隔离，避免多重desktop等待时造成业务中弹出的类似如tip的页面在业务dialog后等待的问题 */
+        queue: OperationQueue;
+        protected _oper: Operation;
+        /** 当在队列中打开时，需要延迟的时间
+            @note 同样因为如果打开在队列中，业务层无法很方便的控制打开前等待的时间
+        */
+        delayOpenInQueue: number;
+        /** 打开
+            @param queue, 是否放到队列中打开
+        */
+        open(queue?: boolean): void;
+        /** 接着其他对象打开 */
+        follow(otherContent: CComponent): void;
+        /** 替换打开 */
+        replace(otherContent: CComponent): void;
+        /** desktop打开的样式
+            @note 默认为弹出在desktopLayer，否则为push进desktopLayer
+            弹出不会隐藏后面的内容，push将根据对应的viewStack来决定是否背景的内容隐藏
+        */
+        popupMode: boolean;
+        _addIntoOpening: boolean;
+        static _AllOpenings: Desktop[];
+        protected doOpen(): void;
+        /** 关闭所有正在打开的desktop */
+        static CloseAllOpenings(): void;
+        /** 正在打开的desktop */
+        static Current(): Desktop;
+        /** 关闭 */
+        close(): void;
+        protected doClose(): void;
+        /** 点击桌面自动关闭 */
+        clickedToClose: boolean;
+        private __dsk_clicked();
+        /** 使用自适应来布局内容页面 */
+        adaptiveContentFrame: boolean;
+        updateLayout(): void;
+    }
 }
 declare module nn {
     /** 弹出的对话框类型
@@ -4570,55 +4613,20 @@ declare module nn {
     }
 }
 declare module nn {
-    interface IGridDataSource {
-        /** 多少个元素 */
-        numberOfItems(): number;
-        /** 元素的类型 */
-        classForItem(row: number, col: number, idx: number): any;
-        /** 更新元素 */
-        updateItem(item: any, row: number, col: number, idx: number): any;
+    class _ParticlesManager {
+        instanceParticle(name: string): particle.ParticleSystem;
     }
-    class GridCellsItem extends Sprite {
-        constructor(cols: number, cls: any);
-        spacing: number;
-        updateLayout(): void;
-        itemAtIndex(idx: number): CComponent;
-        setItemAtIndex(item: CComponent, idx: number): void;
-        updateData(): void;
-        reuseAll(pool: IReusesPool): void;
-        private cells;
-    }
-    class GridViewCell extends Sprite {
-        private _item;
-        item: CComponent;
-        updateData(): void;
-        updateLayout(): void;
-    }
-    class GridViewContent extends TableViewContent {
+    let ParticlesManager: _ParticlesManager;
+    class Particle extends CParticle {
         constructor();
-        gridDataSource: IGridDataSource;
-        /** 默认的元素类型 */
-        itemClass: any;
-        /** 一行有几个 */
-        numberOfColumns: number;
-        /** 用来实现gridcell的类型 */
-        gridCellClass: typeof GridViewCell;
-        protected instanceItem(type: any): GridCellsItem;
-        protected instanceGridItem(cls: any): any;
-        protected updateRow(item: GridCellsItem, cell: TableViewCell, row: number): void;
-        protected addOneReuseItem(item: GridCellsItem): void;
-        private _reuseGridItems;
-    }
-    class GridView extends TableView implements IGridDataSource {
-        constructor();
-        protected instanceTable(): TableViewContent;
-        readonly grid: GridViewContent;
-        numberOfItems(): number;
-        /** 元素的类型 */
-        classForItem(row: number, col: number, idx: number): any;
-        /** 更新元素 */
-        updateItem(item: any, row: number, col: number, idx: number): void;
-        numberOfRows(): number;
+        dispose(): void;
+        _name: string;
+        name: string;
+        _system: particle.ParticleSystem;
+        system: particle.ParticleSystem;
+        updateLayout(): void;
+        start(): void;
+        stop(): void;
     }
 }
 declare module nn {
@@ -4764,29 +4772,56 @@ declare module nn.journal {
     }
 }
 declare module nn {
-    class TextField extends Label implements CTextField {
-        constructor();
-        dispose(): void;
-        _initSignals(): void;
-        _signalConnected(sig: string, s?: Slot): void;
-        protected hitTestClient(x: number, y: number): egret.DisplayObject;
-        readonly: boolean;
-        securityInput: boolean;
-        private _labelPlaceholder;
-        labelPlaceholder: Label;
-        placeholderTextColor: number;
-        placeholder: string;
-        protected _setFontSize(v: number): void;
-        protected _setTextAlign(a: string): void;
-        protected _setText(s: string): boolean;
-        multilines: boolean;
-        private __inp_focus();
-        private __inp_blur();
-        private __lbl_changed(e);
+    interface IGridDataSource {
+        /** 多少个元素 */
+        numberOfItems(): number;
+        /** 元素的类型 */
+        classForItem(row: number, col: number, idx: number): any;
+        /** 更新元素 */
+        updateItem(item: any, row: number, col: number, idx: number): any;
+    }
+    class GridCellsItem extends Sprite {
+        constructor(cols: number, cls: any);
+        spacing: number;
+        updateLayout(): void;
+        itemAtIndex(idx: number): CComponent;
+        setItemAtIndex(item: CComponent, idx: number): void;
+        updateData(): void;
+        reuseAll(pool: IReusesPool): void;
+        private cells;
+    }
+    class GridViewCell extends Sprite {
+        private _item;
+        item: CComponent;
+        updateData(): void;
         updateLayout(): void;
     }
-}
-declare module egret.web {
+    class GridViewContent extends TableViewContent {
+        constructor();
+        gridDataSource: IGridDataSource;
+        /** 默认的元素类型 */
+        itemClass: any;
+        /** 一行有几个 */
+        numberOfColumns: number;
+        /** 用来实现gridcell的类型 */
+        gridCellClass: typeof GridViewCell;
+        protected instanceItem(type: any): GridCellsItem;
+        protected instanceGridItem(cls: any): any;
+        protected updateRow(item: GridCellsItem, cell: TableViewCell, row: number): void;
+        protected addOneReuseItem(item: GridCellsItem): void;
+        private _reuseGridItems;
+    }
+    class GridView extends TableView implements IGridDataSource {
+        constructor();
+        protected instanceTable(): TableViewContent;
+        readonly grid: GridViewContent;
+        numberOfItems(): number;
+        /** 元素的类型 */
+        classForItem(row: number, col: number, idx: number): any;
+        /** 更新元素 */
+        updateItem(item: any, row: number, col: number, idx: number): void;
+        numberOfRows(): number;
+    }
 }
 declare module nn {
     class Vector2d extends Point {
@@ -4954,6 +4989,31 @@ declare module nn {
     }
 }
 declare module nn {
+    class TextField extends Label implements CTextField {
+        constructor();
+        dispose(): void;
+        _initSignals(): void;
+        _signalConnected(sig: string, s?: Slot): void;
+        protected hitTestClient(x: number, y: number): egret.DisplayObject;
+        readonly: boolean;
+        securityInput: boolean;
+        private _labelPlaceholder;
+        labelPlaceholder: Label;
+        placeholderTextColor: number;
+        placeholder: string;
+        protected _setFontSize(v: number): void;
+        protected _setTextAlign(a: string): void;
+        protected _setText(s: string): boolean;
+        multilines: boolean;
+        private __inp_focus();
+        private __inp_blur();
+        private __lbl_changed(e);
+        updateLayout(): void;
+    }
+}
+declare module egret.web {
+}
+declare module nn {
     class EntrySettings {
         /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
         singletone: boolean;
@@ -5022,23 +5082,6 @@ declare module nn {
         toString(): string;
     }
     let LaunchersManager: _LaunchersManager;
-}
-declare module nn {
-    class _ParticlesManager {
-        instanceParticle(name: string): particle.ParticleSystem;
-    }
-    let ParticlesManager: _ParticlesManager;
-    class Particle extends Widget {
-        constructor();
-        dispose(): void;
-        _name: string;
-        name: string;
-        _system: particle.ParticleSystem;
-        system: particle.ParticleSystem;
-        updateLayout(): void;
-        startAnimation(): void;
-        stopAnimation(): void;
-    }
 }
 declare module egret {
     var VERSION_2_5_6: any;
@@ -5404,83 +5447,48 @@ declare module nn.developer {
     }
 }
 declare module nn {
-    /** Desktop默认依赖的执行队列，业务可以通过替换对来来手动划分不同的Desktop打开层级
-        @note 如果Desktop放到队列中，则当上一个dialog关闭时，下一个dialog才打开
-    */
-    let DesktopOperationQueue: OperationQueue;
-    /** 桌面，打开时铺平整个屏幕 */
-    class Desktop extends Component {
-        static BackgroundColor: Color;
-        static BackgroundImage: TextureSource;
-        constructor(ui?: CComponent);
+    class Button extends CButton {
+        constructor(state?: State);
         dispose(): void;
-        static FromView(c: CComponent): Desktop;
-        private __dsk_sizechanged(s);
-        _initSignals(): void;
-        /** 高亮元素，在元素所在的位置镂空背景 */
-        _filters: CComponent[];
-        addFilter(ui: CComponent): void;
-        /** 是否打开高亮穿透的效果
-            @note 如果打开，只有filters的部分可以接受touch的事件
-        */
-        protected _onlyFiltersTouchEnabled: boolean;
-        onlyFiltersTouchEnabled: boolean;
-        static _AllNeedFilters: Desktop[];
-        hitTestInFilters(pt: Point): any;
-        onLoaded(): void;
-        private __dsk_addedtostage();
-        onAppeared(): void;
-        updateFilters(): void;
-        protected _contentView: CComponent;
-        contentView: CComponent;
-        /** 延迟指定时间后关闭
-            @note 因为可能open在队列中，如果由业务层处理，则不好把握什么时候当前dialog才打开
-        */
-        delayClose: number;
-        /** 桌面基于的层，默认为 Application.desktopLayer
-            @note 业务可以指定desktop是打开在全局，还是打开在指定的ui之内
-        */
-        desktopLayer: CComponent;
-        /** 是否已经打开
-            @note 如果open在队列中，则调用open后，当前parent仍然为null，但是逻辑上该dialog算是已经打开，所以需要使用独立的变量来维护打开状态
-        */
-        protected _isOpened: boolean;
-        readonly isOpened: boolean;
-        /** 队列控制时依赖的队列组，业务层设置为自己的队列实例来和标准desktop的队列隔离，避免多重desktop等待时造成业务中弹出的类似如tip的页面在业务dialog后等待的问题 */
-        queue: OperationQueue;
-        protected _oper: Operation;
-        /** 当在队列中打开时，需要延迟的时间
-            @note 同样因为如果打开在队列中，业务层无法很方便的控制打开前等待的时间
-        */
-        delayOpenInQueue: number;
-        /** 打开
-            @param queue, 是否放到队列中打开
-        */
-        open(queue?: boolean): void;
-        /** 接着其他对象打开 */
-        follow(otherContent: CComponent): void;
-        /** 替换打开 */
-        replace(otherContent: CComponent): void;
-        /** desktop打开的样式
-            @note 默认为弹出在desktopLayer，否则为push进desktopLayer
-            弹出不会隐藏后面的内容，push将根据对应的viewStack来决定是否背景的内容隐藏
-        */
-        popupMode: boolean;
-        _addIntoOpening: boolean;
-        static _AllOpenings: Desktop[];
-        protected doOpen(): void;
-        /** 关闭所有正在打开的desktop */
-        static CloseAllOpenings(): void;
-        /** 正在打开的desktop */
-        static Current(): Desktop;
-        /** 关闭 */
-        close(): void;
-        protected doClose(): void;
-        /** 点击桌面自动关闭 */
-        clickedToClose: boolean;
-        private __dsk_clicked();
-        /** 使用自适应来布局内容页面 */
-        adaptiveContentFrame: boolean;
+        fontSize: number;
+        textColor: ColorType;
+        text: string;
+        textAlign: string;
+        private _label;
+        label: Label;
+        protected _getLabel(): Label;
+        private _imageView;
+        imageView: Bitmap;
+        private _getImageView();
+        imageSource: TextureSource;
+        imageFillMode: FillMode;
+        bestFrame(inrc?: Rect): Rect;
         updateLayout(): void;
+        stateNormal: State;
+        stateDisabled: State;
+        stateHighlight: State;
+        stateSelected: State;
+        protected _slavestates: States;
+        protected readonly slavestates: States;
+        protected onChangeState(obj: any): void;
+        private _disabled;
+        disabled: boolean;
+        touchEnabled: boolean;
+        private __btn_touchdown();
+        private __btn_touchup();
+        setSelection(sel: boolean): void;
+    }
+    class RadioButton extends Button implements IState {
+        constructor();
+        private _selectedState;
+        selectedState: State;
+        private _unselectedState;
+        unselectedState: State;
+        _selection: boolean;
+        setSelection(val: boolean): void;
+        isSelection(): boolean;
+        /** 是否支持点击已经选中的来直接反选 */
+        allowDeclick: boolean;
+        private __radio_clicked();
     }
 }
