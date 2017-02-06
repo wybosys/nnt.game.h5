@@ -35,11 +35,11 @@
 		},
 		{
 			"name": "promise",
-			"path": "3rd/promise"
+			"path": "frameworks/promise"
 		},
 		{
 			"name": "nnt",
-			"path": "nnt"
+			"path": "frameworks/nnt"
 		}
 	]
 }
