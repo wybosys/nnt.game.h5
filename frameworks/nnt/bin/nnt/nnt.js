@@ -6101,6 +6101,13 @@ var nn;
         function CacheRecord() {
             this.count = 0; // 计数器
         }
+        Object.defineProperty(CacheRecord.prototype, "isnull", {
+            get: function () {
+                return this.val == null;
+            },
+            enumerable: true,
+            configurable: true
+        });
         CacheRecord.prototype.use = function () {
             this.count += 1;
             return this.val;
@@ -10763,111 +10770,140 @@ var tmp;
 })(tmp || (tmp = {}));
 var nn;
 (function (nn) {
-    var FrameTimer = (function () {
-        function FrameTimer() {
-            /** 消耗时间 */
-            this.cost = 0;
-            /** 过去了的时间 */
-            this.past = 0;
-            /** 次数统计 */
-            this.count = 0;
-            this.start = this.now = nn.DateTime.Pass();
+    /** 骨骼的配置信息 */
+    var BoneConfig = (function () {
+        /**
+           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
+           @character 角色名称，通常和name一致
+           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
+           @place 材质节点的位置配置文件，通常为 texture_json 结尾
+           @texture 图片文件，通常为 texture_png 结尾
+        */
+        function BoneConfig(name, character, skeleton, place, texture) {
+            this._name = name;
+            if (!character)
+                this._character = name;
+            else
+                this._character = character;
+            if (!skeleton)
+                this._skeleton = name + '_skeleton_json';
+            else
+                this._skeleton = skeleton;
+            if (!place)
+                this._place = name + '_texture_json';
+            else
+                this._place = place;
+            if (!texture)
+                this._texture = name + '_png';
+            else
+                this._texture = texture;
         }
-        return FrameTimer;
+        Object.defineProperty(BoneConfig.prototype, "name", {
+            get: function () {
+                return this._name;
+            },
+            set: function (v) {
+                this._name = v;
+                if (!this._character)
+                    this._character = name;
+                if (!this._skeleton)
+                    this._skeleton = name + '_skeleton_json';
+                if (!this._place)
+                    this._place = name + '_texture_json';
+                if (!this._texture)
+                    this._texture = name + '_png';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneConfig.prototype, "skeleton", {
+            get: function () {
+                return this._skeleton;
+            },
+            set: function (v) {
+                this._skeleton = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneConfig.prototype, "place", {
+            get: function () {
+                return this._place;
+            },
+            set: function (v) {
+                this._place = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneConfig.prototype, "texture", {
+            get: function () {
+                return this._texture;
+            },
+            set: function (v) {
+                this._texture = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneConfig.prototype, "character", {
+            get: function () {
+                return this._character;
+            },
+            set: function (v) {
+                this._character = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        BoneConfig.prototype.getReqResources = function () {
+            var r = [];
+            r.push(new nn.ResourceEntity(this.skeleton, nn.ResType.JSON));
+            r.push(new nn.ResourceEntity(this.place, nn.ResType.JSON));
+            r.push(new nn.ResourceEntity(this.texture, nn.ResType.TEXTURE));
+            return r;
+        };
+        return BoneConfig;
     }());
-    nn.FrameTimer = FrameTimer;
-    var CFramesManager = (function () {
-        function CFramesManager() {
-            this._blayouts = NewSet();
-            this._bzpositions = NewSet();
-            this._bappears = NewSet();
-            this._bcaches = NewSet();
-            this._bmcs = NewSet();
-            this.RENDERS = NewSet();
-            this._ft = new FrameTimer();
+    nn.BoneConfig = BoneConfig;
+    ;
+    /** 业务使用的骨骼显示类 */
+    var CBones = (function (_super) {
+        __extends(CBones, _super);
+        function CBones() {
+            var _this = _super.call(this) || this;
+            /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
+            _this.additionScale = 1;
+            /** 骨骼填充的方式，默认为充满 */
+            _this.fillMode = nn.FillMode.ASPECTSTRETCH;
+            /** 对齐位置 */
+            _this.clipAlign = nn.POSITION.BOTTOM_CENTER;
+            /** 自动开始播放 */
+            _this.autoPlay = true;
+            /** 播放次数控制
+                -1: 循环
+                0: 使用文件设置的次数
+                >0: 次数控制
+            */
+            _this.count = -1;
+            return _this;
         }
-        CFramesManager.prototype.onPrepare = function () {
-            if (nn.ISDEBUG) {
-                ++this._ft.count;
-            }
-            // 刷新一下布局
-            ++CFramesManager._layoutthreshold;
-            nn.SetT.SafeClear(this._blayouts, function (c) {
-                if (!c.__disposed) {
-                    c._islayouting = true;
-                    c.updateLayout();
-                    c._islayouting = false;
-                }
-            });
-            --CFramesManager._layoutthreshold;
-            // 调整z顺序
-            nn.SetT.SafeClear(this._bzpositions, function (c) {
-                if (!c.__disposed)
-                    c.updateZPosition();
-            });
-            // 当布局结束才激发已显示
-            nn.SetT.SafeClear(this._bappears, function (c) {
-                if (!c.__disposed && !c.isAppeared)
-                    c.onAppeared();
-            });
-            // 更新图形缓存
-            nn.SetT.Clear(this._bcaches, function (c) {
-                if (!c.__disposed)
-                    c.flushCache();
-            });
-            // 更新内存缓存
-            nn.SetT.Clear(this._bmcs, function (mc) {
-                mc.gc();
-            });
+        CBones.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            // 骨骼开始播放
+            this._signals.register(nn.SignalStart);
+            // 一次 motion 结束
+            this._signals.register(nn.SignalEnd);
+            // 所有循环的结束
+            this._signals.register(nn.SignalDone);
+            // 骨骼改变，当骨骼资源变更时激发
+            this._signals.register(nn.SignalChanged);
+            // 骨骼更新，和change的区别在update每一次设置source都会激发
+            this._signals.register(nn.SignalUpdated);
         };
-        CFramesManager.prototype.onRendering = function () {
-            var now = nn.DateTime.Pass();
-            this._ft.cost = now - this._ft.now;
-            this._ft.past = now - this._ft.start;
-            this._ft.now = now;
-            // 标准set的foreach需要传入3个参数，但是后两个我们都不会去使用
-            var cost = this._ft.cost;
-            this.RENDERS.forEach(function (each) {
-                each.onRender(cost);
-            }, this);
-        };
-        /** 布局 */
-        CFramesManager.prototype.needsLayout = function (c) {
-            if (CFramesManager._layoutthreshold == 0) {
-                this._blayouts.add(c);
-                this.invalidate();
-            }
-            else {
-                c.updateLayout();
-            }
-        };
-        CFramesManager.prototype.cancelLayout = function (c) {
-            this._blayouts.delete(c);
-        };
-        /** 调整Z顺序 */
-        CFramesManager.prototype.needsZPosition = function (c) {
-            this._bzpositions.add(c);
-            this.invalidate();
-        };
-        /** 显示 */
-        CFramesManager.prototype.needsAppear = function (c) {
-            this._bappears.add(c);
-            this.invalidate();
-        };
-        /** 刷新图形缓存 */
-        CFramesManager.prototype.needsCache = function (c) {
-            this._bcaches.add(c);
-            this.invalidate();
-        };
-        /** 刷新内存缓存 */
-        CFramesManager.prototype.needsGC = function (mc) {
-            this._bmcs.add(mc);
-            this.invalidate();
-        };
-        return CFramesManager;
-    }());
-    CFramesManager._layoutthreshold = 0;
-    nn.CFramesManager = CFramesManager;
+        return CBones;
+    }(nn.Widget));
+    nn.CBones = CBones;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -14838,140 +14874,173 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    /** 骨骼的配置信息 */
-    var BoneConfig = (function () {
-        /**
-           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
-           @character 角色名称，通常和name一致
-           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
-           @place 材质节点的位置配置文件，通常为 texture_json 结尾
-           @texture 图片文件，通常为 texture_png 结尾
-        */
-        function BoneConfig(name, character, skeleton, place, texture) {
-            this._name = name;
-            if (!character)
-                this._character = name;
-            else
-                this._character = character;
-            if (!skeleton)
-                this._skeleton = name + '_skeleton_json';
-            else
-                this._skeleton = skeleton;
-            if (!place)
-                this._place = name + '_texture_json';
-            else
-                this._place = place;
-            if (!texture)
-                this._texture = name + '_png';
-            else
-                this._texture = texture;
-        }
-        Object.defineProperty(BoneConfig.prototype, "name", {
-            get: function () {
-                return this._name;
-            },
-            set: function (v) {
-                this._name = v;
-                if (!this._character)
-                    this._character = name;
-                if (!this._skeleton)
-                    this._skeleton = name + '_skeleton_json';
-                if (!this._place)
-                    this._place = name + '_texture_json';
-                if (!this._texture)
-                    this._texture = name + '_png';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneConfig.prototype, "skeleton", {
-            get: function () {
-                return this._skeleton;
-            },
-            set: function (v) {
-                this._skeleton = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneConfig.prototype, "place", {
-            get: function () {
-                return this._place;
-            },
-            set: function (v) {
-                this._place = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneConfig.prototype, "texture", {
-            get: function () {
-                return this._texture;
-            },
-            set: function (v) {
-                this._texture = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneConfig.prototype, "character", {
-            get: function () {
-                return this._character;
-            },
-            set: function (v) {
-                this._character = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        BoneConfig.prototype.getReqResources = function () {
-            var r = [];
-            r.push(new nn.ResourceEntity(this.skeleton, nn.ResType.JSON));
-            r.push(new nn.ResourceEntity(this.place, nn.ResType.JSON));
-            r.push(new nn.ResourceEntity(this.texture, nn.ResType.TEXTURE));
-            return r;
-        };
-        return BoneConfig;
-    }());
-    nn.BoneConfig = BoneConfig;
-    ;
-    /** 业务使用的骨骼显示类 */
-    var CBones = (function (_super) {
-        __extends(CBones, _super);
-        function CBones() {
+    /** 音频播放 */
+    var CSoundPlayer = (function (_super) {
+        __extends(CSoundPlayer, _super);
+        function CSoundPlayer() {
             var _this = _super.call(this) || this;
-            /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
-            _this.additionScale = 1;
-            /** 骨骼填充的方式，默认为充满 */
-            _this.fillMode = nn.FillMode.ASPECTSTRETCH;
-            /** 对齐位置 */
-            _this.clipAlign = nn.POSITION.BOTTOM_CENTER;
-            /** 自动开始播放 */
-            _this.autoPlay = true;
-            /** 播放次数控制
-                -1: 循环
-                0: 使用文件设置的次数
-                >0: 次数控制
-            */
-            _this.count = -1;
+            /** 播放次数，-1代表循环 */
+            _this.count = 1;
             return _this;
         }
-        CBones.prototype._initSignals = function () {
+        CSoundPlayer.prototype._initSignals = function () {
             _super.prototype._initSignals.call(this);
-            // 骨骼开始播放
             this._signals.register(nn.SignalStart);
-            // 一次 motion 结束
-            this._signals.register(nn.SignalEnd);
-            // 所有循环的结束
+            this._signals.register(nn.SignalPaused);
             this._signals.register(nn.SignalDone);
-            // 骨骼改变，当骨骼资源变更时激发
             this._signals.register(nn.SignalChanged);
-            // 骨骼更新，和change的区别在update每一次设置source都会激发
-            this._signals.register(nn.SignalUpdated);
         };
-        return CBones;
-    }(nn.Widget));
-    nn.CBones = CBones;
+        Object.defineProperty(CSoundPlayer.prototype, "isPlaying", {
+            get: function () {
+                return this.playingState == nn.WorkState.DOING;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(CSoundPlayer.prototype, "isPaused", {
+            get: function () {
+                return this.playingState == nn.WorkState.PAUSED;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return CSoundPlayer;
+    }(nn.SObject));
+    nn.CSoundPlayer = CSoundPlayer;
+    var SoundTrack = (function (_super) {
+        __extends(SoundTrack, _super);
+        function SoundTrack() {
+            var _this = _super.call(this) || this;
+            /** 播放次数，-1代表无限循环 */
+            _this.count = 1;
+            /** 用以实现player的类对象 */
+            _this.classForPlayer = nn.SoundPlayer;
+            /** 可用状态 */
+            _this._enable = true;
+            // 映射文件和播放器
+            _this._sounds = new KvObject();
+            return _this;
+        }
+        Object.defineProperty(SoundTrack.prototype, "autoRecovery", {
+            get: function () {
+                return this._autoRecovery;
+            },
+            set: function (b) {
+                if (b == this._autoRecovery)
+                    return;
+                this._autoRecovery = b;
+                nn.MapT.Foreach(this._sounds, function (k, v) {
+                    v.autoRecovery = b;
+                }, this);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SoundTrack.prototype, "enable", {
+            get: function () {
+                return this._enable;
+            },
+            set: function (b) {
+                if (b == this._enable)
+                    return;
+                this._enable = b;
+                nn.MapT.Foreach(this._sounds, function (k, v) {
+                    v.enable = b;
+                }, this);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /** 获取一个播放器 */
+        SoundTrack.prototype.player = function (name) {
+            var groups = [];
+            for (var _i = 1; _i < arguments.length; _i++) {
+                groups[_i - 1] = arguments[_i];
+            }
+            var ply = this._sounds[name];
+            if (ply == null) {
+                ply = new this.classForPlayer();
+                ply.enable = this.enable;
+                ply.autoRecovery = this.autoRecovery;
+                ply.resourceGroups = groups.length ? groups : this.resourceGroups;
+                ply.setMediaSource(name);
+                ply.count = this.count;
+                ply.signals.connect(nn.SignalStart, this.__cb_play, this);
+                this._sounds[name] = ply;
+            }
+            return ply;
+        };
+        /** 实例化一个播放器，播放完成后会自动清掉 */
+        SoundTrack.prototype.acquire = function (name) {
+            var groups = [];
+            for (var _i = 1; _i < arguments.length; _i++) {
+                groups[_i - 1] = arguments[_i];
+            }
+            var ply = new this.classForPlayer();
+            ply.enable = this.enable;
+            ply.autoRecovery = this.autoRecovery;
+            ply.resourceGroups = groups.length ? groups : this.resourceGroups;
+            ply.setMediaSource(name);
+            ply.count = this.count;
+            if (!ply.enable) {
+                nn.Defer(ply.drop, ply);
+            }
+            else {
+                ply.signals.connect(nn.SignalEnd, function (s) {
+                    nn.drop(s.sender);
+                }, null);
+            }
+            return ply;
+        };
+        SoundTrack.prototype.__cb_play = function (s) {
+            if (this.solo && this._soloplayer != s.sender) {
+                if (this._soloplayer)
+                    this._soloplayer.breakee();
+                this._soloplayer = s.sender;
+            }
+        };
+        /** 播放全部 */
+        SoundTrack.prototype.play = function () {
+            nn.MapT.Foreach(this._sounds, function (k, v) {
+                v.play();
+            }, this);
+        };
+        /** 停止全部 */
+        SoundTrack.prototype.stop = function () {
+            nn.MapT.Foreach(this._sounds, function (k, v) {
+                v.stop();
+            }, this);
+        };
+        SoundTrack.prototype._app_actived = function () {
+            if (this.__app_activate_enable)
+                this.enable = true;
+        };
+        SoundTrack.prototype._app_deactived = function () {
+            this.__app_activate_enable = this.enable;
+            this.enable = false;
+        };
+        return SoundTrack;
+    }(nn.SObject));
+    nn.SoundTrack = SoundTrack;
+    var CSoundManager = (function (_super) {
+        __extends(CSoundManager, _super);
+        function CSoundManager() {
+            var _this = _super.call(this) || this;
+            _this._tracks = new KvObject();
+            return _this;
+        }
+        /** 获取到指定音轨 */
+        CSoundManager.prototype.track = function (idr) {
+            var tk = this._tracks[idr];
+            if (tk == null) {
+                tk = new SoundTrack();
+                this._tracks[idr] = tk;
+            }
+            return tk;
+        };
+        return CSoundManager;
+    }(nn.SObject));
+    nn.CSoundManager = CSoundManager;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -14983,6 +15052,114 @@ var nn;
         return CDom;
     }(nn.Component));
     nn.CDom = CDom;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var FrameTimer = (function () {
+        function FrameTimer() {
+            /** 消耗时间 */
+            this.cost = 0;
+            /** 过去了的时间 */
+            this.past = 0;
+            /** 次数统计 */
+            this.count = 0;
+            this.start = this.now = nn.DateTime.Pass();
+        }
+        return FrameTimer;
+    }());
+    nn.FrameTimer = FrameTimer;
+    var CFramesManager = (function () {
+        function CFramesManager() {
+            this._blayouts = NewSet();
+            this._bzpositions = NewSet();
+            this._bappears = NewSet();
+            this._bcaches = NewSet();
+            this._bmcs = NewSet();
+            this.RENDERS = NewSet();
+            this._ft = new FrameTimer();
+        }
+        CFramesManager.prototype.onPrepare = function () {
+            if (nn.ISDEBUG) {
+                ++this._ft.count;
+            }
+            // 刷新一下布局
+            ++CFramesManager._layoutthreshold;
+            nn.SetT.SafeClear(this._blayouts, function (c) {
+                if (!c.__disposed) {
+                    c._islayouting = true;
+                    c.updateLayout();
+                    c._islayouting = false;
+                }
+            });
+            --CFramesManager._layoutthreshold;
+            // 调整z顺序
+            nn.SetT.SafeClear(this._bzpositions, function (c) {
+                if (!c.__disposed)
+                    c.updateZPosition();
+            });
+            // 当布局结束才激发已显示
+            nn.SetT.SafeClear(this._bappears, function (c) {
+                if (!c.__disposed && !c.isAppeared)
+                    c.onAppeared();
+            });
+            // 更新图形缓存
+            nn.SetT.Clear(this._bcaches, function (c) {
+                if (!c.__disposed)
+                    c.flushCache();
+            });
+            // 更新内存缓存
+            nn.SetT.Clear(this._bmcs, function (mc) {
+                mc.gc();
+            });
+        };
+        CFramesManager.prototype.onRendering = function () {
+            var now = nn.DateTime.Pass();
+            this._ft.cost = now - this._ft.now;
+            this._ft.past = now - this._ft.start;
+            this._ft.now = now;
+            // 标准set的foreach需要传入3个参数，但是后两个我们都不会去使用
+            var cost = this._ft.cost;
+            this.RENDERS.forEach(function (each) {
+                each.onRender(cost);
+            }, this);
+        };
+        /** 布局 */
+        CFramesManager.prototype.needsLayout = function (c) {
+            if (CFramesManager._layoutthreshold == 0) {
+                this._blayouts.add(c);
+                this.invalidate();
+            }
+            else {
+                c.updateLayout();
+            }
+        };
+        CFramesManager.prototype.cancelLayout = function (c) {
+            this._blayouts.delete(c);
+        };
+        /** 调整Z顺序 */
+        CFramesManager.prototype.needsZPosition = function (c) {
+            this._bzpositions.add(c);
+            this.invalidate();
+        };
+        /** 显示 */
+        CFramesManager.prototype.needsAppear = function (c) {
+            this._bappears.add(c);
+            this.invalidate();
+        };
+        /** 刷新图形缓存 */
+        CFramesManager.prototype.needsCache = function (c) {
+            this._bcaches.add(c);
+            this.invalidate();
+        };
+        /** 刷新内存缓存 */
+        CFramesManager.prototype.needsGC = function (mc) {
+            this._bmcs.add(mc);
+            this.invalidate();
+        };
+        return CFramesManager;
+    }());
+    CFramesManager._layoutthreshold = 0;
+    nn.CFramesManager = CFramesManager;
 })(nn || (nn = {}));
 // Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>
 // This work is free. You can redistribute it and/or modify it
@@ -20547,6 +20724,267 @@ var nn;
     }(nn.Sprite));
     nn.LoadingScreen = LoadingScreen;
 })(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var SoundPlayer = (function (_super) {
+        __extends(SoundPlayer, _super);
+        function SoundPlayer() {
+            var _this = _super.call(this) || this;
+            _this._enable = nn.Device.shared.supportAutoSound;
+            _this._position = 0;
+            return _this;
+        }
+        SoundPlayer.prototype.dispose = function () {
+            this.stop();
+            this._hdl = null;
+            this._cnl = null;
+            _super.prototype.dispose.call(this);
+        };
+        Object.defineProperty(SoundPlayer.prototype, "enable", {
+            get: function () {
+                return this._enable;
+            },
+            set: function (b) {
+                if (b == this._enable)
+                    return;
+                if (!b) {
+                    this._prePlayingState = this.playingState;
+                    // 设置成不可用会自动停掉当前播放
+                    this.stop();
+                }
+                this._enable = b;
+                if (b && this.autoRecovery && this._prePlayingState == nn.WorkState.DOING) {
+                    this.play();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        SoundPlayer.prototype.setMediaSource = function (ms) {
+            if (this._mediaSource) {
+                nn.warn('不能重复设置player的mediaSource');
+                return;
+            }
+            this._mediaSource = ms;
+        };
+        Object.defineProperty(SoundPlayer.prototype, "position", {
+            get: function () {
+                return this._position;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        // 只能设置一次
+        SoundPlayer.prototype.setHdl = function (val) {
+            if (this._hdl) {
+                if (this._hdl.hashCode == val.hashCode)
+                    return;
+                nn.warn('不能覆盖已经设置了的声音对象');
+                return;
+            }
+            this._hdl = val;
+        };
+        SoundPlayer.prototype.setCnl = function (cnl) {
+            if (this._cnl == cnl)
+                return;
+            if (this._cnl)
+                nn.EventUnhook(this._cnl, egret.Event.SOUND_COMPLETE, this.__cb_end, this);
+            this._cnl = cnl;
+            if (cnl)
+                nn.EventHook(cnl, egret.Event.SOUND_COMPLETE, this.__cb_end, this);
+        };
+        SoundPlayer.prototype.play = function () {
+            var _this = this;
+            if (!this._enable) {
+                this._prePlayingState = nn.WorkState.DOING;
+                return;
+            }
+            if (this.playingState == nn.WorkState.DOING)
+                return;
+            if (this.playingState == nn.WorkState.PAUSED) {
+                this.resume();
+                return;
+            }
+            // cbplay放倒play之前是为了确保其他依赖于本对象play信号的动作能先执行，以避免h5浏览器当只能播放一个音频时冲突
+            this.__cb_play();
+            // 如果播放的媒体有变化，则需要重新加载，否则直接播放
+            if (this._hdl == null) {
+                if (this.resourceGroups) {
+                    nn.ResManager.capsules(this.resourceGroups).load(function () {
+                        nn.ResManager.getSound(_this._mediaSource, nn.ResPriority.NORMAL, function (snd) {
+                            if (snd.isnull)
+                                return;
+                            _this.setHdl(snd.use());
+                            // 如果当前还是位于播放中，则真正去播放
+                            if (_this.playingState == nn.WorkState.DOING)
+                                _this.setCnl(_this._hdl.play(_this._position, _this.count));
+                        }, _this);
+                    }, this);
+                }
+                else {
+                    nn.ResManager.getSound(this._mediaSource, nn.ResPriority.NORMAL, function (snd) {
+                        if (snd.isnull)
+                            return;
+                        _this.setHdl(snd.use());
+                        if (_this.playingState == nn.WorkState.DOING)
+                            _this.setCnl(_this._hdl.play(_this._position, _this.count));
+                    }, this);
+                }
+            }
+            else {
+                this.setCnl(this._hdl.play(this._position, this.count));
+            }
+        };
+        SoundPlayer.prototype.replay = function () {
+            this.stop();
+            this.play();
+        };
+        SoundPlayer.prototype.pause = function () {
+            if (!this._enable) {
+                this._prePlayingState = nn.WorkState.PAUSED;
+                return;
+            }
+            if (this.playingState == nn.WorkState.DOING) {
+                if (this._cnl) {
+                    this._position = this._cnl.position;
+                    this._cnl.stop();
+                }
+                this.playingState = nn.WorkState.PAUSED;
+                this.__cb_pause();
+            }
+        };
+        SoundPlayer.prototype.resume = function () {
+            if (!this._enable) {
+                this._prePlayingState = nn.WorkState.DOING;
+                return;
+            }
+            if (this.playingState == nn.WorkState.PAUSED) {
+                this.__cb_play();
+                if (this._hdl) {
+                    this.setCnl(this._hdl.play(this._position, this.count));
+                }
+            }
+        };
+        SoundPlayer.prototype.stop = function () {
+            if (!this._enable) {
+                this._prePlayingState = nn.WorkState.DONE;
+                return;
+            }
+            if (this.playingState != nn.WorkState.DONE) {
+                if (this._cnl) {
+                    this._cnl.stop();
+                    this._cnl = undefined;
+                    this._position = 0;
+                }
+                this.playingState = nn.WorkState.DONE;
+            }
+        };
+        SoundPlayer.prototype.breakee = function () {
+            this.pause();
+        };
+        SoundPlayer.prototype.__cb_end = function () {
+            nn.log("播放 " + this._mediaSource + " 结束");
+            this.playingState = nn.WorkState.DONE;
+            this._signals && this._signals.emit(nn.SignalDone);
+        };
+        SoundPlayer.prototype.__cb_pause = function () {
+            this._signals && this._signals.emit(nn.SignalPaused);
+        };
+        SoundPlayer.prototype.__cb_play = function () {
+            this.playingState = nn.WorkState.DOING;
+            this._signals && this._signals.emit(nn.SignalStart);
+        };
+        return SoundPlayer;
+    }(nn.CSoundPlayer));
+    nn.SoundPlayer = SoundPlayer;
+    var EffectSoundPlayer = (function (_super) {
+        __extends(EffectSoundPlayer, _super);
+        function EffectSoundPlayer() {
+            return _super.apply(this, arguments) || this;
+        }
+        EffectSoundPlayer.prototype.setHdl = function (val) {
+            if (val)
+                val.type = egret.Sound.EFFECT;
+            _super.prototype.setHdl.call(this, val);
+        };
+        EffectSoundPlayer.prototype.breakee = function () {
+            this.stop();
+        };
+        return EffectSoundPlayer;
+    }(SoundPlayer));
+    var BackgroundSourdPlayer = (function (_super) {
+        __extends(BackgroundSourdPlayer, _super);
+        function BackgroundSourdPlayer() {
+            return _super.apply(this, arguments) || this;
+        }
+        BackgroundSourdPlayer.prototype.setHdl = function (val) {
+            if (val)
+                val.type = egret.Sound.MUSIC;
+            _super.prototype.setHdl.call(this, val);
+        };
+        BackgroundSourdPlayer.prototype.breakee = function () {
+            this.stop();
+        };
+        return BackgroundSourdPlayer;
+    }(SoundPlayer));
+    var _SoundManager = (function (_super) {
+        __extends(_SoundManager, _super);
+        function _SoundManager() {
+            var _this = _super.apply(this, arguments) || this;
+            _this._enable = nn.Device.shared.supportAutoSound;
+            return _this;
+        }
+        Object.defineProperty(_SoundManager.prototype, "background", {
+            get: function () {
+                var tk = this._tracks["background"];
+                if (tk == null) {
+                    tk = new nn.SoundTrack();
+                    tk.classForPlayer = BackgroundSourdPlayer;
+                    tk.count = -1;
+                    tk.solo = true;
+                    tk.autoRecovery = true;
+                    tk.resourceGroups = this.resourceGroups;
+                    this._tracks["background"] = tk;
+                }
+                return tk;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(_SoundManager.prototype, "effect", {
+            get: function () {
+                var tk = this._tracks["effect"];
+                if (tk == null) {
+                    tk = new nn.SoundTrack();
+                    tk.classForPlayer = EffectSoundPlayer;
+                    tk.count = 1;
+                    tk.resourceGroups = this.resourceGroups;
+                    this._tracks["effect"] = tk;
+                }
+                return tk;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(_SoundManager.prototype, "enable", {
+            get: function () {
+                return this._enable;
+            },
+            set: function (b) {
+                if (b == this._enable)
+                    return;
+                nn.MapT.Foreach(this._tracks, function (k, v) {
+                    v.enable = b;
+                }, this);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return _SoundManager;
+    }(nn.CSoundManager));
+    nn._SoundManager = _SoundManager;
+    nn.SoundManager = new _SoundManager();
+})(nn || (nn = {}));
 /// <reference path="./core-label.ts" />
 var nn;
 (function (nn) {
@@ -20912,98 +21350,6 @@ var nn;
     // 应用入口管理器
     nn.LaunchersManager = new _LaunchersManager();
 })(nn || (nn = {}));
-var egret;
-(function (egret) {
-    egret.VERSION_2_5_6 = egret.MAKE_VERSION(2, 5, 6);
-})(egret || (egret = {}));
-var nn;
-(function (nn) {
-    nn.IMP_TIMEPASS = function () {
-        return egret.getTimer() * 0.001;
-    };
-    nn.IMP_CREATE_TIMER = function (duration, count) {
-        return new egret.Timer(duration * 1000, count);
-    };
-    nn.IMP_START_TIMER = function (tmr, cb, ctx) {
-        tmr.addEventListener(egret.TimerEvent.TIMER, cb, ctx);
-        tmr.start();
-    };
-    nn.IMP_STOP_TIMER = function (tmr, cb, ctx) {
-        tmr.stop();
-        tmr.removeEventListener(egret.TimerEvent.TIMER, cb, ctx);
-    };
-    // 需要判断一下是使用LocalStorage还是使用SessionStorage
-    var _storageMode = (function () {
-        var key = "::n2::test::localstorage::mode";
-        if (egret.localStorage.setItem(key, "test")) {
-            egret.localStorage.removeItem(key);
-            return 0;
-        }
-        if (window && window.sessionStorage) {
-            try {
-                window.sessionStorage.setItem(key, "test");
-                window.sessionStorage.removeItem(key);
-                return 1;
-            }
-            catch (e) { } // 不支持sessionStorage
-        }
-        return -1;
-    })();
-    if (_storageMode == 0) {
-        nn.IMP_STORAGE_GET = egret.localStorage.getItem;
-        nn.IMP_STORAGE_SET = egret.localStorage.setItem;
-        nn.IMP_STORAGE_DEL = egret.localStorage.removeItem;
-        nn.IMP_STORAGE_CLEAR = egret.localStorage.clear;
-    }
-    else if (_storageMode == 1) {
-        nn.IMP_STORAGE_GET = function (k) {
-            return window.sessionStorage.getItem(k);
-        };
-        nn.IMP_STORAGE_SET = function (k, v) {
-            window.sessionStorage.setItem(k, v);
-        };
-        nn.IMP_STORAGE_DEL = function (k) {
-            window.sessionStorage.removeItem(k);
-        };
-        nn.IMP_STORAGE_CLEAR = function () {
-            window.sessionStorage.clear();
-        };
-    }
-    else {
-        var __g_storage_1 = {};
-        nn.IMP_STORAGE_GET = function (key) {
-            return __g_storage_1[key];
-        };
-        nn.IMP_STORAGE_SET = function (key, v) {
-            __g_storage_1[key] = v;
-        };
-        nn.IMP_STORAGE_DEL = function (key) {
-            delete __g_storage_1[key];
-        };
-        nn.IMP_STORAGE_CLEAR = function () {
-            __g_storage_1 = {};
-        };
-    }
-    nn.Defer = function (cb, ctx) {
-        var p = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            p[_i - 2] = arguments[_i];
-        }
-        egret.callLater.apply(null, [cb, ctx].concat(p));
-    };
-    // 将point伪装成egret.point
-    var __PROTO = nn.Point.prototype;
-    __PROTO.setTo = function (x, y) {
-        this.x = x;
-        this.y = y;
-    };
-    // 解决egret-inspector显示的是实现类而不是业务类的名称
-    Js.OverrideFunction(egret, 'getQualifiedClassName', function (orifn, value) {
-        if ('_fmui' in value)
-            return value._fmui.descriptionName;
-        return orifn(value);
-    });
-})(nn || (nn = {}));
 var nn;
 (function (nn) {
     var _CrossLoader = (function () {
@@ -21156,447 +21502,97 @@ var nn;
     }(nn.Model));
     nn.UrlModel = UrlModel;
 })(nn || (nn = {}));
-// 对egret的RES模块进行功能扩展
-var RES;
-(function (RES) {
-    var ExtResourceItem = (function (_super) {
-        __extends(ExtResourceItem, _super);
-        function ExtResourceItem(name, url, type) {
-            var _this = _super.call(this, name, url, type) || this;
-            _this._priority = nn.ResCurrentPriority;
-            return _this;
-        }
-        return ExtResourceItem;
-    }(RES.ResourceItem));
-    var ExtLazyLoadList = (function () {
-        function ExtLazyLoadList() {
-            this.length = 0;
-            // 不通的等级定义不同的队列
-            this.items = [
-                new Array(),
-                new Array()
-            ];
-        }
-        ExtLazyLoadList.prototype.push = function (item) {
-            var arr = this.items[item._priority];
-            arr.push(item);
-            ++this.length;
-        };
-        ExtLazyLoadList.prototype.pop = function () {
-            if (this.length == 0)
-                return null;
-            var arr = this.items[nn.ResPriority.NORMAL];
-            var poped = arr.pop();
-            if (poped == null) {
-                arr = this.items[nn.ResPriority.CLIP];
-                poped = arr.pop();
-            }
-            --this.length;
-            return poped;
-        };
-        return ExtLazyLoadList;
-    }());
-    RES.ResourceItem = ExtResourceItem;
-    // 使用ext换掉原来的lazy以提供附加的优先级控制
-    var lazyLoadListChanged;
-    var PROTO = RES.ResourceLoader.prototype;
-    var funcLoadItem = PROTO.loadItem;
-    PROTO.loadItem = function (resItem) {
-        var self = this;
-        if (!lazyLoadListChanged) {
-            if (self.lazyLoadList == null)
-                nn.fatal("Egret引擎升级RES的LazyLoadList方法，请检查引擎修改");
-            self.lazyLoadList = new ExtLazyLoadList();
-            lazyLoadListChanged = true;
-        }
-        funcLoadItem.call(self, resItem);
-    };
-})(RES || (RES = {}));
+var egret;
+(function (egret) {
+    egret.VERSION_2_5_6 = egret.MAKE_VERSION(2, 5, 6);
+})(egret || (egret = {}));
 var nn;
 (function (nn) {
-    // 资源池
-    var _ResMemcache = (function (_super) {
-        __extends(_ResMemcache, _super);
-        function _ResMemcache() {
-            var _this = _super.call(this) || this;
-            // 自定义个hashCode
-            _this._hashCode = 0;
-            // cache-key 和 sources 的对照表
-            _this._sources = new KvObject();
-            _this._keys = new KvObject();
-            _this.enable = true;
-            return _this;
+    nn.IMP_TIMEPASS = function () {
+        return egret.getTimer() * 0.001;
+    };
+    nn.IMP_CREATE_TIMER = function (duration, count) {
+        return new egret.Timer(duration * 1000, count);
+    };
+    nn.IMP_START_TIMER = function (tmr, cb, ctx) {
+        tmr.addEventListener(egret.TimerEvent.TIMER, cb, ctx);
+        tmr.start();
+    };
+    nn.IMP_STOP_TIMER = function (tmr, cb, ctx) {
+        tmr.stop();
+        tmr.removeEventListener(egret.TimerEvent.TIMER, cb, ctx);
+    };
+    // 需要判断一下是使用LocalStorage还是使用SessionStorage
+    var _storageMode = (function () {
+        var key = "::n2::test::localstorage::mode";
+        if (egret.localStorage.setItem(key, "test")) {
+            egret.localStorage.removeItem(key);
+            return 0;
         }
-        _ResMemcache.prototype.doRemoveObject = function (rcd) {
-            var _this = this;
-            _super.prototype.doRemoveObject.call(this, rcd);
-            var srcs = this._sources[rcd.key];
-            srcs.forEach(function (e) {
-                RES.destroyRes(e);
-                if (nn.VERBOSE)
-                    nn.log("释放资源 " + e);
-                delete _this._keys[e];
-            });
-            delete this._sources[rcd.key];
-        };
-        // 根据source添加data
-        _ResMemcache.prototype.add = function (source, data) {
-            // 根据data的不同计算对应的key
-            var key;
-            if (data == null) {
-                key = "::mc::null";
+        if (window && window.sessionStorage) {
+            try {
+                window.sessionStorage.setItem(key, "test");
+                window.sessionStorage.removeItem(key);
+                return 1;
             }
-            else if ('hashCode' in data) {
-                key = data.hashCode;
-            }
-            else if (typeof (data) == 'object') {
-                key = data[_ResMemcache.IDR_HASHCODE];
-                if (key == null) {
-                    key = '::mc::' + this._hashCode++;
-                    data[_ResMemcache.IDR_HASHCODE] = key;
-                }
-            }
-            else {
-                var rcd = new nn.CacheRecord();
-                rcd.val = data;
-                return rcd;
-            }
-            var srcs = this._sources[key];
-            if (srcs == null) {
-                srcs = [source];
-                this._sources[key] = srcs;
-            }
-            else {
-                srcs.push(source);
-            }
-            this._keys[source] = key;
-            // 添加到缓存中
-            var obj = new _ResCacheObject();
-            obj.key = key;
-            obj.data = data;
-            return this.cache(obj);
-        };
-        _ResMemcache.prototype.query = function (source) {
-            var key = this._keys[source];
-            return _super.prototype.query.call(this, key);
-        };
-        return _ResMemcache;
-    }(nn.Memcache));
-    _ResMemcache.IDR_HASHCODE = '::mc::hashCode';
-    nn._ResMemcache = _ResMemcache;
-    var _ResCacheObject = (function () {
-        function _ResCacheObject() {
-            this.cacheFlush = true;
-            this.cacheUpdated = true;
-            this.cacheTime = -1;
+            catch (e) { } // 不支持sessionStorage
         }
-        _ResCacheObject.prototype.keyForCache = function () {
-            return this.key;
+        return -1;
+    })();
+    if (_storageMode == 0) {
+        nn.IMP_STORAGE_GET = egret.localStorage.getItem;
+        nn.IMP_STORAGE_SET = egret.localStorage.setItem;
+        nn.IMP_STORAGE_DEL = egret.localStorage.removeItem;
+        nn.IMP_STORAGE_CLEAR = egret.localStorage.clear;
+    }
+    else if (_storageMode == 1) {
+        nn.IMP_STORAGE_GET = function (k) {
+            return window.sessionStorage.getItem(k);
         };
-        _ResCacheObject.prototype.valueForCache = function () {
-            return this.data;
+        nn.IMP_STORAGE_SET = function (k, v) {
+            window.sessionStorage.setItem(k, v);
         };
-        return _ResCacheObject;
-    }());
-    var ResCapsule = (function (_super) {
-        __extends(ResCapsule, _super);
-        function ResCapsule(reqres, ewd) {
-            var _this = _super.call(this, reqres) || this;
-            _this._ewd = ewd;
-            return _this;
+        nn.IMP_STORAGE_DEL = function (k) {
+            window.sessionStorage.removeItem(k);
+        };
+        nn.IMP_STORAGE_CLEAR = function () {
+            window.sessionStorage.clear();
+        };
+    }
+    else {
+        var __g_storage_1 = {};
+        nn.IMP_STORAGE_GET = function (key) {
+            return __g_storage_1[key];
+        };
+        nn.IMP_STORAGE_SET = function (key, v) {
+            __g_storage_1[key] = v;
+        };
+        nn.IMP_STORAGE_DEL = function (key) {
+            delete __g_storage_1[key];
+        };
+        nn.IMP_STORAGE_CLEAR = function () {
+            __g_storage_1 = {};
+        };
+    }
+    nn.Defer = function (cb, ctx) {
+        var p = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            p[_i - 2] = arguments[_i];
         }
-        ResCapsule.prototype.dispose = function () {
-            this._ewd = undefined;
-            _super.prototype.dispose.call(this);
-        };
-        ResCapsule.prototype.loadOne = function (rr, cb, ctx) {
-            var _this = this;
-            var curidx = 0;
-            // 判断是加载资源组，还是直接加载资源
-            if (rr instanceof nn.ResourceEntity) {
-                var re = rr;
-                nn.ResManager.getSourceByType(re.source, nn.ResPriority.NORMAL, function (rcd) {
-                    if (_this.signals.isConnected(nn.SignalChanged)) {
-                        curidx = 1;
-                        _this._idx += 1;
-                        // 发出消息
-                        _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
-                    }
-                    cb.call(ctx);
-                }, this, re.type);
-            }
-            else {
-                var grp = rr;
-                if (RES.isGroupLoaded(grp)) {
-                    if (this.signals.isConnected(nn.SignalChanged)) {
-                        var len = RES.getGroupByName(grp).length;
-                        curidx = len;
-                        this._idx += len;
-                        this.signals.emit(nn.SignalChanged, new nn.Percentage(this._total, this._idx));
-                    }
-                    cb.call(ctx);
-                }
-                else {
-                    this._ewd.add("::res::group::" + grp, cb, ctx);
-                    if (this.signals.isConnected(nn.SignalChanged)) {
-                        this._ewd.add("::res::group::progress::" + grp, function (e) {
-                            // 计算进度
-                            var delta = e.itemsLoaded - curidx;
-                            curidx = e.itemsLoaded;
-                            _this._idx += delta;
-                            // 发出消息
-                            _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
-                        }, this);
-                    }
-                    RES.loadGroup(grp);
-                }
-            }
-        };
-        ResCapsule.prototype.total = function () {
-            var r = 0;
-            this._reqRes.forEach(function (rr) {
-                if (rr instanceof nn.ResourceEntity)
-                    r += 1;
-                else
-                    r += RES.getGroupByName(rr).length;
-            });
-            return r;
-        };
-        return ResCapsule;
-    }(nn.CResCapsule));
-    nn.ResCapsule = ResCapsule;
-    var EgretItemTypeMap = {};
-    EgretItemTypeMap[nn.ResType.JSON] = RES.ResourceItem.TYPE_JSON;
-    EgretItemTypeMap[nn.ResType.TEXTURE] = RES.ResourceItem.TYPE_IMAGE;
-    EgretItemTypeMap[nn.ResType.TEXT] = RES.ResourceItem.TYPE_TEXT;
-    EgretItemTypeMap[nn.ResType.FONT] = RES.ResourceItem.TYPE_FONT;
-    EgretItemTypeMap[nn.ResType.SOUND] = RES.ResourceItem.TYPE_SOUND;
-    EgretItemTypeMap[nn.ResType.BINARY] = RES.ResourceItem.TYPE_BIN;
-    var _ResManager = (function (_super) {
-        __extends(_ResManager, _super);
-        function _ResManager() {
-            var _this = _super.call(this) || this;
-            // 用来转发事件
-            _this._ewd = new nn.EventWeakDispatcher();
-            // 资源的缓存管理
-            _this.cache = new _ResMemcache();
-            // 正在加载的资源包
-            _this._capsules = new KvObject();
-            // config 只在manager中处理，其他事件转到包中处理
-            RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, _this._cfg_loaded, _this);
-            RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, _this._grp_complete, _this);
-            RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, _this._grp_failed, _this);
-            RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, _this._grp_progress, _this);
-            // 切换为4线程下载资源
-            RES.setMaxLoadingThread(4);
-            return _this;
-        }
-        _ResManager.prototype.loadConfig = function (file, cb, ctx) {
-            this._ewd.add("::res::config", cb, ctx);
-            // 如过file是绝对地址，则不添加directory
-            if (file.indexOf('://') == -1)
-                file = this.directory + file;
-            RES.loadConfig(file, this.directory);
-        };
-        Object.defineProperty(_ResManager.prototype, "cacheEnabled", {
-            get: function () {
-                return this.cache.enable;
-            },
-            set: function (v) {
-                this.cache.enable = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        _ResManager.prototype._cfg_loaded = function (e) {
-            var idr = "::res::config";
-            this._ewd.invoke(idr, e, false);
-            this._ewd.remove(idr);
-        };
-        _ResManager.prototype._grp_complete = function (e) {
-            var idr0 = "::res::group::" + e.groupName;
-            var idr1 = "::res::group::progress::" + e.groupName;
-            this._ewd.invoke(idr0, e, false);
-            this._ewd.remove(idr0);
-            this._ewd.remove(idr1);
-        };
-        _ResManager.prototype._grp_failed = function (e) {
-            this._grp_complete(e);
-        };
-        _ResManager.prototype._grp_progress = function (e) {
-            var item = e.resItem;
-            // 增加其他数据文件
-            if (item.type == RES.ResourceItem.TYPE_BIN) {
-                // 增加字体
-                if (nn.FontFilePattern.test(item.url)) {
-                    nn.FontsManager.add(item.name, item.url);
-                }
-            }
-            var idr = "::res::group::progress::" + e.groupName;
-            this._ewd.invoke(idr, e, false);
-        };
-        _ResManager.prototype.isGroupsArrayLoaded = function (grps) {
-            if (grps) {
-                for (var i = 0; i < grps.length; ++i) {
-                    if (RES.isGroupLoaded(grps[i]) == false)
-                        return false;
-                }
-            }
-            return true;
-        };
-        _ResManager.prototype.capsules = function (grps) {
-            var k = ResCapsule.HashKey(grps);
-            var cp = this._capsules[k];
-            if (cp == null) {
-                cp = new ResCapsule(grps, this._ewd);
-                this._capsules[k] = cp;
-            }
-            return cp;
-        };
-        _ResManager.prototype.removeCapsule = function (cp) {
-            var k = cp.hashKey();
-            cp.drop();
-            delete this._capsules[k];
-        };
-        _ResManager.prototype.tryGetRes = function (key) {
-            var rcd = this.cache.query(key);
-            if (rcd == null) {
-                var d = RES.getRes(key);
-                if (d) {
-                    rcd = this.cache.add(key, d);
-                }
-                else {
-                    return new nn.CacheRecord();
-                }
-            }
-            return rcd;
-        };
-        _ResManager.prototype.getResAsync = function (key, priority, cb, ctx) {
-            var _this = this;
-            if (nn.length(key) == 0) {
-                cb.call(ctx, new nn.CacheRecord());
-                return;
-            }
-            var rcd = this.cache.query(key);
-            if (rcd == null) {
-                nn.ResCurrentPriority = priority;
-                RES.getResAsync(key, function (d) {
-                    if (d) {
-                        rcd = _this.cache.add(key, d);
-                    }
-                    else {
-                        rcd = new nn.CacheRecord();
-                        nn.warn("res " + key + " not found");
-                    }
-                    cb.call(ctx, rcd);
-                }, this);
-            }
-            else {
-                cb.call(ctx, rcd);
-            }
-        };
-        _ResManager.prototype.if = function (DEBUG) {
-            if (RES.configInstance == undefined)
-                nn.fatal('ResManager 存在兼容问题');
-        };
-        _ResManager.prototype.getResUrl = function (key) {
-            var obj = RES.configInstance.keyMap[key];
-            if (obj == null) {
-                nn.warn("res " + key + " not found");
-                return null;
-            }
-            return obj.url;
-        };
-        _ResManager.prototype.getResByUrl = function (src, priority, cb, ctx, type) {
-            var _this = this;
-            // 如果位于缓存中，则直接返回
-            var rcd = this.cache.query(src);
-            if (rcd != null) {
-                cb.call(ctx, rcd);
-                return;
-            }
-            // 不在缓存中，需要直接获得
-            nn.ResCurrentPriority = priority;
-            RES.getResByUrl(src, function (d) {
-                // 添加到缓存
-                rcd = _this.cache.add(src, d);
-                // 回调
-                cb.call(ctx, rcd);
-            }, this, EgretItemTypeMap[type]);
-        };
-        _ResManager.prototype.hasAsyncUri = function (uri) {
-            return this.cache.query(uri) != null;
-        };
-        _ResManager.prototype.getTexture = function (src, priority, cb, ctx) {
-            if (src instanceof nn.COriginType) {
-                var t = new nn.CacheRecord();
-                t.val = src.imp;
-                cb.call(ctx, t);
-                return;
-            }
-            if (src instanceof egret.Texture) {
-                var t = new nn.CacheRecord();
-                t.val = src;
-                cb.call(ctx, t);
-                return;
-            }
-            this.getSourceByType(src, priority, cb, ctx, nn.ResType.TEXTURE);
-        };
-        _ResManager.prototype.getBitmapFont = function (src, priority, cb, ctx) {
-            if (src instanceof nn.COriginType) {
-                var t = new nn.CacheRecord();
-                t.val = src.imp;
-                cb.call(ctx, t);
-                return;
-            }
-            if (src instanceof egret.BitmapFont) {
-                var t = new nn.CacheRecord();
-                t.val = src;
-                cb.call(ctx, t);
-                return;
-            }
-            // 通过配置来获得
-            if (src instanceof nn.FontConfig) {
-                var cfg = src;
-                if (cfg.name) {
-                    this.getSourceByType(cfg.name, priority, cb, ctx, nn.ResType.FONT);
-                }
-                else {
-                    // 通过两个配置文件来获得
-                    this.getSources([[cfg.texture, nn.ResType.TEXTURE],
-                        [cfg.config, nn.ResType.JSON]], priority, function (ds) {
-                        var tex = ds[0];
-                        var cfg = ds[1];
-                        // todo 现在为简化font缓存处理(直接调用use逻辑避免tex和cfg被释放)
-                        var t = new nn.CacheRecord();
-                        t.val = new egret.BitmapFont(tex.use(), cfg.use());
-                        cb.call(ctx, t);
-                    }, this);
-                }
-                return;
-            }
-            // 通过key来获得
-            this.getSourceByType(src, priority, cb, ctx, nn.ResType.FONT);
-        };
-        _ResManager.prototype.getSound = function (src, priority, cb, ctx) {
-            if (src instanceof nn.COriginType) {
-                var t = new nn.CacheRecord();
-                t.val = src.imp;
-                cb.call(ctx, t);
-                return;
-            }
-            if (src instanceof egret.Sound) {
-                var t = new nn.CacheRecord();
-                t.val = src;
-                cb.call(ctx, t);
-                return;
-            }
-            this.getSourceByType(src, priority, cb, ctx, nn.ResType.SOUND);
-        };
-        return _ResManager;
-    }(nn.CResManager));
-    nn._ResManager = _ResManager;
-    nn.ResManager = new _ResManager();
+        egret.callLater.apply(null, [cb, ctx].concat(p));
+    };
+    // 将point伪装成egret.point
+    var __PROTO = nn.Point.prototype;
+    __PROTO.setTo = function (x, y) {
+        this.x = x;
+        this.y = y;
+    };
+    // 解决egret-inspector显示的是实现类而不是业务类的名称
+    Js.OverrideFunction(egret, 'getQualifiedClassName', function (orifn, value) {
+        if ('_fmui' in value)
+            return value._fmui.descriptionName;
+        return orifn(value);
+    });
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -22289,21 +22285,447 @@ var nn;
     // 小伙伴平台有时会去修改location.href但是会提供一个fullGameUrl解决之后获取location错误的问题
     Js.siteUrl = hGame.fullGameUrl;
 })(nn || (nn = {}));
+// 对egret的RES模块进行功能扩展
+var RES;
+(function (RES) {
+    var ExtResourceItem = (function (_super) {
+        __extends(ExtResourceItem, _super);
+        function ExtResourceItem(name, url, type) {
+            var _this = _super.call(this, name, url, type) || this;
+            _this._priority = nn.ResCurrentPriority;
+            return _this;
+        }
+        return ExtResourceItem;
+    }(RES.ResourceItem));
+    var ExtLazyLoadList = (function () {
+        function ExtLazyLoadList() {
+            this.length = 0;
+            // 不通的等级定义不同的队列
+            this.items = [
+                new Array(),
+                new Array()
+            ];
+        }
+        ExtLazyLoadList.prototype.push = function (item) {
+            var arr = this.items[item._priority];
+            arr.push(item);
+            ++this.length;
+        };
+        ExtLazyLoadList.prototype.pop = function () {
+            if (this.length == 0)
+                return null;
+            var arr = this.items[nn.ResPriority.NORMAL];
+            var poped = arr.pop();
+            if (poped == null) {
+                arr = this.items[nn.ResPriority.CLIP];
+                poped = arr.pop();
+            }
+            --this.length;
+            return poped;
+        };
+        return ExtLazyLoadList;
+    }());
+    RES.ResourceItem = ExtResourceItem;
+    // 使用ext换掉原来的lazy以提供附加的优先级控制
+    var lazyLoadListChanged;
+    var PROTO = RES.ResourceLoader.prototype;
+    var funcLoadItem = PROTO.loadItem;
+    PROTO.loadItem = function (resItem) {
+        var self = this;
+        if (!lazyLoadListChanged) {
+            if (self.lazyLoadList == null)
+                nn.fatal("Egret引擎升级RES的LazyLoadList方法，请检查引擎修改");
+            self.lazyLoadList = new ExtLazyLoadList();
+            lazyLoadListChanged = true;
+        }
+        funcLoadItem.call(self, resItem);
+    };
+})(RES || (RES = {}));
 var nn;
 (function (nn) {
-    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
-    var _DatasManager = (function (_super) {
-        __extends(_DatasManager, _super);
-        function _DatasManager() {
-            return _super.call(this) || this;
+    // 资源池
+    var _ResMemcache = (function (_super) {
+        __extends(_ResMemcache, _super);
+        function _ResMemcache() {
+            var _this = _super.call(this) || this;
+            // 自定义个hashCode
+            _this._hashCode = 0;
+            // cache-key 和 sources 的对照表
+            _this._sources = new KvObject();
+            _this._keys = new KvObject();
+            _this.enable = true;
+            return _this;
         }
-        // 读取所有数据，由application自动调用
-        _DatasManager.prototype._load = function () {
+        _ResMemcache.prototype.doRemoveObject = function (rcd) {
+            var _this = this;
+            _super.prototype.doRemoveObject.call(this, rcd);
+            var srcs = this._sources[rcd.key];
+            srcs.forEach(function (e) {
+                RES.destroyRes(e);
+                if (nn.VERBOSE)
+                    nn.log("释放资源 " + e);
+                delete _this._keys[e];
+            });
+            delete this._sources[rcd.key];
         };
-        return _DatasManager;
-    }(nn.SObject));
-    nn._DatasManager = _DatasManager;
-    nn.DatasManager = new _DatasManager();
+        // 根据source添加data
+        _ResMemcache.prototype.add = function (source, data) {
+            // 根据data的不同计算对应的key
+            var key;
+            if (data == null) {
+                key = "::mc::null";
+            }
+            else if ('hashCode' in data) {
+                key = data.hashCode;
+            }
+            else if (typeof (data) == 'object') {
+                key = data[_ResMemcache.IDR_HASHCODE];
+                if (key == null) {
+                    key = '::mc::' + this._hashCode++;
+                    data[_ResMemcache.IDR_HASHCODE] = key;
+                }
+            }
+            else {
+                var rcd = new nn.CacheRecord();
+                rcd.val = data;
+                return rcd;
+            }
+            var srcs = this._sources[key];
+            if (srcs == null) {
+                srcs = [source];
+                this._sources[key] = srcs;
+            }
+            else {
+                srcs.push(source);
+            }
+            this._keys[source] = key;
+            // 添加到缓存中
+            var obj = new _ResCacheObject();
+            obj.key = key;
+            obj.data = data;
+            return this.cache(obj);
+        };
+        _ResMemcache.prototype.query = function (source) {
+            var key = this._keys[source];
+            return _super.prototype.query.call(this, key);
+        };
+        return _ResMemcache;
+    }(nn.Memcache));
+    _ResMemcache.IDR_HASHCODE = '::mc::hashCode';
+    nn._ResMemcache = _ResMemcache;
+    var _ResCacheObject = (function () {
+        function _ResCacheObject() {
+            this.cacheFlush = true;
+            this.cacheUpdated = true;
+            this.cacheTime = -1;
+        }
+        _ResCacheObject.prototype.keyForCache = function () {
+            return this.key;
+        };
+        _ResCacheObject.prototype.valueForCache = function () {
+            return this.data;
+        };
+        return _ResCacheObject;
+    }());
+    var ResCapsule = (function (_super) {
+        __extends(ResCapsule, _super);
+        function ResCapsule(reqres, ewd) {
+            var _this = _super.call(this, reqres) || this;
+            _this._ewd = ewd;
+            return _this;
+        }
+        ResCapsule.prototype.dispose = function () {
+            this._ewd = undefined;
+            _super.prototype.dispose.call(this);
+        };
+        ResCapsule.prototype.loadOne = function (rr, cb, ctx) {
+            var _this = this;
+            var curidx = 0;
+            // 判断是加载资源组，还是直接加载资源
+            if (rr instanceof nn.ResourceEntity) {
+                var re = rr;
+                nn.ResManager.getSourceByType(re.source, nn.ResPriority.NORMAL, function (rcd) {
+                    if (_this.signals.isConnected(nn.SignalChanged)) {
+                        curidx = 1;
+                        _this._idx += 1;
+                        // 发出消息
+                        _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
+                    }
+                    cb.call(ctx);
+                }, this, re.type);
+            }
+            else {
+                var grp = rr;
+                if (RES.isGroupLoaded(grp)) {
+                    if (this.signals.isConnected(nn.SignalChanged)) {
+                        var len = RES.getGroupByName(grp).length;
+                        curidx = len;
+                        this._idx += len;
+                        this.signals.emit(nn.SignalChanged, new nn.Percentage(this._total, this._idx));
+                    }
+                    cb.call(ctx);
+                }
+                else {
+                    this._ewd.add("::res::group::" + grp, cb, ctx);
+                    if (this.signals.isConnected(nn.SignalChanged)) {
+                        this._ewd.add("::res::group::progress::" + grp, function (e) {
+                            // 计算进度
+                            var delta = e.itemsLoaded - curidx;
+                            curidx = e.itemsLoaded;
+                            _this._idx += delta;
+                            // 发出消息
+                            _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
+                        }, this);
+                    }
+                    RES.loadGroup(grp);
+                }
+            }
+        };
+        ResCapsule.prototype.total = function () {
+            var r = 0;
+            this._reqRes.forEach(function (rr) {
+                if (rr instanceof nn.ResourceEntity)
+                    r += 1;
+                else
+                    r += RES.getGroupByName(rr).length;
+            });
+            return r;
+        };
+        return ResCapsule;
+    }(nn.CResCapsule));
+    nn.ResCapsule = ResCapsule;
+    var EgretItemTypeMap = {};
+    EgretItemTypeMap[nn.ResType.JSON] = RES.ResourceItem.TYPE_JSON;
+    EgretItemTypeMap[nn.ResType.TEXTURE] = RES.ResourceItem.TYPE_IMAGE;
+    EgretItemTypeMap[nn.ResType.TEXT] = RES.ResourceItem.TYPE_TEXT;
+    EgretItemTypeMap[nn.ResType.FONT] = RES.ResourceItem.TYPE_FONT;
+    EgretItemTypeMap[nn.ResType.SOUND] = RES.ResourceItem.TYPE_SOUND;
+    EgretItemTypeMap[nn.ResType.BINARY] = RES.ResourceItem.TYPE_BIN;
+    var _ResManager = (function (_super) {
+        __extends(_ResManager, _super);
+        function _ResManager() {
+            var _this = _super.call(this) || this;
+            // 用来转发事件
+            _this._ewd = new nn.EventWeakDispatcher();
+            // 资源的缓存管理
+            _this.cache = new _ResMemcache();
+            // 正在加载的资源包
+            _this._capsules = new KvObject();
+            // config 只在manager中处理，其他事件转到包中处理
+            RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, _this._cfg_loaded, _this);
+            RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, _this._grp_complete, _this);
+            RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, _this._grp_failed, _this);
+            RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, _this._grp_progress, _this);
+            // 切换为4线程下载资源
+            RES.setMaxLoadingThread(4);
+            return _this;
+        }
+        _ResManager.prototype.loadConfig = function (file, cb, ctx) {
+            this._ewd.add("::res::config", cb, ctx);
+            // 如过file是绝对地址，则不添加directory
+            if (file.indexOf('://') == -1)
+                file = this.directory + file;
+            RES.loadConfig(file, this.directory);
+        };
+        Object.defineProperty(_ResManager.prototype, "cacheEnabled", {
+            get: function () {
+                return this.cache.enable;
+            },
+            set: function (v) {
+                this.cache.enable = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        _ResManager.prototype._cfg_loaded = function (e) {
+            var idr = "::res::config";
+            this._ewd.invoke(idr, e, false);
+            this._ewd.remove(idr);
+        };
+        _ResManager.prototype._grp_complete = function (e) {
+            var idr0 = "::res::group::" + e.groupName;
+            var idr1 = "::res::group::progress::" + e.groupName;
+            this._ewd.invoke(idr0, e, false);
+            this._ewd.remove(idr0);
+            this._ewd.remove(idr1);
+        };
+        _ResManager.prototype._grp_failed = function (e) {
+            this._grp_complete(e);
+        };
+        _ResManager.prototype._grp_progress = function (e) {
+            var item = e.resItem;
+            // 增加其他数据文件
+            if (item.type == RES.ResourceItem.TYPE_BIN) {
+                // 增加字体
+                if (nn.FontFilePattern.test(item.url)) {
+                    nn.FontsManager.add(item.name, item.url);
+                }
+            }
+            var idr = "::res::group::progress::" + e.groupName;
+            this._ewd.invoke(idr, e, false);
+        };
+        _ResManager.prototype.isGroupsArrayLoaded = function (grps) {
+            if (grps) {
+                for (var i = 0; i < grps.length; ++i) {
+                    if (RES.isGroupLoaded(grps[i]) == false)
+                        return false;
+                }
+            }
+            return true;
+        };
+        _ResManager.prototype.capsules = function (grps) {
+            var k = ResCapsule.HashKey(grps);
+            var cp = this._capsules[k];
+            if (cp == null) {
+                cp = new ResCapsule(grps, this._ewd);
+                this._capsules[k] = cp;
+            }
+            return cp;
+        };
+        _ResManager.prototype.removeCapsule = function (cp) {
+            var k = cp.hashKey();
+            cp.drop();
+            delete this._capsules[k];
+        };
+        _ResManager.prototype.tryGetRes = function (key) {
+            var rcd = this.cache.query(key);
+            if (rcd == null) {
+                var d = RES.getRes(key);
+                if (d) {
+                    rcd = this.cache.add(key, d);
+                }
+                else {
+                    return new nn.CacheRecord();
+                }
+            }
+            return rcd;
+        };
+        _ResManager.prototype.getResAsync = function (key, priority, cb, ctx) {
+            var _this = this;
+            if (nn.length(key) == 0) {
+                cb.call(ctx, new nn.CacheRecord());
+                return;
+            }
+            var rcd = this.cache.query(key);
+            if (rcd == null) {
+                nn.ResCurrentPriority = priority;
+                RES.getResAsync(key, function (d) {
+                    if (d) {
+                        rcd = _this.cache.add(key, d);
+                    }
+                    else {
+                        rcd = new nn.CacheRecord();
+                        nn.warn("res " + key + " not found");
+                    }
+                    cb.call(ctx, rcd);
+                }, this);
+            }
+            else {
+                cb.call(ctx, rcd);
+            }
+        };
+        _ResManager.prototype.if = function (DEBUG) {
+            if (RES.configInstance == undefined)
+                nn.fatal('ResManager 存在兼容问题');
+        };
+        _ResManager.prototype.getResUrl = function (key) {
+            var obj = RES.configInstance.keyMap[key];
+            if (obj == null) {
+                nn.warn("res " + key + " not found");
+                return null;
+            }
+            return obj.url;
+        };
+        _ResManager.prototype.getResByUrl = function (src, priority, cb, ctx, type) {
+            var _this = this;
+            // 如果位于缓存中，则直接返回
+            var rcd = this.cache.query(src);
+            if (rcd != null) {
+                cb.call(ctx, rcd);
+                return;
+            }
+            // 不在缓存中，需要直接获得
+            nn.ResCurrentPriority = priority;
+            RES.getResByUrl(src, function (d) {
+                // 添加到缓存
+                rcd = _this.cache.add(src, d);
+                // 回调
+                cb.call(ctx, rcd);
+            }, this, EgretItemTypeMap[type]);
+        };
+        _ResManager.prototype.hasAsyncUri = function (uri) {
+            return this.cache.query(uri) != null;
+        };
+        _ResManager.prototype.getTexture = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            if (src instanceof egret.Texture) {
+                var t = new nn.CacheRecord();
+                t.val = src;
+                cb.call(ctx, t);
+                return;
+            }
+            this.getSourceByType(src, priority, cb, ctx, nn.ResType.TEXTURE);
+        };
+        _ResManager.prototype.getBitmapFont = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            if (src instanceof egret.BitmapFont) {
+                var t = new nn.CacheRecord();
+                t.val = src;
+                cb.call(ctx, t);
+                return;
+            }
+            // 通过配置来获得
+            if (src instanceof nn.FontConfig) {
+                var cfg = src;
+                if (cfg.name) {
+                    this.getSourceByType(cfg.name, priority, cb, ctx, nn.ResType.FONT);
+                }
+                else {
+                    // 通过两个配置文件来获得
+                    this.getSources([[cfg.texture, nn.ResType.TEXTURE],
+                        [cfg.config, nn.ResType.JSON]], priority, function (ds) {
+                        var tex = ds[0];
+                        var cfg = ds[1];
+                        // todo 现在为简化font缓存处理(直接调用use逻辑避免tex和cfg被释放)
+                        var t = new nn.CacheRecord();
+                        t.val = new egret.BitmapFont(tex.use(), cfg.use());
+                        cb.call(ctx, t);
+                    }, this);
+                }
+                return;
+            }
+            // 通过key来获得
+            this.getSourceByType(src, priority, cb, ctx, nn.ResType.FONT);
+        };
+        _ResManager.prototype.getSound = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            if (src instanceof egret.Sound) {
+                var t = new nn.CacheRecord();
+                t.val = src;
+                cb.call(ctx, t);
+                return;
+            }
+            this.getSourceByType(src, priority, cb, ctx, nn.ResType.SOUND);
+        };
+        return _ResManager;
+    }(nn.CResManager));
+    nn._ResManager = _ResManager;
+    nn.ResManager = new _ResManager();
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -22648,419 +23070,19 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    /** 音频播放 */
-    var SoundPlayer = (function (_super) {
-        __extends(SoundPlayer, _super);
-        function SoundPlayer() {
-            var _this = _super.call(this) || this;
-            /** 播放次数，-1代表循环 */
-            _this.count = 1;
-            _this._enable = nn.Device.shared.supportAutoSound;
-            // 暂停或者播放到的位置
-            _this._position = 0;
-            return _this;
+    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
+    var _DatasManager = (function (_super) {
+        __extends(_DatasManager, _super);
+        function _DatasManager() {
+            return _super.call(this) || this;
         }
-        SoundPlayer.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalStart);
-            this._signals.register(nn.SignalPaused);
-            this._signals.register(nn.SignalDone);
-            this._signals.register(nn.SignalChanged);
+        // 读取所有数据，由application自动调用
+        _DatasManager.prototype._load = function () {
         };
-        SoundPlayer.prototype.dispose = function () {
-            this.stop();
-            this._hdl = null;
-            this._cnl = null;
-            _super.prototype.dispose.call(this);
-        };
-        Object.defineProperty(SoundPlayer.prototype, "enable", {
-            get: function () {
-                return this._enable;
-            },
-            set: function (b) {
-                if (b == this._enable)
-                    return;
-                if (!b) {
-                    this._prePlayingState = this._playingState;
-                    // 设置成不可用会自动停掉当前播放
-                    this.stop();
-                }
-                this._enable = b;
-                if (b && this.autoRecovery && this._prePlayingState == nn.WorkState.DOING) {
-                    this.play();
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        SoundPlayer.prototype.setMediaSource = function (ms) {
-            if (this._mediaSource) {
-                nn.warn('不能重复设置player的mediaSource');
-                return;
-            }
-            this._mediaSource = ms;
-        };
-        // 只能设置一次
-        SoundPlayer.prototype.setHdl = function (val) {
-            if (this._hdl) {
-                if (this._hdl.hashCode == val.hashCode)
-                    return;
-                nn.warn('不能覆盖已经设置了的声音对象');
-                return;
-            }
-            this._hdl = val;
-        };
-        SoundPlayer.prototype.setCnl = function (cnl) {
-            if (this._cnl == cnl)
-                return;
-            if (this._cnl)
-                nn.EventUnhook(this._cnl, egret.Event.SOUND_COMPLETE, this.__cb_end, this);
-            this._cnl = cnl;
-            if (cnl)
-                nn.EventHook(cnl, egret.Event.SOUND_COMPLETE, this.__cb_end, this);
-        };
-        Object.defineProperty(SoundPlayer.prototype, "position", {
-            get: function () {
-                return this._position;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /** 开始播放 */
-        SoundPlayer.prototype.play = function () {
-            var _this = this;
-            if (!this._enable) {
-                this._prePlayingState = nn.WorkState.DOING;
-                return;
-            }
-            if (this._playingState == nn.WorkState.DOING)
-                return;
-            if (this._playingState == nn.WorkState.PAUSED) {
-                this.resume();
-                return;
-            }
-            // cbplay放倒play之前是为了确保其他依赖于本对象play信号的动作能先执行，以避免h5浏览器当只能播放一个音频时冲突
-            this.__cb_play();
-            // 如果播放的媒体有变化，则需要重新加载，否则直接播放
-            if (this._hdl == null) {
-                if (this.resourceGroups) {
-                    nn.ResManager.capsules(this.resourceGroups).load(function () {
-                        nn.ResManager.getSound(_this._mediaSource, nn.ResPriority.NORMAL, function (snd) {
-                            if (snd == null)
-                                return;
-                            _this.setHdl(snd.use());
-                            // 如果当前还是位于播放中，则真正去播放
-                            if (_this._playingState == nn.WorkState.DOING)
-                                _this.setCnl(_this._hdl.play(_this._position, _this.count));
-                        }, _this);
-                    }, this);
-                }
-                else {
-                    nn.ResManager.getSound(this._mediaSource, nn.ResPriority.NORMAL, function (snd) {
-                        if (snd == null)
-                            return;
-                        _this.setHdl(snd.use());
-                        if (_this._playingState == nn.WorkState.DOING)
-                            _this.setCnl(_this._hdl.play(_this._position, _this.count));
-                    }, this);
-                }
-            }
-            else {
-                this.setCnl(this._hdl.play(this._position, this.count));
-            }
-        };
-        /** 重新播放 */
-        SoundPlayer.prototype.replay = function () {
-            this.stop();
-            this.play();
-        };
-        /** 暂停 */
-        SoundPlayer.prototype.pause = function () {
-            if (!this._enable) {
-                this._prePlayingState = nn.WorkState.PAUSED;
-                return;
-            }
-            if (this._playingState == nn.WorkState.DOING) {
-                if (this._cnl) {
-                    this._position = this._cnl.position;
-                    this._cnl.stop();
-                }
-                this._playingState = nn.WorkState.PAUSED;
-                this.__cb_pause();
-            }
-        };
-        /** 恢复 */
-        SoundPlayer.prototype.resume = function () {
-            if (!this._enable) {
-                this._prePlayingState = nn.WorkState.DOING;
-                return;
-            }
-            if (this._playingState == nn.WorkState.PAUSED) {
-                this.__cb_play();
-                if (this._hdl) {
-                    this.setCnl(this._hdl.play(this._position, this.count));
-                }
-            }
-        };
-        /** 停止 */
-        SoundPlayer.prototype.stop = function () {
-            if (!this._enable) {
-                this._prePlayingState = nn.WorkState.DONE;
-                return;
-            }
-            if (this._playingState != nn.WorkState.DONE) {
-                if (this._cnl) {
-                    this._cnl.stop();
-                    this._cnl = undefined;
-                    this._position = 0;
-                }
-                this._playingState = nn.WorkState.DONE;
-            }
-        };
-        /** 打断播放 */
-        SoundPlayer.prototype.breakee = function () {
-            this.pause();
-        };
-        Object.defineProperty(SoundPlayer.prototype, "isPlaying", {
-            get: function () {
-                return this._playingState == nn.WorkState.DOING;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(SoundPlayer.prototype, "isPaused", {
-            get: function () {
-                return this._playingState == nn.WorkState.PAUSED;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        SoundPlayer.prototype.__cb_end = function () {
-            nn.log("播放 " + this._mediaSource + " 结束");
-            this._playingState = nn.WorkState.DONE;
-            this._signals && this._signals.emit(nn.SignalDone);
-        };
-        SoundPlayer.prototype.__cb_pause = function () {
-            this._signals && this._signals.emit(nn.SignalPaused);
-        };
-        SoundPlayer.prototype.__cb_play = function () {
-            this._playingState = nn.WorkState.DOING;
-            this._signals && this._signals.emit(nn.SignalStart);
-        };
-        return SoundPlayer;
+        return _DatasManager;
     }(nn.SObject));
-    nn.SoundPlayer = SoundPlayer;
-    var EffectSoundPlayer = (function (_super) {
-        __extends(EffectSoundPlayer, _super);
-        function EffectSoundPlayer() {
-            return _super.apply(this, arguments) || this;
-        }
-        EffectSoundPlayer.prototype.setHdl = function (val) {
-            if (val)
-                val.type = egret.Sound.EFFECT;
-            _super.prototype.setHdl.call(this, val);
-        };
-        EffectSoundPlayer.prototype.breakee = function () {
-            this.stop();
-        };
-        return EffectSoundPlayer;
-    }(SoundPlayer));
-    var BackgroundSourdPlayer = (function (_super) {
-        __extends(BackgroundSourdPlayer, _super);
-        function BackgroundSourdPlayer() {
-            return _super.apply(this, arguments) || this;
-        }
-        BackgroundSourdPlayer.prototype.setHdl = function (val) {
-            if (val)
-                val.type = egret.Sound.MUSIC;
-            _super.prototype.setHdl.call(this, val);
-        };
-        BackgroundSourdPlayer.prototype.breakee = function () {
-            this.stop();
-        };
-        return BackgroundSourdPlayer;
-    }(SoundPlayer));
-    var SoundTrack = (function (_super) {
-        __extends(SoundTrack, _super);
-        function SoundTrack() {
-            var _this = _super.call(this) || this;
-            /** 播放次数，-1代表无限循环 */
-            _this.count = 1;
-            /** 用以实现player的类对象 */
-            _this.classForPlayer = SoundPlayer;
-            /** 可用状态 */
-            _this._enable = true;
-            // 映射文件和播放器
-            _this._sounds = new KvObject();
-            return _this;
-        }
-        Object.defineProperty(SoundTrack.prototype, "autoRecovery", {
-            get: function () {
-                return this._autoRecovery;
-            },
-            set: function (b) {
-                if (b == this._autoRecovery)
-                    return;
-                this._autoRecovery = b;
-                nn.MapT.Foreach(this._sounds, function (k, v) {
-                    v.autoRecovery = b;
-                }, this);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(SoundTrack.prototype, "enable", {
-            get: function () {
-                return this._enable;
-            },
-            set: function (b) {
-                if (b == this._enable)
-                    return;
-                this._enable = b;
-                nn.MapT.Foreach(this._sounds, function (k, v) {
-                    v.enable = b;
-                }, this);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /** 获取一个播放器 */
-        SoundTrack.prototype.player = function (name) {
-            var groups = [];
-            for (var _i = 1; _i < arguments.length; _i++) {
-                groups[_i - 1] = arguments[_i];
-            }
-            var ply = this._sounds[name];
-            if (ply == null) {
-                ply = new this.classForPlayer();
-                ply.enable = this.enable;
-                ply.autoRecovery = this.autoRecovery;
-                ply.resourceGroups = groups.length ? groups : this.resourceGroups;
-                ply.setMediaSource(name);
-                ply.count = this.count;
-                ply.signals.connect(nn.SignalStart, this.__cb_play, this);
-                this._sounds[name] = ply;
-            }
-            return ply;
-        };
-        /** 实例化一个播放器，播放完成后会自动清掉 */
-        SoundTrack.prototype.acquire = function (name) {
-            var groups = [];
-            for (var _i = 1; _i < arguments.length; _i++) {
-                groups[_i - 1] = arguments[_i];
-            }
-            var ply = new this.classForPlayer();
-            ply.enable = this.enable;
-            ply.autoRecovery = this.autoRecovery;
-            ply.resourceGroups = groups.length ? groups : this.resourceGroups;
-            ply.setMediaSource(name);
-            ply.count = this.count;
-            if (!ply.enable) {
-                nn.Defer(ply.drop, ply);
-            }
-            else {
-                ply.signals.connect(nn.SignalEnd, function (s) {
-                    nn.drop(s.sender);
-                }, null);
-            }
-            return ply;
-        };
-        SoundTrack.prototype.__cb_play = function (s) {
-            if (this.solo && this._soloplayer != s.sender) {
-                if (this._soloplayer)
-                    this._soloplayer.breakee();
-                this._soloplayer = s.sender;
-            }
-        };
-        /** 播放全部 */
-        SoundTrack.prototype.play = function () {
-            nn.MapT.Foreach(this._sounds, function (k, v) {
-                v.play();
-            }, this);
-        };
-        /** 停止全部 */
-        SoundTrack.prototype.stop = function () {
-            nn.MapT.Foreach(this._sounds, function (k, v) {
-                v.stop();
-            }, this);
-        };
-        SoundTrack.prototype._app_actived = function () {
-            if (this.__app_activate_enable)
-                this.enable = true;
-        };
-        SoundTrack.prototype._app_deactived = function () {
-            this.__app_activate_enable = this.enable;
-            this.enable = false;
-        };
-        return SoundTrack;
-    }(nn.SObject));
-    nn.SoundTrack = SoundTrack;
-    var _SoundManager = (function (_super) {
-        __extends(_SoundManager, _super);
-        function _SoundManager() {
-            var _this = _super.call(this) || this;
-            _this._tracks = new KvObject();
-            _this._enable = nn.Device.shared.supportAutoSound;
-            return _this;
-        }
-        /** 获取到指定音轨 */
-        _SoundManager.prototype.track = function (idr) {
-            var tk = this._tracks[idr];
-            if (tk == null) {
-                tk = new SoundTrack();
-                this._tracks[idr] = tk;
-            }
-            return tk;
-        };
-        Object.defineProperty(_SoundManager.prototype, "background", {
-            get: function () {
-                var tk = this._tracks["background"];
-                if (tk == null) {
-                    tk = new SoundTrack();
-                    tk.classForPlayer = BackgroundSourdPlayer;
-                    tk.count = -1;
-                    tk.solo = true;
-                    tk.autoRecovery = true;
-                    tk.resourceGroups = this.resourceGroups;
-                    this._tracks["background"] = tk;
-                }
-                return tk;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(_SoundManager.prototype, "effect", {
-            get: function () {
-                var tk = this._tracks["effect"];
-                if (tk == null) {
-                    tk = new SoundTrack();
-                    tk.classForPlayer = EffectSoundPlayer;
-                    tk.count = 1;
-                    tk.resourceGroups = this.resourceGroups;
-                    this._tracks["effect"] = tk;
-                }
-                return tk;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(_SoundManager.prototype, "enable", {
-            get: function () {
-                return this._enable;
-            },
-            set: function (b) {
-                if (b == this._enable)
-                    return;
-                nn.MapT.Foreach(this._tracks, function (k, v) {
-                    v.enable = b;
-                }, this);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return _SoundManager;
-    }(nn.SObject));
-    nn.SoundManager = new _SoundManager();
+    nn._DatasManager = _DatasManager;
+    nn.DatasManager = new _DatasManager();
 })(nn || (nn = {}));
 var nn;
 (function (nn) {

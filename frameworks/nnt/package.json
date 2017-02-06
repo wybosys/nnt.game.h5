@@ -31,6 +31,7 @@
                 "./egret/core/impl/core-label.ts", 
                 "./egret/core/impl/core-particle.ts", 
                 "./egret/core/impl/core-scroll.ts", 
+                "./egret/core/impl/core-sound.ts", 
                 "./egret/core/impl/core-textfield.ts", 
                 "./egret/egret-app.ts", 
                 "./egret/egret-core.ts", 

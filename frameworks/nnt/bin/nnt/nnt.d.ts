@@ -1629,8 +1629,12 @@ declare module nn {
         valueForCache(): any;
     }
     interface ICacheRecord extends IReference {
+        /** 使用缓存的实际数据对象 */
         use(): any;
+        /** 设置缓存的实际数据对象的属性，如果isnull跳过 */
         prop(k: any, v: any): any;
+        /** 是否为空 */
+        isnull: boolean;
     }
     class CacheRecord implements ICacheRecord {
         key: string;
@@ -1639,6 +1643,7 @@ declare module nn {
         count: number;
         fifo: boolean;
         mulo: boolean;
+        readonly isnull: boolean;
         use(): any;
         prop(k: any, v: any): void;
         grab(): void;
@@ -2667,49 +2672,64 @@ declare module tmp {
     function rtname(): string;
 }
 declare module nn {
-    class FrameTimer {
+    /** 骨骼的配置信息 */
+    class BoneConfig implements IReqResources {
+        /**
+           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
+           @character 角色名称，通常和name一致
+           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
+           @place 材质节点的位置配置文件，通常为 texture_json 结尾
+           @texture 图片文件，通常为 texture_png 结尾
+        */
+        constructor(name?: string, character?: string, skeleton?: string, place?: string, texture?: string);
+        resourceGroups: Array<string>;
+        protected _skeleton: string;
+        protected _place: string;
+        protected _texture: string;
+        protected _character: string;
+        fps: number;
+        protected _name: string;
+        name: string;
+        skeleton: string;
+        place: string;
+        texture: string;
+        character: string;
+        getReqResources(): Array<ReqResource>;
+    }
+    type BoneSource = BoneData | BoneConfig | UriSource;
+    /** 业务使用的骨骼显示类 */
+    abstract class CBones extends Widget {
         constructor();
-        /** 起始时间 ms */
-        start: number;
-        /** 点前的时间点 */
-        now: number;
-        /** 消耗时间 */
-        cost: number;
-        /** 过去了的时间 */
-        past: number;
-        /** 次数统计 */
+        protected _initSignals(): void;
+        /** 骨骼的配置 */
+        boneSource: BoneSource;
+        /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
+        additionScale: number;
+        /** 骨骼填充的方式，默认为充满 */
+        fillMode: FillMode;
+        /** 对齐位置 */
+        clipAlign: POSITION;
+        /** 具体动作 */
+        motion: string;
+        abstract pushMotion(val: string): any;
+        abstract popMotion(): any;
+        /** 当前含有的所有动作 */
+        abstract motions(): Array<string>;
+        /** 是否含有该动作 */
+        abstract hasMotion(val: string): boolean;
+        /** 自动开始播放 */
+        autoPlay: boolean;
+        /** 播放次数控制
+            -1: 循环
+            0: 使用文件设置的次数
+            >0: 次数控制
+        */
         count: number;
+        /** 播放 */
+        abstract play(): any;
+        /** 停止播放 */
+        abstract stop(): any;
     }
-    interface IFrameRender {
-        onRender(cost: number): any;
-    }
-    abstract class CFramesManager {
-        private _blayouts;
-        private _bzpositions;
-        private _bappears;
-        private _bcaches;
-        private _bmcs;
-        static _layoutthreshold: number;
-        protected onPrepare(): void;
-        protected onRendering(): void;
-        RENDERS: CSet<IFrameRender>;
-        /** 强制更新下一帧 */
-        abstract invalidate(): any;
-        /** 布局 */
-        needsLayout(c: CComponent): void;
-        cancelLayout(c: CComponent): void;
-        /** 调整Z顺序 */
-        needsZPosition(c: CComponent): void;
-        /** 显示 */
-        needsAppear(c: CComponent): void;
-        /** 刷新图形缓存 */
-        needsCache(c: CComponent): void;
-        /** 刷新内存缓存 */
-        needsGC(mc: Memcache): void;
-        abstract launch(c: any): any;
-        private _ft;
-    }
-    let FramesManager: CFramesManager;
 }
 declare module nn {
     class Bitmap extends CBitmap {
@@ -3830,70 +3850,136 @@ declare module nn {
     let SignalClose: string;
 }
 declare module nn {
-    /** 骨骼的配置信息 */
-    class BoneConfig implements IReqResources {
-        /**
-           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
-           @character 角色名称，通常和name一致
-           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
-           @place 材质节点的位置配置文件，通常为 texture_json 结尾
-           @texture 图片文件，通常为 texture_png 结尾
-        */
-        constructor(name?: string, character?: string, skeleton?: string, place?: string, texture?: string);
-        resourceGroups: Array<string>;
-        protected _skeleton: string;
-        protected _place: string;
-        protected _texture: string;
-        protected _character: string;
-        fps: number;
-        protected _name: string;
-        name: string;
-        skeleton: string;
-        place: string;
-        texture: string;
-        character: string;
-        getReqResources(): Array<ReqResource>;
-    }
-    type BoneSource = BoneData | BoneConfig | UriSource;
-    /** 业务使用的骨骼显示类 */
-    abstract class CBones extends Widget {
+    type SoundSource = UriSource | COriginType;
+    /** 音频播放 */
+    abstract class CSoundPlayer extends SObject {
         constructor();
         protected _initSignals(): void;
-        /** 骨骼的配置 */
-        boneSource: BoneSource;
-        /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
-        additionScale: number;
-        /** 骨骼填充的方式，默认为充满 */
-        fillMode: FillMode;
-        /** 对齐位置 */
-        clipAlign: POSITION;
-        /** 具体动作 */
-        motion: string;
-        abstract pushMotion(val: string): any;
-        abstract popMotion(): any;
-        /** 当前含有的所有动作 */
-        abstract motions(): Array<string>;
-        /** 是否含有该动作 */
-        abstract hasMotion(val: string): boolean;
-        /** 自动开始播放 */
-        autoPlay: boolean;
-        /** 播放次数控制
-            -1: 循环
-            0: 使用文件设置的次数
-            >0: 次数控制
-        */
+        /** 播放次数，-1代表循环 */
         count: number;
-        /** 播放 */
+        /** 音频的组名 */
+        resourceGroups: string[];
+        /** 是否可用 */
+        enable: boolean;
+        /** 自动恢复播放状态 */
+        autoRecovery: boolean;
+        /** 音频文件的名称, 一个player只能对应一个声音，如过已经设置，则报错 */
+        abstract setMediaSource(ms: string): any;
+        /** 暂停或者播放到的位置 */
+        position: number;
+        playingState: WorkState;
+        /** 开始播放 */
         abstract play(): any;
-        /** 停止播放 */
+        /** 重新播放 */
+        abstract replay(): any;
+        /** 暂停 */
+        abstract pause(): any;
+        /** 恢复 */
+        abstract resume(): any;
+        /** 停止 */
         abstract stop(): any;
+        /** 打断播放 */
+        abstract breakee(): any;
+        readonly isPlaying: boolean;
+        readonly isPaused: boolean;
     }
+    class SoundTrack extends SObject {
+        constructor();
+        /** 播放次数，-1代表无限循环 */
+        count: number;
+        /** 同时只能有一个在播放 */
+        solo: boolean;
+        /** 用以实现player的类对象 */
+        classForPlayer: typeof SoundPlayer;
+        /** 自动恢复 */
+        _autoRecovery: boolean;
+        autoRecovery: boolean;
+        /** 资源组 */
+        resourceGroups: string[];
+        /** 可用状态 */
+        _enable: boolean;
+        enable: boolean;
+        /** 获取一个播放器 */
+        player(name: string, ...groups: string[]): SoundPlayer;
+        /** 实例化一个播放器，播放完成后会自动清掉 */
+        acquire(name: string, ...groups: string[]): SoundPlayer;
+        protected _sounds: KvObject<string, SoundPlayer>;
+        private _soloplayer;
+        private __cb_play(s);
+        /** 播放全部 */
+        play(): void;
+        /** 停止全部 */
+        stop(): void;
+        private __app_activate_enable;
+        _app_actived(): void;
+        _app_deactived(): void;
+    }
+    abstract class CSoundManager extends SObject {
+        constructor();
+        protected _tracks: KvObject<any, SoundTrack>;
+        /** 默认资源组 */
+        resourceGroups: string[];
+        /** 获取到指定音轨 */
+        track(idr: string): SoundTrack;
+        /** 背景音轨　*/
+        background: SoundTrack;
+        /** 效果音轨 */
+        effect: SoundTrack;
+        /** 可用 */
+        enable: boolean;
+    }
+    let SoundManager: CSoundManager;
 }
 declare module nn {
     abstract class CDom extends Component {
         /** html源代码 */
         text: string;
     }
+}
+declare module nn {
+    class FrameTimer {
+        constructor();
+        /** 起始时间 ms */
+        start: number;
+        /** 点前的时间点 */
+        now: number;
+        /** 消耗时间 */
+        cost: number;
+        /** 过去了的时间 */
+        past: number;
+        /** 次数统计 */
+        count: number;
+    }
+    interface IFrameRender {
+        onRender(cost: number): any;
+    }
+    abstract class CFramesManager {
+        private _blayouts;
+        private _bzpositions;
+        private _bappears;
+        private _bcaches;
+        private _bmcs;
+        static _layoutthreshold: number;
+        protected onPrepare(): void;
+        protected onRendering(): void;
+        RENDERS: CSet<IFrameRender>;
+        /** 强制更新下一帧 */
+        abstract invalidate(): any;
+        /** 布局 */
+        needsLayout(c: CComponent): void;
+        cancelLayout(c: CComponent): void;
+        /** 调整Z顺序 */
+        needsZPosition(c: CComponent): void;
+        /** 显示 */
+        needsAppear(c: CComponent): void;
+        /** 刷新图形缓存 */
+        needsCache(c: CComponent): void;
+        /** 刷新内存缓存 */
+        needsGC(mc: Memcache): void;
+        abstract launch(c: any): any;
+        private _ft;
+    }
+    let FramesManager: CFramesManager;
 }
 declare var LZString: {
     compressToBase64: (input: any) => string;
@@ -4989,6 +5075,38 @@ declare module nn {
     }
 }
 declare module nn {
+    class SoundPlayer extends CSoundPlayer {
+        constructor();
+        dispose(): void;
+        _enable: boolean;
+        enable: boolean;
+        private _prePlayingState;
+        private _mediaSource;
+        setMediaSource(ms: string): void;
+        private _position;
+        readonly position: number;
+        protected _hdl: egret.Sound;
+        protected _cnl: egret.SoundChannel;
+        protected setHdl(val: egret.Sound): void;
+        protected setCnl(cnl: egret.SoundChannel): void;
+        play(): void;
+        replay(): void;
+        pause(): void;
+        resume(): void;
+        stop(): void;
+        breakee(): void;
+        private __cb_end();
+        private __cb_pause();
+        private __cb_play();
+    }
+    class _SoundManager extends CSoundManager {
+        readonly background: SoundTrack;
+        readonly effect: SoundTrack;
+        protected _enable: boolean;
+        enable: boolean;
+    }
+}
+declare module nn {
     class TextField extends Label implements CTextField {
         constructor();
         dispose(): void;
@@ -5083,11 +5201,6 @@ declare module nn {
     }
     let LaunchersManager: _LaunchersManager;
 }
-declare module egret {
-    var VERSION_2_5_6: any;
-}
-declare module nn {
-}
 declare module nn {
     class _CrossLoader {
         private static _regID;
@@ -5110,68 +5223,10 @@ declare module nn {
         urlForLog(): string;
     }
 }
-declare module RES {
+declare module egret {
+    var VERSION_2_5_6: any;
 }
 declare module nn {
-    interface ICacheJson extends ICacheRecord {
-        use(): any;
-    }
-    interface ICacheTexture extends ICacheRecord {
-        use(): egret.Texture;
-    }
-    interface ICacheText extends ICacheRecord {
-        use(): string;
-    }
-    interface ICacheFont extends ICacheRecord {
-        use(): egret.BitmapFont;
-    }
-    interface ICacheSound extends ICacheRecord {
-        use(): egret.Sound;
-    }
-    interface ICacheBinary extends ICacheRecord {
-        use(): any;
-    }
-    class _ResMemcache extends Memcache {
-        constructor();
-        protected doRemoveObject(rcd: CacheRecord): void;
-        private _hashCode;
-        static IDR_HASHCODE: string;
-        add(source: string, data: any): ICacheRecord;
-        query(source: string): ICacheRecord;
-        private _sources;
-        private _keys;
-    }
-    class ResCapsule extends CResCapsule {
-        constructor(reqres: ReqResource[], ewd: EventWeakDispatcher);
-        dispose(): void;
-        private _ewd;
-        protected loadOne(rr: ReqResource, cb: () => void, ctx: any): void;
-        protected total(): number;
-    }
-    class _ResManager extends CResManager {
-        constructor();
-        private _ewd;
-        cache: _ResMemcache;
-        loadConfig(file: string, cb: (e: any) => void, ctx: any): void;
-        cacheEnabled: boolean;
-        private _cfg_loaded(e);
-        private _grp_complete(e);
-        private _grp_failed(e);
-        private _grp_progress(e);
-        isGroupsArrayLoaded(grps: string[]): boolean;
-        private _capsules;
-        capsules(grps: ReqResource[]): CResCapsule;
-        removeCapsule(cp: CResCapsule): void;
-        tryGetRes(key: string): ICacheRecord;
-        getResAsync(key: string, priority: ResPriority, cb: (rcd: ICacheRecord) => void, ctx?: any): void;
-        if(DEBUG: any): void;
-        getResUrl(key: string): string;
-        getResByUrl(src: UriSource, priority: ResPriority, cb: (rcd: ICacheRecord | CacheRecord) => void, ctx: any, type: ResType): void;
-        hasAsyncUri(uri: UriSource): boolean;
-        getTexture(src: TextureSource, priority: ResPriority, cb: (tex: ICacheTexture) => void, ctx: any): void;
-        getBitmapFont(src: FontSource, priority: ResPriority, cb: (fnt: ICacheFont) => void, ctx: any): void;
-        getSound(src: SoundSource, priority: ResPriority, cb: (snd: ICacheSound) => void, ctx: any): void;
-    }
 }
 declare module nn {
     class ServiceMock extends svc.Service {
@@ -5254,13 +5309,68 @@ declare module nn {
         detectService(): any;
     }
 }
+declare module RES {
+}
 declare module nn {
-    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
-    class _DatasManager extends nn.SObject {
-        constructor();
-        _load(): void;
+    interface ICacheJson extends ICacheRecord {
+        use(): any;
     }
-    let DatasManager: _DatasManager;
+    interface ICacheTexture extends ICacheRecord {
+        use(): egret.Texture;
+    }
+    interface ICacheText extends ICacheRecord {
+        use(): string;
+    }
+    interface ICacheFont extends ICacheRecord {
+        use(): egret.BitmapFont;
+    }
+    interface ICacheSound extends ICacheRecord {
+        use(): egret.Sound;
+    }
+    interface ICacheBinary extends ICacheRecord {
+        use(): any;
+    }
+    class _ResMemcache extends Memcache {
+        constructor();
+        protected doRemoveObject(rcd: CacheRecord): void;
+        private _hashCode;
+        static IDR_HASHCODE: string;
+        add(source: string, data: any): ICacheRecord;
+        query(source: string): ICacheRecord;
+        private _sources;
+        private _keys;
+    }
+    class ResCapsule extends CResCapsule {
+        constructor(reqres: ReqResource[], ewd: EventWeakDispatcher);
+        dispose(): void;
+        private _ewd;
+        protected loadOne(rr: ReqResource, cb: () => void, ctx: any): void;
+        protected total(): number;
+    }
+    class _ResManager extends CResManager {
+        constructor();
+        private _ewd;
+        cache: _ResMemcache;
+        loadConfig(file: string, cb: (e: any) => void, ctx: any): void;
+        cacheEnabled: boolean;
+        private _cfg_loaded(e);
+        private _grp_complete(e);
+        private _grp_failed(e);
+        private _grp_progress(e);
+        isGroupsArrayLoaded(grps: string[]): boolean;
+        private _capsules;
+        capsules(grps: ReqResource[]): CResCapsule;
+        removeCapsule(cp: CResCapsule): void;
+        tryGetRes(key: string): ICacheRecord;
+        getResAsync(key: string, priority: ResPriority, cb: (rcd: ICacheRecord) => void, ctx?: any): void;
+        if(DEBUG: any): void;
+        getResUrl(key: string): string;
+        getResByUrl(src: UriSource, priority: ResPriority, cb: (rcd: ICacheRecord | CacheRecord) => void, ctx: any, type: ResType): void;
+        hasAsyncUri(uri: UriSource): boolean;
+        getTexture(src: TextureSource, priority: ResPriority, cb: (tex: ICacheTexture) => void, ctx: any): void;
+        getBitmapFont(src: FontSource, priority: ResPriority, cb: (fnt: ICacheFont) => void, ctx: any): void;
+        getSound(src: SoundSource, priority: ResPriority, cb: (snd: ICacheSound) => void, ctx: any): void;
+    }
 }
 declare module nn {
     class SocketModel extends SObject {
@@ -5305,87 +5415,12 @@ declare module nn {
     var SocketSession: ISocketSession;
 }
 declare module nn {
-    type SoundSource = UriSource | COriginType | egret.Sound;
-    /** 音频播放 */
-    class SoundPlayer extends SObject {
+    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
+    class _DatasManager extends nn.SObject {
         constructor();
-        protected _initSignals(): void;
-        dispose(): void;
-        /** 播放次数，-1代表循环 */
-        count: number;
-        /** 音频的组名 */
-        resourceGroups: string[];
-        _enable: boolean;
-        enable: boolean;
-        /** 自动恢复播放状态 */
-        autoRecovery: boolean;
-        private _prePlayingState;
-        /** 音频文件的名称, 一个player只能对应一个声音，如过已经设置，则报错 */
-        private _mediaSource;
-        setMediaSource(ms: string): void;
-        protected _hdl: egret.Sound;
-        protected _cnl: egret.SoundChannel;
-        protected setHdl(val: egret.Sound): void;
-        protected setCnl(cnl: egret.SoundChannel): void;
-        private _position;
-        readonly position: number;
-        protected _playingState: WorkState;
-        /** 开始播放 */
-        play(): void;
-        /** 重新播放 */
-        replay(): void;
-        /** 暂停 */
-        pause(): void;
-        /** 恢复 */
-        resume(): void;
-        /** 停止 */
-        stop(): void;
-        /** 打断播放 */
-        breakee(): void;
-        readonly isPlaying: boolean;
-        readonly isPaused: boolean;
-        private __cb_end();
-        private __cb_pause();
-        private __cb_play();
+        _load(): void;
     }
-    class SoundTrack extends SObject {
-        constructor();
-        /** 播放次数，-1代表无限循环 */
-        count: number;
-        /** 同时只能有一个在播放 */
-        solo: boolean;
-        /** 用以实现player的类对象 */
-        classForPlayer: typeof SoundPlayer;
-        /** 自动恢复 */
-        _autoRecovery: boolean;
-        autoRecovery: boolean;
-        /** 资源组 */
-        resourceGroups: string[];
-        /** 可用状态 */
-        _enable: boolean;
-        enable: boolean;
-        /** 获取一个播放器 */
-        player(name: string, ...groups: string[]): SoundPlayer;
-        /** 实例化一个播放器，播放完成后会自动清掉 */
-        acquire(name: string, ...groups: string[]): SoundPlayer;
-        protected _sounds: KvObject<string, SoundPlayer>;
-        private _soloplayer;
-        private __cb_play(s);
-        /** 播放全部 */
-        play(): void;
-        /** 停止全部 */
-        stop(): void;
-        private __app_activate_enable;
-        _app_actived(): void;
-        _app_deactived(): void;
-    }
-    interface ISoundManager {
-        track(idr: string): SoundTrack;
-        background: SoundTrack;
-        effect: SoundTrack;
-        enable: boolean;
-    }
-    var SoundManager: ISoundManager;
+    let DatasManager: _DatasManager;
 }
 declare module nn {
     let FontFilePattern: RegExp;
