@@ -2667,6 +2667,69 @@ declare module tmp {
     function rtname(): string;
 }
 declare module nn {
+    class FrameTimer {
+        constructor();
+        /** 起始时间 ms */
+        start: number;
+        /** 点前的时间点 */
+        now: number;
+        /** 消耗时间 */
+        cost: number;
+        /** 过去了的时间 */
+        past: number;
+        /** 次数统计 */
+        count: number;
+    }
+    interface IFrameRender {
+        onRender(cost: number): any;
+    }
+    abstract class CFramesManager {
+        private _blayouts;
+        private _bzpositions;
+        private _bappears;
+        private _bcaches;
+        private _bmcs;
+        static _layoutthreshold: number;
+        protected onPrepare(): void;
+        protected onRendering(): void;
+        RENDERS: CSet<IFrameRender>;
+        /** 强制更新下一帧 */
+        abstract invalidate(): any;
+        /** 布局 */
+        needsLayout(c: CComponent): void;
+        cancelLayout(c: CComponent): void;
+        /** 调整Z顺序 */
+        needsZPosition(c: CComponent): void;
+        /** 显示 */
+        needsAppear(c: CComponent): void;
+        /** 刷新图形缓存 */
+        needsCache(c: CComponent): void;
+        /** 刷新内存缓存 */
+        needsGC(mc: Memcache): void;
+        abstract launch(c: any): any;
+        private _ft;
+    }
+    let FramesManager: CFramesManager;
+}
+declare module nn {
+    class Bitmap extends CBitmap {
+        constructor(res?: TextureSource);
+        protected _bmp: ExtBitmap;
+        protected onChangeState(obj: any): void;
+        bestFrame(inrc?: Rect): Rect;
+        protected _getTexture(): egret.Texture;
+        /** 按照材质的大小设置显示的大小 */
+        autoFit: boolean;
+        private _imageSource;
+        imageSource: TextureSource;
+        protected _setTexture(tex: egret.Texture): void;
+        updateLayout(): void;
+    }
+    class Picture extends Bitmap {
+        constructor(res?: TextureSource);
+    }
+}
+declare module nn {
     class ExtHtmlTextParser extends egret.HtmlTextParser {
         constructor();
         parser(htmltext: string): Array<egret.ITextElement>;
@@ -2710,6 +2773,121 @@ declare module nn {
         href(re: RegExp, cb: (url: string) => void, ctx?: any): void;
         private __lbl_link(e);
     }
+}
+declare module nn {
+    interface ITableDataSource {
+        /** 多少行 */
+        numberOfRows(): number;
+        /** 对应行的类型 */
+        classForRow(row: number): any;
+        /** 行高 */
+        heightForRow(row: number): number;
+        /** 设置该行 */
+        updateRow(item: any, cell: TableViewCell, row: number): any;
+    }
+    /** 对于可以调整高度，或者存在 ui 和 data 重入的问题，通过这个参数来分别判断是 UI 过程还是 DATA 过程
+     * @brief 例如在 tableview 中应用时，如果是变高，则 updateData 会重入2次，一次是 UI 过程(粗布局)，一次是 DATA 过程(刷数据显示)，之后就可以拿到实高，但是 updateData 里面会有例如设置图片的操作，而这些操作仅需要在 UI 过程中被调用，所以可以通过该变量区分开
+     */
+    let DATAUPDATE: boolean;
+    class TableViewCell extends Sprite {
+        constructor();
+        static FromItem(cv: CComponent): TableViewCell;
+        _item: any;
+        item: any;
+        updateData(): void;
+        updateLayout(): void;
+        _row: number;
+        row: number;
+    }
+    class TableViewContent extends ScrollView {
+        constructor();
+        protected _initSignals(): void;
+        dispose(): void;
+        /** 是否支持重用的模式
+            @note 关闭重用的好处：固定列表的大小，不需要考虑item重入的问题
+        */
+        reuseMode: boolean;
+        /** 默认的的行显示类型 */
+        rowClass: any;
+        /** 默认的cell类型 */
+        cellClass: typeof TableViewCell;
+        /** 默认的行高 */
+        rowHeight: number;
+        /** 是否横向 */
+        horizonMode: boolean;
+        /** 数据代理 */
+        dataSource: ITableDataSource;
+        /** 间距 */
+        spacing: number;
+        updateLayout(): void;
+        _headerEdgeInsets: EdgeInsets;
+        headerEdgeInsets: EdgeInsets;
+        _footerEdgeInsets: EdgeInsets;
+        footerEdgeInsets: EdgeInsets;
+        _additionEdgeInsets: EdgeInsets;
+        additionEdgeInsets: EdgeInsets;
+        _topIdentifierEdgeInsets: EdgeInsets;
+        topIdentifierEdgeInsets: EdgeInsets;
+        _bottomIdentifierEdgeInsets: EdgeInsets;
+        bottomIdentifierEdgeInsets: EdgeInsets;
+        protected _updateEdgeInsets(): void;
+        clear(): void;
+        reloadData(): void;
+        protected addOneReuseItem(item: any): void;
+        protected getOneReuseItem(type: any): any;
+        protected instanceItem(type: any): any;
+        /** 查找指定的单元格 */
+        findCell(row?: number): TableViewCell;
+        /** 滚动到指定单元格 */
+        scrollToCell(idx: number, duration?: number, edge?: EDGE): void;
+        /** 滚动到指定位置 */
+        scrollToPos(pos: number, duration?: number): void;
+        /** 获取所有可见的单元格 */
+        readonly visibledCells: Array<TableViewCell>;
+        protected useCell(row: number): TableViewCell;
+        protected unuseCell(cell: TableViewCell): void;
+        protected popUsedCell(): void;
+        protected updateRow(item: any, cell: TableViewCell, row: number): void;
+        protected _updateConstriant(s: Slot): void;
+        protected _updateValidCells(update: any): void;
+        private _usedCells;
+        private _unusedCells;
+        private _rowHeights;
+        private _reuseItems;
+        onPositionChanged(): void;
+        /** 表头 */
+        protected _headerView: Component;
+        headerView: Component;
+        /** 表尾 */
+        protected _footerView: Component;
+        footerView: Component;
+        protected _layoutViews(): void;
+    }
+    class TableView extends Sprite implements ITableDataSource {
+        constructor();
+        static FromItem(cv: CComponent): TableView;
+        protected instanceTable(): TableViewContent;
+        protected _table: TableViewContent;
+        readonly table: TableViewContent;
+        classForRow(row: number): any;
+        heightForRow(row: number): number;
+        updateRow(item: any, cell: TableViewCell, row: number): void;
+        numberOfRows(): number;
+        updateLayout(): void;
+    }
+}
+declare let document_class: any;
+declare let document_orientation: any;
+declare module nn {
+    class EgretApp extends CApplication {
+        constructor();
+        fontFamily: string;
+    }
+    let EUI_MODE: boolean;
+}
+declare module egret {
+    var VERSION: number;
+    function MAKE_VERSION(maj: any, min: any, patch: any): any;
 }
 declare module nn {
     class HtmlBuilder {
@@ -2819,18 +2997,114 @@ declare module nn {
     }
     let Dom: _Dom;
 }
-declare let document_class: any;
-declare let document_orientation: any;
 declare module nn {
-    class EgretApp extends CApplication {
+    type ClipSource = ClipConfig;
+    abstract class CMovieClip extends Widget {
         constructor();
-        fontFamily: string;
+        protected _initSignals(): void;
+        /** 播放次数，-1代表循环，默认为一次*/
+        count: number;
+        /** 帧率 */
+        fps: number;
+        /** 切换clipSource时清空原来的clip */
+        clearOnChanging: boolean;
+        /** 序列帧资源 */
+        clipSource: ClipSource;
+        /** 目标序列帧的名称 */
+        clip: string;
+        /** 序列帧播放的位置 */
+        location: number;
+        onAppeared(): void;
+        private __autopaused;
+        onDisappeared(): void;
+        /** 是否自动播放 */
+        autoPlay: boolean;
+        /** 是否正在播放 */
+        abstract isPlaying(): boolean;
+        /** 暂停动画 */
+        abstract stop(): any;
+        /** 播放动画 */
+        abstract play(): any;
+        /** 附加缩放 */
+        additionScale: number;
+        /** 填充方式 */
+        fillMode: FillMode;
+        /** 反方向播放 */
+        reverseMode: boolean;
+        /** 序列帧的对齐位置 */
+        clipAlign: POSITION;
+        /** flashMode 采用 flash 标记的锚点来显示动画
+            @note 这种模式下请设置 fillMode 为 CENTER
+        */
+        flashMode: boolean;
+        /** flashAnchor flash模式下使用的锚点信息 */
+        flashAnchorPoint: Point;
     }
-    let EUI_MODE: boolean;
+    class ClipConfig implements IReqResources {
+        /**
+           @name 资源名称，资源由 json\bmp 组成，如过传入的时候没有带后缀，则自动加上后缀
+           @res 动作文件，通常为 _json
+           @tex 素材平成，通常为 _png
+        */
+        constructor(name?: string, res?: string, tex?: string);
+        private _frame;
+        private _texture;
+        frame: UriSource;
+        texture: UriSource;
+        /** 名字 */
+        private _name;
+        name: string;
+        /** OPT 帧速 */
+        fps: number;
+        /** OPT 依赖的资源组 */
+        resourceGroups: Array<string>;
+        /** OPT 附加缩放 */
+        additionScale: number;
+        /** OPT 是否为独立数据，否则同一个资源公用一份帧数据 */
+        key: string;
+        readonly hashCode: number;
+        isEqual(r: this): boolean;
+        getReqResources(): Array<ReqResource>;
+        toString(): string;
+    }
 }
-declare module egret {
-    var VERSION: number;
-    function MAKE_VERSION(maj: any, min: any, patch: any): any;
+declare module nn {
+    /** 按钮类
+        @note 定义为具有点按状态、文字、图片的元素，可以通过子类化来调整文字、图片的布局方式
+     */
+    abstract class CButton extends Widget implements IState {
+        constructor();
+        static STATE_NORMAL: string;
+        static STATE_DISABLED: string;
+        static STATE_HIGHLIGHT: string;
+        static STATE_SELECTED: string;
+        /** 是否可用 */
+        disabled: boolean;
+        /** 字体大小 */
+        fontSize: number;
+        /** 文字颜色 */
+        textColor: ColorType;
+        /** 内容 */
+        text: string;
+        /** 对齐方式 */
+        textAlign: string;
+        /** 图片 */
+        imageSource: TextureSource;
+        /** 普通的状态 */
+        stateNormal: State;
+        /** 禁用的状态 */
+        stateDisabled: State;
+        /** 高亮的状态 */
+        stateHighlight: State;
+        /** 选中的状态 */
+        stateSelected: State;
+        /** 点击频度限制 */
+        eps: number;
+        _signalConnected(sig: string, s?: Slot): void;
+        protected _initSignals(): void;
+        isSelection(): boolean;
+        protected _isSelected: boolean;
+    }
 }
 declare module nn {
     let ERROR_NETWORK_FAILED: number;
@@ -2914,235 +3188,6 @@ declare module nn {
         readonly allItems: Array<ItemT>;
         previous(): boolean;
         next(): boolean;
-    }
-}
-declare module nn {
-    interface ITableDataSource {
-        /** 多少行 */
-        numberOfRows(): number;
-        /** 对应行的类型 */
-        classForRow(row: number): any;
-        /** 行高 */
-        heightForRow(row: number): number;
-        /** 设置该行 */
-        updateRow(item: any, cell: TableViewCell, row: number): any;
-    }
-    /** 对于可以调整高度，或者存在 ui 和 data 重入的问题，通过这个参数来分别判断是 UI 过程还是 DATA 过程
-     * @brief 例如在 tableview 中应用时，如果是变高，则 updateData 会重入2次，一次是 UI 过程(粗布局)，一次是 DATA 过程(刷数据显示)，之后就可以拿到实高，但是 updateData 里面会有例如设置图片的操作，而这些操作仅需要在 UI 过程中被调用，所以可以通过该变量区分开
-     */
-    let DATAUPDATE: boolean;
-    class TableViewCell extends Sprite {
-        constructor();
-        static FromItem(cv: CComponent): TableViewCell;
-        _item: any;
-        item: any;
-        updateData(): void;
-        updateLayout(): void;
-        _row: number;
-        row: number;
-    }
-    class TableViewContent extends ScrollView {
-        constructor();
-        protected _initSignals(): void;
-        dispose(): void;
-        /** 是否支持重用的模式
-            @note 关闭重用的好处：固定列表的大小，不需要考虑item重入的问题
-        */
-        reuseMode: boolean;
-        /** 默认的的行显示类型 */
-        rowClass: any;
-        /** 默认的cell类型 */
-        cellClass: typeof TableViewCell;
-        /** 默认的行高 */
-        rowHeight: number;
-        /** 是否横向 */
-        horizonMode: boolean;
-        /** 数据代理 */
-        dataSource: ITableDataSource;
-        /** 间距 */
-        spacing: number;
-        updateLayout(): void;
-        _headerEdgeInsets: EdgeInsets;
-        headerEdgeInsets: EdgeInsets;
-        _footerEdgeInsets: EdgeInsets;
-        footerEdgeInsets: EdgeInsets;
-        _additionEdgeInsets: EdgeInsets;
-        additionEdgeInsets: EdgeInsets;
-        _topIdentifierEdgeInsets: EdgeInsets;
-        topIdentifierEdgeInsets: EdgeInsets;
-        _bottomIdentifierEdgeInsets: EdgeInsets;
-        bottomIdentifierEdgeInsets: EdgeInsets;
-        protected _updateEdgeInsets(): void;
-        clear(): void;
-        reloadData(): void;
-        protected addOneReuseItem(item: any): void;
-        protected getOneReuseItem(type: any): any;
-        protected instanceItem(type: any): any;
-        /** 查找指定的单元格 */
-        findCell(row?: number): TableViewCell;
-        /** 滚动到指定单元格 */
-        scrollToCell(idx: number, duration?: number, edge?: EDGE): void;
-        /** 滚动到指定位置 */
-        scrollToPos(pos: number, duration?: number): void;
-        /** 获取所有可见的单元格 */
-        readonly visibledCells: Array<TableViewCell>;
-        protected useCell(row: number): TableViewCell;
-        protected unuseCell(cell: TableViewCell): void;
-        protected popUsedCell(): void;
-        protected updateRow(item: any, cell: TableViewCell, row: number): void;
-        protected _updateConstriant(s: Slot): void;
-        protected _updateValidCells(update: any): void;
-        private _usedCells;
-        private _unusedCells;
-        private _rowHeights;
-        private _reuseItems;
-        onPositionChanged(): void;
-        /** 表头 */
-        protected _headerView: Component;
-        headerView: Component;
-        /** 表尾 */
-        protected _footerView: Component;
-        footerView: Component;
-        protected _layoutViews(): void;
-    }
-    class TableView extends Sprite implements ITableDataSource {
-        constructor();
-        static FromItem(cv: CComponent): TableView;
-        protected instanceTable(): TableViewContent;
-        protected _table: TableViewContent;
-        readonly table: TableViewContent;
-        classForRow(row: number): any;
-        heightForRow(row: number): number;
-        updateRow(item: any, cell: TableViewCell, row: number): void;
-        numberOfRows(): number;
-        updateLayout(): void;
-    }
-}
-declare module nn {
-    /** 按钮类
-        @note 定义为具有点按状态、文字、图片的元素，可以通过子类化来调整文字、图片的布局方式
-     */
-    abstract class CButton extends Widget implements IState {
-        constructor();
-        static STATE_NORMAL: string;
-        static STATE_DISABLED: string;
-        static STATE_HIGHLIGHT: string;
-        static STATE_SELECTED: string;
-        /** 是否可用 */
-        disabled: boolean;
-        /** 字体大小 */
-        fontSize: number;
-        /** 文字颜色 */
-        textColor: ColorType;
-        /** 内容 */
-        text: string;
-        /** 对齐方式 */
-        textAlign: string;
-        /** 图片 */
-        imageSource: TextureSource;
-        /** 普通的状态 */
-        stateNormal: State;
-        /** 禁用的状态 */
-        stateDisabled: State;
-        /** 高亮的状态 */
-        stateHighlight: State;
-        /** 选中的状态 */
-        stateSelected: State;
-        /** 点击频度限制 */
-        eps: number;
-        _signalConnected(sig: string, s?: Slot): void;
-        protected _initSignals(): void;
-        isSelection(): boolean;
-        protected _isSelected: boolean;
-    }
-}
-declare module nn {
-    class Bitmap extends CBitmap {
-        constructor(res?: TextureSource);
-        protected _bmp: ExtBitmap;
-        protected onChangeState(obj: any): void;
-        bestFrame(inrc?: Rect): Rect;
-        protected _getTexture(): egret.Texture;
-        /** 按照材质的大小设置显示的大小 */
-        autoFit: boolean;
-        private _imageSource;
-        imageSource: TextureSource;
-        protected _setTexture(tex: egret.Texture): void;
-        updateLayout(): void;
-    }
-    class Picture extends Bitmap {
-        constructor(res?: TextureSource);
-    }
-}
-declare module nn {
-    type ClipSource = ClipConfig;
-    abstract class CMovieClip extends Widget {
-        constructor();
-        protected _initSignals(): void;
-        /** 播放次数，-1代表循环，默认为一次*/
-        count: number;
-        /** 帧率 */
-        fps: number;
-        /** 切换clipSource时清空原来的clip */
-        clearOnChanging: boolean;
-        /** 序列帧资源 */
-        clipSource: ClipSource;
-        /** 目标序列帧的名称 */
-        clip: string;
-        /** 序列帧播放的位置 */
-        location: number;
-        onAppeared(): void;
-        private __autopaused;
-        onDisappeared(): void;
-        /** 是否自动播放 */
-        autoPlay: boolean;
-        /** 是否正在播放 */
-        abstract isPlaying(): boolean;
-        /** 暂停动画 */
-        abstract stop(): any;
-        /** 播放动画 */
-        abstract play(): any;
-        /** 附加缩放 */
-        additionScale: number;
-        /** 填充方式 */
-        fillMode: FillMode;
-        /** 反方向播放 */
-        reverseMode: boolean;
-        /** 序列帧的对齐位置 */
-        clipAlign: POSITION;
-        /** flashMode 采用 flash 标记的锚点来显示动画
-            @note 这种模式下请设置 fillMode 为 CENTER
-        */
-        flashMode: boolean;
-        /** flashAnchor flash模式下使用的锚点信息 */
-        flashAnchorPoint: Point;
-    }
-    class ClipConfig implements IReqResources {
-        /**
-           @name 资源名称，资源由 json\bmp 组成，如过传入的时候没有带后缀，则自动加上后缀
-           @res 动作文件，通常为 _json
-           @tex 素材平成，通常为 _png
-        */
-        constructor(name?: string, res?: string, tex?: string);
-        private _frame;
-        private _texture;
-        frame: UriSource;
-        texture: UriSource;
-        /** 名字 */
-        private _name;
-        name: string;
-        /** OPT 帧速 */
-        fps: number;
-        /** OPT 依赖的资源组 */
-        resourceGroups: Array<string>;
-        /** OPT 附加缩放 */
-        additionScale: number;
-        /** OPT 是否为独立数据，否则同一个资源公用一份帧数据 */
-        key: string;
-        readonly hashCode: number;
-        isEqual(r: this): boolean;
-        getReqResources(): Array<ReqResource>;
-        toString(): string;
     }
 }
 declare module nn {
@@ -3777,101 +3822,69 @@ declare module nn {
     let SignalClose: string;
 }
 declare module nn {
-    class FrameTimer {
+    /** 骨骼的配置信息 */
+    class BoneConfig implements IReqResources {
+        /**
+           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
+           @character 角色名称，通常和name一致
+           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
+           @place 材质节点的位置配置文件，通常为 texture_json 结尾
+           @texture 图片文件，通常为 texture_png 结尾
+        */
+        constructor(name?: string, character?: string, skeleton?: string, place?: string, texture?: string);
+        resourceGroups: Array<string>;
+        protected _skeleton: string;
+        protected _place: string;
+        protected _texture: string;
+        protected _character: string;
+        fps: number;
+        protected _name: string;
+        name: string;
+        skeleton: string;
+        place: string;
+        texture: string;
+        character: string;
+        getReqResources(): Array<ReqResource>;
+    }
+    type BoneSource = BoneData | BoneConfig | UriSource;
+    /** 业务使用的骨骼显示类 */
+    abstract class CBones extends Widget {
         constructor();
-        /** 起始时间 ms */
-        start: number;
-        /** 点前的时间点 */
-        now: number;
-        /** 消耗时间 */
-        cost: number;
-        /** 过去了的时间 */
-        past: number;
-        /** 次数统计 */
+        protected _initSignals(): void;
+        /** 骨骼的配置 */
+        boneSource: BoneSource;
+        /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
+        additionScale: number;
+        /** 骨骼填充的方式，默认为充满 */
+        fillMode: FillMode;
+        /** 对齐位置 */
+        clipAlign: POSITION;
+        /** 具体动作 */
+        motion: string;
+        abstract pushMotion(val: string): any;
+        abstract popMotion(): any;
+        /** 当前含有的所有动作 */
+        abstract motions(): Array<string>;
+        /** 是否含有该动作 */
+        abstract hasMotion(val: string): boolean;
+        /** 自动开始播放 */
+        autoPlay: boolean;
+        /** 播放次数控制
+            -1: 循环
+            0: 使用文件设置的次数
+            >0: 次数控制
+        */
         count: number;
+        /** 播放 */
+        abstract play(): any;
+        /** 停止播放 */
+        abstract stop(): any;
     }
-    interface IFrameRender {
-        onRender(cost: number): any;
-    }
-    abstract class CFramesManager {
-        private _blayouts;
-        private _bzpositions;
-        private _bappears;
-        private _bcaches;
-        private _bmcs;
-        static _layoutthreshold: number;
-        protected onPrepare(): void;
-        protected onRendering(): void;
-        RENDERS: CSet<IFrameRender>;
-        /** 强制更新下一帧 */
-        abstract invalidate(): any;
-        /** 布局 */
-        needsLayout(c: CComponent): void;
-        cancelLayout(c: CComponent): void;
-        /** 调整Z顺序 */
-        needsZPosition(c: CComponent): void;
-        /** 显示 */
-        needsAppear(c: CComponent): void;
-        /** 刷新图形缓存 */
-        needsCache(c: CComponent): void;
-        /** 刷新内存缓存 */
-        needsGC(mc: Memcache): void;
-        abstract launch(c: any): any;
-        private _ft;
-    }
-    let FramesManager: CFramesManager;
 }
 declare module nn {
     abstract class CDom extends Component {
         /** html源代码 */
         text: string;
-    }
-}
-declare module nn.developer {
-    class FileDialog {
-        filter: string;
-        pathForSave(cb: (ph: string) => void): void;
-        pathForOpen(cb: (ph: string) => void): void;
-        pathForDir(cb: (ph: string) => void): void;
-    }
-    class FileSystem {
-        /** 创建文件夹
-            @param p Create intermediate directories as required
-        */
-        mkdir(path: string, p: boolean, cb: () => void): void;
-    }
-    class Image extends SObject {
-        open(path: string, cb: (suc: boolean) => void): void;
-        save(path: string, cb: (suc: boolean) => void): void;
-        scale(x: number, y: number, cb: (img: Image) => void): void;
-        subimage(rc: Rect, cb: (sub: Image) => void): void;
-        private _hdl;
-    }
-}
-declare module nn {
-    /** 用来将标准对象包装成业务对象 */
-    class BridgedComponent extends Component {
-        constructor(tgt: any);
-        static Wrapper(tgt: any): BridgedComponent;
-        static FromImp(tgt: any): BridgedComponent;
-        protected createImp(): void;
-        readonly signals: Signals;
-        protected _initSignals(): void;
-        readonly descriptionName: string;
-        bestFrame(): Rect;
-        bestPosition(): Point;
-        updateCache(): void;
-        grab(): void;
-        drop(): void;
-        onAppeared(): void;
-        onDisappeared(): void;
-    }
-}
-declare module nn {
-    class CoreApplication extends EgretApp {
-        constructor();
-        /** 设置根页面 */
-        root: CComponent;
     }
 }
 declare var LZString: {
@@ -3918,9 +3931,29 @@ declare module nn {
     }
 }
 declare module nn {
-    class Font {
-        static sizeOfString(str: string, fontSize: number, width: number, height: number): Size;
-        static sizeFitString(str: string, fontSize: number, width: number, height: number, lineSpacing: number): Size;
+    /** 用来将标准对象包装成业务对象 */
+    class BridgedComponent extends Component {
+        constructor(tgt: any);
+        static Wrapper(tgt: any): BridgedComponent;
+        static FromImp(tgt: any): BridgedComponent;
+        protected createImp(): void;
+        readonly signals: Signals;
+        protected _initSignals(): void;
+        readonly descriptionName: string;
+        bestFrame(): Rect;
+        bestPosition(): Point;
+        updateCache(): void;
+        grab(): void;
+        drop(): void;
+        onAppeared(): void;
+        onDisappeared(): void;
+    }
+}
+declare module nn {
+    class CoreApplication extends EgretApp {
+        constructor();
+        /** 设置根页面 */
+        root: CComponent;
     }
 }
 declare module nn {
@@ -3936,6 +3969,20 @@ declare module nn {
         private __cnt_error(e);
         private _prg;
         private __cnt_progress(e);
+    }
+}
+declare module nn {
+    class Font {
+        static sizeOfString(str: string, fontSize: number, width: number, height: number): Size;
+        static sizeFitString(str: string, fontSize: number, width: number, height: number, lineSpacing: number): Size;
+    }
+}
+declare module nn {
+    class _FramesManager extends CFramesManager {
+        launch(c: egret.DisplayObject): void;
+        protected onPrepare(): void;
+        private __invalidating;
+        invalidate(): void;
     }
 }
 declare module nn {
@@ -3985,12 +4032,6 @@ declare module nn {
     }
 }
 declare module nn {
-    class _FramesManager extends CFramesManager {
-        launch(c: egret.DisplayObject): void;
-        protected onPrepare(): void;
-        private __invalidating;
-        invalidate(): void;
-    }
 }
 declare module nn {
     /** 弹出的对话框类型
@@ -4109,147 +4150,6 @@ declare module nn {
     }
 }
 declare module nn {
-}
-declare module nn {
-    class Slider extends Widget implements IProgress {
-        constructor();
-        dispose(): void;
-        _initSignals(): void;
-        _identifierView: CComponent;
-        identifierView: CComponent;
-        /** 水平模式 */
-        horizonMode: boolean;
-        _progressValue: Percentage;
-        progressValue: Percentage;
-        updateLayout(): void;
-        private __sld_touchchanged(s);
-    }
-}
-declare module nn {
-    class EntrySettings {
-        /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
-        singletone: boolean;
-        /** 其他数据 */
-        ext: any;
-        static Default: EntrySettings;
-    }
-    interface IEntry {
-        /** 模块的配置 */
-        entrySettings?: EntrySettings;
-    }
-    interface ILauncher {
-        /** 处理模块的启动
-            @param cls 待启动模块的类
-            @param data 附加的参数
-        */
-        launchEntry(cls: any, data?: any): any;
-    }
-    abstract class Manager extends SObject {
-        /** 初始化自己和其它manager或者其它对象之间的关系 */
-        abstract onLoaded(): any;
-        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
-        onDataLoaded(): void;
-    }
-    abstract class Managers extends SObject {
-        register<T>(obj: T): T;
-        onLoaded(): void;
-        onDataLoaded(): void;
-        protected _managers: Manager[];
-    }
-    interface IEntryClass {
-        name: string;
-        clazz: () => Function;
-    }
-    type EntryIdrToLauncherIdr = (entryidr: string) => string;
-    type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
-    type EntryClassType = Function | IEntryClass;
-    class _EntriesManager {
-        /** 注册一个模块
-            @param entryClass类
-        */
-        register(entryClass: EntryClassType, data?: EntrySettings): void;
-        /** 启动一个模块
-            @param entry 类或者标类名
-            @param launcher 启动点的标示号或者启动点的实例
-            @pram data 附加的参数
-        */
-        invoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
-        protected _doInvoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
-        private _entries;
-        private _entriesdata;
-        toString(): string;
-    }
-    let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
-    let EntriesManager: _EntriesManager;
-    class _LaunchersManager extends nn.SObject {
-        constructor();
-        protected _initSignals(): void;
-        /** 注册一个启动器 */
-        register(obj: ILauncher): void;
-        /** 取消 */
-        unregister(obj: ILauncher): void;
-        /** 查找一个启动器 */
-        find(str: string): ILauncher;
-        private _launchers;
-        toString(): string;
-    }
-    let LaunchersManager: _LaunchersManager;
-}
-declare module nn {
-    /** tab的页面接口 */
-    interface ITabPage {
-        /** 用于切换操作的button
-            @note 如果tabButton不是由page自己管理（业务手动添加tabButton到某一个view中），则tab自动添加tabButton作为子控件，业务通过控制edgeInsets来布局
-        */
-        tabButton: CButton;
-    }
-    interface SelectionTabData extends SelectionData {
-        oldTabButton: CButton;
-        nowTabButton: CButton;
-    }
-    class TabStack extends ViewStack {
-        constructor();
-        /** 也可以在tab中直接定义各个按钮 */
-        static TabButton: (page: StackPageType, idx?: number) => CButton;
-        tabButtons: Array<Button>;
-        clear(): void;
-        pages: Array<StackPageType>;
-        private _selection;
-        selection: number;
-        protected _getPageTabButton(page: StackPageType, idx: number): CButton;
-        protected setViews(arr: Array<StackPageType>): void;
-        protected _addPage(page: StackPageType, aschild: boolean): void;
-        push(page: StackPageType, animated?: boolean): boolean;
-        protected _selsgrp: SelectionsGroup;
-        private __cbSelsChanged(e);
-        protected _emitSelectionChanged(now: CComponent, old: CComponent): void;
-        protected setPageFrame(page: CComponent): void;
-    }
-}
-declare module nn {
-    class Tips extends Sprite {
-        constructor();
-        dispose(): void;
-        protected _initSignals(): void;
-        /** 尖头 */
-        identifier: Bitmap;
-        private _target;
-        /** 指向的目标 */
-        readonly target: CComponent;
-        /** 延迟自动关闭 */
-        delayClose: number;
-        private _base;
-        onAppeared(): void;
-        /** 作为子控件来显示 */
-        showTo(target: CComponent, parent?: CComponent): void;
-        protected instanceDesktop(): Desktop;
-        /** 作为弹出来显示 */
-        popupTo(target: CComponent, autoopen?: boolean): Desktop;
-        close(): void;
-        protected _layoutTips(): void;
-    }
-}
-declare module nn {
     interface ICollectionDataSource {
         /** 元素总数目 */
         numberOfItems(): number;
@@ -4330,15 +4230,90 @@ declare module nn {
     }
 }
 declare module nn {
-    /** 按键数据 */
-    class CKeyboard {
-        key: string;
-        code: number;
+    class Slider extends Widget implements IProgress {
+        constructor();
+        dispose(): void;
+        _initSignals(): void;
+        _identifierView: CComponent;
+        identifierView: CComponent;
+        /** 水平模式 */
+        horizonMode: boolean;
+        _progressValue: Percentage;
+        progressValue: Percentage;
+        updateLayout(): void;
+        private __sld_touchchanged(s);
     }
-    interface IKeyboard extends ISObject {
-        visible: boolean;
+}
+declare module nn {
+    /** 连续图片（背景） */
+    class ContinuousBitmap extends Widget {
+        constructor();
+        private _bmpn;
+        private _bmpb;
+        imageSource: TextureSource;
+        updateLayout(): void;
+        /** 方向，先默认实现为水平 */
+        direction: Direction;
+        private _pos;
+        /** 偏移的距离 */
+        offset(v: number): void;
+        /** 直接设置位置 */
+        position(v: number): void;
     }
-    let Keyboard: IKeyboard;
+}
+declare module nn {
+    /** tab的页面接口 */
+    interface ITabPage {
+        /** 用于切换操作的button
+            @note 如果tabButton不是由page自己管理（业务手动添加tabButton到某一个view中），则tab自动添加tabButton作为子控件，业务通过控制edgeInsets来布局
+        */
+        tabButton: CButton;
+    }
+    interface SelectionTabData extends SelectionData {
+        oldTabButton: CButton;
+        nowTabButton: CButton;
+    }
+    class TabStack extends ViewStack {
+        constructor();
+        /** 也可以在tab中直接定义各个按钮 */
+        static TabButton: (page: StackPageType, idx?: number) => CButton;
+        tabButtons: Array<Button>;
+        clear(): void;
+        pages: Array<StackPageType>;
+        private _selection;
+        selection: number;
+        protected _getPageTabButton(page: StackPageType, idx: number): CButton;
+        protected setViews(arr: Array<StackPageType>): void;
+        protected _addPage(page: StackPageType, aschild: boolean): void;
+        push(page: StackPageType, animated?: boolean): boolean;
+        protected _selsgrp: SelectionsGroup;
+        private __cbSelsChanged(e);
+        protected _emitSelectionChanged(now: CComponent, old: CComponent): void;
+        protected setPageFrame(page: CComponent): void;
+    }
+}
+declare module nn {
+    class Tips extends Sprite {
+        constructor();
+        dispose(): void;
+        protected _initSignals(): void;
+        /** 尖头 */
+        identifier: Bitmap;
+        private _target;
+        /** 指向的目标 */
+        readonly target: CComponent;
+        /** 延迟自动关闭 */
+        delayClose: number;
+        private _base;
+        onAppeared(): void;
+        /** 作为子控件来显示 */
+        showTo(target: CComponent, parent?: CComponent): void;
+        protected instanceDesktop(): Desktop;
+        /** 作为弹出来显示 */
+        popupTo(target: CComponent, autoopen?: boolean): Desktop;
+        close(): void;
+        protected _layoutTips(): void;
+    }
 }
 declare module nn {
     class BitmapLabel extends CBitmapLabel {
@@ -4353,6 +4328,67 @@ declare module nn {
         text: string;
         private _fontSource;
         fontSource: FontSource;
+    }
+}
+declare module nn {
+    /** 按键数据 */
+    class CKeyboard {
+        key: string;
+        code: number;
+    }
+    interface IKeyboard extends ISObject {
+        visible: boolean;
+    }
+    let Keyboard: IKeyboard;
+}
+declare module nn {
+    class _BonesManager extends SObject {
+        constructor();
+        /** 使用Fast加速骨骼动画 */
+        turboMode: boolean;
+        /** 默认骨骼的帧速 */
+        fps: number;
+        protected _factory: dragonBones.EgretFactory;
+        instance(cfg: BoneConfig, cb: (bn: BoneData) => void, ctx?: any): void;
+        protected instanceOne(character: string, skeleton: string, place: string, texture: string, fps: number, cb: (d: BoneData) => void, ctx?: any): void;
+    }
+    function BonesManager(): _BonesManager;
+    type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
+    class BoneData {
+        constructor(am: ArmatureSource);
+        private _armature;
+        armature: ArmatureSource;
+        addLoop(): void;
+        rmLoop(): void;
+        calcFrameProgress(mo: string, frame: number): number;
+        playMotion(motion: string, times: number, stopAtProgress?: number): void;
+        seekToMotion(motion: string, time: number): void;
+        hasMotion(val: string): boolean;
+        bestFrame(): Rect;
+        readonly display: egret.DisplayObject;
+    }
+    class Bones extends CBones {
+        constructor();
+        dispose(): void;
+        private _playingState;
+        private _data;
+        protected getBoneData(): BoneData;
+        protected setBoneData(d: BoneData): void;
+        private _bs;
+        boneSource: BoneSource;
+        bestFrame(): Rect;
+        updateLayout(): void;
+        private _motions;
+        motion: string;
+        pushMotion(val: string): void;
+        popMotion(): void;
+        motions(): Array<string>;
+        hasMotion(val: string): boolean;
+        play(): void;
+        stop(): void;
+        private __db_start();
+        private __db_complete();
+        private __db_loopcomplete();
     }
 }
 declare module nn {
@@ -4402,82 +4438,6 @@ declare module nn {
         readonly length: number;
         private _old;
         private _store;
-    }
-}
-declare module nn {
-    /** 连续图片（背景） */
-    class ContinuousBitmap extends Widget {
-        constructor();
-        private _bmpn;
-        private _bmpb;
-        imageSource: TextureSource;
-        updateLayout(): void;
-        /** 方向，先默认实现为水平 */
-        direction: Direction;
-        private _pos;
-        /** 偏移的距离 */
-        offset(v: number): void;
-        /** 直接设置位置 */
-        position(v: number): void;
-    }
-}
-declare module nn {
-    /** 承载不同状态对应的外观 */
-    class State {
-        constructor(props?: {});
-        props: {};
-        change(o: {}): void;
-        static Text(text: string, color?: ColorType, size?: number): State;
-        static Color(textcolor: ColorType, backcolor?: ColorType): State;
-        static Image(image: TextureSource): State;
-        static BackgroundImage(image: TextureSource): State;
-        static Button(text?: string, image?: TextureSource, back?: TextureSource): State;
-        static As(obj: any): State;
-        setIn(ui: any): void;
-        protected _children: KvObject<any, State>;
-        readonly children: KvObject<any, State>;
-        add(idr: any, child: State): State;
-        remove(idr: any): State;
-    }
-    interface IState {
-        nextState?(state: any): any;
-        isSelection?(): boolean;
-        setSelection?(sel: boolean): any;
-    }
-    class States extends SObject {
-        constructor();
-        protected _initSignals(): void;
-        dispose(): void;
-        private _state;
-        state: any;
-        nullstate: any;
-        nullobj: any;
-        /** 修改一个状态 */
-        changeState(val: any, sig?: boolean): boolean;
-        /** 选中基于传入状态的下一个状态 */
-        next(state?: any, selection?: boolean, sig?: boolean): void;
-        updateData(skipnull?: boolean): void;
-        /** 绑定状态 */
-        bind(state: any, val: any, isnullstate?: boolean): States;
-        /** 查询状态 */
-        get(state: any): any;
-        private _states;
-        cbset: (obj: any) => void;
-        cbctx: any;
-    }
-}
-declare module nn {
-    interface CTextField {
-        /** 只读 */
-        readonly: boolean;
-        /** 占位文字 */
-        placeholder: string;
-        /** 占位字体颜色 */
-        placeholderTextColor: ColorType;
-        /** 多行编辑 */
-        multilines: boolean;
-        /** 安全编辑 */
-        securityInput: boolean;
     }
 }
 declare module nn {
@@ -4548,6 +4508,117 @@ declare module nn {
         private __cb_touchend(s);
         _recognizer: GestureRecognizer;
         direction: Direction;
+    }
+}
+declare module nn {
+    /** 承载不同状态对应的外观 */
+    class State {
+        constructor(props?: {});
+        props: {};
+        change(o: {}): void;
+        static Text(text: string, color?: ColorType, size?: number): State;
+        static Color(textcolor: ColorType, backcolor?: ColorType): State;
+        static Image(image: TextureSource): State;
+        static BackgroundImage(image: TextureSource): State;
+        static Button(text?: string, image?: TextureSource, back?: TextureSource): State;
+        static As(obj: any): State;
+        setIn(ui: any): void;
+        protected _children: KvObject<any, State>;
+        readonly children: KvObject<any, State>;
+        add(idr: any, child: State): State;
+        remove(idr: any): State;
+    }
+    interface IState {
+        nextState?(state: any): any;
+        isSelection?(): boolean;
+        setSelection?(sel: boolean): any;
+    }
+    class States extends SObject {
+        constructor();
+        protected _initSignals(): void;
+        dispose(): void;
+        private _state;
+        state: any;
+        nullstate: any;
+        nullobj: any;
+        /** 修改一个状态 */
+        changeState(val: any, sig?: boolean): boolean;
+        /** 选中基于传入状态的下一个状态 */
+        next(state?: any, selection?: boolean, sig?: boolean): void;
+        updateData(skipnull?: boolean): void;
+        /** 绑定状态 */
+        bind(state: any, val: any, isnullstate?: boolean): States;
+        /** 查询状态 */
+        get(state: any): any;
+        private _states;
+        cbset: (obj: any) => void;
+        cbctx: any;
+    }
+}
+declare module nn {
+    interface CTextField {
+        /** 只读 */
+        readonly: boolean;
+        /** 占位文字 */
+        placeholder: string;
+        /** 占位字体颜色 */
+        placeholderTextColor: ColorType;
+        /** 多行编辑 */
+        multilines: boolean;
+        /** 安全编辑 */
+        securityInput: boolean;
+    }
+}
+declare module nn {
+    interface IGridDataSource {
+        /** 多少个元素 */
+        numberOfItems(): number;
+        /** 元素的类型 */
+        classForItem(row: number, col: number, idx: number): any;
+        /** 更新元素 */
+        updateItem(item: any, row: number, col: number, idx: number): any;
+    }
+    class GridCellsItem extends Sprite {
+        constructor(cols: number, cls: any);
+        spacing: number;
+        updateLayout(): void;
+        itemAtIndex(idx: number): CComponent;
+        setItemAtIndex(item: CComponent, idx: number): void;
+        updateData(): void;
+        reuseAll(pool: IReusesPool): void;
+        private cells;
+    }
+    class GridViewCell extends Sprite {
+        private _item;
+        item: CComponent;
+        updateData(): void;
+        updateLayout(): void;
+    }
+    class GridViewContent extends TableViewContent {
+        constructor();
+        gridDataSource: IGridDataSource;
+        /** 默认的元素类型 */
+        itemClass: any;
+        /** 一行有几个 */
+        numberOfColumns: number;
+        /** 用来实现gridcell的类型 */
+        gridCellClass: typeof GridViewCell;
+        protected instanceItem(type: any): GridCellsItem;
+        protected instanceGridItem(cls: any): any;
+        protected updateRow(item: GridCellsItem, cell: TableViewCell, row: number): void;
+        protected addOneReuseItem(item: GridCellsItem): void;
+        private _reuseGridItems;
+    }
+    class GridView extends TableView implements IGridDataSource {
+        constructor();
+        protected instanceTable(): TableViewContent;
+        readonly grid: GridViewContent;
+        numberOfItems(): number;
+        /** 元素的类型 */
+        classForItem(row: number, col: number, idx: number): any;
+        /** 更新元素 */
+        updateItem(item: any, row: number, col: number, idx: number): void;
+        numberOfRows(): number;
     }
 }
 declare module nn {
@@ -4883,56 +4954,74 @@ declare module nn {
     }
 }
 declare module nn {
-    interface IGridDataSource {
-        /** 多少个元素 */
-        numberOfItems(): number;
-        /** 元素的类型 */
-        classForItem(row: number, col: number, idx: number): any;
-        /** 更新元素 */
-        updateItem(item: any, row: number, col: number, idx: number): any;
+    class EntrySettings {
+        /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
+        singletone: boolean;
+        /** 其他数据 */
+        ext: any;
+        static Default: EntrySettings;
     }
-    class GridCellsItem extends Sprite {
-        constructor(cols: number, cls: any);
-        spacing: number;
-        updateLayout(): void;
-        itemAtIndex(idx: number): CComponent;
-        setItemAtIndex(item: CComponent, idx: number): void;
-        updateData(): void;
-        reuseAll(pool: IReusesPool): void;
-        private cells;
+    interface IEntry {
+        /** 模块的配置 */
+        entrySettings?: EntrySettings;
     }
-    class GridViewCell extends Sprite {
-        private _item;
-        item: CComponent;
-        updateData(): void;
-        updateLayout(): void;
+    interface ILauncher {
+        /** 处理模块的启动
+            @param cls 待启动模块的类
+            @param data 附加的参数
+        */
+        launchEntry(cls: any, data?: any): any;
     }
-    class GridViewContent extends TableViewContent {
+    abstract class Manager extends SObject {
+        /** 初始化自己和其它manager或者其它对象之间的关系 */
+        abstract onLoaded(): any;
+        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
+        onDataLoaded(): void;
+    }
+    abstract class Managers extends SObject {
+        register<T>(obj: T): T;
+        onLoaded(): void;
+        onDataLoaded(): void;
+        protected _managers: Manager[];
+    }
+    interface IEntryClass {
+        name: string;
+        clazz: () => Function;
+    }
+    type EntryIdrToLauncherIdr = (entryidr: string) => string;
+    type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
+    type EntryClassType = Function | IEntryClass;
+    class _EntriesManager {
+        /** 注册一个模块
+            @param entryClass类
+        */
+        register(entryClass: EntryClassType, data?: EntrySettings): void;
+        /** 启动一个模块
+            @param entry 类或者标类名
+            @param launcher 启动点的标示号或者启动点的实例
+            @pram data 附加的参数
+        */
+        invoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
+        protected _doInvoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
+        private _entries;
+        private _entriesdata;
+        toString(): string;
+    }
+    let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
+    let EntriesManager: _EntriesManager;
+    class _LaunchersManager extends nn.SObject {
         constructor();
-        gridDataSource: IGridDataSource;
-        /** 默认的元素类型 */
-        itemClass: any;
-        /** 一行有几个 */
-        numberOfColumns: number;
-        /** 用来实现gridcell的类型 */
-        gridCellClass: typeof GridViewCell;
-        protected instanceItem(type: any): GridCellsItem;
-        protected instanceGridItem(cls: any): any;
-        protected updateRow(item: GridCellsItem, cell: TableViewCell, row: number): void;
-        protected addOneReuseItem(item: GridCellsItem): void;
-        private _reuseGridItems;
+        protected _initSignals(): void;
+        /** 注册一个启动器 */
+        register(obj: ILauncher): void;
+        /** 取消 */
+        unregister(obj: ILauncher): void;
+        /** 查找一个启动器 */
+        find(str: string): ILauncher;
+        private _launchers;
+        toString(): string;
     }
-    class GridView extends TableView implements IGridDataSource {
-        constructor();
-        protected instanceTable(): TableViewContent;
-        readonly grid: GridViewContent;
-        numberOfItems(): number;
-        /** 元素的类型 */
-        classForItem(row: number, col: number, idx: number): any;
-        /** 更新元素 */
-        updateItem(item: any, row: number, col: number, idx: number): void;
-        numberOfRows(): number;
-    }
+    let LaunchersManager: _LaunchersManager;
 }
 declare module nn {
     class _ParticlesManager {
@@ -5123,101 +5212,12 @@ declare module nn {
     }
 }
 declare module nn {
-    class _BonesManager extends SObject {
+    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
+    class _DatasManager extends nn.SObject {
         constructor();
-        /** 使用Fast加速骨骼动画 */
-        turboMode: boolean;
-        /** 默认骨骼的帧速 */
-        fps: number;
-        protected _factory: dragonBones.EgretFactory;
-        instance(cfg: BoneConfig, cb: (bn: BoneData) => void, ctx?: any): void;
-        protected instanceOne(character: string, skeleton: string, place: string, texture: string, fps: number, cb: (d: BoneData) => void, ctx?: any): void;
+        _load(): void;
     }
-    function BonesManager(): _BonesManager;
-    type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
-    /** 骨骼动画 */
-    class BoneData {
-        constructor(am: ArmatureSource);
-        private _armature;
-        armature: ArmatureSource;
-        addLoop(): void;
-        rmLoop(): void;
-        calcFrameProgress(mo: string, frame: number): number;
-        playMotion(motion: string, times: number, stopAtProgress?: number): void;
-        seekToMotion(motion: string, time: number): void;
-        hasMotion(val: string): boolean;
-        bestFrame(): Rect;
-        readonly display: egret.DisplayObject;
-    }
-    /** 骨骼的配置信息 */
-    class BoneConfig implements IReqResources {
-        /**
-           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
-           @character 角色名称，通常和name一致
-           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
-           @place 材质节点的位置配置文件，通常为 texture_json 结尾
-           @texture 图片文件，通常为 texture_png 结尾
-        */
-        constructor(name?: string, character?: string, skeleton?: string, place?: string, texture?: string);
-        resourceGroups: Array<string>;
-        protected _skeleton: string;
-        protected _place: string;
-        protected _texture: string;
-        protected _character: string;
-        fps: number;
-        protected _name: string;
-        name: string;
-        skeleton: string;
-        place: string;
-        texture: string;
-        character: string;
-        getReqResources(): Array<ReqResource>;
-    }
-    type BoneSource = BoneData | BoneConfig | UriSource;
-    /** 业务使用的骨骼显示类 */
-    class Bones extends Widget {
-        constructor();
-        protected _initSignals(): void;
-        dispose(): void;
-        private _playingState;
-        private _data;
-        protected getBoneData(): BoneData;
-        protected setBoneData(d: BoneData): void;
-        private _bs;
-        boneSource: BoneSource;
-        bestFrame(): Rect;
-        /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
-        additionScale: number;
-        /** 骨骼填充的方式，默认为充满 */
-        fillMode: FillMode;
-        /** 对齐位置 */
-        clipAlign: POSITION;
-        updateLayout(): void;
-        /** 具体动作 */
-        private _motions;
-        motion: string;
-        pushMotion(val: string): void;
-        popMotion(): void;
-        /** 当前含有的所有动作 */
-        motions(): Array<string>;
-        /** 是否含有该动作 */
-        hasMotion(val: string): boolean;
-        /** 自动开始播放 */
-        autoPlay: boolean;
-        /** 播放次数控制
-            -1: 循环
-            0: 使用文件设置的次数
-            >0: 次数控制
-        */
-        count: number;
-        /** 播放 */
-        play(): void;
-        /** 停止播放 */
-        stop(): void;
-        private __db_start();
-        private __db_complete();
-        private __db_loopcomplete();
-    }
+    let DatasManager: _DatasManager;
 }
 declare module nn {
     class SocketModel extends SObject {
@@ -5382,13 +5382,26 @@ declare module nn {
         updateLayout(): void;
     }
 }
-declare module nn {
-    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
-    class _DatasManager extends nn.SObject {
-        constructor();
-        _load(): void;
+declare module nn.developer {
+    class FileDialog {
+        filter: string;
+        pathForSave(cb: (ph: string) => void): void;
+        pathForOpen(cb: (ph: string) => void): void;
+        pathForDir(cb: (ph: string) => void): void;
     }
-    let DatasManager: _DatasManager;
+    class FileSystem {
+        /** 创建文件夹
+            @param p Create intermediate directories as required
+        */
+        mkdir(path: string, p: boolean, cb: () => void): void;
+    }
+    class Image extends SObject {
+        open(path: string, cb: (suc: boolean) => void): void;
+        save(path: string, cb: (suc: boolean) => void): void;
+        scale(x: number, y: number, cb: (img: Image) => void): void;
+        subimage(rc: Rect, cb: (sub: Image) => void): void;
+        private _hdl;
+    }
 }
 declare module nn {
     /** Desktop默认依赖的执行队列，业务可以通过替换对来来手动划分不同的Desktop打开层级
