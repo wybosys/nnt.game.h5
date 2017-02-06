@@ -149,8 +149,7 @@ module nn {
             if (Mask.isset(FrameworkFeature.FULLSCREEN, features))
                 CApplication.NeedFullscreen = true;
 
-            // 计算初始的尺寸
-            this.UpdateBounds();
+            _AppStage.UpdateBounds();
         }
 
         // 界面发生变化
@@ -232,7 +231,7 @@ module nn {
             } else {
                 ScaleFactorX = stageBounds.width / this.DesignBounds.width;
                 ScaleFactorY = stageBounds.height / this.DesignBounds.height;
-                if (Mask.isset(FillMode.STRETCH, fillMode)) {
+                if ((fillMode & FillMode.MASK_MAJOR) == FillMode.STRETCH) {
                     ScaleFactorW = ScaleFactorX;
                     ScaleFactorH = ScaleFactorY;
                 } else {
@@ -316,7 +315,7 @@ module nn {
             if (Device.shared.isPurePC)
                 return super.calculateStageSize(scaleMode, screenWidth, screenHeight, contentWidth, contentHeight);
             // 否则手机上使用实时适配出来的舞台大小计算
-            return super.calculateStageSize(scaleMode, screenWidth, screenHeight, StageBounds.width, StageBounds.height);
+            return super.calculateStageSize(scaleMode, screenWidth, screenHeight, _AppStage.StageBounds.width, _AppStage.StageBounds.height);
         }
     }
     // 替换掉系统的adapter
@@ -325,9 +324,9 @@ module nn {
     loader.webstart = ()=>{
         // 执行加载动作
         loader.InvokeBoot();
-        
-        // 创建舞台
-        _AppStage.Init();
+
+        // 初始化舞台
+        _AppStage.Init();        
         
         // 约定是否使用webgl
         let glmode = false;

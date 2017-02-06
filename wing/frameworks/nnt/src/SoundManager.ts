@@ -1,9 +1,9 @@
 module nn {
 
-    export type SoundSource = UriSource | COriginType | egret.Sound;
+    export type SoundSource = UriSource | COriginType;
 
     /** 音频播放 */
-    export class SoundPlayer
+    export abstract class CSoundPlayer
     extends SObject
     {
         constructor() {
@@ -18,249 +18,53 @@ module nn {
             this._signals.register(SignalChanged);
         }
 
-        dispose() {
-            this.stop();
-            this._hdl = null;
-            this._cnl = null;
-            super.dispose();
-        }
-
         /** 播放次数，-1代表循环 */
         count = 1;
 
         /** 音频的组名 */
         resourceGroups:string[];
 
-        _enable:boolean = Device.shared.supportAutoSound;
-        get enable():boolean {
-            return this._enable;
-        }
-        set enable(b:boolean) {
-            if (b == this._enable)
-                return;
-            
-            if (!b) {
-                this._prePlayingState = this._playingState;
-                // 设置成不可用会自动停掉当前播放
-                this.stop();
-            }
-            
-            this._enable = b;
-
-            if (b && this.autoRecovery && this._prePlayingState == WorkState.DOING) {
-                this.play();
-            }
-        }
+        /** 是否可用 */
+        enable:boolean;
 
         /** 自动恢复播放状态 */
         autoRecovery:boolean;
-        private _prePlayingState:WorkState;
         
-        /** 音频文件的名称, 一个player只能对应一个声音，如过已经设置，则报错 */        
-        private _mediaSource:string;
-        setMediaSource(ms:string) {
-            if (this._mediaSource) {
-                warn('不能重复设置player的mediaSource');
-                return;
-            }
-            
-            this._mediaSource = ms;
-        }
+        /** 音频文件的名称, 一个player只能对应一个声音，如过已经设置，则报错 */
+        abstract setMediaSource(ms:string);
 
-        // egret的实现
-        protected _hdl:egret.Sound;
-        protected _cnl:egret.SoundChannel;
-
-        // 只能设置一次
-        protected setHdl(val:egret.Sound) {
-            if (this._hdl) {
-                if (this._hdl.hashCode == val.hashCode)
-                    return;
-                warn('不能覆盖已经设置了的声音对象');
-                return;
-            }
-            
-            this._hdl = val;
-        }
-
-        protected setCnl(cnl:egret.SoundChannel) {
-            if (this._cnl == cnl)
-                return;
-            if (this._cnl)
-                EventUnhook(this._cnl, egret.Event.SOUND_COMPLETE, this.__cb_end, this);
-            this._cnl = cnl;
-            if (cnl)
-                EventHook(cnl, egret.Event.SOUND_COMPLETE, this.__cb_end, this);
-        }
-
-        // 暂停或者播放到的位置
-        private _position:number = 0;
-        get position():number {
-            return this._position;
-        }
+        /** 暂停或者播放到的位置 */
+        position:number;
 
         // 音乐的播放状态
-        protected _playingState:WorkState;
+        playingState:WorkState;
 
         /** 开始播放 */
-        play() {
-            if (!this._enable) {
-                this._prePlayingState = WorkState.DOING;
-                return;
-            }
-            
-            if (this._playingState == WorkState.DOING)
-                return;
-            
-            if (this._playingState == WorkState.PAUSED) {
-                this.resume();
-                return;
-            }
-
-            // cbplay放倒play之前是为了确保其他依赖于本对象play信号的动作能先执行，以避免h5浏览器当只能播放一个音频时冲突
-            this.__cb_play();
-
-            // 如果播放的媒体有变化，则需要重新加载，否则直接播放
-            if (this._hdl == null)
-            {
-                if (this.resourceGroups) {
-                    ResManager.capsules(this.resourceGroups).load(()=>{
-                        ResManager.getSound(this._mediaSource, RES.LoadPriority.NORMAL, (snd:ICacheSound)=>{
-                            if (snd == null)
-                                return;
-                            this.setHdl(snd.use());
-                            // 如果当前还是位于播放中，则真正去播放
-                            if (this._playingState == WorkState.DOING)
-                                this.setCnl(this._hdl.play(this._position, this.count));
-                        }, this);
-                    }, this);
-                } else {
-                    ResManager.getSound(this._mediaSource, RES.LoadPriority.NORMAL, (snd:ICacheSound)=>{
-                        if (snd == null)
-                            return;
-                        this.setHdl(snd.use());
-                        if (this._playingState == WorkState.DOING)
-                            this.setCnl(this._hdl.play(this._position, this.count));
-                    }, this);
-                }                
-            }
-            else
-            {
-                this.setCnl(this._hdl.play(this._position, this.count));
-            }
-        }
+        abstract play();
 
         /** 重新播放 */
-        replay() {
-            this.stop();
-            this.play();
-        }
+        abstract replay();
 
         /** 暂停 */
-        pause() {
-            if (!this._enable) {
-                this._prePlayingState = WorkState.PAUSED;
-                return;
-            }
-            
-            if (this._playingState == WorkState.DOING) {
-                if (this._cnl) {
-                    this._position = this._cnl.position;
-                    this._cnl.stop();
-                }
-                this._playingState = WorkState.PAUSED;
-                this.__cb_pause();
-            }
-        }
+        abstract pause();
 
         /** 恢复 */
-        resume() {
-            if (!this._enable) {
-                this._prePlayingState = WorkState.DOING;
-                return;
-            }
-            
-            if (this._playingState == WorkState.PAUSED) {
-                this.__cb_play();
-                if (this._hdl) {
-                    this.setCnl(this._hdl.play(this._position, this.count));
-                }
-            }
-        }
+        abstract resume();
 
         /** 停止 */
-        stop() {
-            if (!this._enable) {
-                this._prePlayingState = WorkState.DONE;
-                return;
-            }
-
-            if (this._playingState != WorkState.DONE) {
-                if (this._cnl) {
-                    this._cnl.stop();
-                    this._cnl = undefined;
-                    this._position = 0;
-                }
-                this._playingState = WorkState.DONE;
-            }
-        }
+        abstract stop();
 
         /** 打断播放 */
-        breakee() {
-            this.pause();
-        }
+        abstract breakee();
 
         get isPlaying():boolean {
-            return this._playingState == WorkState.DOING;
+            return this.playingState == WorkState.DOING;
         }
 
         get isPaused():boolean {
-            return this._playingState == WorkState.PAUSED;
-        }
-
-        private __cb_end() {
-            log("播放 " + this._mediaSource + " 结束");
-            this._playingState = WorkState.DONE;
-            this._signals && this._signals.emit(SignalDone);
-        }
-
-        private __cb_pause() {
-            this._signals && this._signals.emit(SignalPaused);
-        }
-
-        private __cb_play() {
-            this._playingState = WorkState.DOING;
-            this._signals && this._signals.emit(SignalStart);
-        }       
-    }
-
-    class EffectSoundPlayer
-    extends SoundPlayer
-    {
-        protected setHdl(val:egret.Sound) {
-            if (val)
-                val.type = egret.Sound.EFFECT;
-            super.setHdl(val);
-        }
-
-        breakee() {
-            this.stop();
+            return this.playingState == WorkState.PAUSED;
         }
     }
-
-    class BackgroundSourdPlayer
-    extends SoundPlayer
-    {
-        protected setHdl(val:egret.Sound) {
-            if (val)
-                val.type = egret.Sound.MUSIC;
-            super.setHdl(val);
-        }
-
-        breakee() {
-            this.stop();
-        }
-    }   
 
     export class SoundTrack
     extends SObject
@@ -391,16 +195,8 @@ module nn {
         }
     }
 
-    export interface ISoundManager {
-        track(idr:string):SoundTrack;
-        background:SoundTrack;
-        effect:SoundTrack;
-        enable:boolean;
-    }
-
-    class _SoundManager
+    export abstract class CSoundManager
     extends SObject
-    implements ISoundManager
     {
         constructor() {
             super();
@@ -421,45 +217,16 @@ module nn {
             return tk;
         }
 
-        get background():SoundTrack {
-            var tk = this._tracks["background"];
-            if (tk == null) {
-                tk = new SoundTrack();
-                tk.classForPlayer = BackgroundSourdPlayer;
-                tk.count = -1;
-                tk.solo = true;
-                tk.autoRecovery = true;
-                tk.resourceGroups = this.resourceGroups;                
-                this._tracks["background"] = tk;                
-            }
-            return tk;
-        }
+        /** 背景音轨　*/
+        background:SoundTrack;
 
-        get effect():SoundTrack {
-            var tk = this._tracks["effect"];
-            if (tk == null) {
-                tk = new SoundTrack();
-                tk.classForPlayer = EffectSoundPlayer;
-                tk.count = 1;
-                tk.resourceGroups = this.resourceGroups;
-                this._tracks["effect"] = tk;
-            }
-            return tk;
-        }
+        /** 效果音轨 */
+        effect:SoundTrack;
 
-        protected _enable:boolean = Device.shared.supportAutoSound;
-        get enable():boolean {
-            return this._enable;
-        }
-        set enable(b:boolean) {
-            if (b == this._enable)
-                return;
-            nn.MapT.Foreach(this._tracks, (k:any, v:SoundTrack)=>{
-                v.enable = b;
-            }, this);
-        }
+        /** 可用 */
+        enable:boolean;
     }
 
-    export var SoundManager:ISoundManager = new _SoundManager();
+    export let SoundManager:CSoundManager;
     
 }

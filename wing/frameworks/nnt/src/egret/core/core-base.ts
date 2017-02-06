@@ -690,7 +690,7 @@ module nn {
                 this._imp.addChildAt(this._backgroundImageView, 0);
                 this.setNeedsLayout();
             }
-            ResManager.getTexture(ts, RES.LoadPriority.NORMAL, (tex:ICacheTexture)=>{
+            ResManager.getTexture(ts, ResPriority.NORMAL, (tex:ICacheTexture)=>{
                 if (this._backgroundImageSource != ts)
                     return; // 多次设置以最后一次为准
                 impSetTexture(this._backgroundImageView, tex.use());

@@ -6333,11 +6333,14 @@ module nn {
     export interface ICacheRecord
     extends IReference
     {
-        // 使用缓存的实际数据对象
+        /** 使用缓存的实际数据对象 */
         use():any;
 
-        // 设置缓存的实际数据对象的属性，如过isnull跳过
+        /** 设置缓存的实际数据对象的属性，如果isnull跳过 */
         prop(k:any, v:any);
+
+        /** 是否为空 */
+        isnull:boolean;
     }
     
     export class CacheRecord
@@ -6350,6 +6353,10 @@ module nn {
         count:number = 0; // 计数器
         fifo:boolean; // 位于fifo中
         mulo:boolean; // 位于mulo中
+
+        get isnull():boolean {
+            return this.val == null;
+        }
 
         use():any {
             this.count += 1;

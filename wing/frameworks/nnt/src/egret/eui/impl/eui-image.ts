@@ -123,7 +123,7 @@ module eui {
             if (ds == this._imageSource.source)
                 return;
             this._imageSource.source = ds;
-            nn.ResManager.getTexture(ds, RES.LoadPriority.NORMAL, (tex:nn.ICacheTexture)=>{
+            nn.ResManager.getTexture(ds, nn.ResPriority.NORMAL, (tex:nn.ICacheTexture)=>{
                 if (ds != this._imageSource.source)
                     return;
                 this._setTexture(tex.use());

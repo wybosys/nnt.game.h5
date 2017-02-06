@@ -151,7 +151,7 @@ module nn {
                 CApplication.shared = this;
 
                 // 读取预定义
-                ResManager.cache.enable = val(this.config['resource.gc'], true);
+                ResManager.cacheEnabled = val(this.config['resource.gc'], true);
 
                 // 需要启动预启动的定时器
                 if (CTimer.SAFE_TIMER_ENABLED) {
@@ -197,7 +197,7 @@ module nn {
         }
 
         /** 延期加载的capsules */
-        capsules(reqs:ReqResource[]):ResCapsule {
+        capsules(reqs:ReqResource[]):CResCapsule {
             let c:Array<ReqResource> = [new ResourceEntity(ResManager.directory + this.dataFile + '?v=' + this.version, ResType.JSREF)];            
             let r = ResManager.capsules(reqs.concat(c));
             // 加载成功后，激发dataloaded的处理
@@ -222,11 +222,11 @@ module nn {
             // 加载配置文件
             oper.add(new OperationClosure((oper:Operation)=>{
                 let cfg = this.configFile + '?v=' + this.version;
-                ResManager.getResByUrl(cfg, RES.LoadPriority.NORMAL, (obj:CacheRecord)=>{
+                ResManager.getResByUrl(cfg, ResPriority.NORMAL, (obj:CacheRecord)=>{
                     this.config = obj.val;
                     // 如果需要处理debug的config文件
                     if (app.debug.CONFIG) {
-                        ResManager.getResByUrl('~debug.json', RES.LoadPriority.NORMAL, (obj:CacheRecord)=>{
+                        ResManager.getResByUrl('~debug.json', ResPriority.NORMAL, (obj:CacheRecord)=>{
                             let cfg = obj.val;
                             Object.keys(cfg).forEach((e:any)=>{
                                 this.config[e] = cfg[e];

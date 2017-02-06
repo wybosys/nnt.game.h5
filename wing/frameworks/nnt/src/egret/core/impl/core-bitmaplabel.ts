@@ -108,7 +108,7 @@ module nn {
             if (this._fontSource == fs)
                 return;
             this._fontSource = fs;
-            ResManager.getBitmapFont(fs, RES.LoadPriority.NORMAL, (font:ICacheFont)=>{
+            ResManager.getBitmapFont(fs, ResPriority.NORMAL, (font:ICacheFont)=>{
                 if (fs != this._fontSource)
                     return;
                 this._lbl.font = font.use();
