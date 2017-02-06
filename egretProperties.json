@@ -34,35 +34,35 @@
 		},
 		{
 			"name": "promise",
-			"path": "3rd/promise"
+			"path": "frameworks/promise"
 		},
         {
             "name": "jszip",
-            "path": "3rd/jszip"
+            "path": "frameworks/jszip"
         },
         {
             "name": "lzma",
-            "path": "3rd/lzma"
+            "path": "frameworks/lzma"
         },
 		{
 			"name": "particle",
-			"path": "3rd/particle"
+			"path": "frameworks/particle"
 		},
 		{
 			"name": "physics",
-			"path": "3rd/physics"
+			"path": "frameworks/physics"
 		},
 		{
 			"name": "tiled",
-			"path": "3rd/tiled"
+			"path": "frameworks/tiled"
 		},
 		{
 			"name": "greensock",
-			"path": "3rd/greensock"
+			"path": "frameworks/greensock"
 		},
 		{
 			"name": "nnt",
-			"path": "nnt"
+			"path": "frameworks/nnt"
 		}
 	]
 }

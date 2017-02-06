@@ -17,9 +17,8 @@
         "server",
         "doc",
         "support",
-        "3rd",
+        "frameworks",
         "publish",
-        "resource",
-        "nnt"
+        "resource"
     ]
 }
