@@ -10897,8 +10897,7 @@ var nn;
                 _AppStage.Fps = 30;
             if (nn.Mask.isset(nn.FrameworkFeature.FULLSCREEN, features))
                 nn.CApplication.NeedFullscreen = true;
-            // 计算初始的尺寸
-            this.UpdateBounds();
+            _AppStage.UpdateBounds();
         };
         // 界面发生变化
         _AppStage.UpdateBounds = function () {
@@ -11042,7 +11041,7 @@ var nn;
             if (nn.Device.shared.isPurePC)
                 return _super.prototype.calculateStageSize.call(this, scaleMode, screenWidth, screenHeight, contentWidth, contentHeight);
             // 否则手机上使用实时适配出来的舞台大小计算
-            return _super.prototype.calculateStageSize.call(this, scaleMode, screenWidth, screenHeight, nn.StageBounds.width, nn.StageBounds.height);
+            return _super.prototype.calculateStageSize.call(this, scaleMode, screenWidth, screenHeight, _AppStage.StageBounds.width, _AppStage.StageBounds.height);
         };
         return ExtScreenAdapter;
     }(egret.sys.DefaultScreenAdapter));
@@ -11051,7 +11050,7 @@ var nn;
     nn.loader.webstart = function () {
         // 执行加载动作
         nn.loader.InvokeBoot();
-        // 创建舞台
+        // 初始化舞台
         _AppStage.Init();
         // 约定是否使用webgl
         var glmode = false;
