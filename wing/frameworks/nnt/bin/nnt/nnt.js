@@ -8991,81 +8991,24 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    var Navigation = (function (_super) {
-        __extends(Navigation, _super);
-        function Navigation() {
-            return _super.call(this) || this;
+    var CBitmap = (function (_super) {
+        __extends(CBitmap, _super);
+        function CBitmap(res) {
+            var _this = _super.call(this) || this;
+            /** 填充模式 */
+            _this.fillMode = nn.FillMode.STRETCH;
+            return _this;
         }
-        Navigation.prototype._addPage = function (page, aschild) {
-            var _this = this;
-            var p = page.obj;
-            p.signals.register(nn.SignalRequestClose);
-            p.signals.connect(nn.SignalRequestClose, function () {
-                _this.pop();
-            }, this);
-            _super.prototype._addPage.call(this, page, aschild);
+        CBitmap.prototype.dispose = function () {
+            _super.prototype.dispose.call(this);
         };
-        Object.defineProperty(Navigation.prototype, "pages", {
-            get: function () {
-                return this._views;
-            },
-            set: function (v) {
-                nn.fatal("不能直接设置navi的pages");
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Navigation;
-    }(nn.ViewStack));
-    nn.Navigation = Navigation;
-    /** 用来进行导航的过渡特效，推进和推出 */
-    var TransitionNavigation = (function (_super) {
-        __extends(TransitionNavigation, _super);
-        function TransitionNavigation(duration) {
-            if (duration === void 0) { duration = nn.Animate.Duration; }
-            var _this = _super.call(this) || this;
-            var ani = new nn.Animate();
-            ani.autoReset = true;
-            ani.inTo(duration, function (ani) {
-                ani.backMode = true;
-                ani.stranslate(new nn.Point(-1, 0));
-            });
-            _this.appear = ani;
-            ani = new nn.Animate();
-            ani.autoReset = true;
-            ani.outTo(duration, function (ani) {
-                ani.stranslate(new nn.Point(-1, 0));
-            });
-            _this.disappear = ani;
-            return _this;
-        }
-        return TransitionNavigation;
-    }(nn.Transition));
-    nn.TransitionNavigation = TransitionNavigation;
-    /** 淡入淡出交替的过渡特效 */
-    var TransitionFade = (function (_super) {
-        __extends(TransitionFade, _super);
-        function TransitionFade(duration) {
-            if (duration === void 0) { duration = nn.Animate.Duration; }
-            var _this = _super.call(this) || this;
-            var ani = new nn.Animate();
-            ani.autoReset = true;
-            ani.inTo(duration, function (ani) {
-                ani.backMode = true;
-                ani.fadeIn();
-            });
-            _this.appear = ani;
-            ani = new nn.Animate();
-            ani.autoReset = true;
-            ani.outTo(duration, function (ani) {
-                ani.fadeOut();
-            });
-            _this.disappear = ani;
-            return _this;
-        }
-        return TransitionFade;
-    }(nn.Transition));
-    nn.TransitionFade = TransitionFade;
+        CBitmap.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalChanged);
+        };
+        return CBitmap;
+    }(nn.Widget));
+    nn.CBitmap = CBitmap;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -9152,24 +9095,878 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    var CBitmap = (function (_super) {
-        __extends(CBitmap, _super);
-        function CBitmap(res) {
+    var Navigation = (function (_super) {
+        __extends(Navigation, _super);
+        function Navigation() {
+            return _super.call(this) || this;
+        }
+        Navigation.prototype._addPage = function (page, aschild) {
+            var _this = this;
+            var p = page.obj;
+            p.signals.register(nn.SignalRequestClose);
+            p.signals.connect(nn.SignalRequestClose, function () {
+                _this.pop();
+            }, this);
+            _super.prototype._addPage.call(this, page, aschild);
+        };
+        Object.defineProperty(Navigation.prototype, "pages", {
+            get: function () {
+                return this._views;
+            },
+            set: function (v) {
+                nn.fatal("不能直接设置navi的pages");
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Navigation;
+    }(nn.ViewStack));
+    nn.Navigation = Navigation;
+    /** 用来进行导航的过渡特效，推进和推出 */
+    var TransitionNavigation = (function (_super) {
+        __extends(TransitionNavigation, _super);
+        function TransitionNavigation(duration) {
+            if (duration === void 0) { duration = nn.Animate.Duration; }
             var _this = _super.call(this) || this;
-            /** 填充模式 */
-            _this.fillMode = nn.FillMode.STRETCH;
+            var ani = new nn.Animate();
+            ani.autoReset = true;
+            ani.inTo(duration, function (ani) {
+                ani.backMode = true;
+                ani.stranslate(new nn.Point(-1, 0));
+            });
+            _this.appear = ani;
+            ani = new nn.Animate();
+            ani.autoReset = true;
+            ani.outTo(duration, function (ani) {
+                ani.stranslate(new nn.Point(-1, 0));
+            });
+            _this.disappear = ani;
             return _this;
         }
-        CBitmap.prototype.dispose = function () {
+        return TransitionNavigation;
+    }(nn.Transition));
+    nn.TransitionNavigation = TransitionNavigation;
+    /** 淡入淡出交替的过渡特效 */
+    var TransitionFade = (function (_super) {
+        __extends(TransitionFade, _super);
+        function TransitionFade(duration) {
+            if (duration === void 0) { duration = nn.Animate.Duration; }
+            var _this = _super.call(this) || this;
+            var ani = new nn.Animate();
+            ani.autoReset = true;
+            ani.inTo(duration, function (ani) {
+                ani.backMode = true;
+                ani.fadeIn();
+            });
+            _this.appear = ani;
+            ani = new nn.Animate();
+            ani.autoReset = true;
+            ani.outTo(duration, function (ani) {
+                ani.fadeOut();
+            });
+            _this.disappear = ani;
+            return _this;
+        }
+        return TransitionFade;
+    }(nn.Transition));
+    nn.TransitionFade = TransitionFade;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    // 网络连接错误
+    nn.ERROR_NETWORK_FAILED = -0xFFFFFFFE;
+    /* 用法
+       let m = new app.model.Test();
+       m.message = "hello";
+       m.signals.connect(nn.Model.SignalDone, function(e:nn.Slot) {
+       nn.msgbox(m.result);
+       }, this);
+       nn.RestSession.fetch(m);
+    */
+    var Model = (function (_super) {
+        __extends(Model, _super);
+        function Model() {
+            var _this = _super.call(this) || this;
+            /** 动作 */
+            _this.action = '';
+            /** 参数 */
+            _this.params = new KvObject();
+            /** 需要自动带上授权信息 */
+            _this.withCredentials = true;
+            /** 获得请求的类型 */
+            _this.method = nn.HttpMethod.GET;
+            /** 调试模式，即使错误也同样激活成功的消息 */
+            _this.isDebug = false;
+            /** 是否显示错误信息 */
+            _this.showError = true;
+            /** 超时 s，默认不使用改特性 */
+            _this.timeout = 0;
+            return _this;
+        }
+        Model.prototype.dispose = function () {
+            this.response = undefined;
+            nn.MapT.Clear(this.params);
             _super.prototype.dispose.call(this);
         };
-        CBitmap.prototype._initSignals = function () {
+        Model.prototype._initSignals = function () {
             _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalChanged);
+            this._signals.register(nn.SignalStart);
+            this._signals.register(nn.SignalEnd);
+            this._signals.register(nn.SignalSucceed);
+            this._signals.register(nn.SignalFailed);
+            this._signals.register(nn.SignalTimeout);
         };
-        return CBitmap;
-    }(nn.Widget));
-    nn.CBitmap = CBitmap;
+        Model.prototype.keyForCache = function () {
+            return this.host + '|' + this.action + '|' + JSON.stringify(this.paramsForCache());
+        };
+        Model.prototype.paramsForCache = function () {
+            return this.params;
+        };
+        Model.prototype.valueForCache = function () {
+            return this.response;
+        };
+        Object.defineProperty(Model.prototype, "modelcallback", {
+            get: function () {
+                return this._modelcallback;
+            },
+            set: function (val) {
+                this._modelcallback = val;
+                this.params['modelcallback'] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /** 是否跨域 */
+        Model.prototype.iscross = function () {
+            // 使用服务器转向来解决跨域的问题
+            if (this.useproxy())
+                return false;
+            return this.host.indexOf(Model.HTTP) == -1 &&
+                this.host.indexOf(Model.HTTPS) == -1;
+        };
+        /** 是否使用代理 */
+        Model.prototype.useproxy = function () {
+            return nn.ISDEBUG;
+        };
+        /** 全路径 */
+        Model.prototype.url = function () {
+            return this.host + this.action;
+        };
+        /** 可用的参数 */
+        Model.prototype.fields = function () {
+            return this.params;
+        };
+        /** 是否获取成功 */
+        Model.prototype.isSucceed = function () {
+            return this.code === 0;
+        };
+        /** 处理结果数据 */
+        Model.prototype.serialize = function (respn) { return false; };
+        Model.prototype.unserialize = function (respn) { return true; };
+        /** 用于调试的数据 */
+        Model.prototype.urlForLog = function () {
+            return this.url();
+        };
+        Model.prototype.fieldsForLog = function () {
+            return this.fields();
+        };
+        // 开始拉数据
+        Model.prototype.__mdl_start = function () {
+            // 输出日志
+            if (nn.VERBOSE) {
+                var str = this.urlForLog();
+                var flds = this.fieldsForLog();
+                if (nn.MapT.IsEmpty(flds) == false) {
+                    str += ' >> ' + nn.URL.MapToField(flds);
+                }
+                nn.log("API " + this.action + " 请求 " + str);
+            }
+            if (this.showWaiting)
+                nn.Hud.ShowProgress();
+            // 启动超时计时器
+            if (this.timeout)
+                this._tmr_timeout = nn.Delay(this.timeout, this.__mdl_timeout, this);
+            this.signals.emit(nn.SignalStart);
+        };
+        // 获取数据成功
+        Model.prototype.__mdl_completed = function (e) {
+            var data = this._urlreq ? this._urlreq.data : e;
+            // 判断是否需要从 json 转换回来
+            if (typeof (data) == 'string') {
+                try {
+                    this.response = JSON.parse(data);
+                }
+                catch (err) {
+                    nn.exception(err);
+                }
+            }
+            else {
+                this.response = data;
+            }
+            this.processResponse();
+            this.__mdl_end();
+        };
+        // 获取数据失败
+        Model.prototype.__mdl_failed = function (e) {
+            // 设置网路错误的id
+            this.code = nn.ERROR_NETWORK_FAILED;
+            var tn = new nn.SlotTunnel();
+            this.signals.emit(nn.SignalFailed, e.data, tn);
+            if (!tn.veto)
+                nn.RestSession.signals.emit(nn.SignalFailed, this, tn);
+            // 如果业务层阻塞掉该信号，则不转发
+            if (!tn.veto) {
+                var str = nn.ISDEBUG ?
+                    'API ' + this.action + ' 请求服务器失败' :
+                    '请检查网络设置';
+                nn.Hud.Error(str);
+            }
+            this.__mdl_end();
+        };
+        Model.prototype.__mdl_timeout = function () {
+            if (nn.VERBOSE)
+                nn.log('API ' + this.action + ' 超时');
+            if (this.isDebug) {
+                this.signals.emit(nn.SignalSucceed);
+                nn.RestSession.signals.emit(nn.SignalSucceed, this);
+            }
+            else {
+                if (this.timeoutAsFailed) {
+                    this.signals.emit(nn.SignalFailed);
+                    nn.RestSession.signals.emit(nn.SignalFailed, this);
+                }
+                this.signals.emit(nn.SignalTimeout);
+                nn.RestSession.signals.emit(nn.SignalTimeout, this);
+            }
+            this.__mdl_end();
+        };
+        // 处理结束
+        Model.prototype.__mdl_end = function () {
+            this.clear();
+            this.signals.emit(nn.SignalEnd);
+            nn.RestSession.signals.emit(nn.SignalEnd, this);
+            if (this.showWaiting)
+                nn.Hud.HideProgress();
+            // 调用完成，析构对象
+            this.drop();
+        };
+        // 处理接收到的数据
+        Model.prototype.processResponse = function () {
+            if ('code' in this.response)
+                this.code = this.response.code;
+            else if ('1' in this.response)
+                this.code = this.response[1];
+            else
+                this.code = -1;
+            if ('message' in this.response)
+                this.message = this.response.message;
+            else if ('2' in this.response)
+                this.message = this.response[2];
+            else
+                this.message = "从服务器没有获取到数据";
+            if (nn.VERBOSE)
+                nn.log('API ' + this.action + ' 返回 ' + JSON.stringify(this.response));
+            this.cacheUpdated = false;
+            if ((this.succeed = this.isSucceed())) {
+                if (nn.VERBOSE)
+                    nn.log('API ' + this.action + ' 请求成功');
+                if (this.cacheTime && this.cacheFlush) {
+                    this.cacheUpdated = true;
+                    // 添加到缓存中
+                    nn.Memcache.shared.cache(this);
+                }
+                this.unserialize(this.response);
+                this.signals.emit(nn.SignalSucceed);
+                nn.RestSession.signals.emit(nn.SignalSucceed, this);
+            }
+            else {
+                nn.warn('API ' + this.action + ' ' + this.message);
+                var tn = new nn.SlotTunnel();
+                if (this.isDebug) {
+                    this.signals.emit(nn.SignalSucceed);
+                    nn.RestSession.signals.emit(nn.SignalSucceed, this);
+                }
+                else {
+                    this.signals.emit(nn.SignalFailed, this, tn);
+                    if (!tn.veto)
+                        nn.RestSession.signals.emit(nn.SignalFailed, this, tn);
+                }
+                // 业务层可以拦截处理
+                if (!tn.veto && this.showError && this.message)
+                    nn.Hud.Error(this.message);
+            }
+        };
+        Model.prototype.clear = function () {
+            // 释放连接
+            this._urlreq = nn.drop(this._urlreq);
+            this._urlreq = undefined;
+            // 释放超时判定
+            if (this._tmr_timeout) {
+                this._tmr_timeout.stop();
+                this._tmr_timeout = undefined;
+            }
+        };
+        return Model;
+    }(nn.SObject));
+    Model.HTTP = "http://" + document.domain;
+    Model.HTTPS = "https://" + document.domain;
+    nn.Model = Model;
+    /** 支持分页的model */
+    var PagedModel = (function () {
+        function PagedModel() {
+            // 当前页的标记
+            this.page = 0;
+            // 所有分页的数据
+            this._items = new nn.IndexedMap();
+        }
+        // 添加页数据
+        PagedModel.prototype.add = function (page, items) {
+            this.changed = false;
+            if (this._items.contains(page))
+                return;
+            // 如果items为空，则也不加入，为了下一次同页面刷新
+            if (items.length == 0)
+                return;
+            this.changed = true;
+            this._items.add(page, items);
+            this.page = page;
+        };
+        Object.defineProperty(PagedModel.prototype, "items", {
+            // 获得当前页面的items
+            get: function () {
+                return this._items.objectForKey(this.page);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(PagedModel.prototype, "allItems", {
+            // 所有页面的对象
+            get: function () {
+                var r = [];
+                this._items.forEach(function (k, o) {
+                    nn.ArrayT.PushObjects(r, o);
+                });
+                return r;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        // 前一页面
+        PagedModel.prototype.previous = function () {
+            var idx = this._items.indexOfKey(this.page);
+            if (idx == 0)
+                return false;
+            this.page = this._items.keyForIndex(idx - 1);
+            return true;
+        };
+        // 后一页，如果返回false，则需要去查询有没有后一页
+        PagedModel.prototype.next = function () {
+            var idx = this._items.indexOfKey(this.page);
+            var k = this._items.keyForIndex(idx + 1);
+            if (k == null)
+                return false;
+            this.page = k;
+            return true;
+        };
+        return PagedModel;
+    }());
+    nn.PagedModel = PagedModel;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var ObjectReference = (function () {
+        function ObjectReference() {
+        }
+        return ObjectReference;
+    }());
+    nn.ObjectReference = ObjectReference;
+    function ObjectPrototype(o) {
+        if (o == null)
+            return null;
+        var p = o['prototype'];
+        return p ? p : o['__proto__'];
+    }
+    function ObjectClass(o) {
+        if (o == null)
+            return Object;
+        return ObjectPrototype(o)['constructor'];
+    }
+    nn.ObjectClass = ObjectClass;
+    function Classname(cls) {
+        return ObjectPrototype(cls)['__class__'];
+    }
+    nn.Classname = Classname;
+    function SuperClass(o) {
+        return ObjectPrototype(ObjectPrototype(o));
+    }
+    nn.SuperClass = SuperClass;
+    function IsInherit(type, parent) {
+        var c = ObjectPrototype(type);
+        var t = ObjectPrototype(parent);
+        while (c && c != t) {
+            c = ObjectPrototype(c); //js的特殊性
+        }
+        return !!(c && c == t);
+    }
+    nn.IsInherit = IsInherit;
+    /** 带参数的实例化对象 */
+    function NewObject(cls, p) {
+        var len = p.length;
+        if (len == 0)
+            return new cls();
+        if (len == 1)
+            return new cls(p[0]);
+        if (len == 2)
+            return new cls(p[0], p[1]);
+        if (len == 3)
+            return new cls(p[0], p[1], p[2]);
+        if (len == 4)
+            return new cls(p[0], p[1], p[2], p[3]);
+        if (len == 5)
+            return new cls(p[0], p[1], p[2], p[3], p[4]);
+        if (len == 6)
+            return new cls(p[0], p[1], p[2], p[3], p[4], p[5]);
+        if (len == 7)
+            return new cls(p[0], p[1], p[2], p[3], p[4], p[5], p[6]);
+        if (len == 8)
+            return new cls(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+        if (len == 9)
+            return new cls(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8]);
+        if (len == 10)
+            return new cls(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9]);
+        nn.fatal("Typescript没有对 " + len + " 个参数的的 NewObject 实现");
+        return null;
+    }
+    nn.NewObject = NewObject;
+    function InstanceNewObject(o) {
+        var p = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            p[_i - 1] = arguments[_i];
+        }
+        var cls = ObjectClass(o);
+        return NewObject(cls, p);
+    }
+    nn.InstanceNewObject = InstanceNewObject;
+    function MethodIsOverrided(cls, method) {
+        return ObjectPrototype(cls)[method] != SuperClass(cls)[method];
+    }
+    nn.MethodIsOverrided = MethodIsOverrided;
+    function HasMethod(cls, method) {
+        return ObjectPrototype(cls)[method] != undefined;
+    }
+    nn.HasMethod = HasMethod;
+    function Method(obj, method) {
+        return ObjectPrototype(obj)[method];
+    }
+    nn.Method = Method;
+    var Class = (function () {
+        function Class(type) {
+            this.type = type;
+        }
+        Class.prototype.instance = function () {
+            if (this.type == null)
+                return null;
+            return new this.type();
+        };
+        Class.prototype.isEqual = function (r) {
+            return this.type == r.type;
+        };
+        return Class;
+    }());
+    nn.Class = Class;
+    /** 实例的容器
+        @note 承载实例好的对象或者延迟实例化的类，但是暴露出去的都是实例
+    */
+    var Instance = (function () {
+        function Instance(o) {
+            if (typeof (o) == 'function') {
+                this._clazz = o;
+            }
+            else {
+                this._obj = o;
+            }
+        }
+        Instance.prototype.drop = function () {
+            this._obj = nn.drop(this._obj);
+        };
+        Object.defineProperty(Instance.prototype, "obj", {
+            get: function () {
+                if (this._obj == null) {
+                    var clz = this._clazz;
+                    this._obj = new clz();
+                }
+                return this._obj;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Instance.prototype, "clazz", {
+            get: function () {
+                return this._clazz;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Instance.prototype.isnull = function () {
+            if (this._obj == null)
+                return true;
+            if (this._obj.__disposed == true)
+                return true;
+            return false;
+        };
+        return Instance;
+    }());
+    nn.Instance = Instance;
+    function New(v) {
+        return new Instance(v);
+    }
+    nn.New = New;
+    var Closure = (function () {
+        function Closure(cb, ctx) {
+            var p = [];
+            for (var _i = 2; _i < arguments.length; _i++) {
+                p[_i - 2] = arguments[_i];
+            }
+            this.cb = cb;
+            this.ctx = ctx;
+            this.argus = p;
+        }
+        Closure.prototype.dispose = function () {
+            this.cb = undefined;
+            this.ctx = undefined;
+            this.argus = undefined;
+        };
+        Closure.prototype.invoke = function () {
+            var p = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                p[_i] = arguments[_i];
+            }
+            if (this.cb) {
+                return this.cb.apply(this.ctx, p ? p : this.argus);
+            }
+            return undefined;
+        };
+        Closure.prototype.reset = function (cb, ctx) {
+            var p = [];
+            for (var _i = 2; _i < arguments.length; _i++) {
+                p[_i - 2] = arguments[_i];
+            }
+            this.cb = cb;
+            this.ctx = ctx;
+            this.argus = p;
+        };
+        return Closure;
+    }());
+    nn.Closure = Closure;
+    /** 拼装参数，直接发起函数调用 */
+    function Invoke1(fun, ctx, p) {
+        var prefixarguments = [];
+        for (var _i = 3; _i < arguments.length; _i++) {
+            prefixarguments[_i - 3] = arguments[_i];
+        }
+        var argus = nn.ArrayT.Concat(prefixarguments, p);
+        return fun.apply(ctx, argus);
+    }
+    nn.Invoke1 = Invoke1;
+    function Invoke2(fun, ctx, prefixarguments, p) {
+        var argus = nn.ArrayT.Concat(prefixarguments, p);
+        return fun.apply(ctx, argus);
+    }
+    nn.Invoke2 = Invoke2;
+    /** 直接运行，返回参数 */
+    function call(cb) {
+        return cb();
+    }
+    nn.call = call;
+})(nn || (nn = {}));
+var tmp;
+(function (tmp) {
+    // 通用全局命名计数器
+    var _RT_NAMECOUNT = 0;
+    function rtname() {
+        return '__rt' + (_RT_NAMECOUNT++);
+    }
+    tmp.rtname = rtname;
+})(tmp || (tmp = {}));
+var nn;
+(function (nn) {
+    var ExtScrollView = (function (_super) {
+        __extends(ExtScrollView, _super);
+        function ExtScrollView(ui) {
+            var _this = _super.call(this) || this;
+            _this.setContent(ui.handle());
+            return _this;
+        }
+        ExtScrollView.prototype.dispose = function () {
+            this._fmui = undefined;
+        };
+        ExtScrollView.prototype._updateContentPosition = function () {
+            // 当滚动的时候回调
+            _super.prototype._updateContentPosition.call(this);
+            if (this._fmui)
+                this._fmui.onPositionChanged();
+        };
+        ExtScrollView.prototype.setScrollPosition = function (top, left, isOffset) {
+            _super.prototype.setScrollPosition.call(this, top, left, isOffset);
+        };
+        // 直接覆盖基类的函数
+        ExtScrollView.prototype._onTouchBegin = function (e) {
+            _super.prototype._onTouchBegin.call(this, e);
+            if (this._fmui)
+                this._fmui._onTouchBegin(e);
+        };
+        ExtScrollView.prototype._onTouchMove = function (e) {
+            _super.prototype._onTouchMove.call(this, e);
+            if (this._fmui)
+                this._fmui.onPositionChanged();
+        };
+        ExtScrollView.prototype._onTouchEnd = function (e) {
+            _super.prototype._onTouchEnd.call(this, e);
+            if (this._fmui)
+                this._fmui._onTouchEnd(e);
+        };
+        ExtScrollView.prototype._onScrollStarted = function () {
+            _super.prototype._onScrollStarted.call(this);
+            if (this._fmui)
+                this._fmui._onScrollStarted();
+        };
+        ExtScrollView.prototype._onScrollFinished = function () {
+            _super.prototype._onScrollFinished.call(this);
+            if (this._fmui)
+                this._fmui._onScrollFinished();
+        };
+        return ExtScrollView;
+    }(egret.ScrollView));
+    var ScrollView = (function (_super) {
+        __extends(ScrollView, _super);
+        function ScrollView(cnt) {
+            var _this = _super.call(this, null) || this;
+            _this._contentSize = new nn.Size();
+            _this._scrollTouching = false;
+            _this.regionBounds = new nn.Rect();
+            _this._scrollContent = new nn.SpriteWrapper();
+            _this._scrollView = new ExtScrollView(_this._scrollContent);
+            _this._scrollView._fmui = _this;
+            _this._imp.addChild(_this._scrollView);
+            if (cnt)
+                _this.contentView = cnt;
+            return _this;
+        }
+        ScrollView.prototype.dispose = function () {
+            this._scrollView.dispose();
+            _super.prototype.dispose.call(this);
+        };
+        Object.defineProperty(ScrollView.prototype, "contentEdgeInsets", {
+            get: function () {
+                return this._scrollContent.edgeInsets;
+            },
+            set: function (v) {
+                this._scrollContent.edgeInsets = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ScrollView.prototype.updateData = function () {
+            _super.prototype.updateData.call(this);
+            this.contentView.updateData();
+        };
+        ScrollView.prototype.stopDecelerating = function () {
+            var scl = this._scrollView;
+            if (scl._ScrV_Props_._isHTweenPlaying) {
+                egret.ScrollTween.removeTweens(scl);
+                scl._ScrV_Props_._isHTweenPlaying = false;
+                scl._ScrV_Props_._hScrollTween = null;
+            }
+            if (scl._ScrV_Props_._isVTweenPlaying) {
+                egret.ScrollTween.removeTweens(scl);
+                scl._ScrV_Props_._isVTweenPlaying = false;
+                scl._ScrV_Props_._vScrollTween = null;
+            }
+        };
+        ScrollView.prototype.updateLayout = function () {
+            var _this = this;
+            _super.prototype.updateLayout.call(this);
+            var rc = this.bounds();
+            if (this.floatingIdentifier == false) {
+                if (this._verticalIdentifier) {
+                    var bst = this._verticalIdentifier.bestFrame();
+                    rc.width -= Math.abs(bst.x) + bst.width;
+                }
+                if (this._horizonIdentifier) {
+                    var bst = this._horizonIdentifier.bestFrame();
+                    rc.height -= Math.abs(bst.y) + bst.height;
+                }
+            }
+            var box = new nn.HBox(this).setRect(this.bounds());
+            box.addFlexVBox(1, function (box) {
+                if (_this._horizonIdentifier) {
+                    var bst = _this._horizonIdentifier.bestFrame();
+                    box.addFlex(1);
+                    box.addPixel(bst.height, _this._horizonIdentifier);
+                }
+            });
+            if (this._verticalIdentifier) {
+                var bst = this._verticalIdentifier.bestFrame();
+                box.addPixel(bst.width, this._verticalIdentifier);
+            }
+            box.apply();
+            // 计算到抛去指示条后的大小
+            rc.applyEdgeInsets(this.edgeInsets);
+            // 可视区域大小
+            this.regionBounds.setSize(rc.width, rc.height);
+            // 引用到egret的scroll
+            this.impSetFrame(rc, this._scrollView);
+            this._scrollView.mask = new egret.Rectangle(0, 0, 200, 200);
+        };
+        ScrollView.prototype.boundsForContent = function () {
+            return this.bounds().applyEdgeInsets(this.contentEdgeInsets);
+        };
+        ScrollView.prototype.addChild = function (c) {
+            return this.contentView.addChild(c);
+        };
+        ScrollView.prototype.removeChild = function (c) {
+            this.contentView.removeChild(c);
+        };
+        Object.defineProperty(ScrollView.prototype, "verticalIdentifier", {
+            get: function () {
+                return this._verticalIdentifier;
+            },
+            set: function (v) {
+                if (v == this._verticalIdentifier)
+                    return;
+                if (this._verticalIdentifier)
+                    _super.prototype.removeChild.call(this, this._verticalIdentifier);
+                this._verticalIdentifier = v;
+                if (v) {
+                    v.touchEnabled = false;
+                    _super.prototype.addChild.call(this, v);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ScrollView.prototype, "horizonIdentifier", {
+            get: function () {
+                return this._horizonIdentifier;
+            },
+            set: function (v) {
+                if (v == this._horizonIdentifier)
+                    return;
+                if (this._horizonIdentifier)
+                    _super.prototype.removeChild.call(this, this._horizonIdentifier);
+                this._horizonIdentifier = v;
+                if (v) {
+                    v.touchEnabled = false;
+                    _super.prototype.addChild.call(this, v);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ScrollView.prototype, "contentSize", {
+            get: function () {
+                return this._contentSize.clone();
+            },
+            set: function (sz) {
+                // 保存
+                this._contentSize.copy(sz);
+                // 增加边缘
+                sz.add(nn.EdgeInsets.Width(this.contentEdgeInsets), nn.EdgeInsets.Height(this.contentEdgeInsets));
+                // 刷新后需要设置回之前的位置
+                var pos = this.contentOffset;
+                var d = sz.width - this._contentSize.width;
+                if (d < 0 && pos.x + d >= 0) {
+                    pos.x += d;
+                    this.regionBounds.x = pos.x - nn.EdgeInsets.Left(this.contentEdgeInsets);
+                }
+                var d = sz.height - this._contentSize.height;
+                if (d < 0 && pos.y + d >= 0) {
+                    pos.y += d;
+                    this.regionBounds.y = pos.y - nn.EdgeInsets.Top(this.contentEdgeInsets);
+                }
+                this.contentOffset = pos;
+                // 刷新指示的位置
+                this._scrollContent.setSize(new nn.Size(sz.width, sz.height));
+                this._updateIdentifier();
+                if (this._signals)
+                    this._signals.emit(nn.SignalConstriantChanged);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ScrollView.prototype, "contentView", {
+            get: function () {
+                var r = this._scrollContent.contentView;
+                if (r == null) {
+                    r = new nn.Sprite();
+                    this._scrollContent.contentView = r;
+                }
+                return r;
+            },
+            set: function (ui) {
+                if (this._scrollContent.contentView)
+                    this._scrollContent.contentView.belong = null;
+                this._scrollContent.contentView = ui;
+                if (ui)
+                    ui.belong = this;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ScrollView.prototype._updateIdentifier = function () {
+            if (this._verticalIdentifier == null &&
+                this._horizonIdentifier == null)
+                return;
+            var cntsz = this.contentSize;
+            var rg = this.regionBounds;
+            if (this._verticalIdentifier) {
+                var per = new nn.Percentage(cntsz.height - rg.height, rg.y);
+                this._verticalIdentifier.progressValue = per;
+            }
+            if (this._horizonIdentifier) {
+                var per = new nn.Percentage(cntsz.width - rg.width, rg.x);
+                this._horizonIdentifier.progressValue = per;
+            }
+        };
+        ScrollView.prototype.onPositionChanged = function () {
+            // 更新偏移
+            this._contentOffset.x = this._scrollView.scrollLeft * nn.ScaleFactorDeX;
+            this._contentOffset.y = this._scrollView.scrollTop * nn.ScaleFactorDeY;
+            // 更新可视区域
+            this.regionBounds.x = this._contentOffset.x - nn.EdgeInsets.Left(this.contentEdgeInsets);
+            this.regionBounds.y = this._contentOffset.y - nn.EdgeInsets.Top(this.contentEdgeInsets);
+            // 更新指示器的位置
+            this._updateIdentifier();
+            _super.prototype.onPositionChanged.call(this);
+        };
+        ScrollView.prototype._onTouchBegin = function (e) {
+            this._scrollTouching = true;
+            this._signals && this._signals.emit(nn.SignalScrollBegin);
+        };
+        ScrollView.prototype._onTouchEnd = function (e) {
+        };
+        ScrollView.prototype._onScrollStarted = function () {
+        };
+        ScrollView.prototype._onScrollFinished = function () {
+            if (this._scrollTouching == false)
+                return;
+            this._scrollTouching = false;
+            this._signals && this._signals.emit(nn.SignalScrollEnd);
+        };
+        ScrollView.prototype.setContentOffset = function (pt, duration) {
+            _super.prototype.setContentOffset.call(this, pt, duration);
+            if (duration == 0) {
+                this._scrollView.scrollLeft = pt.x * nn.ScaleFactorX;
+                this._scrollView.scrollTop = pt.y * nn.ScaleFactorY;
+            }
+            else {
+                this._scrollView.setScrollLeft(pt.x * nn.ScaleFactorX, duration * 1000);
+                this._scrollView.setScrollTop(pt.y * nn.ScaleFactorY, duration * 1000);
+            }
+        };
+        return ScrollView;
+    }(nn.CScrollView));
+    nn.ScrollView = ScrollView;
 })(nn || (nn = {}));
 var Js;
 (function (Js) {
@@ -9871,6 +10668,42 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
+    var TextAlign = (function () {
+        function TextAlign() {
+        }
+        return TextAlign;
+    }());
+    TextAlign.CENTER = 'center';
+    TextAlign.LEFT = 'left';
+    TextAlign.RIGHT = 'right';
+    nn.TextAlign = TextAlign;
+    ;
+    var CLabel = (function (_super) {
+        __extends(CLabel, _super);
+        function CLabel() {
+            return _super.call(this) || this;
+        }
+        CLabel.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalChanged);
+            this._signals.register(nn.SignalAction);
+        };
+        return CLabel;
+    }(nn.Widget));
+    // 默认的字体大小
+    CLabel.FontSize = 30;
+    nn.CLabel = CLabel;
+    var CBitmapLabel = (function (_super) {
+        __extends(CBitmapLabel, _super);
+        function CBitmapLabel() {
+            return _super.apply(this, arguments) || this;
+        }
+        return CBitmapLabel;
+    }(nn.Widget));
+    nn.CBitmapLabel = CBitmapLabel;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
     var _GameLayer = (function (_super) {
         __extends(_GameLayer, _super);
         function _GameLayer() {
@@ -10342,623 +11175,6 @@ var app;
     (function (debug) {
     })(debug = app.debug || (app.debug = {}));
 })(app || (app = {}));
-var nn;
-(function (nn) {
-    // 网络连接错误
-    nn.ERROR_NETWORK_FAILED = -0xFFFFFFFE;
-    /* 用法
-       let m = new app.model.Test();
-       m.message = "hello";
-       m.signals.connect(nn.Model.SignalDone, function(e:nn.Slot) {
-       nn.msgbox(m.result);
-       }, this);
-       nn.RestSession.fetch(m);
-    */
-    var Model = (function (_super) {
-        __extends(Model, _super);
-        function Model() {
-            var _this = _super.call(this) || this;
-            /** 动作 */
-            _this.action = '';
-            /** 参数 */
-            _this.params = new KvObject();
-            /** 需要自动带上授权信息 */
-            _this.withCredentials = true;
-            /** 获得请求的类型 */
-            _this.method = nn.HttpMethod.GET;
-            /** 调试模式，即使错误也同样激活成功的消息 */
-            _this.isDebug = false;
-            /** 是否显示错误信息 */
-            _this.showError = true;
-            /** 超时 s，默认不使用改特性 */
-            _this.timeout = 0;
-            return _this;
-        }
-        Model.prototype.dispose = function () {
-            this.response = undefined;
-            nn.MapT.Clear(this.params);
-            _super.prototype.dispose.call(this);
-        };
-        Model.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalStart);
-            this._signals.register(nn.SignalEnd);
-            this._signals.register(nn.SignalSucceed);
-            this._signals.register(nn.SignalFailed);
-            this._signals.register(nn.SignalTimeout);
-        };
-        Model.prototype.keyForCache = function () {
-            return this.host + '|' + this.action + '|' + JSON.stringify(this.paramsForCache());
-        };
-        Model.prototype.paramsForCache = function () {
-            return this.params;
-        };
-        Model.prototype.valueForCache = function () {
-            return this.response;
-        };
-        Object.defineProperty(Model.prototype, "modelcallback", {
-            get: function () {
-                return this._modelcallback;
-            },
-            set: function (val) {
-                this._modelcallback = val;
-                this.params['modelcallback'] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /** 是否跨域 */
-        Model.prototype.iscross = function () {
-            // 使用服务器转向来解决跨域的问题
-            if (this.useproxy())
-                return false;
-            return this.host.indexOf(Model.HTTP) == -1 &&
-                this.host.indexOf(Model.HTTPS) == -1;
-        };
-        /** 是否使用代理 */
-        Model.prototype.useproxy = function () {
-            return nn.ISDEBUG;
-        };
-        /** 全路径 */
-        Model.prototype.url = function () {
-            return this.host + this.action;
-        };
-        /** 可用的参数 */
-        Model.prototype.fields = function () {
-            return this.params;
-        };
-        /** 是否获取成功 */
-        Model.prototype.isSucceed = function () {
-            return this.code === 0;
-        };
-        /** 处理结果数据 */
-        Model.prototype.serialize = function (respn) { return false; };
-        Model.prototype.unserialize = function (respn) { return true; };
-        /** 用于调试的数据 */
-        Model.prototype.urlForLog = function () {
-            return this.url();
-        };
-        Model.prototype.fieldsForLog = function () {
-            return this.fields();
-        };
-        // 开始拉数据
-        Model.prototype.__mdl_start = function () {
-            // 输出日志
-            if (nn.VERBOSE) {
-                var str = this.urlForLog();
-                var flds = this.fieldsForLog();
-                if (nn.MapT.IsEmpty(flds) == false) {
-                    str += ' >> ' + nn.URL.MapToField(flds);
-                }
-                nn.log("API " + this.action + " 请求 " + str);
-            }
-            if (this.showWaiting)
-                nn.Hud.ShowProgress();
-            // 启动超时计时器
-            if (this.timeout)
-                this._tmr_timeout = nn.Delay(this.timeout, this.__mdl_timeout, this);
-            this.signals.emit(nn.SignalStart);
-        };
-        // 获取数据成功
-        Model.prototype.__mdl_completed = function (e) {
-            var data = this._urlreq ? this._urlreq.data : e;
-            // 判断是否需要从 json 转换回来
-            if (typeof (data) == 'string') {
-                try {
-                    this.response = JSON.parse(data);
-                }
-                catch (err) {
-                    nn.exception(err);
-                }
-            }
-            else {
-                this.response = data;
-            }
-            this.processResponse();
-            this.__mdl_end();
-        };
-        // 获取数据失败
-        Model.prototype.__mdl_failed = function (e) {
-            // 设置网路错误的id
-            this.code = nn.ERROR_NETWORK_FAILED;
-            var tn = new nn.SlotTunnel();
-            this.signals.emit(nn.SignalFailed, e.data, tn);
-            if (!tn.veto)
-                nn.RestSession.signals.emit(nn.SignalFailed, this, tn);
-            // 如果业务层阻塞掉该信号，则不转发
-            if (!tn.veto) {
-                var str = nn.ISDEBUG ?
-                    'API ' + this.action + ' 请求服务器失败' :
-                    '请检查网络设置';
-                nn.Hud.Error(str);
-            }
-            this.__mdl_end();
-        };
-        Model.prototype.__mdl_timeout = function () {
-            if (nn.VERBOSE)
-                nn.log('API ' + this.action + ' 超时');
-            if (this.isDebug) {
-                this.signals.emit(nn.SignalSucceed);
-                nn.RestSession.signals.emit(nn.SignalSucceed, this);
-            }
-            else {
-                if (this.timeoutAsFailed) {
-                    this.signals.emit(nn.SignalFailed);
-                    nn.RestSession.signals.emit(nn.SignalFailed, this);
-                }
-                this.signals.emit(nn.SignalTimeout);
-                nn.RestSession.signals.emit(nn.SignalTimeout, this);
-            }
-            this.__mdl_end();
-        };
-        // 处理结束
-        Model.prototype.__mdl_end = function () {
-            this.clear();
-            this.signals.emit(nn.SignalEnd);
-            nn.RestSession.signals.emit(nn.SignalEnd, this);
-            if (this.showWaiting)
-                nn.Hud.HideProgress();
-            // 调用完成，析构对象
-            this.drop();
-        };
-        // 处理接收到的数据
-        Model.prototype.processResponse = function () {
-            if ('code' in this.response)
-                this.code = this.response.code;
-            else if ('1' in this.response)
-                this.code = this.response[1];
-            else
-                this.code = -1;
-            if ('message' in this.response)
-                this.message = this.response.message;
-            else if ('2' in this.response)
-                this.message = this.response[2];
-            else
-                this.message = "从服务器没有获取到数据";
-            if (nn.VERBOSE)
-                nn.log('API ' + this.action + ' 返回 ' + JSON.stringify(this.response));
-            this.cacheUpdated = false;
-            if ((this.succeed = this.isSucceed())) {
-                if (nn.VERBOSE)
-                    nn.log('API ' + this.action + ' 请求成功');
-                if (this.cacheTime && this.cacheFlush) {
-                    this.cacheUpdated = true;
-                    // 添加到缓存中
-                    nn.Memcache.shared.cache(this);
-                }
-                this.unserialize(this.response);
-                this.signals.emit(nn.SignalSucceed);
-                nn.RestSession.signals.emit(nn.SignalSucceed, this);
-            }
-            else {
-                nn.warn('API ' + this.action + ' ' + this.message);
-                var tn = new nn.SlotTunnel();
-                if (this.isDebug) {
-                    this.signals.emit(nn.SignalSucceed);
-                    nn.RestSession.signals.emit(nn.SignalSucceed, this);
-                }
-                else {
-                    this.signals.emit(nn.SignalFailed, this, tn);
-                    if (!tn.veto)
-                        nn.RestSession.signals.emit(nn.SignalFailed, this, tn);
-                }
-                // 业务层可以拦截处理
-                if (!tn.veto && this.showError && this.message)
-                    nn.Hud.Error(this.message);
-            }
-        };
-        Model.prototype.clear = function () {
-            // 释放连接
-            this._urlreq = nn.drop(this._urlreq);
-            this._urlreq = undefined;
-            // 释放超时判定
-            if (this._tmr_timeout) {
-                this._tmr_timeout.stop();
-                this._tmr_timeout = undefined;
-            }
-        };
-        return Model;
-    }(nn.SObject));
-    Model.HTTP = "http://" + document.domain;
-    Model.HTTPS = "https://" + document.domain;
-    nn.Model = Model;
-    /** 支持分页的model */
-    var PagedModel = (function () {
-        function PagedModel() {
-            // 当前页的标记
-            this.page = 0;
-            // 所有分页的数据
-            this._items = new nn.IndexedMap();
-        }
-        // 添加页数据
-        PagedModel.prototype.add = function (page, items) {
-            this.changed = false;
-            if (this._items.contains(page))
-                return;
-            // 如果items为空，则也不加入，为了下一次同页面刷新
-            if (items.length == 0)
-                return;
-            this.changed = true;
-            this._items.add(page, items);
-            this.page = page;
-        };
-        Object.defineProperty(PagedModel.prototype, "items", {
-            // 获得当前页面的items
-            get: function () {
-                return this._items.objectForKey(this.page);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(PagedModel.prototype, "allItems", {
-            // 所有页面的对象
-            get: function () {
-                var r = [];
-                this._items.forEach(function (k, o) {
-                    nn.ArrayT.PushObjects(r, o);
-                });
-                return r;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        // 前一页面
-        PagedModel.prototype.previous = function () {
-            var idx = this._items.indexOfKey(this.page);
-            if (idx == 0)
-                return false;
-            this.page = this._items.keyForIndex(idx - 1);
-            return true;
-        };
-        // 后一页，如果返回false，则需要去查询有没有后一页
-        PagedModel.prototype.next = function () {
-            var idx = this._items.indexOfKey(this.page);
-            var k = this._items.keyForIndex(idx + 1);
-            if (k == null)
-                return false;
-            this.page = k;
-            return true;
-        };
-        return PagedModel;
-    }());
-    nn.PagedModel = PagedModel;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    var ExtScrollView = (function (_super) {
-        __extends(ExtScrollView, _super);
-        function ExtScrollView(ui) {
-            var _this = _super.call(this) || this;
-            _this.setContent(ui.handle());
-            return _this;
-        }
-        ExtScrollView.prototype.dispose = function () {
-            this._fmui = undefined;
-        };
-        ExtScrollView.prototype._updateContentPosition = function () {
-            // 当滚动的时候回调
-            _super.prototype._updateContentPosition.call(this);
-            if (this._fmui)
-                this._fmui.onPositionChanged();
-        };
-        ExtScrollView.prototype.setScrollPosition = function (top, left, isOffset) {
-            _super.prototype.setScrollPosition.call(this, top, left, isOffset);
-        };
-        // 直接覆盖基类的函数
-        ExtScrollView.prototype._onTouchBegin = function (e) {
-            _super.prototype._onTouchBegin.call(this, e);
-            if (this._fmui)
-                this._fmui._onTouchBegin(e);
-        };
-        ExtScrollView.prototype._onTouchMove = function (e) {
-            _super.prototype._onTouchMove.call(this, e);
-            if (this._fmui)
-                this._fmui.onPositionChanged();
-        };
-        ExtScrollView.prototype._onTouchEnd = function (e) {
-            _super.prototype._onTouchEnd.call(this, e);
-            if (this._fmui)
-                this._fmui._onTouchEnd(e);
-        };
-        ExtScrollView.prototype._onScrollStarted = function () {
-            _super.prototype._onScrollStarted.call(this);
-            if (this._fmui)
-                this._fmui._onScrollStarted();
-        };
-        ExtScrollView.prototype._onScrollFinished = function () {
-            _super.prototype._onScrollFinished.call(this);
-            if (this._fmui)
-                this._fmui._onScrollFinished();
-        };
-        return ExtScrollView;
-    }(egret.ScrollView));
-    var ScrollView = (function (_super) {
-        __extends(ScrollView, _super);
-        function ScrollView(cnt) {
-            var _this = _super.call(this, null) || this;
-            _this._contentSize = new nn.Size();
-            _this._scrollTouching = false;
-            _this.regionBounds = new nn.Rect();
-            _this._scrollContent = new nn.SpriteWrapper();
-            _this._scrollView = new ExtScrollView(_this._scrollContent);
-            _this._scrollView._fmui = _this;
-            _this._imp.addChild(_this._scrollView);
-            if (cnt)
-                _this.contentView = cnt;
-            return _this;
-        }
-        ScrollView.prototype.dispose = function () {
-            this._scrollView.dispose();
-            _super.prototype.dispose.call(this);
-        };
-        Object.defineProperty(ScrollView.prototype, "contentEdgeInsets", {
-            get: function () {
-                return this._scrollContent.edgeInsets;
-            },
-            set: function (v) {
-                this._scrollContent.edgeInsets = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ScrollView.prototype.updateData = function () {
-            _super.prototype.updateData.call(this);
-            this.contentView.updateData();
-        };
-        ScrollView.prototype.stopDecelerating = function () {
-            var scl = this._scrollView;
-            if (scl._ScrV_Props_._isHTweenPlaying) {
-                egret.ScrollTween.removeTweens(scl);
-                scl._ScrV_Props_._isHTweenPlaying = false;
-                scl._ScrV_Props_._hScrollTween = null;
-            }
-            if (scl._ScrV_Props_._isVTweenPlaying) {
-                egret.ScrollTween.removeTweens(scl);
-                scl._ScrV_Props_._isVTweenPlaying = false;
-                scl._ScrV_Props_._vScrollTween = null;
-            }
-        };
-        ScrollView.prototype.updateLayout = function () {
-            var _this = this;
-            _super.prototype.updateLayout.call(this);
-            var rc = this.bounds();
-            if (this.floatingIdentifier == false) {
-                if (this._verticalIdentifier) {
-                    var bst = this._verticalIdentifier.bestFrame();
-                    rc.width -= Math.abs(bst.x) + bst.width;
-                }
-                if (this._horizonIdentifier) {
-                    var bst = this._horizonIdentifier.bestFrame();
-                    rc.height -= Math.abs(bst.y) + bst.height;
-                }
-            }
-            var box = new nn.HBox(this).setRect(this.bounds());
-            box.addFlexVBox(1, function (box) {
-                if (_this._horizonIdentifier) {
-                    var bst = _this._horizonIdentifier.bestFrame();
-                    box.addFlex(1);
-                    box.addPixel(bst.height, _this._horizonIdentifier);
-                }
-            });
-            if (this._verticalIdentifier) {
-                var bst = this._verticalIdentifier.bestFrame();
-                box.addPixel(bst.width, this._verticalIdentifier);
-            }
-            box.apply();
-            // 计算到抛去指示条后的大小
-            rc.applyEdgeInsets(this.edgeInsets);
-            // 可视区域大小
-            this.regionBounds.setSize(rc.width, rc.height);
-            // 引用到egret的scroll
-            this.impSetFrame(rc, this._scrollView);
-            this._scrollView.mask = new egret.Rectangle(0, 0, 200, 200);
-        };
-        ScrollView.prototype.boundsForContent = function () {
-            return this.bounds().applyEdgeInsets(this.contentEdgeInsets);
-        };
-        ScrollView.prototype.addChild = function (c) {
-            return this.contentView.addChild(c);
-        };
-        ScrollView.prototype.removeChild = function (c) {
-            this.contentView.removeChild(c);
-        };
-        Object.defineProperty(ScrollView.prototype, "verticalIdentifier", {
-            get: function () {
-                return this._verticalIdentifier;
-            },
-            set: function (v) {
-                if (v == this._verticalIdentifier)
-                    return;
-                if (this._verticalIdentifier)
-                    _super.prototype.removeChild.call(this, this._verticalIdentifier);
-                this._verticalIdentifier = v;
-                if (v) {
-                    v.touchEnabled = false;
-                    _super.prototype.addChild.call(this, v);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ScrollView.prototype, "horizonIdentifier", {
-            get: function () {
-                return this._horizonIdentifier;
-            },
-            set: function (v) {
-                if (v == this._horizonIdentifier)
-                    return;
-                if (this._horizonIdentifier)
-                    _super.prototype.removeChild.call(this, this._horizonIdentifier);
-                this._horizonIdentifier = v;
-                if (v) {
-                    v.touchEnabled = false;
-                    _super.prototype.addChild.call(this, v);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ScrollView.prototype, "contentSize", {
-            get: function () {
-                return this._contentSize.clone();
-            },
-            set: function (sz) {
-                // 保存
-                this._contentSize.copy(sz);
-                // 增加边缘
-                sz.add(nn.EdgeInsets.Width(this.contentEdgeInsets), nn.EdgeInsets.Height(this.contentEdgeInsets));
-                // 刷新后需要设置回之前的位置
-                var pos = this.contentOffset;
-                var d = sz.width - this._contentSize.width;
-                if (d < 0 && pos.x + d >= 0) {
-                    pos.x += d;
-                    this.regionBounds.x = pos.x - nn.EdgeInsets.Left(this.contentEdgeInsets);
-                }
-                var d = sz.height - this._contentSize.height;
-                if (d < 0 && pos.y + d >= 0) {
-                    pos.y += d;
-                    this.regionBounds.y = pos.y - nn.EdgeInsets.Top(this.contentEdgeInsets);
-                }
-                this.contentOffset = pos;
-                // 刷新指示的位置
-                this._scrollContent.setSize(new nn.Size(sz.width, sz.height));
-                this._updateIdentifier();
-                if (this._signals)
-                    this._signals.emit(nn.SignalConstriantChanged);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ScrollView.prototype, "contentView", {
-            get: function () {
-                var r = this._scrollContent.contentView;
-                if (r == null) {
-                    r = new nn.Sprite();
-                    this._scrollContent.contentView = r;
-                }
-                return r;
-            },
-            set: function (ui) {
-                if (this._scrollContent.contentView)
-                    this._scrollContent.contentView.belong = null;
-                this._scrollContent.contentView = ui;
-                if (ui)
-                    ui.belong = this;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ScrollView.prototype._updateIdentifier = function () {
-            if (this._verticalIdentifier == null &&
-                this._horizonIdentifier == null)
-                return;
-            var cntsz = this.contentSize;
-            var rg = this.regionBounds;
-            if (this._verticalIdentifier) {
-                var per = new nn.Percentage(cntsz.height - rg.height, rg.y);
-                this._verticalIdentifier.progressValue = per;
-            }
-            if (this._horizonIdentifier) {
-                var per = new nn.Percentage(cntsz.width - rg.width, rg.x);
-                this._horizonIdentifier.progressValue = per;
-            }
-        };
-        ScrollView.prototype.onPositionChanged = function () {
-            // 更新偏移
-            this._contentOffset.x = this._scrollView.scrollLeft * nn.ScaleFactorDeX;
-            this._contentOffset.y = this._scrollView.scrollTop * nn.ScaleFactorDeY;
-            // 更新可视区域
-            this.regionBounds.x = this._contentOffset.x - nn.EdgeInsets.Left(this.contentEdgeInsets);
-            this.regionBounds.y = this._contentOffset.y - nn.EdgeInsets.Top(this.contentEdgeInsets);
-            // 更新指示器的位置
-            this._updateIdentifier();
-            _super.prototype.onPositionChanged.call(this);
-        };
-        ScrollView.prototype._onTouchBegin = function (e) {
-            this._scrollTouching = true;
-            this._signals && this._signals.emit(nn.SignalScrollBegin);
-        };
-        ScrollView.prototype._onTouchEnd = function (e) {
-        };
-        ScrollView.prototype._onScrollStarted = function () {
-        };
-        ScrollView.prototype._onScrollFinished = function () {
-            if (this._scrollTouching == false)
-                return;
-            this._scrollTouching = false;
-            this._signals && this._signals.emit(nn.SignalScrollEnd);
-        };
-        ScrollView.prototype.setContentOffset = function (pt, duration) {
-            _super.prototype.setContentOffset.call(this, pt, duration);
-            if (duration == 0) {
-                this._scrollView.scrollLeft = pt.x * nn.ScaleFactorX;
-                this._scrollView.scrollTop = pt.y * nn.ScaleFactorY;
-            }
-            else {
-                this._scrollView.setScrollLeft(pt.x * nn.ScaleFactorX, duration * 1000);
-                this._scrollView.setScrollTop(pt.y * nn.ScaleFactorY, duration * 1000);
-            }
-        };
-        return ScrollView;
-    }(nn.CScrollView));
-    nn.ScrollView = ScrollView;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    var TextAlign = (function () {
-        function TextAlign() {
-        }
-        return TextAlign;
-    }());
-    TextAlign.CENTER = 'center';
-    TextAlign.LEFT = 'left';
-    TextAlign.RIGHT = 'right';
-    nn.TextAlign = TextAlign;
-    ;
-    var CLabel = (function (_super) {
-        __extends(CLabel, _super);
-        function CLabel() {
-            return _super.call(this) || this;
-        }
-        CLabel.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalChanged);
-            this._signals.register(nn.SignalAction);
-        };
-        return CLabel;
-    }(nn.Widget));
-    // 默认的字体大小
-    CLabel.FontSize = 30;
-    nn.CLabel = CLabel;
-    var CBitmapLabel = (function (_super) {
-        __extends(CBitmapLabel, _super);
-        function CBitmapLabel() {
-            return _super.apply(this, arguments) || this;
-        }
-        return CBitmapLabel;
-    }(nn.Widget));
-    nn.CBitmapLabel = CBitmapLabel;
-})(nn || (nn = {}));
 // 标准APP架构
 var nn;
 (function (nn) {
@@ -11149,256 +11365,334 @@ var nn;
     // 应用入口管理器
     nn.LaunchersManager = new _LaunchersManager();
 })(nn || (nn = {}));
+if (typeof (document_class) == 'undefined')
+    document_class = 'Main';
 var nn;
 (function (nn) {
-    var ObjectReference = (function () {
-        function ObjectReference() {
-        }
-        return ObjectReference;
-    }());
-    nn.ObjectReference = ObjectReference;
-    function ObjectPrototype(o) {
-        if (o == null)
-            return null;
-        var p = o['prototype'];
-        return p ? p : o['__proto__'];
-    }
-    function ObjectClass(o) {
-        if (o == null)
-            return Object;
-        return ObjectPrototype(o)['constructor'];
-    }
-    nn.ObjectClass = ObjectClass;
-    function Classname(cls) {
-        return ObjectPrototype(cls)['__class__'];
-    }
-    nn.Classname = Classname;
-    function SuperClass(o) {
-        return ObjectPrototype(ObjectPrototype(o));
-    }
-    nn.SuperClass = SuperClass;
-    function IsInherit(type, parent) {
-        var c = ObjectPrototype(type);
-        var t = ObjectPrototype(parent);
-        while (c && c != t) {
-            c = ObjectPrototype(c); //js的特殊性
-        }
-        return !!(c && c == t);
-    }
-    nn.IsInherit = IsInherit;
-    /** 带参数的实例化对象 */
-    function NewObject(cls, p) {
-        var len = p.length;
-        if (len == 0)
-            return new cls();
-        if (len == 1)
-            return new cls(p[0]);
-        if (len == 2)
-            return new cls(p[0], p[1]);
-        if (len == 3)
-            return new cls(p[0], p[1], p[2]);
-        if (len == 4)
-            return new cls(p[0], p[1], p[2], p[3]);
-        if (len == 5)
-            return new cls(p[0], p[1], p[2], p[3], p[4]);
-        if (len == 6)
-            return new cls(p[0], p[1], p[2], p[3], p[4], p[5]);
-        if (len == 7)
-            return new cls(p[0], p[1], p[2], p[3], p[4], p[5], p[6]);
-        if (len == 8)
-            return new cls(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
-        if (len == 9)
-            return new cls(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8]);
-        if (len == 10)
-            return new cls(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9]);
-        nn.fatal("Typescript没有对 " + len + " 个参数的的 NewObject 实现");
-        return null;
-    }
-    nn.NewObject = NewObject;
-    function InstanceNewObject(o) {
-        var p = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            p[_i - 1] = arguments[_i];
-        }
-        var cls = ObjectClass(o);
-        return NewObject(cls, p);
-    }
-    nn.InstanceNewObject = InstanceNewObject;
-    function MethodIsOverrided(cls, method) {
-        return ObjectPrototype(cls)[method] != SuperClass(cls)[method];
-    }
-    nn.MethodIsOverrided = MethodIsOverrided;
-    function HasMethod(cls, method) {
-        return ObjectPrototype(cls)[method] != undefined;
-    }
-    nn.HasMethod = HasMethod;
-    function Method(obj, method) {
-        return ObjectPrototype(obj)[method];
-    }
-    nn.Method = Method;
-    var Class = (function () {
-        function Class(type) {
-            this.type = type;
-        }
-        Class.prototype.instance = function () {
-            if (this.type == null)
-                return null;
-            return new this.type();
-        };
-        Class.prototype.isEqual = function (r) {
-            return this.type == r.type;
-        };
-        return Class;
-    }());
-    nn.Class = Class;
-    /** 实例的容器
-        @note 承载实例好的对象或者延迟实例化的类，但是暴露出去的都是实例
-    */
-    var Instance = (function () {
-        function Instance(o) {
-            if (typeof (o) == 'function') {
-                this._clazz = o;
-            }
-            else {
-                this._obj = o;
-            }
-        }
-        Instance.prototype.drop = function () {
-            this._obj = nn.drop(this._obj);
-        };
-        Object.defineProperty(Instance.prototype, "obj", {
-            get: function () {
-                if (this._obj == null) {
-                    var clz = this._clazz;
-                    this._obj = new clz();
-                }
-                return this._obj;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Instance.prototype, "clazz", {
-            get: function () {
-                return this._clazz;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Instance.prototype.isnull = function () {
-            if (this._obj == null)
-                return true;
-            if (this._obj.__disposed == true)
-                return true;
-            return false;
-        };
-        return Instance;
-    }());
-    nn.Instance = Instance;
-    function New(v) {
-        return new Instance(v);
-    }
-    nn.New = New;
-    var Closure = (function () {
-        function Closure(cb, ctx) {
-            var p = [];
-            for (var _i = 2; _i < arguments.length; _i++) {
-                p[_i - 2] = arguments[_i];
-            }
-            this.cb = cb;
-            this.ctx = ctx;
-            this.argus = p;
-        }
-        Closure.prototype.dispose = function () {
-            this.cb = undefined;
-            this.ctx = undefined;
-            this.argus = undefined;
-        };
-        Closure.prototype.invoke = function () {
-            var p = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                p[_i] = arguments[_i];
-            }
-            if (this.cb) {
-                return this.cb.apply(this.ctx, p ? p : this.argus);
-            }
-            return undefined;
-        };
-        Closure.prototype.reset = function (cb, ctx) {
-            var p = [];
-            for (var _i = 2; _i < arguments.length; _i++) {
-                p[_i - 2] = arguments[_i];
-            }
-            this.cb = cb;
-            this.ctx = ctx;
-            this.argus = p;
-        };
-        return Closure;
-    }());
-    nn.Closure = Closure;
-    /** 拼装参数，直接发起函数调用 */
-    function Invoke1(fun, ctx, p) {
-        var prefixarguments = [];
-        for (var _i = 3; _i < arguments.length; _i++) {
-            prefixarguments[_i - 3] = arguments[_i];
-        }
-        var argus = nn.ArrayT.Concat(prefixarguments, p);
-        return fun.apply(ctx, argus);
-    }
-    nn.Invoke1 = Invoke1;
-    function Invoke2(fun, ctx, prefixarguments, p) {
-        var argus = nn.ArrayT.Concat(prefixarguments, p);
-        return fun.apply(ctx, argus);
-    }
-    nn.Invoke2 = Invoke2;
-    /** 直接运行，返回参数 */
-    function call(cb) {
-        return cb();
-    }
-    nn.call = call;
-})(nn || (nn = {}));
-var tmp;
-(function (tmp) {
-    // 通用全局命名计数器
-    var _RT_NAMECOUNT = 0;
-    function rtname() {
-        return '__rt' + (_RT_NAMECOUNT++);
-    }
-    tmp.rtname = rtname;
-})(tmp || (tmp = {}));
-var nn;
-(function (nn) {
-    /** 按钮类
-        @note 定义为具有点按状态、文字、图片的元素，可以通过子类化来调整文字、图片的布局方式
-     */
-    var CButton = (function (_super) {
-        __extends(CButton, _super);
-        function CButton() {
+    var EgretApp = (function (_super) {
+        __extends(EgretApp, _super);
+        function EgretApp() {
             var _this = _super.call(this) || this;
-            /** 点击频度限制 */
-            _this.eps = 3;
-            _this.touchEnabled = true;
-            _this.anchor = nn.Point.AnchorCC;
+            // 通用的app事件
+            egret.MainContext.instance.stage.addEventListener(egret.Event.ACTIVATE, _this.onActivated, _this);
+            egret.MainContext.instance.stage.addEventListener(egret.Event.DEACTIVATE, _this.onDeactived, _this);
             return _this;
         }
-        CButton.prototype._signalConnected = function (sig, s) {
-            _super.prototype._signalConnected.call(this, sig, s);
-            if (sig == nn.SignalClicked)
-                s.eps = this.eps;
+        Object.defineProperty(EgretApp.prototype, "fontFamily", {
+            get: function () {
+                return egret.TextField.default_fontFamily;
+            },
+            set: function (f) {
+                egret.TextField.default_fontFamily = f;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return EgretApp;
+    }(nn.CApplication));
+    nn.EgretApp = EgretApp;
+    nn.EUI_MODE = false;
+    // ------------------实现egret需要的加载过程 ------------------------
+    // 保护Main入口类    
+    var CLAZZ_MAIN;
+    // 伪main类，为了支持library(用来支持wing项目)和framework两种模式下的切换
+    var _CloakMain = (function (_super) {
+        __extends(_CloakMain, _super);
+        function _CloakMain() {
+            return _super.apply(this, arguments) || this;
+        }
+        return _CloakMain;
+    }(nn.CApplication));
+    // 替换掉egret原始调试信息窗
+    var _InstrumentObject = (function (_super) {
+        __extends(_InstrumentObject, _super);
+        function _InstrumentObject() {
+            var _this = _super.apply(this, arguments) || this;
+            _this.totalTime = 0;
+            _this.lastTime = 0;
+            _this.totalTick = 0;
+            _this.drawCalls = 0;
+            return _this;
+        }
+        // 次数、脏比率、时间、为了统计消耗的时间
+        _InstrumentObject.prototype.update = function (drawCalls, dirtyRatio, cost, statcost) {
+            var current = egret.getTimer();
+            this.totalTime += current - this.lastTime;
+            this.lastTime = current;
+            this.totalTick++;
+            this.drawCalls = Math.max(drawCalls, this.drawCalls);
+            if (this.totalTime > 500) {
+                nn.COLLECT_FPS = Math.round(this.totalTick * 1000 / this.totalTime);
+                nn.COLLECT_COST = cost;
+                nn.COLLECT_DRAWS = drawCalls;
+                nn.COLLECT_DIRTYR = dirtyRatio;
+                nn.Instrument.shared.updateData();
+                this.totalTick = 0;
+                this.totalTime = 0;
+                this.drawCalls = 0;
+            }
         };
-        CButton.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalClicked);
+        return _InstrumentObject;
+    }(egret.DisplayObject));
+    var _Player = (function (_super) {
+        __extends(_Player, _super);
+        function _Player() {
+            return _super.apply(this, arguments) || this;
+        }
+        _Player.prototype.start = function () {
+            _super.prototype.start.call(this);
+            if (DEBUG && this['fpsDisplay'] == null) {
+                var io_1 = new _InstrumentObject();
+                this['fpsDisplay'] = io_1;
+            }
         };
-        CButton.prototype.isSelection = function () {
-            return this._isSelected;
+        _Player.prototype.$render = function (triggerByFrame, costTicker) {
+            if (DEBUG) {
+                // 打开fps的统计
+                this['showFPS'] = nn.COLLECT_INSTRUMENT;
+            }
+            _super.prototype.$render.call(this, triggerByFrame, costTicker);
         };
-        return CButton;
-    }(nn.Widget));
-    CButton.STATE_NORMAL = "::button::state::normal";
-    CButton.STATE_DISABLED = "::button::state::disable";
-    CButton.STATE_HIGHLIGHT = "::button::state::highlight";
-    CButton.STATE_SELECTED = "::button::state::selected";
-    nn.CButton = CButton;
+        return _Player;
+    }(egret.sys.Player));
+    egret.sys.Player = _Player;
+    // 需要控制一下 stage 的一些功能
+    var _AppStage = (function (_super) {
+        __extends(_AppStage, _super);
+        function _AppStage() {
+            var _this = _super.call(this) || this;
+            _AppStage.shared = _this;
+            _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.__stage_added, _this);
+            // 开启帧监听，负责自动刷新布局、显示状态等功能
+            nn.FramesManager.launch(_this);
+            return _this;
+        }
+        _AppStage.prototype.__stage_added = function () {
+            // 创建 APP 首页面的实例
+            var app = new CLAZZ_MAIN();
+            this.appMain = app;
+            this.addChild(app.handle());
+            // 更新大小
+            egret.MainContext.instance.stage.setContentSize(_AppStage.StageBounds.width, _AppStage.StageBounds.height);
+            // 计算dom的缩放
+            var p = document.querySelector('.egret-player');
+            if (p) {
+                var canvas = p.children[0];
+                nn.DomScaleFactorX = canvas.clientWidth / nn.toInt(canvas.getAttribute('width'));
+                nn.DomScaleFactorY = canvas.clientHeight / nn.toInt(canvas.getAttribute('height'));
+                nn.DomOffsetX = canvas.offsetLeft;
+                nn.DomOffsetY = canvas.offsetTop;
+            }
+            // 直接刷新主布局
+            this.updateLayout();
+        };
+        // 初始化 Stage 架构
+        _AppStage.Init = function () {
+            // 设置主业务入口类
+            CLAZZ_MAIN = eval("Main");
+            // 判断支持的特性
+            var features = CLAZZ_MAIN.Features();
+            if (nn.Mask.isset(nn.FrameworkFeature.MULTIRES, features))
+                nn.ResManager.multiRes = true;
+            if (nn.Device.shared.isAndroid &&
+                nn.Mask.isset(nn.FrameworkFeature.NOSYNC, features))
+                _AppStage.Fps = 0; // 0使用egret默认的帧速
+            else
+                _AppStage.Fps = 30;
+            if (nn.Mask.isset(nn.FrameworkFeature.FULLSCREEN, features))
+                nn.CApplication.NeedFullscreen = true;
+            _AppStage.UpdateBounds();
+        };
+        // 界面发生变化
+        _AppStage.UpdateBounds = function () {
+            // 取得app预定的方向，如果时HTML则取meta中的设置，或者和native一样，取的APP重载的设置
+            document_orientation = CLAZZ_MAIN.Orientation();
+            // 刷新当前屏幕的尺寸
+            nn.Device.shared._updateScreen();
+            nn.Dom.updateBounds();
+            // 设置大小            
+            this.ScreenBounds = nn.Device.shared.screenBounds;
+            this.DesignBounds = CLAZZ_MAIN.BestFrame();
+            if (this.DesignBounds == null)
+                this.DesignBounds = this.ScreenBounds.clone();
+            // 计算 app 的尺寸
+            var stageBounds = this.DesignBounds.clone();
+            var fillMode = CLAZZ_MAIN.ScreenFillMode();
+            this.ScreenScale = nn.ISHTML5 ? CLAZZ_MAIN.ScreenScale() : 1;
+            // 如果是纯PC，则使用原始分辨率居中
+            if (nn.Device.shared.isPurePC) {
+                fillMode = nn.FillMode.CENTER;
+                this.ScreenScale = 1;
+            }
+            // 映射设计分辨率到实际分辨率中
+            stageBounds.fill(this.ScreenBounds, fillMode);
+            // 如果宽度小于800，高度小于480，则需要映射到800*480中
+            if (stageBounds.width > stageBounds.height) {
+                var r = stageBounds.width / stageBounds.height;
+                if (nn.Mask.isset(nn.FillMode.MAXIMUM, fillMode) ?
+                    stageBounds.width > 800 :
+                    stageBounds.width < 800) {
+                    stageBounds.height *= 800 / stageBounds.width;
+                    stageBounds.width = 800;
+                }
+            }
+            else {
+                var r = stageBounds.height / stageBounds.width;
+                if (nn.Mask.isset(nn.FillMode.MAXIMUM, fillMode) ?
+                    stageBounds.height > 800 :
+                    stageBounds.height < 800) {
+                    stageBounds.width *= 800 / stageBounds.height;
+                    stageBounds.height = 800;
+                }
+            }
+            // 大小需要规整
+            stageBounds.scale(this.ScreenScale).integral();
+            this.StageBounds = new nn.Rect(0, 0, stageBounds.width, stageBounds.height);
+            // 计算屏幕的类型
+            var scrFactor = nn.Rect.Area(stageBounds) / nn.Rect.Area(this.DesignBounds);
+            if (scrFactor >= 3)
+                nn.Device.shared.screenType = nn.ScreenType.EXTRAHIGH;
+            else if (scrFactor >= 1.5)
+                nn.Device.shared.screenType = nn.ScreenType.HIGH;
+            else if (scrFactor <= 0.3)
+                nn.Device.shared.screenType = nn.ScreenType.EXTRALOW;
+            else if (scrFactor <= 0.75)
+                nn.Device.shared.screenType = nn.ScreenType.LOW;
+            else
+                nn.Device.shared.screenType = nn.ScreenType.NORMAL;
+            // 计算缩放系数，如果是PUREPC，则不进行缩放控制
+            if ((fillMode & nn.FillMode.MASK_MAJOR) == nn.FillMode.CENTER) {
+                nn.ScaleFactorX = nn.ScaleFactorY = this.ScreenScale;
+                nn.ScaleFactorW = nn.ScaleFactorH = this.ScreenScale;
+                if (nn.Mask.isset(nn.FillMode.NOBORDER, fillMode)) {
+                    nn.StageScaleFactorX = stageBounds.width / this.DesignBounds.width / this.ScreenScale;
+                    nn.StageScaleFactorY = stageBounds.height / this.DesignBounds.height / this.ScreenScale;
+                }
+                else {
+                    nn.StageScaleFactorX = this.ScreenScale;
+                    nn.StageScaleFactorY = this.ScreenScale;
+                }
+            }
+            else {
+                nn.ScaleFactorX = stageBounds.width / this.DesignBounds.width;
+                nn.ScaleFactorY = stageBounds.height / this.DesignBounds.height;
+                if ((fillMode & nn.FillMode.MASK_MAJOR) == nn.FillMode.STRETCH) {
+                    nn.ScaleFactorW = nn.ScaleFactorX;
+                    nn.ScaleFactorH = nn.ScaleFactorY;
+                }
+                else {
+                    nn.ScaleFactorW = nn.ScaleFactorH = Math.min(nn.ScaleFactorX, nn.ScaleFactorY);
+                }
+                nn.StageScaleFactorX = this.ScreenScale;
+                nn.StageScaleFactorY = this.ScreenScale;
+            }
+            nn.ScaleFactorDeX = 1 / nn.ScaleFactorX;
+            nn.ScaleFactorDeY = 1 / nn.ScaleFactorY;
+            nn.ScaleFactorDeW = 1 / nn.ScaleFactorW;
+            nn.ScaleFactorDeH = 1 / nn.ScaleFactorH;
+            nn.ScaleFactorS = Math.min(nn.ScaleFactorW, nn.ScaleFactorH);
+            nn.ScaleFactorDeS = 1 / nn.ScaleFactorS;
+            // 打印日志
+            /*
+            log(`ScaleFactor:
+                x:${ScaleFactorX}, y:${ScaleFactorY}
+                w:${ScaleFactorW}, h:${ScaleFactorH}, s:${ScaleFactorS}
+                sx:${StageScaleFactorX}, sy:${StageScaleFactorY}`);
+            */
+            // 设置到全局变量，用以其他界面初始化的时候使用
+            nn.StageBounds.reset(0, 0, stageBounds.width * nn.ScaleFactorDeW, stageBounds.height * nn.ScaleFactorDeH)
+                .integral();
+            // 设置egret内部的舞台大小
+            if (egret.MainContext.instance.stage) {
+                egret.MainContext.instance.stage.setContentSize(this.StageBounds.width, this.StageBounds.height);
+            }
+        };
+        _AppStage.prototype.updateLayout = function () {
+            this.appMain.setFrame(nn.StageBounds);
+        };
+        return _AppStage;
+    }(egret.Sprite));
+    Js.OverrideFunction(egret, 'updateAllScreens', function (orifn) {
+        if (CLAZZ_MAIN == null)
+            return;
+        // 如果键盘弹出，则认定为因为弹出键盘导致的尺寸修改
+        if (nn.Keyboard.visible)
+            return;
+        nn.log("尺寸改变");
+        // 重新计算一下舞台的大小
+        _AppStage.UpdateBounds();
+        // 刷新首页的尺寸        
+        _AppStage.shared.updateLayout();
+        // 激活信号            
+        nn.emit(nn.CApplication.shared, nn.SignalFrameChanged);
+        // 调用原始的实现
+        orifn.call(this);
+    });
+    // 需要替换查找入口类的函数，使得我们可以插入非业务类作为主入口
+    Js.OverrideFunction(egret, 'getDefinitionByName', function (orifn, name) {
+        if (name == 'Main')
+            return _AppStage;
+        return orifn(name);
+    });
+    // 替换掉默认的屏幕适配        
+    var ExtScreenAdapter = (function (_super) {
+        __extends(ExtScreenAdapter, _super);
+        function ExtScreenAdapter() {
+            return _super.apply(this, arguments) || this;
+        }
+        ExtScreenAdapter.prototype.calculateStageSize = function (scaleMode, screenWidth, screenHeight, contentWidth, contentHeight) {
+            // 如果是标准PC浏览器，使用设计尺寸直接计算
+            if (nn.Device.shared.isPurePC)
+                return _super.prototype.calculateStageSize.call(this, scaleMode, screenWidth, screenHeight, contentWidth, contentHeight);
+            // 否则手机上使用实时适配出来的舞台大小计算
+            return _super.prototype.calculateStageSize.call(this, scaleMode, screenWidth, screenHeight, _AppStage.StageBounds.width, _AppStage.StageBounds.height);
+        };
+        return ExtScreenAdapter;
+    }(egret.sys.DefaultScreenAdapter));
+    // 替换掉系统的adapter
+    egret.sys.screenAdapter = new ExtScreenAdapter();
+    nn.loader.webstart = function () {
+        // 执行加载动作
+        nn.loader.InvokeBoot();
+        // 初始化舞台
+        _AppStage.Init();
+        // 约定是否使用webgl
+        var glmode = false;
+        if (location.href.indexOf('nowebgl=1') != -1)
+            glmode = false;
+        else if (location.href.indexOf('webgl=1') != -1)
+            glmode = true;
+        if (glmode) {
+            // 如果是UC，则关闭webgl
+            var agent = navigator.userAgent;
+            if (agent.indexOf('UCBrowser') != -1)
+                glmode = false;
+        }
+        // 默认使用webgl渲染
+        if (glmode)
+            egret.runEgret({ renderMode: "webgl" });
+        else
+            egret.runEgret();
+        // 如过是webgl模式，根据egret官方文档因为dirtyRegion已经起不到多大作用，所以关闭
+        if (egret.Capabilities.renderMode == "webgl") {
+            egret.MainContext.instance.stage.dirtyRegionPolicy = egret.DirtyRegionPolicy.OFF;
+            nn.Device.shared.isCanvas = false;
+        }
+    };
+    // 启动原生程序
+    nn.loader.nativestart = function () {
+        // 创建舞台
+        _AppStage.Init();
+        // 运行原始的入口
+        egret.runEgret();
+    };
+    // 启动runtime版本
+    nn.loader.runtimestart = function () {
+        // 创建舞台
+        _AppStage.Init();
+        // 运行原始的入口
+        egret.runEgret();
+    };
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -11510,359 +11804,175 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    function _bindDesktop(c, dsk) {
-        c.__desktop = dsk;
-    }
-    function _bindedDesktop(c) {
-        return c ? c.__desktop : null;
-    }
-    var DisabledAutolayoutSprite = (function (_super) {
-        __extends(DisabledAutolayoutSprite, _super);
-        function DisabledAutolayoutSprite() {
-            return _super.apply(this, arguments) || this;
-        }
-        DisabledAutolayoutSprite.prototype.setNeedsLayout = function () { };
-        return DisabledAutolayoutSprite;
-    }(nn.Sprite));
-    var DisabledAutolayoutBitmap = (function (_super) {
-        __extends(DisabledAutolayoutBitmap, _super);
-        function DisabledAutolayoutBitmap() {
-            return _super.apply(this, arguments) || this;
-        }
-        DisabledAutolayoutBitmap.prototype.setNeedsLayout = function () { };
-        return DisabledAutolayoutBitmap;
-    }(nn.Bitmap));
-    /** Desktop默认依赖的执行队列，业务可以通过替换对来来手动划分不同的Desktop打开层级
-        @note 如果Desktop放到队列中，则当上一个dialog关闭时，下一个dialog才打开
-    */
-    nn.DesktopOperationQueue = new nn.OperationQueue();
-    /** 桌面，打开时铺平整个屏幕 */
-    var Desktop = (function (_super) {
-        __extends(Desktop, _super);
-        function Desktop(ui) {
+    /** 按钮类
+        @note 定义为具有点按状态、文字、图片的元素，可以通过子类化来调整文字、图片的布局方式
+     */
+    var CButton = (function (_super) {
+        __extends(CButton, _super);
+        function CButton() {
             var _this = _super.call(this) || this;
-            /** 高亮元素，在元素所在的位置镂空背景 */
-            _this._filters = new Array();
-            /** 是否已经打开
-                @note 如果open在队列中，则调用open后，当前parent仍然为null，但是逻辑上该dialog算是已经打开，所以需要使用独立的变量来维护打开状态
-            */
-            _this._isOpened = false;
-            /** 队列控制时依赖的队列组，业务层设置为自己的队列实例来和标准desktop的队列隔离，避免多重desktop等待时造成业务中弹出的类似如tip的页面在业务dialog后等待的问题 */
-            _this.queue = nn.DesktopOperationQueue;
-            /** desktop打开的样式
-                @note 默认为弹出在desktopLayer，否则为push进desktopLayer
-                弹出不会隐藏后面的内容，push将根据对应的viewStack来决定是否背景的内容隐藏
-            */
-            _this.popupMode = true;
-            // 需要被添加到已经打开的对战中
-            _this._addIntoOpening = true;
-            /** 点击桌面自动关闭 */
-            _this.clickedToClose = false;
-            /** 使用自适应来布局内容页面 */
-            _this.adaptiveContentFrame = true;
-            if (nn.ObjectClass(_this).BackgroundColor)
-                _this.backgroundColor = nn.ObjectClass(_this).BackgroundColor;
-            if (nn.ObjectClass(_this).BackgroundImage)
-                _this.backgroundImage = nn.ObjectClass(_this).BackgroundImage;
+            /** 点击频度限制 */
+            _this.eps = 3;
             _this.touchEnabled = true;
-            _this.contentView = ui;
-            _this.frame = nn.StageBounds;
-            _this.signals.connect(nn.SignalClicked, _this.__dsk_clicked, _this);
-            _this.signals.connect(nn.SignalHitTest, _this.__dsk_clicked, _this);
-            _this.signals.connect(nn.SignalAddedToStage, _this.__dsk_addedtostage, _this);
-            // 保证一直是满屏大小
-            nn.CApplication.shared.signals.connect(nn.SignalFrameChanged, _this.__dsk_sizechanged, _this);
+            _this.anchor = nn.Point.AnchorCC;
             return _this;
         }
-        Desktop.prototype.dispose = function () {
-            nn.ArrayT.Clear(this._filters);
-            _super.prototype.dispose.call(this);
+        CButton.prototype._signalConnected = function (sig, s) {
+            _super.prototype._signalConnected.call(this, sig, s);
+            if (sig == nn.SignalClicked)
+                s.eps = this.eps;
         };
-        Desktop.FromView = function (c) {
-            var r = _bindedDesktop(c);
-            var t = c;
-            while (r == null && c) {
-                c = c.parent;
-                r = _bindedDesktop(c);
-            }
+        CButton.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalClicked);
+        };
+        CButton.prototype.isSelection = function () {
+            return this._isSelected;
+        };
+        return CButton;
+    }(nn.Widget));
+    CButton.STATE_NORMAL = "::button::state::normal";
+    CButton.STATE_DISABLED = "::button::state::disable";
+    CButton.STATE_HIGHLIGHT = "::button::state::highlight";
+    CButton.STATE_SELECTED = "::button::state::selected";
+    nn.CButton = CButton;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    /** 骨骼的配置信息 */
+    var BoneConfig = (function () {
+        /**
+           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
+           @character 角色名称，通常和name一致
+           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
+           @place 材质节点的位置配置文件，通常为 texture_json 结尾
+           @texture 图片文件，通常为 texture_png 结尾
+        */
+        function BoneConfig(name, character, skeleton, place, texture) {
+            this._name = name;
+            if (!character)
+                this._character = name;
+            else
+                this._character = character;
+            if (!skeleton)
+                this._skeleton = name + '_skeleton_json';
+            else
+                this._skeleton = skeleton;
+            if (!place)
+                this._place = name + '_texture_json';
+            else
+                this._place = place;
+            if (!texture)
+                this._texture = name + '_png';
+            else
+                this._texture = texture;
+        }
+        Object.defineProperty(BoneConfig.prototype, "name", {
+            get: function () {
+                return this._name;
+            },
+            set: function (v) {
+                this._name = v;
+                if (!this._character)
+                    this._character = name;
+                if (!this._skeleton)
+                    this._skeleton = name + '_skeleton_json';
+                if (!this._place)
+                    this._place = name + '_texture_json';
+                if (!this._texture)
+                    this._texture = name + '_png';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneConfig.prototype, "skeleton", {
+            get: function () {
+                return this._skeleton;
+            },
+            set: function (v) {
+                this._skeleton = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneConfig.prototype, "place", {
+            get: function () {
+                return this._place;
+            },
+            set: function (v) {
+                this._place = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneConfig.prototype, "texture", {
+            get: function () {
+                return this._texture;
+            },
+            set: function (v) {
+                this._texture = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneConfig.prototype, "character", {
+            get: function () {
+                return this._character;
+            },
+            set: function (v) {
+                this._character = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        BoneConfig.prototype.getReqResources = function () {
+            var r = [];
+            r.push(new nn.ResourceEntity(this.skeleton, nn.ResType.JSON));
+            r.push(new nn.ResourceEntity(this.place, nn.ResType.JSON));
+            r.push(new nn.ResourceEntity(this.texture, nn.ResType.TEXTURE));
             return r;
         };
-        // 屏幕大小变化时需要及时更新desktop大小，不然周边会出现空白
-        Desktop.prototype.__dsk_sizechanged = function (s) {
-            this.frame = nn.StageBounds;
-        };
-        Desktop.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalHitTest);
-            this._signals.register(nn.SignalOpening);
-            this._signals.register(nn.SignalClosing);
-            this._signals.register(nn.SignalOpen);
-            this._signals.register(nn.SignalClose);
-        };
-        Desktop.prototype.addFilter = function (ui) {
-            this._filters.push(ui);
-        };
-        Object.defineProperty(Desktop.prototype, "onlyFiltersTouchEnabled", {
-            get: function () {
-                return this._onlyFiltersTouchEnabled;
-            },
-            set: function (val) {
-                this._onlyFiltersTouchEnabled = val;
-                this.touchEnabled = !val;
-                this.touchChildren = !val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Desktop.prototype.hitTestInFilters = function (pt) {
-            var _this = this;
-            return nn.ArrayT.QueryObject(this._filters, function (ui) {
-                var rc = ui.convertRectTo(ui.bounds(), _this);
-                return rc.containsPoint(pt);
-            }, this, null);
-        };
-        Desktop.prototype.onLoaded = function () {
-            _super.prototype.onLoaded.call(this);
-            if (this._contentView)
-                this._contentView.updateData();
-        };
-        Desktop.prototype.__dsk_addedtostage = function () {
-            // 显示内容页面
-            if (this._contentView)
-                this.addChild(this._contentView);
-        };
-        Desktop.prototype.onAppeared = function () {
-            _super.prototype.onAppeared.call(this);
-            // 延迟关闭
-            if (nn.isZero(this.delayClose) == false)
-                nn.Delay(this.delayClose, this.close, this);
-            this.updateFilters();
-        };
-        Desktop.prototype.updateFilters = function () {
-            var _this = this;
-            if (this._filters.length == 0)
-                return;
-            var bkcr = this.backgroundColor;
-            var bkimg = this.backgroundImage;
-            this.backgroundColor = null;
-            this.backgroundImage = null;
-            var sp = new DisabledAutolayoutSprite();
-            sp.hasHollowOut = true;
-            sp.backgroundColor = bkcr;
-            sp.backgroundImage = bkimg;
-            sp.frame = this.bounds();
-            sp.updateLayout();
-            this._filters.forEach(function (ui) {
-                var bmp = new DisabledAutolayoutBitmap();
-                bmp.frame = ui.convertRectTo(ui.bounds(), _this);
-                bmp.imageSource = ui.renderToTexture();
-                bmp.updateLayout();
-                sp.hollowOut(bmp);
-            }, this);
-            this.backgroundImage = sp.renderToTexture();
-        };
-        Object.defineProperty(Desktop.prototype, "contentView", {
-            get: function () {
-                return this._contentView;
-            },
-            set: function (val) {
-                if (this._contentView == val)
-                    return;
-                if (this._contentView) {
-                    this.removeChild(this._contentView);
-                    _bindDesktop(this._contentView, null);
-                }
-                this._contentView = val;
-                if (val) {
-                    _bindDesktop(val, this);
-                    if (this.onStage)
-                        this.__dsk_addedtostage();
-                    val.signals.register(nn.SignalOpening);
-                    val.signals.register(nn.SignalClosing);
-                    val.signals.register(nn.SignalOpen);
-                    val.signals.register(nn.SignalClose);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Desktop.prototype, "isOpened", {
-            get: function () {
-                return this._isOpened;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /** 打开
-            @param queue, 是否放到队列中打开
-        */
-        Desktop.prototype.open = function (queue) {
-            if (queue === void 0) { queue = false; }
-            if (this._isOpened)
-                return;
-            this._isOpened = true;
-            if (queue) {
-                this._oper = new DesktopOperation(this);
-                this.queue.add(this._oper);
-            }
-            else {
-                this.doOpen();
-            }
-        };
-        /** 接着其他对象打开 */
-        Desktop.prototype.follow = function (otherContent) {
-            if (this._isOpened)
-                return;
-            this._isOpened = true;
-            this._oper = new DesktopOperation(this);
-            var dsk = _bindedDesktop(otherContent);
-            if (dsk._oper == null) {
-                this.queue.add(this._oper);
-            }
-            else {
-                this.queue.follow(dsk._oper, this._oper);
-            }
-        };
-        /** 替换打开 */
-        Desktop.prototype.replace = function (otherContent) {
-            if (this._isOpened)
-                return;
-            this._isOpened = true;
-            var dsk = _bindedDesktop(otherContent);
-            if (dsk._oper == null) {
-                dsk.close();
-                this.open();
-            }
-            else {
-                if (dsk.desktopLayer == null)
-                    dsk.desktopLayer = this.desktopLayer;
-                this._oper = new DesktopOperation(this);
-                this.queue.replace(dsk._oper, this._oper);
-                dsk.close();
-            }
-        };
-        Desktop.prototype.doOpen = function () {
-            if (this.desktopLayer == null)
-                this.desktopLayer = nn.CApplication.shared.gameLayer;
-            if (this._onlyFiltersTouchEnabled)
-                Desktop._AllNeedFilters.push(this);
-            if (this._addIntoOpening)
-                Desktop._AllOpenings.push(this);
-            this.signals.emit(nn.SignalOpening);
-            if (this._contentView)
-                this._contentView.signals.emit(nn.SignalOpening);
-            if (this.popupMode)
-                this.desktopLayer.addChild(this);
-            else
-                this.desktopLayer.push(this);
-            if (this._contentView)
-                this._contentView.signals.emit(nn.SignalOpen);
-            this.signals.emit(nn.SignalOpen);
-        };
-        /** 关闭所有正在打开的desktop */
-        Desktop.CloseAllOpenings = function () {
-            nn.ArrayT.SafeClear(this._AllOpenings, function (e) {
-                e.close();
-            });
-        };
-        /** 正在打开的desktop */
-        Desktop.Current = function () {
-            return nn.ArrayT.Top(this._AllOpenings);
-        };
-        /** 关闭 */
-        Desktop.prototype.close = function () {
-            if (!this._isOpened)
-                return;
-            this._isOpened = false;
-            // 如过还在等待队列中，需要保护一下状态
-            if (this.parent == null) {
-                if (this._oper) {
-                    this.queue.remove(this._oper);
-                    this._oper = null;
-                }
-                return;
-            }
-            this.doClose();
-            if (this._oper) {
-                this._oper.done();
-                this._oper = null;
-            }
-        };
-        Desktop.prototype.doClose = function () {
-            if (this._onlyFiltersTouchEnabled)
-                nn.ArrayT.RemoveObject(Desktop._AllNeedFilters, this);
-            if (this._addIntoOpening)
-                nn.ArrayT.RemoveObject(Desktop._AllOpenings, this);
-            this.signals.emit(nn.SignalClosing);
-            if (this._contentView)
-                this._contentView.signals.emit(nn.SignalClosing);
-            // 保护生命期
-            this.grab();
-            if (this._contentView)
-                this._contentView.grab();
-            // popup弹出模式直接作为deskLayer子控件
-            if (this.popupMode) {
-                this.onDisappeared();
-                this.desktopLayer.removeChild(this);
-            }
-            else {
-                this.desktopLayer.pop(this);
-            }
-            if (this._contentView)
-                this._contentView.signals.emit(nn.SignalClose);
-            this.signals.emit(nn.SignalClose);
-            // 释放
-            if (this._contentView)
-                this._contentView.drop();
-            this.drop();
-        };
-        Desktop.prototype.__dsk_clicked = function () {
-            if (!this.clickedToClose)
-                return;
-            this.close();
-        };
-        Desktop.prototype.updateLayout = function () {
-            _super.prototype.updateLayout.call(this);
-            if (this._contentView) {
-                if (this.adaptiveContentFrame) {
-                    var crc = this._contentView.bestFrame();
-                    if (crc) {
-                        crc.center = this.bounds().center.add(crc.x, crc.y);
-                        var cpos = this._contentView.bestPosition();
-                        if (cpos)
-                            crc.position = cpos;
-                        this._contentView.frame = crc;
-                    }
-                }
-            }
-        };
-        return Desktop;
-    }(nn.Component));
-    Desktop.BackgroundColor = nn.Color.RGBf(0, 0, 0, 0.61);
-    // 所有需要被镂空的desktop，用来在点击是过滤掉touch事件
-    Desktop._AllNeedFilters = new Array();
-    // 当前已经打开的所有desktop的数组
-    Desktop._AllOpenings = new Array();
-    nn.Desktop = Desktop;
-    var DesktopOperation = (function (_super) {
-        __extends(DesktopOperation, _super);
-        function DesktopOperation(desk) {
+        return BoneConfig;
+    }());
+    nn.BoneConfig = BoneConfig;
+    ;
+    /** 业务使用的骨骼显示类 */
+    var CBones = (function (_super) {
+        __extends(CBones, _super);
+        function CBones() {
             var _this = _super.call(this) || this;
-            _this._desktop = desk;
+            /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
+            _this.additionScale = 1;
+            /** 骨骼填充的方式，默认为充满 */
+            _this.fillMode = nn.FillMode.ASPECTSTRETCH;
+            /** 对齐位置 */
+            _this.clipAlign = nn.POSITION.BOTTOM_CENTER;
+            /** 自动开始播放 */
+            _this.autoPlay = true;
+            /** 播放次数控制
+                -1: 循环
+                0: 使用文件设置的次数
+                >0: 次数控制
+            */
+            _this.count = -1;
             return _this;
         }
-        DesktopOperation.prototype.start = function () {
-            var dsk = this._desktop;
-            var d = dsk.delayOpenInQueue;
-            if (d) {
-                nn.Delay(d, dsk.doOpen, dsk);
-            }
-            else {
-                dsk.doOpen();
-            }
+        CBones.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            // 骨骼开始播放
+            this._signals.register(nn.SignalStart);
+            // 一次 motion 结束
+            this._signals.register(nn.SignalEnd);
+            // 所有循环的结束
+            this._signals.register(nn.SignalDone);
+            // 骨骼改变，当骨骼资源变更时激发
+            this._signals.register(nn.SignalChanged);
+            // 骨骼更新，和change的区别在update每一次设置source都会激发
+            this._signals.register(nn.SignalUpdated);
         };
-        return DesktopOperation;
-    }(nn.Operation));
+        return CBones;
+    }(nn.Widget));
+    nn.CBones = CBones;
 })(nn || (nn = {}));
 // generated by n2build, do not modify!
 var egret;
@@ -11936,6 +12046,154 @@ var nn;
         e.y = rc.y + e.anchorOffsetY;
     }
     nn.setAnchorPoint = setAnchorPoint;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var CMovieClip = (function (_super) {
+        __extends(CMovieClip, _super);
+        function CMovieClip() {
+            var _this = _super.call(this) || this;
+            /** 播放次数，-1代表循环，默认为一次*/
+            _this.count = 1;
+            /** 切换clipSource时清空原来的clip */
+            _this.clearOnChanging = true;
+            /** 是否自动播放 */
+            _this.autoPlay = true;
+            /** 附加缩放 */
+            _this.additionScale = 1;
+            /** 填充方式 */
+            _this.fillMode = nn.FillMode.ASPECTSTRETCH;
+            /** 序列帧的对齐位置 */
+            _this.clipAlign = nn.POSITION.CENTER;
+            return _this;
+            //this.backgroundColor = Color.Red;
+        }
+        CMovieClip.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalStart);
+            this._signals.register(nn.SignalChanged);
+            this._signals.register(nn.SignalUpdated);
+            this._signals.register(nn.SignalEnd);
+            this._signals.register(nn.SignalDone);
+        };
+        // 需要在disap的时候暂停count＝－1的动画
+        CMovieClip.prototype.onAppeared = function () {
+            _super.prototype.onAppeared.call(this);
+            if (this.__autopaused == true) {
+                this.__autopaused = false;
+                this.play();
+            }
+        };
+        CMovieClip.prototype.onDisappeared = function () {
+            _super.prototype.onDisappeared.call(this);
+            if (this.isPlaying() && this.count == -1) {
+                this.__autopaused = true;
+                this.stop();
+            }
+        };
+        return CMovieClip;
+    }(nn.Widget));
+    nn.CMovieClip = CMovieClip;
+    var ClipConfig = (function () {
+        /**
+           @name 资源名称，资源由 json\bmp 组成，如过传入的时候没有带后缀，则自动加上后缀
+           @res 动作文件，通常为 _json
+           @tex 素材平成，通常为 _png
+        */
+        function ClipConfig(name, res, tex) {
+            /** OPT 是否为独立数据，否则同一个资源公用一份帧数据 */
+            this.key = '';
+            this._name = name;
+            this._frame = nn.nonnull1st(null, res, name);
+            this._texture = nn.nonnull1st(null, tex, res, name, res);
+        }
+        Object.defineProperty(ClipConfig.prototype, "frame", {
+            get: function () {
+                var src = this._frame;
+                if (src) {
+                    // 如过是普通key，则需要判断有没有加后缀，不存在需要自动补全
+                    if (src.indexOf('://') == -1) {
+                        if (src.indexOf('_json') == -1)
+                            src += '_json';
+                    }
+                }
+                return src;
+            },
+            set: function (frm) {
+                this._frame = frm;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ClipConfig.prototype, "texture", {
+            get: function () {
+                var src = this._texture;
+                if (src) {
+                    if (src.indexOf('://') == -1) {
+                        if (src.indexOf('_png') == -1)
+                            src += '_png';
+                    }
+                }
+                return src;
+            },
+            set: function (tex) {
+                this._texture = tex;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ClipConfig.prototype, "name", {
+            get: function () {
+                return this._name;
+            },
+            set: function (n) {
+                this._name = n;
+                if (this._frame == null)
+                    this._frame = n;
+                if (this._texture == null)
+                    this._texture = n;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ClipConfig.prototype, "hashCode", {
+            get: function () {
+                return nn.StringT.Hash(this.name + "::" + this._frame + "::" + this._texture + '::' + this.key);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ClipConfig.prototype.isEqual = function (r) {
+            return this.name == r.name &&
+                this._frame == r._frame &&
+                this._texture == r._texture &&
+                this.fps == r.fps &&
+                this.additionScale == r.additionScale &&
+                this.key == r.key;
+        };
+        ClipConfig.prototype.getReqResources = function () {
+            var r = [];
+            r.push(new nn.ResourceEntity(this.frame, nn.ResType.JSON));
+            r.push(new nn.ResourceEntity(this.texture, nn.ResType.TEXTURE));
+            return r;
+        };
+        ClipConfig.prototype.toString = function () {
+            return [this.name, this._frame, this._texture, this.key].join("\n");
+        };
+        return ClipConfig;
+    }());
+    nn.ClipConfig = ClipConfig;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var CParticle = (function (_super) {
+        __extends(CParticle, _super);
+        function CParticle() {
+            return _super.call(this) || this;
+        }
+        return CParticle;
+    }(nn.Widget));
+    nn.CParticle = CParticle;
 })(nn || (nn = {}));
 // 为了阻止wing莫名其妙的感知
 var eeui = eui;
@@ -12354,334 +12612,361 @@ var eui;
         return true;
     };
 })(eui || (eui = {}));
-if (typeof (document_class) == 'undefined')
-    document_class = 'Main';
 var nn;
 (function (nn) {
-    var EgretApp = (function (_super) {
-        __extends(EgretApp, _super);
-        function EgretApp() {
+    function _bindDesktop(c, dsk) {
+        c.__desktop = dsk;
+    }
+    function _bindedDesktop(c) {
+        return c ? c.__desktop : null;
+    }
+    var DisabledAutolayoutSprite = (function (_super) {
+        __extends(DisabledAutolayoutSprite, _super);
+        function DisabledAutolayoutSprite() {
+            return _super.apply(this, arguments) || this;
+        }
+        DisabledAutolayoutSprite.prototype.setNeedsLayout = function () { };
+        return DisabledAutolayoutSprite;
+    }(nn.Sprite));
+    var DisabledAutolayoutBitmap = (function (_super) {
+        __extends(DisabledAutolayoutBitmap, _super);
+        function DisabledAutolayoutBitmap() {
+            return _super.apply(this, arguments) || this;
+        }
+        DisabledAutolayoutBitmap.prototype.setNeedsLayout = function () { };
+        return DisabledAutolayoutBitmap;
+    }(nn.Bitmap));
+    /** Desktop默认依赖的执行队列，业务可以通过替换对来来手动划分不同的Desktop打开层级
+        @note 如果Desktop放到队列中，则当上一个dialog关闭时，下一个dialog才打开
+    */
+    nn.DesktopOperationQueue = new nn.OperationQueue();
+    /** 桌面，打开时铺平整个屏幕 */
+    var Desktop = (function (_super) {
+        __extends(Desktop, _super);
+        function Desktop(ui) {
             var _this = _super.call(this) || this;
-            // 通用的app事件
-            egret.MainContext.instance.stage.addEventListener(egret.Event.ACTIVATE, _this.onActivated, _this);
-            egret.MainContext.instance.stage.addEventListener(egret.Event.DEACTIVATE, _this.onDeactived, _this);
+            /** 高亮元素，在元素所在的位置镂空背景 */
+            _this._filters = new Array();
+            /** 是否已经打开
+                @note 如果open在队列中，则调用open后，当前parent仍然为null，但是逻辑上该dialog算是已经打开，所以需要使用独立的变量来维护打开状态
+            */
+            _this._isOpened = false;
+            /** 队列控制时依赖的队列组，业务层设置为自己的队列实例来和标准desktop的队列隔离，避免多重desktop等待时造成业务中弹出的类似如tip的页面在业务dialog后等待的问题 */
+            _this.queue = nn.DesktopOperationQueue;
+            /** desktop打开的样式
+                @note 默认为弹出在desktopLayer，否则为push进desktopLayer
+                弹出不会隐藏后面的内容，push将根据对应的viewStack来决定是否背景的内容隐藏
+            */
+            _this.popupMode = true;
+            // 需要被添加到已经打开的对战中
+            _this._addIntoOpening = true;
+            /** 点击桌面自动关闭 */
+            _this.clickedToClose = false;
+            /** 使用自适应来布局内容页面 */
+            _this.adaptiveContentFrame = true;
+            if (nn.ObjectClass(_this).BackgroundColor)
+                _this.backgroundColor = nn.ObjectClass(_this).BackgroundColor;
+            if (nn.ObjectClass(_this).BackgroundImage)
+                _this.backgroundImage = nn.ObjectClass(_this).BackgroundImage;
+            _this.touchEnabled = true;
+            _this.contentView = ui;
+            _this.frame = nn.StageBounds;
+            _this.signals.connect(nn.SignalClicked, _this.__dsk_clicked, _this);
+            _this.signals.connect(nn.SignalHitTest, _this.__dsk_clicked, _this);
+            _this.signals.connect(nn.SignalAddedToStage, _this.__dsk_addedtostage, _this);
+            // 保证一直是满屏大小
+            nn.CApplication.shared.signals.connect(nn.SignalFrameChanged, _this.__dsk_sizechanged, _this);
             return _this;
         }
-        Object.defineProperty(EgretApp.prototype, "fontFamily", {
+        Desktop.prototype.dispose = function () {
+            nn.ArrayT.Clear(this._filters);
+            _super.prototype.dispose.call(this);
+        };
+        Desktop.FromView = function (c) {
+            var r = _bindedDesktop(c);
+            var t = c;
+            while (r == null && c) {
+                c = c.parent;
+                r = _bindedDesktop(c);
+            }
+            return r;
+        };
+        // 屏幕大小变化时需要及时更新desktop大小，不然周边会出现空白
+        Desktop.prototype.__dsk_sizechanged = function (s) {
+            this.frame = nn.StageBounds;
+        };
+        Desktop.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalHitTest);
+            this._signals.register(nn.SignalOpening);
+            this._signals.register(nn.SignalClosing);
+            this._signals.register(nn.SignalOpen);
+            this._signals.register(nn.SignalClose);
+        };
+        Desktop.prototype.addFilter = function (ui) {
+            this._filters.push(ui);
+        };
+        Object.defineProperty(Desktop.prototype, "onlyFiltersTouchEnabled", {
             get: function () {
-                return egret.TextField.default_fontFamily;
+                return this._onlyFiltersTouchEnabled;
             },
-            set: function (f) {
-                egret.TextField.default_fontFamily = f;
+            set: function (val) {
+                this._onlyFiltersTouchEnabled = val;
+                this.touchEnabled = !val;
+                this.touchChildren = !val;
             },
             enumerable: true,
             configurable: true
         });
-        return EgretApp;
-    }(nn.CApplication));
-    nn.EgretApp = EgretApp;
-    nn.EUI_MODE = false;
-    // ------------------实现egret需要的加载过程 ------------------------
-    // 保护Main入口类    
-    var CLAZZ_MAIN;
-    // 伪main类，为了支持library(用来支持wing项目)和framework两种模式下的切换
-    var _CloakMain = (function (_super) {
-        __extends(_CloakMain, _super);
-        function _CloakMain() {
-            return _super.apply(this, arguments) || this;
-        }
-        return _CloakMain;
-    }(nn.CApplication));
-    // 替换掉egret原始调试信息窗
-    var _InstrumentObject = (function (_super) {
-        __extends(_InstrumentObject, _super);
-        function _InstrumentObject() {
-            var _this = _super.apply(this, arguments) || this;
-            _this.totalTime = 0;
-            _this.lastTime = 0;
-            _this.totalTick = 0;
-            _this.drawCalls = 0;
-            return _this;
-        }
-        // 次数、脏比率、时间、为了统计消耗的时间
-        _InstrumentObject.prototype.update = function (drawCalls, dirtyRatio, cost, statcost) {
-            var current = egret.getTimer();
-            this.totalTime += current - this.lastTime;
-            this.lastTime = current;
-            this.totalTick++;
-            this.drawCalls = Math.max(drawCalls, this.drawCalls);
-            if (this.totalTime > 500) {
-                nn.COLLECT_FPS = Math.round(this.totalTick * 1000 / this.totalTime);
-                nn.COLLECT_COST = cost;
-                nn.COLLECT_DRAWS = drawCalls;
-                nn.COLLECT_DIRTYR = dirtyRatio;
-                nn.Instrument.shared.updateData();
-                this.totalTick = 0;
-                this.totalTime = 0;
-                this.drawCalls = 0;
+        Desktop.prototype.hitTestInFilters = function (pt) {
+            var _this = this;
+            return nn.ArrayT.QueryObject(this._filters, function (ui) {
+                var rc = ui.convertRectTo(ui.bounds(), _this);
+                return rc.containsPoint(pt);
+            }, this, null);
+        };
+        Desktop.prototype.onLoaded = function () {
+            _super.prototype.onLoaded.call(this);
+            if (this._contentView)
+                this._contentView.updateData();
+        };
+        Desktop.prototype.__dsk_addedtostage = function () {
+            // 显示内容页面
+            if (this._contentView)
+                this.addChild(this._contentView);
+        };
+        Desktop.prototype.onAppeared = function () {
+            _super.prototype.onAppeared.call(this);
+            // 延迟关闭
+            if (nn.isZero(this.delayClose) == false)
+                nn.Delay(this.delayClose, this.close, this);
+            this.updateFilters();
+        };
+        Desktop.prototype.updateFilters = function () {
+            var _this = this;
+            if (this._filters.length == 0)
+                return;
+            var bkcr = this.backgroundColor;
+            var bkimg = this.backgroundImage;
+            this.backgroundColor = null;
+            this.backgroundImage = null;
+            var sp = new DisabledAutolayoutSprite();
+            sp.hasHollowOut = true;
+            sp.backgroundColor = bkcr;
+            sp.backgroundImage = bkimg;
+            sp.frame = this.bounds();
+            sp.updateLayout();
+            this._filters.forEach(function (ui) {
+                var bmp = new DisabledAutolayoutBitmap();
+                bmp.frame = ui.convertRectTo(ui.bounds(), _this);
+                bmp.imageSource = ui.renderToTexture();
+                bmp.updateLayout();
+                sp.hollowOut(bmp);
+            }, this);
+            this.backgroundImage = sp.renderToTexture();
+        };
+        Object.defineProperty(Desktop.prototype, "contentView", {
+            get: function () {
+                return this._contentView;
+            },
+            set: function (val) {
+                if (this._contentView == val)
+                    return;
+                if (this._contentView) {
+                    this.removeChild(this._contentView);
+                    _bindDesktop(this._contentView, null);
+                }
+                this._contentView = val;
+                if (val) {
+                    _bindDesktop(val, this);
+                    if (this.onStage)
+                        this.__dsk_addedtostage();
+                    val.signals.register(nn.SignalOpening);
+                    val.signals.register(nn.SignalClosing);
+                    val.signals.register(nn.SignalOpen);
+                    val.signals.register(nn.SignalClose);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Desktop.prototype, "isOpened", {
+            get: function () {
+                return this._isOpened;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /** 打开
+            @param queue, 是否放到队列中打开
+        */
+        Desktop.prototype.open = function (queue) {
+            if (queue === void 0) { queue = false; }
+            if (this._isOpened)
+                return;
+            this._isOpened = true;
+            if (queue) {
+                this._oper = new DesktopOperation(this);
+                this.queue.add(this._oper);
+            }
+            else {
+                this.doOpen();
             }
         };
-        return _InstrumentObject;
-    }(egret.DisplayObject));
-    var _Player = (function (_super) {
-        __extends(_Player, _super);
-        function _Player() {
-            return _super.apply(this, arguments) || this;
-        }
-        _Player.prototype.start = function () {
-            _super.prototype.start.call(this);
-            if (DEBUG && this['fpsDisplay'] == null) {
-                var io_1 = new _InstrumentObject();
-                this['fpsDisplay'] = io_1;
+        /** 接着其他对象打开 */
+        Desktop.prototype.follow = function (otherContent) {
+            if (this._isOpened)
+                return;
+            this._isOpened = true;
+            this._oper = new DesktopOperation(this);
+            var dsk = _bindedDesktop(otherContent);
+            if (dsk._oper == null) {
+                this.queue.add(this._oper);
+            }
+            else {
+                this.queue.follow(dsk._oper, this._oper);
             }
         };
-        _Player.prototype.$render = function (triggerByFrame, costTicker) {
-            if (DEBUG) {
-                // 打开fps的统计
-                this['showFPS'] = nn.COLLECT_INSTRUMENT;
+        /** 替换打开 */
+        Desktop.prototype.replace = function (otherContent) {
+            if (this._isOpened)
+                return;
+            this._isOpened = true;
+            var dsk = _bindedDesktop(otherContent);
+            if (dsk._oper == null) {
+                dsk.close();
+                this.open();
             }
-            _super.prototype.$render.call(this, triggerByFrame, costTicker);
+            else {
+                if (dsk.desktopLayer == null)
+                    dsk.desktopLayer = this.desktopLayer;
+                this._oper = new DesktopOperation(this);
+                this.queue.replace(dsk._oper, this._oper);
+                dsk.close();
+            }
         };
-        return _Player;
-    }(egret.sys.Player));
-    egret.sys.Player = _Player;
-    // 需要控制一下 stage 的一些功能
-    var _AppStage = (function (_super) {
-        __extends(_AppStage, _super);
-        function _AppStage() {
+        Desktop.prototype.doOpen = function () {
+            if (this.desktopLayer == null)
+                this.desktopLayer = nn.CApplication.shared.gameLayer;
+            if (this._onlyFiltersTouchEnabled)
+                Desktop._AllNeedFilters.push(this);
+            if (this._addIntoOpening)
+                Desktop._AllOpenings.push(this);
+            this.signals.emit(nn.SignalOpening);
+            if (this._contentView)
+                this._contentView.signals.emit(nn.SignalOpening);
+            if (this.popupMode)
+                this.desktopLayer.addChild(this);
+            else
+                this.desktopLayer.push(this);
+            if (this._contentView)
+                this._contentView.signals.emit(nn.SignalOpen);
+            this.signals.emit(nn.SignalOpen);
+        };
+        /** 关闭所有正在打开的desktop */
+        Desktop.CloseAllOpenings = function () {
+            nn.ArrayT.SafeClear(this._AllOpenings, function (e) {
+                e.close();
+            });
+        };
+        /** 正在打开的desktop */
+        Desktop.Current = function () {
+            return nn.ArrayT.Top(this._AllOpenings);
+        };
+        /** 关闭 */
+        Desktop.prototype.close = function () {
+            if (!this._isOpened)
+                return;
+            this._isOpened = false;
+            // 如过还在等待队列中，需要保护一下状态
+            if (this.parent == null) {
+                if (this._oper) {
+                    this.queue.remove(this._oper);
+                    this._oper = null;
+                }
+                return;
+            }
+            this.doClose();
+            if (this._oper) {
+                this._oper.done();
+                this._oper = null;
+            }
+        };
+        Desktop.prototype.doClose = function () {
+            if (this._onlyFiltersTouchEnabled)
+                nn.ArrayT.RemoveObject(Desktop._AllNeedFilters, this);
+            if (this._addIntoOpening)
+                nn.ArrayT.RemoveObject(Desktop._AllOpenings, this);
+            this.signals.emit(nn.SignalClosing);
+            if (this._contentView)
+                this._contentView.signals.emit(nn.SignalClosing);
+            // 保护生命期
+            this.grab();
+            if (this._contentView)
+                this._contentView.grab();
+            // popup弹出模式直接作为deskLayer子控件
+            if (this.popupMode) {
+                this.onDisappeared();
+                this.desktopLayer.removeChild(this);
+            }
+            else {
+                this.desktopLayer.pop(this);
+            }
+            if (this._contentView)
+                this._contentView.signals.emit(nn.SignalClose);
+            this.signals.emit(nn.SignalClose);
+            // 释放
+            if (this._contentView)
+                this._contentView.drop();
+            this.drop();
+        };
+        Desktop.prototype.__dsk_clicked = function () {
+            if (!this.clickedToClose)
+                return;
+            this.close();
+        };
+        Desktop.prototype.updateLayout = function () {
+            _super.prototype.updateLayout.call(this);
+            if (this._contentView) {
+                if (this.adaptiveContentFrame) {
+                    var crc = this._contentView.bestFrame();
+                    if (crc) {
+                        crc.center = this.bounds().center.add(crc.x, crc.y);
+                        var cpos = this._contentView.bestPosition();
+                        if (cpos)
+                            crc.position = cpos;
+                        this._contentView.frame = crc;
+                    }
+                }
+            }
+        };
+        return Desktop;
+    }(nn.Component));
+    Desktop.BackgroundColor = nn.Color.RGBf(0, 0, 0, 0.61);
+    // 所有需要被镂空的desktop，用来在点击是过滤掉touch事件
+    Desktop._AllNeedFilters = new Array();
+    // 当前已经打开的所有desktop的数组
+    Desktop._AllOpenings = new Array();
+    nn.Desktop = Desktop;
+    var DesktopOperation = (function (_super) {
+        __extends(DesktopOperation, _super);
+        function DesktopOperation(desk) {
             var _this = _super.call(this) || this;
-            _AppStage.shared = _this;
-            _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.__stage_added, _this);
-            // 开启帧监听，负责自动刷新布局、显示状态等功能
-            nn.FramesManager.launch(_this);
+            _this._desktop = desk;
             return _this;
         }
-        _AppStage.prototype.__stage_added = function () {
-            // 创建 APP 首页面的实例
-            var app = new CLAZZ_MAIN();
-            this.appMain = app;
-            this.addChild(app.handle());
-            // 更新大小
-            egret.MainContext.instance.stage.setContentSize(_AppStage.StageBounds.width, _AppStage.StageBounds.height);
-            // 计算dom的缩放
-            var p = document.querySelector('.egret-player');
-            if (p) {
-                var canvas = p.children[0];
-                nn.DomScaleFactorX = canvas.clientWidth / nn.toInt(canvas.getAttribute('width'));
-                nn.DomScaleFactorY = canvas.clientHeight / nn.toInt(canvas.getAttribute('height'));
-                nn.DomOffsetX = canvas.offsetLeft;
-                nn.DomOffsetY = canvas.offsetTop;
-            }
-            // 直接刷新主布局
-            this.updateLayout();
-        };
-        // 初始化 Stage 架构
-        _AppStage.Init = function () {
-            // 设置主业务入口类
-            CLAZZ_MAIN = eval("Main");
-            // 判断支持的特性
-            var features = CLAZZ_MAIN.Features();
-            if (nn.Mask.isset(nn.FrameworkFeature.MULTIRES, features))
-                nn.ResManager.multiRes = true;
-            if (nn.Device.shared.isAndroid &&
-                nn.Mask.isset(nn.FrameworkFeature.NOSYNC, features))
-                _AppStage.Fps = 0; // 0使用egret默认的帧速
-            else
-                _AppStage.Fps = 30;
-            if (nn.Mask.isset(nn.FrameworkFeature.FULLSCREEN, features))
-                nn.CApplication.NeedFullscreen = true;
-            _AppStage.UpdateBounds();
-        };
-        // 界面发生变化
-        _AppStage.UpdateBounds = function () {
-            // 取得app预定的方向，如果时HTML则取meta中的设置，或者和native一样，取的APP重载的设置
-            document_orientation = CLAZZ_MAIN.Orientation();
-            // 刷新当前屏幕的尺寸
-            nn.Device.shared._updateScreen();
-            nn.Dom.updateBounds();
-            // 设置大小            
-            this.ScreenBounds = nn.Device.shared.screenBounds;
-            this.DesignBounds = CLAZZ_MAIN.BestFrame();
-            if (this.DesignBounds == null)
-                this.DesignBounds = this.ScreenBounds.clone();
-            // 计算 app 的尺寸
-            var stageBounds = this.DesignBounds.clone();
-            var fillMode = CLAZZ_MAIN.ScreenFillMode();
-            this.ScreenScale = nn.ISHTML5 ? CLAZZ_MAIN.ScreenScale() : 1;
-            // 如果是纯PC，则使用原始分辨率居中
-            if (nn.Device.shared.isPurePC) {
-                fillMode = nn.FillMode.CENTER;
-                this.ScreenScale = 1;
-            }
-            // 映射设计分辨率到实际分辨率中
-            stageBounds.fill(this.ScreenBounds, fillMode);
-            // 如果宽度小于800，高度小于480，则需要映射到800*480中
-            if (stageBounds.width > stageBounds.height) {
-                var r = stageBounds.width / stageBounds.height;
-                if (nn.Mask.isset(nn.FillMode.MAXIMUM, fillMode) ?
-                    stageBounds.width > 800 :
-                    stageBounds.width < 800) {
-                    stageBounds.height *= 800 / stageBounds.width;
-                    stageBounds.width = 800;
-                }
+        DesktopOperation.prototype.start = function () {
+            var dsk = this._desktop;
+            var d = dsk.delayOpenInQueue;
+            if (d) {
+                nn.Delay(d, dsk.doOpen, dsk);
             }
             else {
-                var r = stageBounds.height / stageBounds.width;
-                if (nn.Mask.isset(nn.FillMode.MAXIMUM, fillMode) ?
-                    stageBounds.height > 800 :
-                    stageBounds.height < 800) {
-                    stageBounds.width *= 800 / stageBounds.height;
-                    stageBounds.height = 800;
-                }
-            }
-            // 大小需要规整
-            stageBounds.scale(this.ScreenScale).integral();
-            this.StageBounds = new nn.Rect(0, 0, stageBounds.width, stageBounds.height);
-            // 计算屏幕的类型
-            var scrFactor = nn.Rect.Area(stageBounds) / nn.Rect.Area(this.DesignBounds);
-            if (scrFactor >= 3)
-                nn.Device.shared.screenType = nn.ScreenType.EXTRAHIGH;
-            else if (scrFactor >= 1.5)
-                nn.Device.shared.screenType = nn.ScreenType.HIGH;
-            else if (scrFactor <= 0.3)
-                nn.Device.shared.screenType = nn.ScreenType.EXTRALOW;
-            else if (scrFactor <= 0.75)
-                nn.Device.shared.screenType = nn.ScreenType.LOW;
-            else
-                nn.Device.shared.screenType = nn.ScreenType.NORMAL;
-            // 计算缩放系数，如果是PUREPC，则不进行缩放控制
-            if ((fillMode & nn.FillMode.MASK_MAJOR) == nn.FillMode.CENTER) {
-                nn.ScaleFactorX = nn.ScaleFactorY = this.ScreenScale;
-                nn.ScaleFactorW = nn.ScaleFactorH = this.ScreenScale;
-                if (nn.Mask.isset(nn.FillMode.NOBORDER, fillMode)) {
-                    nn.StageScaleFactorX = stageBounds.width / this.DesignBounds.width / this.ScreenScale;
-                    nn.StageScaleFactorY = stageBounds.height / this.DesignBounds.height / this.ScreenScale;
-                }
-                else {
-                    nn.StageScaleFactorX = this.ScreenScale;
-                    nn.StageScaleFactorY = this.ScreenScale;
-                }
-            }
-            else {
-                nn.ScaleFactorX = stageBounds.width / this.DesignBounds.width;
-                nn.ScaleFactorY = stageBounds.height / this.DesignBounds.height;
-                if ((fillMode & nn.FillMode.MASK_MAJOR) == nn.FillMode.STRETCH) {
-                    nn.ScaleFactorW = nn.ScaleFactorX;
-                    nn.ScaleFactorH = nn.ScaleFactorY;
-                }
-                else {
-                    nn.ScaleFactorW = nn.ScaleFactorH = Math.min(nn.ScaleFactorX, nn.ScaleFactorY);
-                }
-                nn.StageScaleFactorX = this.ScreenScale;
-                nn.StageScaleFactorY = this.ScreenScale;
-            }
-            nn.ScaleFactorDeX = 1 / nn.ScaleFactorX;
-            nn.ScaleFactorDeY = 1 / nn.ScaleFactorY;
-            nn.ScaleFactorDeW = 1 / nn.ScaleFactorW;
-            nn.ScaleFactorDeH = 1 / nn.ScaleFactorH;
-            nn.ScaleFactorS = Math.min(nn.ScaleFactorW, nn.ScaleFactorH);
-            nn.ScaleFactorDeS = 1 / nn.ScaleFactorS;
-            // 打印日志
-            /*
-            log(`ScaleFactor:
-                x:${ScaleFactorX}, y:${ScaleFactorY}
-                w:${ScaleFactorW}, h:${ScaleFactorH}, s:${ScaleFactorS}
-                sx:${StageScaleFactorX}, sy:${StageScaleFactorY}`);
-            */
-            // 设置到全局变量，用以其他界面初始化的时候使用
-            nn.StageBounds.reset(0, 0, stageBounds.width * nn.ScaleFactorDeW, stageBounds.height * nn.ScaleFactorDeH)
-                .integral();
-            // 设置egret内部的舞台大小
-            if (egret.MainContext.instance.stage) {
-                egret.MainContext.instance.stage.setContentSize(this.StageBounds.width, this.StageBounds.height);
+                dsk.doOpen();
             }
         };
-        _AppStage.prototype.updateLayout = function () {
-            this.appMain.setFrame(nn.StageBounds);
-        };
-        return _AppStage;
-    }(egret.Sprite));
-    Js.OverrideFunction(egret, 'updateAllScreens', function (orifn) {
-        if (CLAZZ_MAIN == null)
-            return;
-        // 如果键盘弹出，则认定为因为弹出键盘导致的尺寸修改
-        if (nn.Keyboard.visible)
-            return;
-        nn.log("尺寸改变");
-        // 重新计算一下舞台的大小
-        _AppStage.UpdateBounds();
-        // 刷新首页的尺寸        
-        _AppStage.shared.updateLayout();
-        // 激活信号            
-        nn.emit(nn.CApplication.shared, nn.SignalFrameChanged);
-        // 调用原始的实现
-        orifn.call(this);
-    });
-    // 需要替换查找入口类的函数，使得我们可以插入非业务类作为主入口
-    Js.OverrideFunction(egret, 'getDefinitionByName', function (orifn, name) {
-        if (name == 'Main')
-            return _AppStage;
-        return orifn(name);
-    });
-    // 替换掉默认的屏幕适配        
-    var ExtScreenAdapter = (function (_super) {
-        __extends(ExtScreenAdapter, _super);
-        function ExtScreenAdapter() {
-            return _super.apply(this, arguments) || this;
-        }
-        ExtScreenAdapter.prototype.calculateStageSize = function (scaleMode, screenWidth, screenHeight, contentWidth, contentHeight) {
-            // 如果是标准PC浏览器，使用设计尺寸直接计算
-            if (nn.Device.shared.isPurePC)
-                return _super.prototype.calculateStageSize.call(this, scaleMode, screenWidth, screenHeight, contentWidth, contentHeight);
-            // 否则手机上使用实时适配出来的舞台大小计算
-            return _super.prototype.calculateStageSize.call(this, scaleMode, screenWidth, screenHeight, _AppStage.StageBounds.width, _AppStage.StageBounds.height);
-        };
-        return ExtScreenAdapter;
-    }(egret.sys.DefaultScreenAdapter));
-    // 替换掉系统的adapter
-    egret.sys.screenAdapter = new ExtScreenAdapter();
-    nn.loader.webstart = function () {
-        // 执行加载动作
-        nn.loader.InvokeBoot();
-        // 初始化舞台
-        _AppStage.Init();
-        // 约定是否使用webgl
-        var glmode = false;
-        if (location.href.indexOf('nowebgl=1') != -1)
-            glmode = false;
-        else if (location.href.indexOf('webgl=1') != -1)
-            glmode = true;
-        if (glmode) {
-            // 如果是UC，则关闭webgl
-            var agent = navigator.userAgent;
-            if (agent.indexOf('UCBrowser') != -1)
-                glmode = false;
-        }
-        // 默认使用webgl渲染
-        if (glmode)
-            egret.runEgret({ renderMode: "webgl" });
-        else
-            egret.runEgret();
-        // 如过是webgl模式，根据egret官方文档因为dirtyRegion已经起不到多大作用，所以关闭
-        if (egret.Capabilities.renderMode == "webgl") {
-            egret.MainContext.instance.stage.dirtyRegionPolicy = egret.DirtyRegionPolicy.OFF;
-            nn.Device.shared.isCanvas = false;
-        }
-    };
-    // 启动原生程序
-    nn.loader.nativestart = function () {
-        // 创建舞台
-        _AppStage.Init();
-        // 运行原始的入口
-        egret.runEgret();
-    };
-    // 启动runtime版本
-    nn.loader.runtimestart = function () {
-        // 创建舞台
-        _AppStage.Init();
-        // 运行原始的入口
-        egret.runEgret();
-    };
+        return DesktopOperation;
+    }(nn.Operation));
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -13551,154 +13836,6 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    var CDom = (function (_super) {
-        __extends(CDom, _super);
-        function CDom() {
-            return _super.apply(this, arguments) || this;
-        }
-        return CDom;
-    }(nn.Component));
-    nn.CDom = CDom;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    var CMovieClip = (function (_super) {
-        __extends(CMovieClip, _super);
-        function CMovieClip() {
-            var _this = _super.call(this) || this;
-            /** 播放次数，-1代表循环，默认为一次*/
-            _this.count = 1;
-            /** 切换clipSource时清空原来的clip */
-            _this.clearOnChanging = true;
-            /** 是否自动播放 */
-            _this.autoPlay = true;
-            /** 附加缩放 */
-            _this.additionScale = 1;
-            /** 填充方式 */
-            _this.fillMode = nn.FillMode.ASPECTSTRETCH;
-            /** 序列帧的对齐位置 */
-            _this.clipAlign = nn.POSITION.CENTER;
-            return _this;
-            //this.backgroundColor = Color.Red;
-        }
-        CMovieClip.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalStart);
-            this._signals.register(nn.SignalChanged);
-            this._signals.register(nn.SignalUpdated);
-            this._signals.register(nn.SignalEnd);
-            this._signals.register(nn.SignalDone);
-        };
-        // 需要在disap的时候暂停count＝－1的动画
-        CMovieClip.prototype.onAppeared = function () {
-            _super.prototype.onAppeared.call(this);
-            if (this.__autopaused == true) {
-                this.__autopaused = false;
-                this.play();
-            }
-        };
-        CMovieClip.prototype.onDisappeared = function () {
-            _super.prototype.onDisappeared.call(this);
-            if (this.isPlaying() && this.count == -1) {
-                this.__autopaused = true;
-                this.stop();
-            }
-        };
-        return CMovieClip;
-    }(nn.Widget));
-    nn.CMovieClip = CMovieClip;
-    var ClipConfig = (function () {
-        /**
-           @name 资源名称，资源由 json\bmp 组成，如过传入的时候没有带后缀，则自动加上后缀
-           @res 动作文件，通常为 _json
-           @tex 素材平成，通常为 _png
-        */
-        function ClipConfig(name, res, tex) {
-            /** OPT 是否为独立数据，否则同一个资源公用一份帧数据 */
-            this.key = '';
-            this._name = name;
-            this._frame = nn.nonnull1st(null, res, name);
-            this._texture = nn.nonnull1st(null, tex, res, name, res);
-        }
-        Object.defineProperty(ClipConfig.prototype, "frame", {
-            get: function () {
-                var src = this._frame;
-                if (src) {
-                    // 如过是普通key，则需要判断有没有加后缀，不存在需要自动补全
-                    if (src.indexOf('://') == -1) {
-                        if (src.indexOf('_json') == -1)
-                            src += '_json';
-                    }
-                }
-                return src;
-            },
-            set: function (frm) {
-                this._frame = frm;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ClipConfig.prototype, "texture", {
-            get: function () {
-                var src = this._texture;
-                if (src) {
-                    if (src.indexOf('://') == -1) {
-                        if (src.indexOf('_png') == -1)
-                            src += '_png';
-                    }
-                }
-                return src;
-            },
-            set: function (tex) {
-                this._texture = tex;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ClipConfig.prototype, "name", {
-            get: function () {
-                return this._name;
-            },
-            set: function (n) {
-                this._name = n;
-                if (this._frame == null)
-                    this._frame = n;
-                if (this._texture == null)
-                    this._texture = n;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ClipConfig.prototype, "hashCode", {
-            get: function () {
-                return nn.StringT.Hash(this.name + "::" + this._frame + "::" + this._texture + '::' + this.key);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ClipConfig.prototype.isEqual = function (r) {
-            return this.name == r.name &&
-                this._frame == r._frame &&
-                this._texture == r._texture &&
-                this.fps == r.fps &&
-                this.additionScale == r.additionScale &&
-                this.key == r.key;
-        };
-        ClipConfig.prototype.getReqResources = function () {
-            var r = [];
-            r.push(new nn.ResourceEntity(this.frame, nn.ResType.JSON));
-            r.push(new nn.ResourceEntity(this.texture, nn.ResType.TEXTURE));
-            return r;
-        };
-        ClipConfig.prototype.toString = function () {
-            return [this.name, this._frame, this._texture, this.key].join("\n");
-        };
-        return ClipConfig;
-    }());
-    nn.ClipConfig = ClipConfig;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
     nn.COPYRIGHT = "WYBOSYS";
     nn.AUTHOR = "WYBOSYS@GMAIL.COM";
     // 判断版本
@@ -13800,17 +13937,6 @@ var nn;
       options[@"version"] = @"1.0.0";
       options[@"publish"] = @"false";
     */
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    var CParticle = (function (_super) {
-        __extends(CParticle, _super);
-        function CParticle() {
-            return _super.call(this) || this;
-        }
-        return CParticle;
-    }(nn.Widget));
-    nn.CParticle = CParticle;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -15405,143 +15531,6 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    /** 骨骼的配置信息 */
-    var BoneConfig = (function () {
-        /**
-           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
-           @character 角色名称，通常和name一致
-           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
-           @place 材质节点的位置配置文件，通常为 texture_json 结尾
-           @texture 图片文件，通常为 texture_png 结尾
-        */
-        function BoneConfig(name, character, skeleton, place, texture) {
-            this._name = name;
-            if (!character)
-                this._character = name;
-            else
-                this._character = character;
-            if (!skeleton)
-                this._skeleton = name + '_skeleton_json';
-            else
-                this._skeleton = skeleton;
-            if (!place)
-                this._place = name + '_texture_json';
-            else
-                this._place = place;
-            if (!texture)
-                this._texture = name + '_png';
-            else
-                this._texture = texture;
-        }
-        Object.defineProperty(BoneConfig.prototype, "name", {
-            get: function () {
-                return this._name;
-            },
-            set: function (v) {
-                this._name = v;
-                if (!this._character)
-                    this._character = name;
-                if (!this._skeleton)
-                    this._skeleton = name + '_skeleton_json';
-                if (!this._place)
-                    this._place = name + '_texture_json';
-                if (!this._texture)
-                    this._texture = name + '_png';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneConfig.prototype, "skeleton", {
-            get: function () {
-                return this._skeleton;
-            },
-            set: function (v) {
-                this._skeleton = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneConfig.prototype, "place", {
-            get: function () {
-                return this._place;
-            },
-            set: function (v) {
-                this._place = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneConfig.prototype, "texture", {
-            get: function () {
-                return this._texture;
-            },
-            set: function (v) {
-                this._texture = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneConfig.prototype, "character", {
-            get: function () {
-                return this._character;
-            },
-            set: function (v) {
-                this._character = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        BoneConfig.prototype.getReqResources = function () {
-            var r = [];
-            r.push(new nn.ResourceEntity(this.skeleton, nn.ResType.JSON));
-            r.push(new nn.ResourceEntity(this.place, nn.ResType.JSON));
-            r.push(new nn.ResourceEntity(this.texture, nn.ResType.TEXTURE));
-            return r;
-        };
-        return BoneConfig;
-    }());
-    nn.BoneConfig = BoneConfig;
-    ;
-    /** 业务使用的骨骼显示类 */
-    var CBones = (function (_super) {
-        __extends(CBones, _super);
-        function CBones() {
-            var _this = _super.call(this) || this;
-            /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
-            _this.additionScale = 1;
-            /** 骨骼填充的方式，默认为充满 */
-            _this.fillMode = nn.FillMode.ASPECTSTRETCH;
-            /** 对齐位置 */
-            _this.clipAlign = nn.POSITION.BOTTOM_CENTER;
-            /** 自动开始播放 */
-            _this.autoPlay = true;
-            /** 播放次数控制
-                -1: 循环
-                0: 使用文件设置的次数
-                >0: 次数控制
-            */
-            _this.count = -1;
-            return _this;
-        }
-        CBones.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            // 骨骼开始播放
-            this._signals.register(nn.SignalStart);
-            // 一次 motion 结束
-            this._signals.register(nn.SignalEnd);
-            // 所有循环的结束
-            this._signals.register(nn.SignalDone);
-            // 骨骼改变，当骨骼资源变更时激发
-            this._signals.register(nn.SignalChanged);
-            // 骨骼更新，和change的区别在update每一次设置source都会激发
-            this._signals.register(nn.SignalUpdated);
-        };
-        return CBones;
-    }(nn.Widget));
-    nn.CBones = CBones;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
     /** 对于可以调整高度，或者存在 ui 和 data 重入的问题，通过这个参数来分别判断是 UI 过程还是 DATA 过程
      * @brief 例如在 tableview 中应用时，如果是变高，则 updateData 会重入2次，一次是 UI 过程(粗布局)，一次是 DATA 过程(刷数据显示)，之后就可以拿到实高，但是 updateData 里面会有例如设置图片的操作，而这些操作仅需要在 UI 过程中被调用，所以可以通过该变量区分开
      */
@@ -16188,525 +16177,17 @@ var nn;
     }(nn.Sprite));
     nn.TableView = TableView;
 })(nn || (nn = {}));
-var eui;
-(function (eui) {
-    var BoneConfig = (function (_super) {
-        __extends(BoneConfig, _super);
-        function BoneConfig() {
+var nn;
+(function (nn) {
+    var CDom = (function (_super) {
+        __extends(CDom, _super);
+        function CDom() {
             return _super.apply(this, arguments) || this;
         }
-        Object.defineProperty(BoneConfig.prototype, "skeleton", {
-            get: function () {
-                var src = this._skeleton;
-                if (src) {
-                    if (src.indexOf('://') == -1)
-                        if (src.indexOf('_skeleton') == -1)
-                            src += '_skeleton'; // 和hd中的区别是wing的项目一般使用自动管理资源，此时生成resjson中对于name_skeleton.json的命名将是name_skeleton而不是期望的name_skeleton_json
-                }
-                return src;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return BoneConfig;
-    }(nn.BoneConfig));
-    var BoneU = (function (_super) {
-        __extends(BoneU, _super);
-        function BoneU() {
-            var _this = _super.call(this) || this;
-            _this.slots = null;
-            _this.tag = null;
-            _this._sourceChanged = false;
-            /** 骨骼动画的名字 */
-            _this._boneName = null;
-            /** 角色名字 */
-            _this._boneCharacter = null;
-            /** 骨骼资源名 */
-            _this._boneSkeleton = null;
-            /** 骨骼定义资源名 */
-            _this._bonePlace = null;
-            /** 骨骼材质资源名 */
-            _this._boneTexture = null;
-            /** 播放的速度 */
-            _this._boneFps = 30;
-            /** 附加缩放系数 */
-            _this.additionScale = 1;
-            /** 填充模式 */
-            _this.fillMode = 0x3000; //nn.FillMode.ASPECTSTRETCH;
-            /** 序列帧的对齐位置 */
-            _this.clipAlign = 4; //nn.POSITION.CENTER;
-            /** 动作名称 */
-            _this.motion = null;
-            /** 播放次数 */
-            _this.playCount = 1;
-            /** 自动播放 */
-            _this.autoPlay = true;
-            return _this;
-        }
-        BoneU.prototype.dispose = function () {
-            if (this._signals) {
-                this._signals.dispose();
-                this._signals = undefined;
-            }
-            if (this._hbone)
-                this._hbone.drop();
-        };
-        BoneU.prototype.drop = function () {
-            this.dispose();
-        };
-        BoneU.prototype.onPartBinded = function (name, target) {
-            eui._EUIExt.onPartBinded(this, name, target);
-        };
-        BoneU.prototype.goBack = function () {
-            eui._EUIExt.goBack(this);
-        };
-        BoneU.prototype.$onRemoveFromStage = function () {
-            _super.prototype.$onRemoveFromStage.call(this);
-            this.drop();
-        };
-        BoneU.prototype._initSignals = function () {
-            // 基础相关
-            this._signals.delegate = this;
-            this._signals.register(nn.SignalClicked);
-            // 骨骼相关
-            this._signals.register(nn.SignalStart);
-            this._signals.register(nn.SignalChanged);
-            this._signals.register(nn.SignalUpdated);
-            this._signals.register(nn.SignalEnd);
-            this._signals.register(nn.SignalDone);
-        };
-        Object.defineProperty(BoneU.prototype, "signals", {
-            get: function () {
-                if (this._signals)
-                    return this._signals;
-                this._instanceSignals();
-                return this._signals;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        BoneU.prototype._instanceSignals = function () {
-            this._signals = new nn.Signals(this);
-            this._initSignals();
-        };
-        BoneU.prototype._signalConnected = function (sig, s) {
-            var bone = this.bone();
-            switch (sig) {
-                case nn.SignalClicked:
-                    nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
-                    break;
-                case nn.SignalChanged:
-                    bone.signals.redirect(nn.SignalChanged, this);
-                    break;
-                case nn.SignalUpdated:
-                    bone.signals.redirect(nn.SignalUpdated, this);
-                    break;
-                case nn.SignalStart:
-                    bone.signals.redirect(nn.SignalStart, this);
-                    break;
-                case nn.SignalEnd:
-                    bone.signals.redirect(nn.SignalEnd, this);
-                    break;
-                case nn.SignalDone:
-                    bone.signals.redirect(nn.SignalDone, this);
-                    break;
-            }
-        };
-        BoneU.prototype.__cmp_tap = function (e) {
-            this.signals.emit(nn.SignalClicked);
-            e.stopPropagation();
-        };
-        Object.defineProperty(BoneU.prototype, "boneName", {
-            get: function () {
-                return this._boneName;
-            },
-            set: function (s) {
-                this._boneName = s;
-                this._sourceChanged = true;
-                this.invalidateProperties();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneU.prototype, "boneCharacter", {
-            get: function () {
-                return this._boneCharacter;
-            },
-            set: function (s) {
-                this._boneCharacter = s;
-                this._sourceChanged = true;
-                this.invalidateProperties();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneU.prototype, "boneSkeleton", {
-            get: function () {
-                return this._boneSkeleton;
-            },
-            set: function (s) {
-                this._boneSkeleton = s;
-                this._sourceChanged = true;
-                this.invalidateProperties();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneU.prototype, "bonePlace", {
-            get: function () {
-                return this._bonePlace;
-            },
-            set: function (s) {
-                this._bonePlace = s;
-                this._sourceChanged = true;
-                this.invalidateProperties();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneU.prototype, "boneTexture", {
-            get: function () {
-                return this._boneTexture;
-            },
-            set: function (s) {
-                this._boneTexture = s;
-                this._sourceChanged = true;
-                this.invalidateProperties();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoneU.prototype, "boneFps", {
-            get: function () {
-                return this._boneFps;
-            },
-            set: function (v) {
-                this._boneFps = v;
-                this._sourceChanged = true;
-                this.invalidateProperties();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        BoneU.prototype.bone = function () {
-            if (this._hbone)
-                return this._hbone;
-            this._hbone = new nn.Bones();
-            return this._hbone;
-        };
-        BoneU.prototype.createChildren = function () {
-            _super.prototype.createChildren.call(this);
-            var bone = this.bone();
-            bone.autoPlay = this.autoPlay;
-            bone.count = this.playCount;
-            bone.additionScale = this.additionScale;
-            bone.fillMode = this.fillMode;
-            bone.clipAlign = this.clipAlign;
-            bone.motion = this.motion;
-            this.addChild(bone.handle());
-        };
-        BoneU.prototype.commitProperties = function () {
-            _super.prototype.commitProperties.call(this);
-            if (this._sourceChanged) {
-                this._sourceChanged = false;
-                // 重新设置资源
-                var cfg = new BoneConfig(this._boneName, this._boneCharacter, this._boneSkeleton, this._bonePlace, this._boneTexture);
-                cfg.fps = this._boneFps;
-                this.boneSource = cfg;
-            }
-        };
-        Object.defineProperty(BoneU.prototype, "boneSource", {
-            get: function () {
-                var bone = this.bone();
-                return bone.boneSource;
-            },
-            set: function (cfg) {
-                var bone = this.bone();
-                bone.boneSource = cfg;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        BoneU.prototype.updateDisplayList = function (unscaledWidth, unscaledHeight) {
-            _super.prototype.updateDisplayList.call(this, unscaledWidth, unscaledHeight);
-            var bone = this.bone();
-            // 设置bone和当前的容器大小一致
-            bone.frame = new nn.Rect(0, 0, unscaledWidth, unscaledHeight);
-            bone.flushLayout();
-        };
-        /** 播放 */
-        BoneU.prototype.play = function () {
-            this.bone().play();
-        };
-        BoneU.prototype.stop = function () {
-            this.bone().stop();
-        };
-        return BoneU;
-    }(eui.Group));
-    eui.BoneU = BoneU;
-    eui._EUIExtFix(BoneU);
-})(eui || (eui = {}));
-var eui;
-(function (eui) {
-    var ButtonU = (function (_super) {
-        __extends(ButtonU, _super);
-        function ButtonU() {
-            var _this = _super.apply(this, arguments) || this;
-            _this.slots = null;
-            _this.tag = null;
-            _this._help = null;
-            /** 点击频度限制 */
-            _this.eps = 3;
-            _this._textColor = null;
-            _this._format = null;
-            return _this;
-        }
-        ButtonU.prototype.onPartBinded = function (name, target) {
-            eui._EUIExt.onPartBinded(this, name, target);
-        };
-        ButtonU.prototype.goBack = function () {
-            eui._EUIExt.goBack(this);
-        };
-        ButtonU.prototype.playAnimate = function (ani, idr) {
-            return eui._EUIExt.playAnimate(this, ani, idr);
-        };
-        ButtonU.prototype.findAnimate = function (idr) {
-            return eui._EUIExt.findAnimate(this, idr);
-        };
-        ButtonU.prototype.stopAnimate = function (idr) {
-            eui._EUIExt.stopAnimate(this, idr);
-        };
-        ButtonU.prototype.stopAllAnimates = function () {
-            eui._EUIExt.stopAllAnimates(this);
-        };
-        Object.defineProperty(ButtonU.prototype, "exhibition", {
-            get: function () {
-                return eui._EUIExt.getExhibition(this);
-            },
-            set: function (b) {
-                eui._EUIExt.setExhibition(this, b);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ButtonU.prototype, "help", {
-            get: function () {
-                return this._help;
-            },
-            set: function (h) {
-                this._help = h;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ButtonU.prototype.dispose = function () {
-            if (this._signals) {
-                this._signals.dispose();
-                this._signals = undefined;
-            }
-            this.belong = null;
-        };
-        ButtonU.prototype.drop = function () {
-            this.dispose();
-        };
-        ButtonU.prototype.$onRemoveFromStage = function () {
-            _super.prototype.$onRemoveFromStage.call(this);
-            this.drop();
-        };
-        ButtonU.prototype._initSignals = function () {
-            this._signals.delegate = this;
-            this._signals.register(nn.SignalClicked);
-            this._signals.register(nn.SignalVisibleChanged);
-        };
-        Object.defineProperty(ButtonU.prototype, "signals", {
-            get: function () {
-                if (this._signals)
-                    return this._signals;
-                this._instanceSignals();
-                return this._signals;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ButtonU.prototype._instanceSignals = function () {
-            this._signals = new nn.Signals(this);
-            this._initSignals();
-        };
-        ButtonU.prototype._signalConnected = function (sig, s) {
-            if (sig == nn.SignalClicked) {
-                s.eps = this.eps;
-                nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
-            }
-        };
-        ButtonU.prototype.__cmp_tap = function (e) {
-            this.signals.emit(nn.SignalClicked);
-            e.stopPropagation();
-        };
-        ButtonU.prototype._getLabel = function () {
-            return this.labelDisplay instanceof eui.Label ? this.labelDisplay : null;
-        };
-        ButtonU.prototype.childrenCreated = function () {
-            _super.prototype.childrenCreated.call(this);
-            if (this._textColor && this._getLabel()) {
-                this._getLabel().textColor = this._textColor;
-            }
-        };
-        Object.defineProperty(ButtonU.prototype, "data", {
-            get: function () {
-                return this._data;
-            },
-            set: function (d) {
-                this._data = d;
-                if (this.skin)
-                    this.updateData();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ButtonU.prototype, "text", {
-            get: function () {
-                return this.label;
-            },
-            set: function (s) {
-                this.label = s;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ButtonU.prototype, "textColor", {
-            get: function () {
-                return this._getLabel() ? this._getLabel().textColor : this._textColor;
-            },
-            set: function (c) {
-                this._textColor = c;
-                if (this._getLabel())
-                    this._getLabel().textColor = c;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ButtonU.prototype, "itemIndex", {
-            get: function () {
-                return this._itemIndex;
-            },
-            set: function (n) {
-                this._itemIndex = n;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ButtonU.prototype, "value", {
-            get: function () {
-                return this._value;
-            },
-            set: function (v) {
-                this._value = v;
-                if (v == null) {
-                    this.text = '';
-                    return;
-                }
-                if (this._format) {
-                    var args = nn.ArrayT.Concat([this._format], nn.ArrayT.ToArray(v));
-                    this.text = nn.formatString.apply(null, args);
-                }
-                else {
-                    this.text = nn.asString(v);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ButtonU.prototype, "format", {
-            get: function () {
-                return this._format;
-            },
-            set: function (fmt) {
-                this._format = fmt;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ButtonU.prototype, "selected", {
-            get: function () {
-                return this._selected;
-            },
-            set: function (s) {
-                if (this._selected == s)
-                    return;
-                this._selected = s;
-                this.updateSelection();
-                this.invalidateState();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ButtonU.prototype.getCurrentState = function () {
-            if (this._selected)
-                return "down";
-            if (this.enabled == false)
-                return 'disabled';
-            return _super.prototype.getCurrentState.call(this);
-        };
-        /** 刷新选中状态 */
-        ButtonU.prototype.updateSelection = function () { };
-        /** 刷新数据 */
-        ButtonU.prototype.updateData = function () { };
-        Object.defineProperty(ButtonU.prototype, "viewStack", {
-            /** 隶属的栈 */
-            get: function () {
-                return eui._EUIExt.getViewStack(this);
-            },
-            set: function (sck) {
-                eui._EUIExt.setViewStack(this, sck);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ButtonU.prototype.convertPointTo = function (pt, sp) {
-            return eui.ConvertPoint(this, pt, sp);
-        };
-        ButtonU.prototype.convertRectTo = function (rc, sp) {
-            return eui.ConvertRect(this, rc, sp);
-        };
-        Object.defineProperty(ButtonU.prototype, "frame", {
-            get: function () {
-                return nn.getFrame(this);
-            },
-            set: function (rc) {
-                nn.setFrame(this, rc);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ButtonU.prototype.onAppeared = function () {
-        };
-        ButtonU.prototype.onDisappeared = function () {
-        };
-        ButtonU.prototype.onVisibleChanged = function () {
-            if (this._signals)
-                this._signals.emit(nn.SignalVisibleChanged);
-        };
-        ButtonU.prototype.$setVisible = function (b) {
-            if (_super.prototype.$setVisible.call(this, b)) {
-                this.onVisibleChanged();
-                return true;
-            }
-            return false;
-        };
-        Object.defineProperty(ButtonU.prototype, "source", {
-            get: function () {
-                return this.icon;
-            },
-            set: function (s) {
-                this.icon = s;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return ButtonU;
-    }(eui.Button));
-    eui.ButtonU = ButtonU;
-})(eui || (eui = {}));
+        return CDom;
+    }(nn.Component));
+    nn.CDom = CDom;
+})(nn || (nn = {}));
 var eui;
 (function (eui) {
     var CheckBoxU = (function (_super) {
@@ -18479,6 +17960,117 @@ var eui;
     }(eui.Scroller));
     eui.ScrollerU = ScrollerU;
 })(eui || (eui = {}));
+var eui;
+(function (eui) {
+    var TabBarU = (function (_super) {
+        __extends(TabBarU, _super);
+        function TabBarU() {
+            var _this = _super.call(this) || this;
+            _this.slots = null;
+            nn.EventHook(_this, egret.Event.CHANGE, _this.__lst_selchanged, _this);
+            return _this;
+        }
+        TabBarU.prototype.onPartBinded = function (name, target) {
+            eui._EUIDataGroupExt.onPartBinded(this, name, target);
+        };
+        TabBarU.prototype.dispose = function () {
+            if (this._signals) {
+                this._signals.dispose();
+                this._signals = undefined;
+            }
+        };
+        TabBarU.prototype.drop = function () {
+            this.dispose();
+        };
+        TabBarU.prototype.$onRemoveFromStage = function () {
+            _super.prototype.$onRemoveFromStage.call(this);
+            this.drop();
+        };
+        TabBarU.prototype._initSignals = function () {
+            this._signals.delegate = this;
+            this._signals.register(nn.SignalSelectionChanged);
+            this._signals.register(nn.SignalSelectionChanging);
+        };
+        Object.defineProperty(TabBarU.prototype, "signals", {
+            get: function () {
+                if (this._signals)
+                    return this._signals;
+                this._instanceSignals();
+                return this._signals;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TabBarU.prototype._instanceSignals = function () {
+            this._signals = new nn.Signals(this);
+            this._initSignals();
+        };
+        TabBarU.prototype._signalConnected = function (sig, s) {
+            if (sig == nn.SignalSelectionChanged) {
+            }
+            else if (sig == nn.SignalSelectionChanging) {
+                nn.EventHook(this, egret.Event.CHANGING, this.__lst_selchanging, this);
+            }
+        };
+        Object.defineProperty(TabBarU.prototype, "selectedIndex", {
+            get: function () {
+                return egret.superGetter(TabBarU, this, 'selectedIndex');
+            },
+            set: function (v) {
+                egret.superSetter(TabBarU, this, 'selectedIndex', v);
+                if (this.pageStack) {
+                    this.pageStack.selectedIndex = this.selectedIndex;
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TabBarU.prototype.__lst_selchanged = function () {
+            if (this._signals)
+                this._signals.emit(nn.SignalSelectionChanged);
+            // 动作page
+            if (this.pageStack) {
+                this.pageStack.selectedIndex = this.selectedIndex;
+            }
+        };
+        TabBarU.prototype.__lst_selchanging = function (e) {
+            // egret的一个bug
+            e.$cancelable = true;
+            // 传透
+            var tun = new nn.SlotTunnel();
+            // 封装changing的对象
+            var info = eui._EUIDataGroupExt.GetChanging(this);
+            this._signals.emit(nn.SignalSelectionChanging, info, tun);
+            if (tun.veto)
+                e.preventDefault();
+        };
+        Object.defineProperty(TabBarU.prototype, "data", {
+            get: function () {
+                return this._data;
+            },
+            set: function (data) {
+                if (data == null)
+                    this.dataProvider = null;
+                else
+                    this.dataProvider = new eui.ArrayCollection(data);
+                this._data = data;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TabBarU.prototype.reload = function () {
+            this.dataProviderRefreshed();
+        };
+        TabBarU.prototype.updateRenderer = function (renderer, itemIndex, data) {
+            var r = _super.prototype.updateRenderer.call(this, renderer, itemIndex, data);
+            if (this.__imp_updateitem)
+                this.__imp_updateitem(r, itemIndex, data);
+            return r;
+        };
+        return TabBarU;
+    }(eui.TabBar));
+    eui.TabBarU = TabBarU;
+})(eui || (eui = {}));
 var nn;
 (function (nn) {
     var CoreApplication = (function (_super) {
@@ -18501,57 +18093,6 @@ var nn;
     }(nn.EgretApp));
     nn.CoreApplication = CoreApplication;
 })(nn || (nn = {}));
-var eui;
-(function (eui) {
-    var ImpViewStack = (function (_super) {
-        __extends(ImpViewStack, _super);
-        function ImpViewStack() {
-            return _super.apply(this, arguments) || this;
-        }
-        ImpViewStack.prototype.getViews = function () {
-            return this._views;
-        };
-        return ImpViewStack;
-    }(nn.ViewStack));
-    var TabStackU = (function (_super) {
-        __extends(TabStackU, _super);
-        function TabStackU() {
-            var _this = _super.call(this) || this;
-            _this.createImp();
-            _this.addChild(_this._imp);
-            return _this;
-        }
-        TabStackU.prototype.createImp = function () {
-            this._imp = new ImpViewStack();
-        };
-        TabStackU.prototype.updateLayout = function () {
-            if (this._imp)
-                this._imp.frame = nn.getFrame(this);
-        };
-        /** 通过类查找对应的页面 */
-        TabStackU.prototype.findPage = function (cls) {
-            var views = this._imp.getViews();
-            var page = nn.ArrayT.QueryObject(views, function (p) {
-                var obj = p.obj;
-                return obj instanceof cls;
-            });
-            return page.obj.handle();
-        };
-        TabStackU.prototype.push = function (ui) {
-            var bc = new nn.BridgedComponent(ui);
-            eui._EUIExt.setViewStack(ui, this);
-            this._imp.push(bc);
-        };
-        TabStackU.prototype.pop = function () { };
-        TabStackU.prototype.pages = function () {
-            return nn.ArrayT.Convert(this._imp.getViews(), function (page) {
-                return page.obj.handle();
-            });
-        };
-        return TabStackU;
-    }(eui.ComponentU));
-    eui.TabStackU = TabStackU;
-})(eui || (eui = {}));
 var eui;
 (function (eui) {
     var TextAreaU = (function (_super) {
@@ -19458,88 +18999,6 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    /** 用来将标准对象包装成业务对象 */
-    var BridgedComponent = (function (_super) {
-        __extends(BridgedComponent, _super);
-        function BridgedComponent(tgt) {
-            var _this = _super.call(this) || this;
-            if (tgt) {
-                _this._imp = tgt;
-                _this._imp._fmui = _this;
-            }
-            return _this;
-        }
-        // 不替换所有关系的桥接(避免同一个对象位于不同功能时需要临时包装的问题)
-        BridgedComponent.Wrapper = function (tgt) {
-            var r = new BridgedComponent(null);
-            r._imp = tgt;
-            return r;
-        };
-        // 从元数据获取包装类型
-        BridgedComponent.FromImp = function (tgt) {
-            var r = tgt._fmui;
-            while (r == null && tgt) {
-                tgt = tgt.parent;
-                if (tgt)
-                    r = tgt._fmui;
-            }
-            return r;
-        };
-        // 阻止实现类的初始化
-        BridgedComponent.prototype.createImp = function () { };
-        Object.defineProperty(BridgedComponent.prototype, "signals", {
-            get: function () {
-                return this._imp.signals;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        BridgedComponent.prototype._initSignals = function () {
-            this._imp._initSignals();
-        };
-        Object.defineProperty(BridgedComponent.prototype, "descriptionName", {
-            // 显示在inspector中
-            get: function () {
-                return nn.Classname(this._imp);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        // 转接最佳大小
-        BridgedComponent.prototype.bestFrame = function () {
-            return this._imp.bestFrame ? this._imp.bestFrame() : new nn.Rect();
-        };
-        BridgedComponent.prototype.bestPosition = function () {
-            return this._imp.bestPosition ? this._imp.bestPosition() : null;
-        };
-        BridgedComponent.prototype.updateCache = function () {
-            if (this._imp.updateCache)
-                this._imp.updateCache();
-        };
-        BridgedComponent.prototype.grab = function () {
-            if (this._imp.grab)
-                this._imp.grab();
-            _super.prototype.grab.call(this);
-        };
-        BridgedComponent.prototype.drop = function () {
-            if (this._imp.drop)
-                this._imp.drop();
-            _super.prototype.drop.call(this);
-        };
-        BridgedComponent.prototype.onAppeared = function () {
-            _super.prototype.onAppeared.call(this);
-            this._imp.onAppeared();
-        };
-        BridgedComponent.prototype.onDisappeared = function () {
-            _super.prototype.onDisappeared.call(this);
-            this._imp.onDisappeared();
-        };
-        return BridgedComponent;
-    }(nn.Component));
-    nn.BridgedComponent = BridgedComponent;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
     // 应用设置fillMode导致scaleFactor！=1，所以需要对egret的画法进行修正
     egret.sys.BitmapNode['$updateTextureDataWithScale9Grid'] = function (node, scale9Grid, bitmapX, bitmapY, bitmapWidth, bitmapHeight, offsetX, offsetY, textureWidth, textureHeight, destW, destH) {
         var imageWidth = bitmapWidth;
@@ -19632,6 +19091,88 @@ var nn;
                 node.drawImage(sourceX2, sourceY2, sourceW2, sourceH2, targetX2, targetY2, targetW2, targetH2);
         }
     };
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    /** 用来将标准对象包装成业务对象 */
+    var BridgedComponent = (function (_super) {
+        __extends(BridgedComponent, _super);
+        function BridgedComponent(tgt) {
+            var _this = _super.call(this) || this;
+            if (tgt) {
+                _this._imp = tgt;
+                _this._imp._fmui = _this;
+            }
+            return _this;
+        }
+        // 不替换所有关系的桥接(避免同一个对象位于不同功能时需要临时包装的问题)
+        BridgedComponent.Wrapper = function (tgt) {
+            var r = new BridgedComponent(null);
+            r._imp = tgt;
+            return r;
+        };
+        // 从元数据获取包装类型
+        BridgedComponent.FromImp = function (tgt) {
+            var r = tgt._fmui;
+            while (r == null && tgt) {
+                tgt = tgt.parent;
+                if (tgt)
+                    r = tgt._fmui;
+            }
+            return r;
+        };
+        // 阻止实现类的初始化
+        BridgedComponent.prototype.createImp = function () { };
+        Object.defineProperty(BridgedComponent.prototype, "signals", {
+            get: function () {
+                return this._imp.signals;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        BridgedComponent.prototype._initSignals = function () {
+            this._imp._initSignals();
+        };
+        Object.defineProperty(BridgedComponent.prototype, "descriptionName", {
+            // 显示在inspector中
+            get: function () {
+                return nn.Classname(this._imp);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        // 转接最佳大小
+        BridgedComponent.prototype.bestFrame = function () {
+            return this._imp.bestFrame ? this._imp.bestFrame() : new nn.Rect();
+        };
+        BridgedComponent.prototype.bestPosition = function () {
+            return this._imp.bestPosition ? this._imp.bestPosition() : null;
+        };
+        BridgedComponent.prototype.updateCache = function () {
+            if (this._imp.updateCache)
+                this._imp.updateCache();
+        };
+        BridgedComponent.prototype.grab = function () {
+            if (this._imp.grab)
+                this._imp.grab();
+            _super.prototype.grab.call(this);
+        };
+        BridgedComponent.prototype.drop = function () {
+            if (this._imp.drop)
+                this._imp.drop();
+            _super.prototype.drop.call(this);
+        };
+        BridgedComponent.prototype.onAppeared = function () {
+            _super.prototype.onAppeared.call(this);
+            this._imp.onAppeared();
+        };
+        BridgedComponent.prototype.onDisappeared = function () {
+            _super.prototype.onDisappeared.call(this);
+            this._imp.onDisappeared();
+        };
+        return BridgedComponent;
+    }(nn.Component));
+    nn.BridgedComponent = BridgedComponent;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -19928,47 +19469,6 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    var Font = (function () {
-        function Font() {
-        }
-        // 计算单行文字大小
-        Font.sizeOfString = function (str, fontSize, width, height) {
-            var w = 0, h = fontSize;
-            w = (str.length ? str.length + 1 : 0) * fontSize;
-            if (width) {
-                h = Math.ceil(w / width) * fontSize;
-                if (height && h > height)
-                    h = height;
-                w = Math.min(w, width);
-                return new nn.Size(w, h);
-            }
-            if (height) {
-                if (fontSize > height)
-                    h = height;
-                return new nn.Size(w, h);
-            }
-            return new nn.Size(w, h);
-        };
-        // 计算多行文字大小
-        Font.sizeFitString = function (str, fontSize, width, height, lineSpacing) {
-            if (!str || !str.length)
-                return new nn.Size();
-            var r = new nn.Size();
-            var lns = str.split('\n');
-            lns.forEach(function (s) {
-                var sz = Font.sizeOfString(s, fontSize, width, height);
-                r.width = Math.max(r.width, sz.width);
-                r.height += sz.height;
-            });
-            r.height += lns.length * lineSpacing;
-            return r;
-        };
-        return Font;
-    }());
-    nn.Font = Font;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
     var ExtBitmapText = (function (_super) {
         __extends(ExtBitmapText, _super);
         function ExtBitmapText() {
@@ -20098,350 +19598,44 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    var Button = (function (_super) {
-        __extends(Button, _super);
-        function Button(state) {
-            var _this = _super.call(this) || this;
-            _this.touchEnabled = true;
-            if (state)
-                _this.onChangeState(state);
-            return _this;
+    var Font = (function () {
+        function Font() {
         }
-        Button.prototype.dispose = function () {
-            _super.prototype.dispose.call(this);
-            if (this._slavestates)
-                this._slavestates.dispose();
-        };
-        Object.defineProperty(Button.prototype, "fontSize", {
-            get: function () {
-                if (this._label)
-                    return this._label.fontSize;
-                return 0;
-            },
-            set: function (val) {
-                this._getLabel().fontSize = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Button.prototype, "textColor", {
-            get: function () {
-                if (this._label)
-                    return this._label.textColor;
-                return 0;
-            },
-            set: function (val) {
-                this._getLabel().textColor = nn.GetColorComponent(val)[0];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Button.prototype, "text", {
-            get: function () {
-                if (this._label)
-                    return this._label.text;
-                return "";
-            },
-            set: function (val) {
-                this._getLabel().text = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Button.prototype, "textAlign", {
-            get: function () {
-                if (this._label)
-                    return this._label.textAlign;
-                return "center";
-            },
-            set: function (val) {
-                this._getLabel().textAlign = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Button.prototype, "label", {
-            get: function () {
-                return this._label;
-            },
-            set: function (lbl) {
-                nn.warn("不能直接设置button的title类");
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Button.prototype._getLabel = function () {
-            if (this._label == null) {
-                this._label = new nn.Label();
-                this._label.textAlign = "center";
-                this.addChild(this._label);
+        // 计算单行文字大小
+        Font.sizeOfString = function (str, fontSize, width, height) {
+            var w = 0, h = fontSize;
+            w = (str.length ? str.length + 1 : 0) * fontSize;
+            if (width) {
+                h = Math.ceil(w / width) * fontSize;
+                if (height && h > height)
+                    h = height;
+                w = Math.min(w, width);
+                return new nn.Size(w, h);
             }
-            return this._label;
-        };
-        Object.defineProperty(Button.prototype, "imageView", {
-            get: function () {
-                return this._imageView;
-            },
-            set: function (bmp) {
-                nn.warn("不能直接设置button的image");
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Button.prototype._getImageView = function () {
-            if (this._imageView == null) {
-                this._imageView = new nn.Bitmap();
-                this._imageView.fillMode = nn.FillMode.ASPECTSTRETCH;
-                this.addChild(this._imageView);
+            if (height) {
+                if (fontSize > height)
+                    h = height;
+                return new nn.Size(w, h);
             }
-            return this._imageView;
+            return new nn.Size(w, h);
         };
-        Object.defineProperty(Button.prototype, "imageSource", {
-            get: function () {
-                if (this._imageView)
-                    return this._imageView.imageSource;
-                return null;
-            },
-            set: function (tex) {
-                this._getImageView().imageSource = tex;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Button.prototype, "imageFillMode", {
-            get: function () {
-                if (this._imageView)
-                    return this._imageView.fillMode;
-                return nn.FillMode.ASPECTSTRETCH;
-            },
-            set: function (mode) {
-                this._getImageView().fillMode = mode;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Button.prototype.bestFrame = function (inrc) {
-            var brc = new nn.Rect();
-            if (this._label)
-                brc.union(this._label.bestFrame());
-            return brc.unapplyEdgeInsets(this.edgeInsets);
+        // 计算多行文字大小
+        Font.sizeFitString = function (str, fontSize, width, height, lineSpacing) {
+            if (!str || !str.length)
+                return new nn.Size();
+            var r = new nn.Size();
+            var lns = str.split('\n');
+            lns.forEach(function (s) {
+                var sz = Font.sizeOfString(s, fontSize, width, height);
+                r.width = Math.max(r.width, sz.width);
+                r.height += sz.height;
+            });
+            r.height += lns.length * lineSpacing;
+            return r;
         };
-        Button.prototype.updateLayout = function () {
-            _super.prototype.updateLayout.call(this);
-            var rc = this.boundsForLayout();
-            if (this._label)
-                this._label.frame = rc;
-            if (this._imageView)
-                this._imageView.frame = rc;
-        };
-        Object.defineProperty(Button.prototype, "stateNormal", {
-            get: function () {
-                if (this._slavestates)
-                    return this._slavestates.get(Button.STATE_NORMAL);
-                return null;
-            },
-            set: function (st) {
-                this.slavestates.bind(Button.STATE_NORMAL, st);
-                if (!this.disabled) {
-                    if (this._slavestates.state == undefined)
-                        this._slavestates.state = Button.STATE_NORMAL;
-                    this.states.updateData(false);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Button.prototype, "stateDisabled", {
-            get: function () {
-                if (this._slavestates)
-                    return this._slavestates.get(Button.STATE_DISABLED);
-                return null;
-            },
-            set: function (st) {
-                this.slavestates.bind(Button.STATE_DISABLED, st);
-                if (this.disabled) {
-                    if (this._slavestates.state == undefined)
-                        this._slavestates.state = Button.STATE_DISABLED;
-                    this.states.updateData(false);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Button.prototype, "stateHighlight", {
-            get: function () {
-                if (this._slavestates)
-                    return this._slavestates.get(Button.STATE_HIGHLIGHT);
-                return null;
-            },
-            set: function (st) {
-                this.slavestates.bind(Button.STATE_HIGHLIGHT, st);
-                this.states.updateData(false);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Button.prototype, "stateSelected", {
-            get: function () {
-                if (this._slavestates)
-                    return this._slavestates.get(Button.STATE_SELECTED);
-                return null;
-            },
-            set: function (st) {
-                this.slavestates.bind(Button.STATE_SELECTED, st);
-                this.states.updateData(false);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Button.prototype, "slavestates", {
-            get: function () {
-                if (this._slavestates == null) {
-                    this._slavestates = new nn.States();
-                    this.signals.connect(nn.SignalTouchBegin, this.__btn_touchdown, this);
-                    this.signals.connect(nn.SignalTouchEnd, this.__btn_touchup, this);
-                }
-                return this._slavestates;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Button.prototype.onChangeState = function (obj) {
-            var state = nn.State.As(obj);
-            if (this._slavestates) {
-                var slvst = this._slavestates.state;
-                if (slvst == Button.STATE_NORMAL) {
-                    var st = this._slavestates.get(Button.STATE_NORMAL);
-                    st && state.add('normal', st);
-                }
-                else if (slvst == Button.STATE_DISABLED) {
-                    var st = this._slavestates.get(Button.STATE_DISABLED);
-                    st && state.add('disabled', st);
-                }
-                else if (slvst == Button.STATE_SELECTED) {
-                    var st = this._slavestates.get(Button.STATE_SELECTED);
-                    st && state.add('selected', st);
-                }
-                else if (slvst == Button.STATE_HIGHLIGHT) {
-                    var st = this._slavestates.get(Button.STATE_HIGHLIGHT);
-                    st && state.add('highlight', st);
-                }
-            }
-            state.setIn(this);
-        };
-        Object.defineProperty(Button.prototype, "disabled", {
-            get: function () {
-                return this._disabled == true;
-            },
-            set: function (b) {
-                if (b == this._disabled)
-                    return;
-                this._disabled = b;
-                if (this._slavestates.changeState(this._disabled ? Button.STATE_DISABLED : Button.STATE_NORMAL))
-                    this.states.updateData(false);
-                this.touchEnabled = !b;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Button.prototype, "touchEnabled", {
-            get: function () {
-                return this._imp.touchEnabled;
-            },
-            set: function (b) {
-                this._imp.touchEnabled = !this._disabled && b;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Button.prototype.__btn_touchdown = function () {
-            if (this._slavestates == null)
-                return;
-            if (this._slavestates.changeState(Button.STATE_HIGHLIGHT))
-                this.states.updateData(false);
-        };
-        Button.prototype.__btn_touchup = function () {
-            if (this._slavestates == null)
-                return;
-            if (this._isSelected && this._slavestates.get(Button.STATE_SELECTED)) {
-                if (this._slavestates.changeState(Button.STATE_SELECTED))
-                    this.states.updateData(false);
-            }
-            else {
-                if (this._slavestates.changeState(this.disabled ? Button.STATE_DISABLED : Button.STATE_NORMAL))
-                    this.states.updateData(false);
-            }
-        };
-        Button.prototype.setSelection = function (sel) {
-            if (sel == this._isSelected)
-                return;
-            this._isSelected = sel;
-            if (this._isSelected && this._slavestates.get(Button.STATE_SELECTED))
-                this._slavestates.state = Button.STATE_SELECTED;
-            else
-                this._slavestates.state = this.disabled ? Button.STATE_DISABLED : Button.STATE_NORMAL;
-            this.states.updateData(false);
-            // 抛出状态变化
-            this.states.signals.emit(nn.SignalStateChanged);
-        };
-        return Button;
-    }(nn.CButton));
-    nn.Button = Button;
-    var RadioButton = (function (_super) {
-        __extends(RadioButton, _super);
-        function RadioButton() {
-            var _this = _super.call(this) || this;
-            /** 是否支持点击已经选中的来直接反选 */
-            _this.allowDeclick = true;
-            _this.signals.connect(nn.SignalClicked, _this.__radio_clicked, _this);
-            return _this;
-        }
-        Object.defineProperty(RadioButton.prototype, "selectedState", {
-            get: function () {
-                return this._selectedState;
-            },
-            set: function (val) {
-                if (this._selectedState == val)
-                    return;
-                this._selectedState = val;
-                this.states.bind("selected", val);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RadioButton.prototype, "unselectedState", {
-            get: function () {
-                return this._unselectedState;
-            },
-            set: function (val) {
-                if (this._unselectedState == val)
-                    return;
-                this._unselectedState = val;
-                this.states.bind("unselected", val);
-                if (this.states.state == undefined) {
-                    this.states.state = "unselected";
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        RadioButton.prototype.setSelection = function (val) {
-            if (this._selection == val)
-                return;
-            this._selection = val;
-            this.states.state = val ? "selected" : "unselected";
-        };
-        RadioButton.prototype.isSelection = function () {
-            return this._selection;
-        };
-        RadioButton.prototype.__radio_clicked = function () {
-            if (!this.allowDeclick && this.isSelection())
-                return;
-            this.setSelection(!this.isSelection());
-        };
-        return RadioButton;
-    }(Button));
-    nn.RadioButton = RadioButton;
+        return Font;
+    }());
+    nn.Font = Font;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -20857,6 +20051,738 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
+    var Button = (function (_super) {
+        __extends(Button, _super);
+        function Button(state) {
+            var _this = _super.call(this) || this;
+            _this.touchEnabled = true;
+            if (state)
+                _this.onChangeState(state);
+            return _this;
+        }
+        Button.prototype.dispose = function () {
+            _super.prototype.dispose.call(this);
+            if (this._slavestates)
+                this._slavestates.dispose();
+        };
+        Object.defineProperty(Button.prototype, "fontSize", {
+            get: function () {
+                if (this._label)
+                    return this._label.fontSize;
+                return 0;
+            },
+            set: function (val) {
+                this._getLabel().fontSize = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Button.prototype, "textColor", {
+            get: function () {
+                if (this._label)
+                    return this._label.textColor;
+                return 0;
+            },
+            set: function (val) {
+                this._getLabel().textColor = nn.GetColorComponent(val)[0];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Button.prototype, "text", {
+            get: function () {
+                if (this._label)
+                    return this._label.text;
+                return "";
+            },
+            set: function (val) {
+                this._getLabel().text = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Button.prototype, "textAlign", {
+            get: function () {
+                if (this._label)
+                    return this._label.textAlign;
+                return "center";
+            },
+            set: function (val) {
+                this._getLabel().textAlign = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Button.prototype, "label", {
+            get: function () {
+                return this._label;
+            },
+            set: function (lbl) {
+                nn.warn("不能直接设置button的title类");
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Button.prototype._getLabel = function () {
+            if (this._label == null) {
+                this._label = new nn.Label();
+                this._label.textAlign = "center";
+                this.addChild(this._label);
+            }
+            return this._label;
+        };
+        Object.defineProperty(Button.prototype, "imageView", {
+            get: function () {
+                return this._imageView;
+            },
+            set: function (bmp) {
+                nn.warn("不能直接设置button的image");
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Button.prototype._getImageView = function () {
+            if (this._imageView == null) {
+                this._imageView = new nn.Bitmap();
+                this._imageView.fillMode = nn.FillMode.ASPECTSTRETCH;
+                this.addChild(this._imageView);
+            }
+            return this._imageView;
+        };
+        Object.defineProperty(Button.prototype, "imageSource", {
+            get: function () {
+                if (this._imageView)
+                    return this._imageView.imageSource;
+                return null;
+            },
+            set: function (tex) {
+                this._getImageView().imageSource = tex;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Button.prototype, "imageFillMode", {
+            get: function () {
+                if (this._imageView)
+                    return this._imageView.fillMode;
+                return nn.FillMode.ASPECTSTRETCH;
+            },
+            set: function (mode) {
+                this._getImageView().fillMode = mode;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Button.prototype.bestFrame = function (inrc) {
+            var brc = new nn.Rect();
+            if (this._label)
+                brc.union(this._label.bestFrame());
+            return brc.unapplyEdgeInsets(this.edgeInsets);
+        };
+        Button.prototype.updateLayout = function () {
+            _super.prototype.updateLayout.call(this);
+            var rc = this.boundsForLayout();
+            if (this._label)
+                this._label.frame = rc;
+            if (this._imageView)
+                this._imageView.frame = rc;
+        };
+        Object.defineProperty(Button.prototype, "stateNormal", {
+            get: function () {
+                if (this._slavestates)
+                    return this._slavestates.get(Button.STATE_NORMAL);
+                return null;
+            },
+            set: function (st) {
+                this.slavestates.bind(Button.STATE_NORMAL, st);
+                if (!this.disabled) {
+                    if (this._slavestates.state == undefined)
+                        this._slavestates.state = Button.STATE_NORMAL;
+                    this.states.updateData(false);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Button.prototype, "stateDisabled", {
+            get: function () {
+                if (this._slavestates)
+                    return this._slavestates.get(Button.STATE_DISABLED);
+                return null;
+            },
+            set: function (st) {
+                this.slavestates.bind(Button.STATE_DISABLED, st);
+                if (this.disabled) {
+                    if (this._slavestates.state == undefined)
+                        this._slavestates.state = Button.STATE_DISABLED;
+                    this.states.updateData(false);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Button.prototype, "stateHighlight", {
+            get: function () {
+                if (this._slavestates)
+                    return this._slavestates.get(Button.STATE_HIGHLIGHT);
+                return null;
+            },
+            set: function (st) {
+                this.slavestates.bind(Button.STATE_HIGHLIGHT, st);
+                this.states.updateData(false);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Button.prototype, "stateSelected", {
+            get: function () {
+                if (this._slavestates)
+                    return this._slavestates.get(Button.STATE_SELECTED);
+                return null;
+            },
+            set: function (st) {
+                this.slavestates.bind(Button.STATE_SELECTED, st);
+                this.states.updateData(false);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Button.prototype, "slavestates", {
+            get: function () {
+                if (this._slavestates == null) {
+                    this._slavestates = new nn.States();
+                    this.signals.connect(nn.SignalTouchBegin, this.__btn_touchdown, this);
+                    this.signals.connect(nn.SignalTouchEnd, this.__btn_touchup, this);
+                }
+                return this._slavestates;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Button.prototype.onChangeState = function (obj) {
+            var state = nn.State.As(obj);
+            if (this._slavestates) {
+                var slvst = this._slavestates.state;
+                if (slvst == Button.STATE_NORMAL) {
+                    var st = this._slavestates.get(Button.STATE_NORMAL);
+                    st && state.add('normal', st);
+                }
+                else if (slvst == Button.STATE_DISABLED) {
+                    var st = this._slavestates.get(Button.STATE_DISABLED);
+                    st && state.add('disabled', st);
+                }
+                else if (slvst == Button.STATE_SELECTED) {
+                    var st = this._slavestates.get(Button.STATE_SELECTED);
+                    st && state.add('selected', st);
+                }
+                else if (slvst == Button.STATE_HIGHLIGHT) {
+                    var st = this._slavestates.get(Button.STATE_HIGHLIGHT);
+                    st && state.add('highlight', st);
+                }
+            }
+            state.setIn(this);
+        };
+        Object.defineProperty(Button.prototype, "disabled", {
+            get: function () {
+                return this._disabled == true;
+            },
+            set: function (b) {
+                if (b == this._disabled)
+                    return;
+                this._disabled = b;
+                if (this._slavestates.changeState(this._disabled ? Button.STATE_DISABLED : Button.STATE_NORMAL))
+                    this.states.updateData(false);
+                this.touchEnabled = !b;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Button.prototype, "touchEnabled", {
+            get: function () {
+                return this._imp.touchEnabled;
+            },
+            set: function (b) {
+                this._imp.touchEnabled = !this._disabled && b;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Button.prototype.__btn_touchdown = function () {
+            if (this._slavestates == null)
+                return;
+            if (this._slavestates.changeState(Button.STATE_HIGHLIGHT))
+                this.states.updateData(false);
+        };
+        Button.prototype.__btn_touchup = function () {
+            if (this._slavestates == null)
+                return;
+            if (this._isSelected && this._slavestates.get(Button.STATE_SELECTED)) {
+                if (this._slavestates.changeState(Button.STATE_SELECTED))
+                    this.states.updateData(false);
+            }
+            else {
+                if (this._slavestates.changeState(this.disabled ? Button.STATE_DISABLED : Button.STATE_NORMAL))
+                    this.states.updateData(false);
+            }
+        };
+        Button.prototype.setSelection = function (sel) {
+            if (sel == this._isSelected)
+                return;
+            this._isSelected = sel;
+            if (this._isSelected && this._slavestates.get(Button.STATE_SELECTED))
+                this._slavestates.state = Button.STATE_SELECTED;
+            else
+                this._slavestates.state = this.disabled ? Button.STATE_DISABLED : Button.STATE_NORMAL;
+            this.states.updateData(false);
+            // 抛出状态变化
+            this.states.signals.emit(nn.SignalStateChanged);
+        };
+        return Button;
+    }(nn.CButton));
+    nn.Button = Button;
+    var RadioButton = (function (_super) {
+        __extends(RadioButton, _super);
+        function RadioButton() {
+            var _this = _super.call(this) || this;
+            /** 是否支持点击已经选中的来直接反选 */
+            _this.allowDeclick = true;
+            _this.signals.connect(nn.SignalClicked, _this.__radio_clicked, _this);
+            return _this;
+        }
+        Object.defineProperty(RadioButton.prototype, "selectedState", {
+            get: function () {
+                return this._selectedState;
+            },
+            set: function (val) {
+                if (this._selectedState == val)
+                    return;
+                this._selectedState = val;
+                this.states.bind("selected", val);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioButton.prototype, "unselectedState", {
+            get: function () {
+                return this._unselectedState;
+            },
+            set: function (val) {
+                if (this._unselectedState == val)
+                    return;
+                this._unselectedState = val;
+                this.states.bind("unselected", val);
+                if (this.states.state == undefined) {
+                    this.states.state = "unselected";
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        RadioButton.prototype.setSelection = function (val) {
+            if (this._selection == val)
+                return;
+            this._selection = val;
+            this.states.state = val ? "selected" : "unselected";
+        };
+        RadioButton.prototype.isSelection = function () {
+            return this._selection;
+        };
+        RadioButton.prototype.__radio_clicked = function () {
+            if (!this.allowDeclick && this.isSelection())
+                return;
+            this.setSelection(!this.isSelection());
+        };
+        return RadioButton;
+    }(Button));
+    nn.RadioButton = RadioButton;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var ExtMovieClip = (function (_super) {
+        __extends(ExtMovieClip, _super);
+        function ExtMovieClip() {
+            var _this = _super.call(this) || this;
+            // 标准的包围盒
+            _this.originBoundingBox = new nn.Rect();
+            return _this;
+        }
+        ExtMovieClip.prototype.bestFrame = function () {
+            // 此时不需要进行缩放因子调整，每一个序列帧需要用实际大小来计算上层的缩放系数
+            return this.originBoundingBox.clone();
+        };
+        ExtMovieClip.prototype.bindMovieClipData = function (d, f) {
+            this.movieClipData = d;
+            this.factory = f;
+            if (d) {
+                this.originBoundingBox = d.boundingBox;
+                this.originFrameRate = d.__fileFrameRate;
+                this.visible = true;
+            }
+            else {
+                this.originBoundingBox = new nn.Rect();
+                this.originFrameRate = 30;
+                this.visible = false;
+            }
+        };
+        return ExtMovieClip;
+    }(egret.MovieClip));
+    var MovieClip = (function (_super) {
+        __extends(MovieClip, _super);
+        function MovieClip() {
+            var _this = _super.call(this) || this;
+            _this._mc = new ExtMovieClip();
+            _this._cs = null;
+            _this._imp.addChild(_this._mc);
+            return _this;
+        }
+        MovieClip.prototype._signalConnected = function (sig, s) {
+            _super.prototype._signalConnected.call(this, sig, s);
+            switch (sig) {
+                case nn.SignalEnd:
+                    {
+                        nn.EventHook(this._mc, egret.Event.LOOP_COMPLETE, this.__cb_end, this);
+                    }
+                    break;
+                case nn.SignalDone:
+                    {
+                        nn.EventHook(this._mc, egret.Event.COMPLETE, this.__cb_done, this);
+                    }
+                    break;
+            }
+        };
+        MovieClip.prototype.dispose = function () {
+            // 反向模式中如过已经调整过方向，则需要当析构时恢复方向，不然下一次打开就已经是反方向的
+            if (this.reverseMode && !this.__needreverse) {
+                this.__needreverse = true;
+                this.tryReverseMovieClipData();
+            }
+            _super.prototype.dispose.call(this);
+        };
+        Object.defineProperty(MovieClip.prototype, "fps", {
+            get: function () {
+                return this._mc.frameRate;
+            },
+            set: function (fps) {
+                this._fps = fps;
+                this._mc.frameRate = fps;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MovieClip.prototype, "clipSource", {
+            get: function () {
+                return this._cs;
+            },
+            set: function (cs) {
+                var self = this;
+                if (nn.ObjectT.IsEqual(cs, self._cs)) {
+                    if (self._signals)
+                        self._signals.emit(nn.SignalUpdated);
+                    return;
+                }
+                // 如果是null则直接清空
+                // 否则当加载成功新的时再清空
+                if (cs == null && self._cs) {
+                    self._mc.bindMovieClipData(null, null);
+                    self._cs = null;
+                    return;
+                }
+                if (self.clearOnChanging)
+                    self._mc.bindMovieClipData(null, null);
+                // 设置新的数据
+                var pcs = self._cs;
+                self._cs = cs;
+                // 加载新的资源数据
+                ClipsManager().instance(cs, function (mc, f) {
+                    if (self.__disposed || false == nn.ObjectT.IsEqual(cs, self._cs))
+                        return;
+                    if (cs.additionScale != null)
+                        self.additionScale = cs.additionScale;
+                    if (cs.fps)
+                        self.fps = cs.fps;
+                    // 释放当前的
+                    if (pcs) {
+                        self.stop();
+                    }
+                    // 设置期望的
+                    self._setMovieClipData(mc, f);
+                }, self);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MovieClip.prototype, "clip", {
+            get: function () {
+                return this._clip;
+            },
+            set: function (c) {
+                if (c == this._clip)
+                    return;
+                this._location = undefined;
+                this._clip = c;
+                if (this.autoPlay && !this.isPlaying())
+                    this.play();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MovieClip.prototype, "location", {
+            get: function () {
+                return this._location;
+            },
+            set: function (l) {
+                if (l == this._location)
+                    return;
+                this._clip = undefined;
+                this._location = l;
+                if (this.autoPlay && !this.isPlaying())
+                    this.play();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        MovieClip.prototype.isPlaying = function () {
+            return this._mc.isPlaying;
+        };
+        MovieClip.prototype.stop = function () {
+            if (this.isPlaying())
+                this._mc.stop();
+        };
+        MovieClip.prototype.play = function () {
+            if (this.isPlaying())
+                return;
+            this._updateAnimation();
+        };
+        MovieClip.prototype.bestFrame = function () {
+            var rc = this._mc.bestFrame();
+            rc.x = rc.y = 0;
+            return rc;
+        };
+        MovieClip.prototype._setMovieClipData = function (d, f) {
+            if (d) {
+                this._mc.bindMovieClipData(d, f);
+                if (this._fps) {
+                    this._mc.frameRate = this._fps;
+                }
+                else {
+                    this._mc.frameRate = this._mc.originFrameRate;
+                }
+                // 需要重新布局以调整位置
+                //this.setNeedsLayout();
+                this.updateLayout(); // 飞天项目汇报如果用setNeedsLayout会引起重影
+            }
+            else {
+                this._mc.bindMovieClipData(d, f);
+            }
+            // 刷新动画
+            if (this._signals) {
+                this._signals.emit(nn.SignalUpdated);
+                this._signals.emit(nn.SignalChanged);
+            }
+            if (this.autoPlay && !this.isPlaying())
+                this.play();
+        };
+        Object.defineProperty(MovieClip.prototype, "reverseMode", {
+            get: function () {
+                return this._reverseMode;
+            },
+            set: function (b) {
+                if (this._reverseMode == b)
+                    return;
+                this._reverseMode = b;
+                this.__needreverse = true;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        MovieClip.prototype.tryReverseMovieClipData = function () {
+            if (!this.reverseMode && !this.__needreverse)
+                return;
+            var d = this._mc.movieClipData;
+            d.frames.reverse(); // 反向序列帧
+            this.__needreverse = undefined;
+        };
+        Object.defineProperty(MovieClip.prototype, "flashMode", {
+            get: function () {
+                return this._flashMode;
+            },
+            set: function (b) {
+                this._flashMode = b;
+                if (b && this.flashAnchorPoint == null) {
+                    this.flashAnchorPoint = new nn.Point(0.5, 0.5);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        MovieClip.prototype.updateLayout = function () {
+            _super.prototype.updateLayout.call(this);
+            var rc = this.bounds();
+            var arc = this._mc.bestFrame();
+            // 计算一下以中心点为基准的目标 mc 大小
+            var frm = arc.clone()
+                .fill(rc, this.fillMode)
+                .scale(this.additionScale);
+            // 计算填充的缩放比例
+            var sw = frm.width / arc.width;
+            var sh = frm.height / arc.height;
+            var s = Math.min(sw, sh);
+            this._mc.scaleX = this._mc.scaleY = s * nn.ScaleFactorS;
+            // 计算缩放后应该放置的位置
+            frm.alignTo(rc, this.clipAlign);
+            frm.add(-arc.x * s, -arc.y * s);
+            if (this.flashMode) {
+                frm.add((arc.x + arc.width * this.flashAnchorPoint.x) * s, (arc.y + arc.height * this.flashAnchorPoint.y) * s);
+            }
+            this.impSetFrame(frm.integral(), this._mc);
+        };
+        MovieClip.prototype._updateAnimation = function () {
+            // 跳过不存在的和正在播放的
+            if (this._mc.movieClipData == null ||
+                this._mc.isPlaying)
+                return;
+            // 跳过不设置动画定义的情况
+            if (this._clip == null && this._location == null)
+                return;
+            // 不知道是不是bug，需要判断下mcd里面的帧数
+            if (DEBUG && this._mc.movieClipData.frames.length == 0) {
+                nn.warn("mc尝试启动一个空帧"); // 需要在factory::instance中把空帧转换为null处理
+                return;
+            }
+            // 是否需要处理反向
+            this.tryReverseMovieClipData();
+            // 开始播放动画
+            if (this._signals)
+                this._signals.emit(nn.SignalStart);
+            if (this._clip)
+                this._mc.gotoAndPlay(this._clip, this.count);
+            else if (this._location != null)
+                this._mc.gotoAndPlay(this._location, this.count);
+        };
+        MovieClip.prototype.__cb_end = function (e) {
+            if (this.__disposed)
+                return;
+            this._signals.emit(nn.SignalEnd);
+        };
+        MovieClip.prototype.__cb_done = function (e) {
+            if (this.__disposed)
+                return;
+            this._signals.emit(nn.SignalDone);
+        };
+        return MovieClip;
+    }(nn.CMovieClip));
+    nn.MovieClip = MovieClip;
+    var _ClipsManager = (function () {
+        function _ClipsManager() {
+            // 如果是同一种config，则只生成一份factorydata
+            this._factorys = new KvObject();
+        }
+        // 根据配置实例化序列帧
+        _ClipsManager.prototype.instance = function (cfg, cb, ctx) {
+            var _this = this;
+            if (nn.length(cfg.resourceGroups)) {
+                nn.ResManager.capsules(cfg.resourceGroups).load(function () {
+                    _this.instanceOne(cfg, cb, ctx);
+                }, this);
+            }
+            else {
+                this.instanceOne(cfg, cb, ctx);
+            }
+        };
+        _ClipsManager.prototype.instanceOne = function (cfg, cb, ctx) {
+            var _this = this;
+            var name = cfg.name;
+            var frame = cfg.frame;
+            var tex = cfg.texture;
+            var key = cfg.hashCode;
+            var factory = this._factorys[key];
+            if (factory) {
+                var d = this.instanceFromFactory(factory, name, false);
+                if (d.frames.length == 0) {
+                    nn.warn('MovieClip为空帧，清检查资源文件和配置是否一致\n' + cfg);
+                    d = null;
+                }
+                cb.call(ctx, d, factory);
+            }
+            else {
+                nn.ResManager.getSources([
+                    [frame, nn.ResType.JSON],
+                    [tex, nn.ResType.TEXTURE]
+                ], nn.ResPriority.CLIP, function (ds) {
+                    var djson = ds[0].use();
+                    var dtex = ds[1].use();
+                    if (djson == null) {
+                        nn.warn("mc-cfg " + frame + " not found");
+                        cb.call(ctx, null, null);
+                        return;
+                    }
+                    if (dtex == null) {
+                        nn.warn("mc-tex " + tex + " not found");
+                        cb.call(ctx, null, null);
+                        return;
+                    }
+                    // 如果是全异步的情况，会同时实例化多个相同的factory，引用技术使用
+                    var factory = _this._factorys[key];
+                    if (!factory) {
+                        // 创建factory之后再创建数据
+                        factory = {
+                            cfg: cfg,
+                            factory: new egret.MovieClipDataFactory(djson, dtex)
+                        };
+                        _this._factorys[key] = factory;
+                    }
+                    // 创建数据
+                    var d = _this.instanceFromFactory(factory, name, true);
+                    if (d.frames.length == 0) {
+                        nn.warn('MovieClip为空帧，请检查资源文件和配置是否一致\n' + cfg);
+                        d = null;
+                    }
+                    cb.call(ctx, d, factory);
+                }, this);
+            }
+        };
+        _ClipsManager.prototype.instanceFromFactory = function (factory, name, newdata) {
+            var r = factory.factory.generateMovieClipData(name);
+            if (r == null) {
+                nn.warn("生成序列帧 " + name + " 失败");
+            }
+            else {
+                // 保存最原始的真帧速度
+                if (newdata)
+                    r.__fileFrameRate = r.frameRate;
+                // 计算帧包围盒
+                var rc_2 = new nn.Rect();
+                // 计算帧的位置
+                var pts_1 = new nn.PointCloud();
+                nn.ArrayT.Foreach(r.frames, function (f) {
+                    if (f.hasOwnProperty('frame'))
+                        return true;
+                    var tex = r.textureData[f.res];
+                    if (tex == null)
+                        return true;
+                    pts_1.add(new nn.Point(f.x, f.y));
+                    // 合并包围盒
+                    rc_2.union(new nn.Rect(0, 0, tex.w, tex.h));
+                    return true;
+                }, this);
+                rc_2.position = pts_1.boundingBox.position;
+                // 绑定包围盒到mc数据，用来在控件里计算位置、大小
+                r.boundingBox = rc_2;
+            }
+            return r;
+        };
+        return _ClipsManager;
+    }());
+    var _clipsManager;
+    function ClipsManager() {
+        if (_clipsManager)
+            return _clipsManager;
+        _clipsManager = new _ClipsManager();
+        return _clipsManager;
+    }
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
     /** 弹出的对话框类型
         @note 通过返回 bestFrame 来决定对话框的大小 */
     var Dialog = (function (_super) {
@@ -21259,484 +21185,6 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    var ExtMovieClip = (function (_super) {
-        __extends(ExtMovieClip, _super);
-        function ExtMovieClip() {
-            var _this = _super.call(this) || this;
-            // 标准的包围盒
-            _this.originBoundingBox = new nn.Rect();
-            return _this;
-        }
-        ExtMovieClip.prototype.bestFrame = function () {
-            // 此时不需要进行缩放因子调整，每一个序列帧需要用实际大小来计算上层的缩放系数
-            return this.originBoundingBox.clone();
-        };
-        ExtMovieClip.prototype.bindMovieClipData = function (d, f) {
-            this.movieClipData = d;
-            this.factory = f;
-            if (d) {
-                this.originBoundingBox = d.boundingBox;
-                this.originFrameRate = d.__fileFrameRate;
-                this.visible = true;
-            }
-            else {
-                this.originBoundingBox = new nn.Rect();
-                this.originFrameRate = 30;
-                this.visible = false;
-            }
-        };
-        return ExtMovieClip;
-    }(egret.MovieClip));
-    var MovieClip = (function (_super) {
-        __extends(MovieClip, _super);
-        function MovieClip() {
-            var _this = _super.call(this) || this;
-            _this._mc = new ExtMovieClip();
-            _this._cs = null;
-            _this._imp.addChild(_this._mc);
-            return _this;
-        }
-        MovieClip.prototype._signalConnected = function (sig, s) {
-            _super.prototype._signalConnected.call(this, sig, s);
-            switch (sig) {
-                case nn.SignalEnd:
-                    {
-                        nn.EventHook(this._mc, egret.Event.LOOP_COMPLETE, this.__cb_end, this);
-                    }
-                    break;
-                case nn.SignalDone:
-                    {
-                        nn.EventHook(this._mc, egret.Event.COMPLETE, this.__cb_done, this);
-                    }
-                    break;
-            }
-        };
-        MovieClip.prototype.dispose = function () {
-            // 反向模式中如过已经调整过方向，则需要当析构时恢复方向，不然下一次打开就已经是反方向的
-            if (this.reverseMode && !this.__needreverse) {
-                this.__needreverse = true;
-                this.tryReverseMovieClipData();
-            }
-            _super.prototype.dispose.call(this);
-        };
-        Object.defineProperty(MovieClip.prototype, "fps", {
-            get: function () {
-                return this._mc.frameRate;
-            },
-            set: function (fps) {
-                this._fps = fps;
-                this._mc.frameRate = fps;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MovieClip.prototype, "clipSource", {
-            get: function () {
-                return this._cs;
-            },
-            set: function (cs) {
-                var self = this;
-                if (nn.ObjectT.IsEqual(cs, self._cs)) {
-                    if (self._signals)
-                        self._signals.emit(nn.SignalUpdated);
-                    return;
-                }
-                // 如果是null则直接清空
-                // 否则当加载成功新的时再清空
-                if (cs == null && self._cs) {
-                    self._mc.bindMovieClipData(null, null);
-                    self._cs = null;
-                    return;
-                }
-                if (self.clearOnChanging)
-                    self._mc.bindMovieClipData(null, null);
-                // 设置新的数据
-                var pcs = self._cs;
-                self._cs = cs;
-                // 加载新的资源数据
-                ClipsManager().instance(cs, function (mc, f) {
-                    if (self.__disposed || false == nn.ObjectT.IsEqual(cs, self._cs))
-                        return;
-                    if (cs.additionScale != null)
-                        self.additionScale = cs.additionScale;
-                    if (cs.fps)
-                        self.fps = cs.fps;
-                    // 释放当前的
-                    if (pcs) {
-                        self.stop();
-                    }
-                    // 设置期望的
-                    self._setMovieClipData(mc, f);
-                }, self);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MovieClip.prototype, "clip", {
-            get: function () {
-                return this._clip;
-            },
-            set: function (c) {
-                if (c == this._clip)
-                    return;
-                this._location = undefined;
-                this._clip = c;
-                if (this.autoPlay && !this.isPlaying())
-                    this.play();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MovieClip.prototype, "location", {
-            get: function () {
-                return this._location;
-            },
-            set: function (l) {
-                if (l == this._location)
-                    return;
-                this._clip = undefined;
-                this._location = l;
-                if (this.autoPlay && !this.isPlaying())
-                    this.play();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MovieClip.prototype.isPlaying = function () {
-            return this._mc.isPlaying;
-        };
-        MovieClip.prototype.stop = function () {
-            if (this.isPlaying())
-                this._mc.stop();
-        };
-        MovieClip.prototype.play = function () {
-            if (this.isPlaying())
-                return;
-            this._updateAnimation();
-        };
-        MovieClip.prototype.bestFrame = function () {
-            var rc = this._mc.bestFrame();
-            rc.x = rc.y = 0;
-            return rc;
-        };
-        MovieClip.prototype._setMovieClipData = function (d, f) {
-            if (d) {
-                this._mc.bindMovieClipData(d, f);
-                if (this._fps) {
-                    this._mc.frameRate = this._fps;
-                }
-                else {
-                    this._mc.frameRate = this._mc.originFrameRate;
-                }
-                // 需要重新布局以调整位置
-                //this.setNeedsLayout();
-                this.updateLayout(); // 飞天项目汇报如果用setNeedsLayout会引起重影
-            }
-            else {
-                this._mc.bindMovieClipData(d, f);
-            }
-            // 刷新动画
-            if (this._signals) {
-                this._signals.emit(nn.SignalUpdated);
-                this._signals.emit(nn.SignalChanged);
-            }
-            if (this.autoPlay && !this.isPlaying())
-                this.play();
-        };
-        Object.defineProperty(MovieClip.prototype, "reverseMode", {
-            get: function () {
-                return this._reverseMode;
-            },
-            set: function (b) {
-                if (this._reverseMode == b)
-                    return;
-                this._reverseMode = b;
-                this.__needreverse = true;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MovieClip.prototype.tryReverseMovieClipData = function () {
-            if (!this.reverseMode && !this.__needreverse)
-                return;
-            var d = this._mc.movieClipData;
-            d.frames.reverse(); // 反向序列帧
-            this.__needreverse = undefined;
-        };
-        Object.defineProperty(MovieClip.prototype, "flashMode", {
-            get: function () {
-                return this._flashMode;
-            },
-            set: function (b) {
-                this._flashMode = b;
-                if (b && this.flashAnchorPoint == null) {
-                    this.flashAnchorPoint = new nn.Point(0.5, 0.5);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MovieClip.prototype.updateLayout = function () {
-            _super.prototype.updateLayout.call(this);
-            var rc = this.bounds();
-            var arc = this._mc.bestFrame();
-            // 计算一下以中心点为基准的目标 mc 大小
-            var frm = arc.clone()
-                .fill(rc, this.fillMode)
-                .scale(this.additionScale);
-            // 计算填充的缩放比例
-            var sw = frm.width / arc.width;
-            var sh = frm.height / arc.height;
-            var s = Math.min(sw, sh);
-            this._mc.scaleX = this._mc.scaleY = s * nn.ScaleFactorS;
-            // 计算缩放后应该放置的位置
-            frm.alignTo(rc, this.clipAlign);
-            frm.add(-arc.x * s, -arc.y * s);
-            if (this.flashMode) {
-                frm.add((arc.x + arc.width * this.flashAnchorPoint.x) * s, (arc.y + arc.height * this.flashAnchorPoint.y) * s);
-            }
-            this.impSetFrame(frm.integral(), this._mc);
-        };
-        MovieClip.prototype._updateAnimation = function () {
-            // 跳过不存在的和正在播放的
-            if (this._mc.movieClipData == null ||
-                this._mc.isPlaying)
-                return;
-            // 跳过不设置动画定义的情况
-            if (this._clip == null && this._location == null)
-                return;
-            // 不知道是不是bug，需要判断下mcd里面的帧数
-            if (DEBUG && this._mc.movieClipData.frames.length == 0) {
-                nn.warn("mc尝试启动一个空帧"); // 需要在factory::instance中把空帧转换为null处理
-                return;
-            }
-            // 是否需要处理反向
-            this.tryReverseMovieClipData();
-            // 开始播放动画
-            if (this._signals)
-                this._signals.emit(nn.SignalStart);
-            if (this._clip)
-                this._mc.gotoAndPlay(this._clip, this.count);
-            else if (this._location != null)
-                this._mc.gotoAndPlay(this._location, this.count);
-        };
-        MovieClip.prototype.__cb_end = function (e) {
-            if (this.__disposed)
-                return;
-            this._signals.emit(nn.SignalEnd);
-        };
-        MovieClip.prototype.__cb_done = function (e) {
-            if (this.__disposed)
-                return;
-            this._signals.emit(nn.SignalDone);
-        };
-        return MovieClip;
-    }(nn.CMovieClip));
-    nn.MovieClip = MovieClip;
-    var _ClipsManager = (function () {
-        function _ClipsManager() {
-            // 如果是同一种config，则只生成一份factorydata
-            this._factorys = new KvObject();
-        }
-        // 根据配置实例化序列帧
-        _ClipsManager.prototype.instance = function (cfg, cb, ctx) {
-            var _this = this;
-            if (nn.length(cfg.resourceGroups)) {
-                nn.ResManager.capsules(cfg.resourceGroups).load(function () {
-                    _this.instanceOne(cfg, cb, ctx);
-                }, this);
-            }
-            else {
-                this.instanceOne(cfg, cb, ctx);
-            }
-        };
-        _ClipsManager.prototype.instanceOne = function (cfg, cb, ctx) {
-            var _this = this;
-            var name = cfg.name;
-            var frame = cfg.frame;
-            var tex = cfg.texture;
-            var key = cfg.hashCode;
-            var factory = this._factorys[key];
-            if (factory) {
-                var d = this.instanceFromFactory(factory, name, false);
-                if (d.frames.length == 0) {
-                    nn.warn('MovieClip为空帧，清检查资源文件和配置是否一致\n' + cfg);
-                    d = null;
-                }
-                cb.call(ctx, d, factory);
-            }
-            else {
-                nn.ResManager.getSources([
-                    [frame, nn.ResType.JSON],
-                    [tex, nn.ResType.TEXTURE]
-                ], nn.ResPriority.CLIP, function (ds) {
-                    var djson = ds[0].use();
-                    var dtex = ds[1].use();
-                    if (djson == null) {
-                        nn.warn("mc-cfg " + frame + " not found");
-                        cb.call(ctx, null, null);
-                        return;
-                    }
-                    if (dtex == null) {
-                        nn.warn("mc-tex " + tex + " not found");
-                        cb.call(ctx, null, null);
-                        return;
-                    }
-                    // 如果是全异步的情况，会同时实例化多个相同的factory，引用技术使用
-                    var factory = _this._factorys[key];
-                    if (!factory) {
-                        // 创建factory之后再创建数据
-                        factory = {
-                            cfg: cfg,
-                            factory: new egret.MovieClipDataFactory(djson, dtex)
-                        };
-                        _this._factorys[key] = factory;
-                    }
-                    // 创建数据
-                    var d = _this.instanceFromFactory(factory, name, true);
-                    if (d.frames.length == 0) {
-                        nn.warn('MovieClip为空帧，请检查资源文件和配置是否一致\n' + cfg);
-                        d = null;
-                    }
-                    cb.call(ctx, d, factory);
-                }, this);
-            }
-        };
-        _ClipsManager.prototype.instanceFromFactory = function (factory, name, newdata) {
-            var r = factory.factory.generateMovieClipData(name);
-            if (r == null) {
-                nn.warn("生成序列帧 " + name + " 失败");
-            }
-            else {
-                // 保存最原始的真帧速度
-                if (newdata)
-                    r.__fileFrameRate = r.frameRate;
-                // 计算帧包围盒
-                var rc_2 = new nn.Rect();
-                // 计算帧的位置
-                var pts_1 = new nn.PointCloud();
-                nn.ArrayT.Foreach(r.frames, function (f) {
-                    if (f.hasOwnProperty('frame'))
-                        return true;
-                    var tex = r.textureData[f.res];
-                    if (tex == null)
-                        return true;
-                    pts_1.add(new nn.Point(f.x, f.y));
-                    // 合并包围盒
-                    rc_2.union(new nn.Rect(0, 0, tex.w, tex.h));
-                    return true;
-                }, this);
-                rc_2.position = pts_1.boundingBox.position;
-                // 绑定包围盒到mc数据，用来在控件里计算位置、大小
-                r.boundingBox = rc_2;
-            }
-            return r;
-        };
-        return _ClipsManager;
-    }());
-    var _clipsManager;
-    function ClipsManager() {
-        if (_clipsManager)
-            return _clipsManager;
-        _clipsManager = new _ClipsManager();
-        return _clipsManager;
-    }
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    var Slider = (function (_super) {
-        __extends(Slider, _super);
-        function Slider() {
-            var _this = _super.call(this) || this;
-            /** 水平模式 */
-            _this.horizonMode = true;
-            _this._progressValue = new nn.Percentage(1, 0);
-            _this.clipsToBounds = true;
-            _this.signals.connect(nn.SignalTouchBegin, _this.__sld_touchchanged, _this);
-            _this.signals.connect(nn.SignalTouchEnd, _this.__sld_touchchanged, _this);
-            _this.signals.connect(nn.SignalTouchMove, _this.__sld_touchchanged, _this);
-            return _this;
-        }
-        Slider.prototype.dispose = function () {
-            this._progressValue = undefined;
-            _super.prototype.dispose.call(this);
-        };
-        Slider.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalChanged);
-        };
-        Object.defineProperty(Slider.prototype, "identifierView", {
-            get: function () {
-                return this._identifierView;
-            },
-            set: function (s) {
-                if (this._identifierView == s)
-                    return;
-                if (this._identifierView)
-                    this.removeChild(this._identifierView);
-                this._identifierView = s;
-                if (s)
-                    this.addChild(s);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Slider.prototype, "progressValue", {
-            get: function () {
-                return this._progressValue;
-            },
-            set: function (val) {
-                this._progressValue = val;
-                this.updateLayout();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Slider.prototype.updateLayout = function () {
-            _super.prototype.updateLayout.call(this);
-            if (this._identifierView == null)
-                return;
-            var rc = this.boundsForLayout();
-            var trc = this._identifierView.frame;
-            if (this.horizonMode) {
-                trc.x = this._progressValue.safepercent * (rc.width - trc.width);
-                trc.y = rc.y + (rc.height - trc.height) * 0.5;
-            }
-            else {
-                trc.y = this._progressValue.safepercent * (rc.height - trc.height);
-                trc.x = rc.x + (rc.width - trc.width) * 0.5;
-            }
-            this._identifierView.frame = trc;
-        };
-        Slider.prototype.__sld_touchchanged = function (s) {
-            var t = s.data;
-            if (this._identifierView) {
-                var rc = this.boundsForLayout();
-                var idrc = this._identifierView.frame;
-                idrc.x += t.delta.x;
-                var pt = idrc.center;
-                if (pt.x > rc.width) {
-                    pt = rc.rightCenter;
-                    idrc.center = pt;
-                }
-                else if (pt.x < 0) {
-                    pt = rc.leftCenter;
-                    idrc.center = pt;
-                }
-                this._identifierView.frame = idrc;
-                var p = pt.x / rc.width;
-                if (p != this.progressValue.percent) {
-                    this.progressValue.percent = p;
-                    this.signals.emit(nn.SignalChanged, this.progressValue);
-                }
-            }
-        };
-        return Slider;
-    }(nn.Widget));
-    nn.Slider = Slider;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
     var GridCellsItem = (function (_super) {
         __extends(GridCellsItem, _super);
         function GridCellsItem(cols, cls) {
@@ -21913,6 +21361,187 @@ var nn;
         return GridView;
     }(nn.TableView));
     nn.GridView = GridView;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var Slider = (function (_super) {
+        __extends(Slider, _super);
+        function Slider() {
+            var _this = _super.call(this) || this;
+            /** 水平模式 */
+            _this.horizonMode = true;
+            _this._progressValue = new nn.Percentage(1, 0);
+            _this.clipsToBounds = true;
+            _this.signals.connect(nn.SignalTouchBegin, _this.__sld_touchchanged, _this);
+            _this.signals.connect(nn.SignalTouchEnd, _this.__sld_touchchanged, _this);
+            _this.signals.connect(nn.SignalTouchMove, _this.__sld_touchchanged, _this);
+            return _this;
+        }
+        Slider.prototype.dispose = function () {
+            this._progressValue = undefined;
+            _super.prototype.dispose.call(this);
+        };
+        Slider.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalChanged);
+        };
+        Object.defineProperty(Slider.prototype, "identifierView", {
+            get: function () {
+                return this._identifierView;
+            },
+            set: function (s) {
+                if (this._identifierView == s)
+                    return;
+                if (this._identifierView)
+                    this.removeChild(this._identifierView);
+                this._identifierView = s;
+                if (s)
+                    this.addChild(s);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Slider.prototype, "progressValue", {
+            get: function () {
+                return this._progressValue;
+            },
+            set: function (val) {
+                this._progressValue = val;
+                this.updateLayout();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Slider.prototype.updateLayout = function () {
+            _super.prototype.updateLayout.call(this);
+            if (this._identifierView == null)
+                return;
+            var rc = this.boundsForLayout();
+            var trc = this._identifierView.frame;
+            if (this.horizonMode) {
+                trc.x = this._progressValue.safepercent * (rc.width - trc.width);
+                trc.y = rc.y + (rc.height - trc.height) * 0.5;
+            }
+            else {
+                trc.y = this._progressValue.safepercent * (rc.height - trc.height);
+                trc.x = rc.x + (rc.width - trc.width) * 0.5;
+            }
+            this._identifierView.frame = trc;
+        };
+        Slider.prototype.__sld_touchchanged = function (s) {
+            var t = s.data;
+            if (this._identifierView) {
+                var rc = this.boundsForLayout();
+                var idrc = this._identifierView.frame;
+                idrc.x += t.delta.x;
+                var pt = idrc.center;
+                if (pt.x > rc.width) {
+                    pt = rc.rightCenter;
+                    idrc.center = pt;
+                }
+                else if (pt.x < 0) {
+                    pt = rc.leftCenter;
+                    idrc.center = pt;
+                }
+                this._identifierView.frame = idrc;
+                var p = pt.x / rc.width;
+                if (p != this.progressValue.percent) {
+                    this.progressValue.percent = p;
+                    this.signals.emit(nn.SignalChanged, this.progressValue);
+                }
+            }
+        };
+        return Slider;
+    }(nn.Widget));
+    nn.Slider = Slider;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var _ParticlesManager = (function () {
+        function _ParticlesManager() {
+        }
+        _ParticlesManager.prototype.instanceParticle = function (name) {
+            var tex = RES.getRes(name + "_png");
+            if (tex == null) {
+                nn.warn("particle " + name + "_png not found");
+                return null;
+            }
+            var cfg = RES.getRes(name + "_json");
+            if (cfg == null) {
+                nn.warn("particle " + name + "_json not found");
+                return null;
+            }
+            var r = new particle.GravityParticleSystem(tex, cfg);
+            if (r == null) {
+                nn.warn("particle " + name + " instance failed");
+            }
+            return r;
+        };
+        return _ParticlesManager;
+    }());
+    nn._ParticlesManager = _ParticlesManager;
+    nn.ParticlesManager = new _ParticlesManager();
+    var Particle = (function (_super) {
+        __extends(Particle, _super);
+        function Particle() {
+            return _super.call(this) || this;
+        }
+        Particle.prototype.dispose = function () {
+            _super.prototype.dispose.call(this);
+            this.stop();
+        };
+        Object.defineProperty(Particle.prototype, "name", {
+            get: function () {
+                return this._name;
+            },
+            set: function (val) {
+                if (this._name == val)
+                    return;
+                this._name = val;
+                this.system = nn.ParticlesManager.instanceParticle(this._name);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Particle.prototype, "system", {
+            get: function () {
+                return this._system;
+            },
+            set: function (val) {
+                if (this._system == val)
+                    return;
+                if (this._system) {
+                    this.stop();
+                    this._imp.removeChild(this._system);
+                }
+                this._system = val;
+                if (this._system) {
+                    this._imp.addChild(this._system);
+                    this.start();
+                }
+                this.updateLayout();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Particle.prototype.updateLayout = function () {
+            _super.prototype.updateLayout.call(this);
+            if (this._system) {
+                var rc = this.bounds();
+                rc.x = rc.width * 0.5 - this._system.emitterX;
+                rc.y = rc.height * 0.5 - this._system.emitterY;
+                this.impSetFrame(rc, this._system);
+            }
+        };
+        Particle.prototype.start = function () {
+            this._system && this._system.start();
+        };
+        Particle.prototype.stop = function () {
+            this._system && this._system.stop();
+        };
+        return Particle;
+    }(nn.CParticle));
+    nn.Particle = Particle;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -22231,132 +21860,6 @@ var nn;
         return Tips;
     }(nn.Sprite));
     nn.Tips = Tips;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    var _ParticlesManager = (function () {
-        function _ParticlesManager() {
-        }
-        _ParticlesManager.prototype.instanceParticle = function (name) {
-            var tex = RES.getRes(name + "_png");
-            if (tex == null) {
-                nn.warn("particle " + name + "_png not found");
-                return null;
-            }
-            var cfg = RES.getRes(name + "_json");
-            if (cfg == null) {
-                nn.warn("particle " + name + "_json not found");
-                return null;
-            }
-            var r = new particle.GravityParticleSystem(tex, cfg);
-            if (r == null) {
-                nn.warn("particle " + name + " instance failed");
-            }
-            return r;
-        };
-        return _ParticlesManager;
-    }());
-    nn._ParticlesManager = _ParticlesManager;
-    nn.ParticlesManager = new _ParticlesManager();
-    var Particle = (function (_super) {
-        __extends(Particle, _super);
-        function Particle() {
-            return _super.call(this) || this;
-        }
-        Particle.prototype.dispose = function () {
-            _super.prototype.dispose.call(this);
-            this.stop();
-        };
-        Object.defineProperty(Particle.prototype, "name", {
-            get: function () {
-                return this._name;
-            },
-            set: function (val) {
-                if (this._name == val)
-                    return;
-                this._name = val;
-                this.system = nn.ParticlesManager.instanceParticle(this._name);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Particle.prototype, "system", {
-            get: function () {
-                return this._system;
-            },
-            set: function (val) {
-                if (this._system == val)
-                    return;
-                if (this._system) {
-                    this.stop();
-                    this._imp.removeChild(this._system);
-                }
-                this._system = val;
-                if (this._system) {
-                    this._imp.addChild(this._system);
-                    this.start();
-                }
-                this.updateLayout();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Particle.prototype.updateLayout = function () {
-            _super.prototype.updateLayout.call(this);
-            if (this._system) {
-                var rc = this.bounds();
-                rc.x = rc.width * 0.5 - this._system.emitterX;
-                rc.y = rc.height * 0.5 - this._system.emitterY;
-                this.impSetFrame(rc, this._system);
-            }
-        };
-        Particle.prototype.start = function () {
-            this._system && this._system.start();
-        };
-        Particle.prototype.stop = function () {
-            this._system && this._system.stop();
-        };
-        return Particle;
-    }(nn.CParticle));
-    nn.Particle = Particle;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    /** 按键数据 */
-    var CKeyboard = (function () {
-        function CKeyboard() {
-        }
-        return CKeyboard;
-    }());
-    nn.CKeyboard = CKeyboard;
-    var _Keyboard = (function (_super) {
-        __extends(_Keyboard, _super);
-        function _Keyboard() {
-            var _this = _super.apply(this, arguments) || this;
-            _this._visible = false;
-            return _this;
-        }
-        _Keyboard.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalActivated);
-            this._signals.register(nn.SignalDeactivated);
-        };
-        Object.defineProperty(_Keyboard.prototype, "visible", {
-            get: function () {
-                return this._visible;
-            },
-            set: function (b) {
-                if (this._visible == b)
-                    return;
-                this._visible = b;
-                this.signals.emit(b ? nn.SignalActivated : nn.SignalDeactivated);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return _Keyboard;
-    }(nn.SObject));
-    nn.Keyboard = new _Keyboard();
 })(nn || (nn = {}));
 // Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>
 // This work is free. You can redistribute it and/or modify it
@@ -23185,6 +22688,44 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
+    /** 按键数据 */
+    var CKeyboard = (function () {
+        function CKeyboard() {
+        }
+        return CKeyboard;
+    }());
+    nn.CKeyboard = CKeyboard;
+    var _Keyboard = (function (_super) {
+        __extends(_Keyboard, _super);
+        function _Keyboard() {
+            var _this = _super.apply(this, arguments) || this;
+            _this._visible = false;
+            return _this;
+        }
+        _Keyboard.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalActivated);
+            this._signals.register(nn.SignalDeactivated);
+        };
+        Object.defineProperty(_Keyboard.prototype, "visible", {
+            get: function () {
+                return this._visible;
+            },
+            set: function (b) {
+                if (this._visible == b)
+                    return;
+                this._visible = b;
+                this.signals.emit(b ? nn.SignalActivated : nn.SignalDeactivated);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return _Keyboard;
+    }(nn.SObject));
+    nn.Keyboard = new _Keyboard();
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
     var SoundPlayer = (function (_super) {
         __extends(SoundPlayer, _super);
         function SoundPlayer() {
@@ -23446,103 +22987,82 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    var SelectionsGroup = (function (_super) {
-        __extends(SelectionsGroup, _super);
-        function SelectionsGroup() {
+    var LoadingScreen = (function (_super) {
+        __extends(LoadingScreen, _super);
+        function LoadingScreen() {
             var _this = _super.call(this) || this;
-            _this._store = new Array();
+            _this.labelProgress = new nn.Label();
+            _this.labelVersion = new nn.Label();
+            _this._progressValue = new nn.Percentage();
+            _this.labelProgress.textColor = 0;
+            _this.labelProgress.textAlign = "center";
+            _this.addChild(_this.labelProgress);
+            _this.labelVersion.textColor = 0;
+            _this.labelVersion.textAlign = "center";
+            _this.labelVersion.text = "版本:" + nn.APPVERSION;
+            _this.addChild(_this.labelVersion);
             return _this;
         }
-        SelectionsGroup.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalSelectionChanged);
-        };
-        SelectionsGroup.prototype.dispose = function () {
-            this.clear();
+        LoadingScreen.prototype.dispose = function () {
             _super.prototype.dispose.call(this);
         };
-        SelectionsGroup.prototype.add = function (ui) {
-            if (ui.states == undefined) {
-                nn.fatal("push a non state object");
-                return;
-            }
-            ui.states.signals.connect(nn.SignalStateChanged, this._cbStateChanged, this);
-            this._store.push(ui);
+        LoadingScreen.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            // 进度条前期工作已经准备完成，可以开始进行资源的加载
+            this._signals.register(nn.SignalStart);
+            // 进度条整体资源已经加载完成，可以进行下一步（通常加载主界面）
+            this._signals.register(nn.SignalDone);
         };
-        SelectionsGroup.prototype.clear = function () {
-            var _this = this;
-            this._old = undefined;
-            nn.ArrayT.Clear(this._store, function (e) {
-                e.signals.disconnectOfTarget(_this);
-            }, this);
+        LoadingScreen.prototype.updateLayout = function () {
+            _super.prototype.updateLayout.call(this);
+            new nn.VBox(this).setRect(this.bounds())
+                .addFlex(1)
+                .addPixel(30, this.labelProgress)
+                .addFlex(1)
+                .addPixel(30, this.labelVersion)
+                .apply();
         };
-        SelectionsGroup.prototype.elements = function () {
-            return this._store;
-        };
-        SelectionsGroup.prototype._cbStateChanged = function (e) {
-            var ui = e.sender.cbctx;
-            // 如过是自身在变化，则跳过
-            if (ui == this._old)
-                return;
-            this._store.forEach(function (o) {
-                if (o == ui)
-                    return;
-                o.states.next(e.data, true, false);
-            }, this);
-            this.signals.emit(nn.SignalSelectionChanged, { now: ui, old: this._old });
-            this._old = ui;
-        };
-        Object.defineProperty(SelectionsGroup.prototype, "selection", {
+        Object.defineProperty(LoadingScreen.prototype, "progressValue", {
             get: function () {
-                return nn.ArrayT.QueryIndex(this._store, function (o) {
-                    return o.isSelection && o.isSelection();
-                }, this, -1);
+                return this._progressValue;
             },
-            set: function (idx) {
-                var o = this._store[idx];
-                if (o.setSelection)
-                    o.setSelection(true);
-                else
-                    nn.warn("该对象不支持 setSelection 操作");
+            set: function (v) {
+                this._progressValue = v;
+                this.updateData();
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(SelectionsGroup.prototype, "selectionItem", {
-            get: function () {
-                return nn.ArrayT.QueryObject(this._store, function (o) {
-                    return o.isSelection && o.isSelection();
-                }, this);
-            },
-            set: function (o) {
-                if (o.setSelection)
-                    o.setSelection(true);
-                else
-                    nn.warn("该对象不支持 setSelection 操作");
-            },
-            enumerable: true,
-            configurable: true
-        });
-        SelectionsGroup.prototype.indexOf = function (o) {
-            return this._store.indexOf(o);
+        LoadingScreen.prototype.updateData = function () {
+            _super.prototype.updateData.call(this);
+            this.labelProgress.bringFront();
+            this.labelVersion.bringFront();
+            this.labelProgress.text = "正在加载" +
+                this._progressValue.value + "/" +
+                this._progressValue.max;
         };
-        Object.defineProperty(SelectionsGroup.prototype, "previousSelectionItem", {
-            get: function () {
-                return this._old;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(SelectionsGroup.prototype, "length", {
-            get: function () {
-                return this._store.length;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return SelectionsGroup;
-    }(nn.SObject));
-    nn.SelectionsGroup = SelectionsGroup;
+        LoadingScreen.prototype.onLoaded = function () {
+            _super.prototype.onLoaded.call(this);
+            this.prepare();
+        };
+        /** 完成主界面的加载 override */
+        LoadingScreen.prototype.complete = function () {
+            this.close();
+        };
+        /** 关闭当前页面 */
+        LoadingScreen.prototype.close = function () {
+            this.signals.emit(nn.SignalDone);
+        };
+        /** 完成加载前的准备 override */
+        LoadingScreen.prototype.prepare = function () {
+            this.start();
+        };
+        LoadingScreen.prototype.start = function () {
+            this.signals.emit(nn.SignalStart);
+        };
+        return LoadingScreen;
+    }(nn.Sprite));
+    nn.LoadingScreen = LoadingScreen;
 })(nn || (nn = {}));
 /// <reference path="./core-label.ts" />
 var nn;
@@ -23719,6 +23239,656 @@ if (nn.ISHTML5) {
             m.onkeypress = FUNC_TEXTONPRESS;
     };
 }
+var nn;
+(function (nn) {
+    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
+    var _DatasManager = (function (_super) {
+        __extends(_DatasManager, _super);
+        function _DatasManager() {
+            return _super.call(this) || this;
+        }
+        // 读取所有数据，由application自动调用
+        _DatasManager.prototype._load = function () {
+        };
+        return _DatasManager;
+    }(nn.SObject));
+    nn._DatasManager = _DatasManager;
+    nn.DatasManager = new _DatasManager();
+})(nn || (nn = {}));
+var egret;
+(function (egret) {
+    egret.VERSION_2_5_6 = egret.MAKE_VERSION(2, 5, 6);
+})(egret || (egret = {}));
+var nn;
+(function (nn) {
+    nn.IMP_TIMEPASS = function () {
+        return egret.getTimer() * 0.001;
+    };
+    nn.IMP_CREATE_TIMER = function (duration, count) {
+        return new egret.Timer(duration * 1000, count);
+    };
+    nn.IMP_START_TIMER = function (tmr, cb, ctx) {
+        tmr.addEventListener(egret.TimerEvent.TIMER, cb, ctx);
+        tmr.start();
+    };
+    nn.IMP_STOP_TIMER = function (tmr, cb, ctx) {
+        tmr.stop();
+        tmr.removeEventListener(egret.TimerEvent.TIMER, cb, ctx);
+    };
+    // 需要判断一下是使用LocalStorage还是使用SessionStorage
+    var _storageMode = (function () {
+        var key = "::n2::test::localstorage::mode";
+        if (egret.localStorage.setItem(key, "test")) {
+            egret.localStorage.removeItem(key);
+            return 0;
+        }
+        if (window && window.sessionStorage) {
+            try {
+                window.sessionStorage.setItem(key, "test");
+                window.sessionStorage.removeItem(key);
+                return 1;
+            }
+            catch (e) { } // 不支持sessionStorage
+        }
+        return -1;
+    })();
+    if (_storageMode == 0) {
+        nn.IMP_STORAGE_GET = egret.localStorage.getItem;
+        nn.IMP_STORAGE_SET = egret.localStorage.setItem;
+        nn.IMP_STORAGE_DEL = egret.localStorage.removeItem;
+        nn.IMP_STORAGE_CLEAR = egret.localStorage.clear;
+    }
+    else if (_storageMode == 1) {
+        nn.IMP_STORAGE_GET = function (k) {
+            return window.sessionStorage.getItem(k);
+        };
+        nn.IMP_STORAGE_SET = function (k, v) {
+            window.sessionStorage.setItem(k, v);
+        };
+        nn.IMP_STORAGE_DEL = function (k) {
+            window.sessionStorage.removeItem(k);
+        };
+        nn.IMP_STORAGE_CLEAR = function () {
+            window.sessionStorage.clear();
+        };
+    }
+    else {
+        var __g_storage_1 = {};
+        nn.IMP_STORAGE_GET = function (key) {
+            return __g_storage_1[key];
+        };
+        nn.IMP_STORAGE_SET = function (key, v) {
+            __g_storage_1[key] = v;
+        };
+        nn.IMP_STORAGE_DEL = function (key) {
+            delete __g_storage_1[key];
+        };
+        nn.IMP_STORAGE_CLEAR = function () {
+            __g_storage_1 = {};
+        };
+    }
+    nn.Defer = function (cb, ctx) {
+        var p = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            p[_i - 2] = arguments[_i];
+        }
+        egret.callLater.apply(null, [cb, ctx].concat(p));
+    };
+    // 将point伪装成egret.point
+    var __PROTO = nn.Point.prototype;
+    __PROTO.setTo = function (x, y) {
+        this.x = x;
+        this.y = y;
+    };
+    // 解决egret-inspector显示的是实现类而不是业务类的名称
+    Js.OverrideFunction(egret, 'getQualifiedClassName', function (orifn, value) {
+        if ('_fmui' in value)
+            return value._fmui.descriptionName;
+        return orifn(value);
+    });
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var SelectionsGroup = (function (_super) {
+        __extends(SelectionsGroup, _super);
+        function SelectionsGroup() {
+            var _this = _super.call(this) || this;
+            _this._store = new Array();
+            return _this;
+        }
+        SelectionsGroup.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalSelectionChanged);
+        };
+        SelectionsGroup.prototype.dispose = function () {
+            this.clear();
+            _super.prototype.dispose.call(this);
+        };
+        SelectionsGroup.prototype.add = function (ui) {
+            if (ui.states == undefined) {
+                nn.fatal("push a non state object");
+                return;
+            }
+            ui.states.signals.connect(nn.SignalStateChanged, this._cbStateChanged, this);
+            this._store.push(ui);
+        };
+        SelectionsGroup.prototype.clear = function () {
+            var _this = this;
+            this._old = undefined;
+            nn.ArrayT.Clear(this._store, function (e) {
+                e.signals.disconnectOfTarget(_this);
+            }, this);
+        };
+        SelectionsGroup.prototype.elements = function () {
+            return this._store;
+        };
+        SelectionsGroup.prototype._cbStateChanged = function (e) {
+            var ui = e.sender.cbctx;
+            // 如过是自身在变化，则跳过
+            if (ui == this._old)
+                return;
+            this._store.forEach(function (o) {
+                if (o == ui)
+                    return;
+                o.states.next(e.data, true, false);
+            }, this);
+            this.signals.emit(nn.SignalSelectionChanged, { now: ui, old: this._old });
+            this._old = ui;
+        };
+        Object.defineProperty(SelectionsGroup.prototype, "selection", {
+            get: function () {
+                return nn.ArrayT.QueryIndex(this._store, function (o) {
+                    return o.isSelection && o.isSelection();
+                }, this, -1);
+            },
+            set: function (idx) {
+                var o = this._store[idx];
+                if (o.setSelection)
+                    o.setSelection(true);
+                else
+                    nn.warn("该对象不支持 setSelection 操作");
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SelectionsGroup.prototype, "selectionItem", {
+            get: function () {
+                return nn.ArrayT.QueryObject(this._store, function (o) {
+                    return o.isSelection && o.isSelection();
+                }, this);
+            },
+            set: function (o) {
+                if (o.setSelection)
+                    o.setSelection(true);
+                else
+                    nn.warn("该对象不支持 setSelection 操作");
+            },
+            enumerable: true,
+            configurable: true
+        });
+        SelectionsGroup.prototype.indexOf = function (o) {
+            return this._store.indexOf(o);
+        };
+        Object.defineProperty(SelectionsGroup.prototype, "previousSelectionItem", {
+            get: function () {
+                return this._old;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SelectionsGroup.prototype, "length", {
+            get: function () {
+                return this._store.length;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return SelectionsGroup;
+    }(nn.SObject));
+    nn.SelectionsGroup = SelectionsGroup;
+})(nn || (nn = {}));
+// 对egret的RES模块进行功能扩展
+var RES;
+(function (RES) {
+    var ExtResourceItem = (function (_super) {
+        __extends(ExtResourceItem, _super);
+        function ExtResourceItem(name, url, type) {
+            var _this = _super.call(this, name, url, type) || this;
+            _this._priority = nn.ResCurrentPriority;
+            return _this;
+        }
+        return ExtResourceItem;
+    }(RES.ResourceItem));
+    var ExtLazyLoadList = (function () {
+        function ExtLazyLoadList() {
+            this.length = 0;
+            // 不通的等级定义不同的队列
+            this.items = [
+                new Array(),
+                new Array()
+            ];
+        }
+        ExtLazyLoadList.prototype.push = function (item) {
+            var arr = this.items[item._priority];
+            arr.push(item);
+            ++this.length;
+        };
+        ExtLazyLoadList.prototype.pop = function () {
+            if (this.length == 0)
+                return null;
+            var arr = this.items[nn.ResPriority.NORMAL];
+            var poped = arr.pop();
+            if (poped == null) {
+                arr = this.items[nn.ResPriority.CLIP];
+                poped = arr.pop();
+            }
+            --this.length;
+            return poped;
+        };
+        return ExtLazyLoadList;
+    }());
+    RES.ResourceItem = ExtResourceItem;
+    // 使用ext换掉原来的lazy以提供附加的优先级控制
+    var lazyLoadListChanged;
+    var PROTO = RES.ResourceLoader.prototype;
+    var funcLoadItem = PROTO.loadItem;
+    PROTO.loadItem = function (resItem) {
+        var self = this;
+        if (!lazyLoadListChanged) {
+            if (self.lazyLoadList == null)
+                nn.fatal("Egret引擎升级RES的LazyLoadList方法，请检查引擎修改");
+            self.lazyLoadList = new ExtLazyLoadList();
+            lazyLoadListChanged = true;
+        }
+        funcLoadItem.call(self, resItem);
+    };
+})(RES || (RES = {}));
+var nn;
+(function (nn) {
+    // 资源池
+    var _ResMemcache = (function (_super) {
+        __extends(_ResMemcache, _super);
+        function _ResMemcache() {
+            var _this = _super.call(this) || this;
+            // 自定义个hashCode
+            _this._hashCode = 0;
+            // cache-key 和 sources 的对照表
+            _this._sources = new KvObject();
+            _this._keys = new KvObject();
+            _this.enable = true;
+            return _this;
+        }
+        _ResMemcache.prototype.doRemoveObject = function (rcd) {
+            var _this = this;
+            _super.prototype.doRemoveObject.call(this, rcd);
+            var srcs = this._sources[rcd.key];
+            srcs.forEach(function (e) {
+                RES.destroyRes(e);
+                if (nn.VERBOSE)
+                    nn.log("释放资源 " + e);
+                delete _this._keys[e];
+            });
+            delete this._sources[rcd.key];
+        };
+        // 根据source添加data
+        _ResMemcache.prototype.add = function (source, data) {
+            // 根据data的不同计算对应的key
+            var key;
+            if (data == null) {
+                key = "::mc::null";
+            }
+            else if ('hashCode' in data) {
+                key = data.hashCode;
+            }
+            else if (typeof (data) == 'object') {
+                key = data[_ResMemcache.IDR_HASHCODE];
+                if (key == null) {
+                    key = '::mc::' + this._hashCode++;
+                    data[_ResMemcache.IDR_HASHCODE] = key;
+                }
+            }
+            else {
+                var rcd = new nn.CacheRecord();
+                rcd.val = data;
+                return rcd;
+            }
+            var srcs = this._sources[key];
+            if (srcs == null) {
+                srcs = [source];
+                this._sources[key] = srcs;
+            }
+            else {
+                srcs.push(source);
+            }
+            this._keys[source] = key;
+            // 添加到缓存中
+            var obj = new _ResCacheObject();
+            obj.key = key;
+            obj.data = data;
+            return this.cache(obj);
+        };
+        _ResMemcache.prototype.query = function (source) {
+            var key = this._keys[source];
+            return _super.prototype.query.call(this, key);
+        };
+        return _ResMemcache;
+    }(nn.Memcache));
+    _ResMemcache.IDR_HASHCODE = '::mc::hashCode';
+    nn._ResMemcache = _ResMemcache;
+    var _ResCacheObject = (function () {
+        function _ResCacheObject() {
+            this.cacheFlush = true;
+            this.cacheUpdated = true;
+            this.cacheTime = -1;
+        }
+        _ResCacheObject.prototype.keyForCache = function () {
+            return this.key;
+        };
+        _ResCacheObject.prototype.valueForCache = function () {
+            return this.data;
+        };
+        return _ResCacheObject;
+    }());
+    var ResCapsule = (function (_super) {
+        __extends(ResCapsule, _super);
+        function ResCapsule(reqres, ewd) {
+            var _this = _super.call(this, reqres) || this;
+            _this._ewd = ewd;
+            return _this;
+        }
+        ResCapsule.prototype.dispose = function () {
+            this._ewd = undefined;
+            _super.prototype.dispose.call(this);
+        };
+        ResCapsule.prototype.loadOne = function (rr, cb, ctx) {
+            var _this = this;
+            var curidx = 0;
+            // 判断是加载资源组，还是直接加载资源
+            if (rr instanceof nn.ResourceEntity) {
+                var re = rr;
+                nn.ResManager.getSourceByType(re.source, nn.ResPriority.NORMAL, function (rcd) {
+                    if (_this.signals.isConnected(nn.SignalChanged)) {
+                        curidx = 1;
+                        _this._idx += 1;
+                        // 发出消息
+                        _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
+                    }
+                    cb.call(ctx);
+                }, this, re.type);
+            }
+            else {
+                var grp = rr;
+                if (RES.isGroupLoaded(grp)) {
+                    if (this.signals.isConnected(nn.SignalChanged)) {
+                        var len = RES.getGroupByName(grp).length;
+                        curidx = len;
+                        this._idx += len;
+                        this.signals.emit(nn.SignalChanged, new nn.Percentage(this._total, this._idx));
+                    }
+                    cb.call(ctx);
+                }
+                else {
+                    this._ewd.add("::res::group::" + grp, cb, ctx);
+                    if (this.signals.isConnected(nn.SignalChanged)) {
+                        this._ewd.add("::res::group::progress::" + grp, function (e) {
+                            // 计算进度
+                            var delta = e.itemsLoaded - curidx;
+                            curidx = e.itemsLoaded;
+                            _this._idx += delta;
+                            // 发出消息
+                            _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
+                        }, this);
+                    }
+                    RES.loadGroup(grp);
+                }
+            }
+        };
+        ResCapsule.prototype.total = function () {
+            var r = 0;
+            this._reqRes.forEach(function (rr) {
+                if (rr instanceof nn.ResourceEntity)
+                    r += 1;
+                else
+                    r += RES.getGroupByName(rr).length;
+            });
+            return r;
+        };
+        return ResCapsule;
+    }(nn.CResCapsule));
+    nn.ResCapsule = ResCapsule;
+    var EgretItemTypeMap = {};
+    EgretItemTypeMap[nn.ResType.JSON] = RES.ResourceItem.TYPE_JSON;
+    EgretItemTypeMap[nn.ResType.TEXTURE] = RES.ResourceItem.TYPE_IMAGE;
+    EgretItemTypeMap[nn.ResType.TEXT] = RES.ResourceItem.TYPE_TEXT;
+    EgretItemTypeMap[nn.ResType.FONT] = RES.ResourceItem.TYPE_FONT;
+    EgretItemTypeMap[nn.ResType.SOUND] = RES.ResourceItem.TYPE_SOUND;
+    EgretItemTypeMap[nn.ResType.BINARY] = RES.ResourceItem.TYPE_BIN;
+    var _ResManager = (function (_super) {
+        __extends(_ResManager, _super);
+        function _ResManager() {
+            var _this = _super.call(this) || this;
+            // 用来转发事件
+            _this._ewd = new nn.EventWeakDispatcher();
+            // 资源的缓存管理
+            _this.cache = new _ResMemcache();
+            // 正在加载的资源包
+            _this._capsules = new KvObject();
+            // config 只在manager中处理，其他事件转到包中处理
+            RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, _this._cfg_loaded, _this);
+            RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, _this._grp_complete, _this);
+            RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, _this._grp_failed, _this);
+            RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, _this._grp_progress, _this);
+            // 切换为4线程下载资源
+            RES.setMaxLoadingThread(4);
+            return _this;
+        }
+        _ResManager.prototype.loadConfig = function (file, cb, ctx) {
+            this._ewd.add("::res::config", cb, ctx);
+            // 如过file是绝对地址，则不添加directory
+            if (file.indexOf('://') == -1)
+                file = this.directory + file;
+            RES.loadConfig(file, this.directory);
+        };
+        Object.defineProperty(_ResManager.prototype, "cacheEnabled", {
+            get: function () {
+                return this.cache.enable;
+            },
+            set: function (v) {
+                this.cache.enable = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        _ResManager.prototype._cfg_loaded = function (e) {
+            var idr = "::res::config";
+            this._ewd.invoke(idr, e, false);
+            this._ewd.remove(idr);
+        };
+        _ResManager.prototype._grp_complete = function (e) {
+            var idr0 = "::res::group::" + e.groupName;
+            var idr1 = "::res::group::progress::" + e.groupName;
+            this._ewd.invoke(idr0, e, false);
+            this._ewd.remove(idr0);
+            this._ewd.remove(idr1);
+        };
+        _ResManager.prototype._grp_failed = function (e) {
+            this._grp_complete(e);
+        };
+        _ResManager.prototype._grp_progress = function (e) {
+            var item = e.resItem;
+            // 增加其他数据文件
+            if (item.type == RES.ResourceItem.TYPE_BIN) {
+                // 增加字体
+                if (nn.FontFilePattern.test(item.url)) {
+                    nn.FontsManager.add(item.name, item.url);
+                }
+            }
+            var idr = "::res::group::progress::" + e.groupName;
+            this._ewd.invoke(idr, e, false);
+        };
+        _ResManager.prototype.isGroupsArrayLoaded = function (grps) {
+            if (grps) {
+                for (var i = 0; i < grps.length; ++i) {
+                    if (RES.isGroupLoaded(grps[i]) == false)
+                        return false;
+                }
+            }
+            return true;
+        };
+        _ResManager.prototype.capsules = function (grps) {
+            var k = ResCapsule.HashKey(grps);
+            var cp = this._capsules[k];
+            if (cp == null) {
+                cp = new ResCapsule(grps, this._ewd);
+                this._capsules[k] = cp;
+            }
+            return cp;
+        };
+        _ResManager.prototype.removeCapsule = function (cp) {
+            var k = cp.hashKey();
+            cp.drop();
+            delete this._capsules[k];
+        };
+        _ResManager.prototype.tryGetRes = function (key) {
+            var rcd = this.cache.query(key);
+            if (rcd == null) {
+                var d = RES.getRes(key);
+                if (d) {
+                    rcd = this.cache.add(key, d);
+                }
+                else {
+                    return new nn.CacheRecord();
+                }
+            }
+            return rcd;
+        };
+        _ResManager.prototype.getResAsync = function (key, priority, cb, ctx) {
+            var _this = this;
+            if (nn.length(key) == 0) {
+                cb.call(ctx, new nn.CacheRecord());
+                return;
+            }
+            var rcd = this.cache.query(key);
+            if (rcd == null) {
+                nn.ResCurrentPriority = priority;
+                RES.getResAsync(key, function (d) {
+                    if (d) {
+                        rcd = _this.cache.add(key, d);
+                    }
+                    else {
+                        rcd = new nn.CacheRecord();
+                        nn.warn("res " + key + " not found");
+                    }
+                    cb.call(ctx, rcd);
+                }, this);
+            }
+            else {
+                cb.call(ctx, rcd);
+            }
+        };
+        _ResManager.prototype.if = function (DEBUG) {
+            if (RES.configInstance == undefined)
+                nn.fatal('ResManager 存在兼容问题');
+        };
+        _ResManager.prototype.getResUrl = function (key) {
+            var obj = RES.configInstance.keyMap[key];
+            if (obj == null) {
+                nn.warn("res " + key + " not found");
+                return null;
+            }
+            return obj.url;
+        };
+        _ResManager.prototype.getResByUrl = function (src, priority, cb, ctx, type) {
+            var _this = this;
+            // 如果位于缓存中，则直接返回
+            var rcd = this.cache.query(src);
+            if (rcd != null) {
+                cb.call(ctx, rcd);
+                return;
+            }
+            // 不在缓存中，需要直接获得
+            nn.ResCurrentPriority = priority;
+            RES.getResByUrl(src, function (d) {
+                // 添加到缓存
+                rcd = _this.cache.add(src, d);
+                // 回调
+                cb.call(ctx, rcd);
+            }, this, EgretItemTypeMap[type]);
+        };
+        _ResManager.prototype.hasAsyncUri = function (uri) {
+            return this.cache.query(uri) != null;
+        };
+        _ResManager.prototype.getTexture = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            if (src instanceof egret.Texture) {
+                var t = new nn.CacheRecord();
+                t.val = src;
+                cb.call(ctx, t);
+                return;
+            }
+            this.getSourceByType(src, priority, cb, ctx, nn.ResType.TEXTURE);
+        };
+        _ResManager.prototype.getBitmapFont = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            if (src instanceof egret.BitmapFont) {
+                var t = new nn.CacheRecord();
+                t.val = src;
+                cb.call(ctx, t);
+                return;
+            }
+            // 通过配置来获得
+            if (src instanceof nn.FontConfig) {
+                var cfg = src;
+                if (cfg.name) {
+                    this.getSourceByType(cfg.name, priority, cb, ctx, nn.ResType.FONT);
+                }
+                else {
+                    // 通过两个配置文件来获得
+                    this.getSources([[cfg.texture, nn.ResType.TEXTURE],
+                        [cfg.config, nn.ResType.JSON]], priority, function (ds) {
+                        var tex = ds[0];
+                        var cfg = ds[1];
+                        // todo 现在为简化font缓存处理(直接调用use逻辑避免tex和cfg被释放)
+                        var t = new nn.CacheRecord();
+                        t.val = new egret.BitmapFont(tex.use(), cfg.use());
+                        cb.call(ctx, t);
+                    }, this);
+                }
+                return;
+            }
+            // 通过key来获得
+            this.getSourceByType(src, priority, cb, ctx, nn.ResType.FONT);
+        };
+        _ResManager.prototype.getSound = function (src, priority, cb, ctx) {
+            if (src instanceof nn.COriginType) {
+                var t = new nn.CacheRecord();
+                t.val = src.imp;
+                cb.call(ctx, t);
+                return;
+            }
+            if (src instanceof egret.Sound) {
+                var t = new nn.CacheRecord();
+                t.val = src;
+                cb.call(ctx, t);
+                return;
+            }
+            this.getSourceByType(src, priority, cb, ctx, nn.ResType.SOUND);
+        };
+        return _ResManager;
+    }(nn.CResManager));
+    nn._ResManager = _ResManager;
+    nn.ResManager = new _ResManager();
+})(nn || (nn = {}));
 var nn;
 (function (nn) {
     /** 承载不同状态对应的外观 */
@@ -23898,22 +24068,63 @@ var nn;
     }(nn.SObject));
     nn.States = States;
 })(nn || (nn = {}));
-var nn;
-(function (nn) {
-    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
-    var _DatasManager = (function (_super) {
-        __extends(_DatasManager, _super);
-        function _DatasManager() {
-            return _super.call(this) || this;
+//////////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (c) 2014-2015, Egret Technology Inc.
+//  All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Egret nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
+//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//////////////////////////////////////////////////////////////////////////////////////
+var AssetAdapter = (function () {
+    function AssetAdapter() {
+    }
+    /**
+     * @language zh_CN
+     * 解析素材
+     * @param source 待解析的新素材标识符
+     * @param compFunc 解析完成回调函数，示例：callBack(content:any,source:string):void;
+     * @param thisObject callBack的 this 引用
+     */
+    AssetAdapter.prototype.getAsset = function (source, compFunc, thisObject) {
+        function onGetRes(data) {
+            compFunc.call(thisObject, data, source);
         }
-        // 读取所有数据，由application自动调用
-        _DatasManager.prototype._load = function () {
-        };
-        return _DatasManager;
-    }(nn.SObject));
-    nn._DatasManager = _DatasManager;
-    nn.DatasManager = new _DatasManager();
-})(nn || (nn = {}));
+        if (RES.hasRes(source)) {
+            var data = RES.getRes(source);
+            if (data) {
+                onGetRes(data);
+            }
+            else {
+                RES.getResAsync(source, onGetRes, this);
+            }
+        }
+        else {
+            RES.getResByUrl(source, onGetRes, this, RES.ResourceItem.TYPE_IMAGE);
+        }
+    };
+    return AssetAdapter;
+}());
 var nn;
 (function (nn) {
     /** 找到所有的父对象 */
@@ -23995,68 +24206,6 @@ var nn;
         return _i18n;
     }());
     nn.i18n = new _i18n();
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    var AbstractFilter = (function (_super) {
-        __extends(AbstractFilter, _super);
-        function AbstractFilter() {
-            var _this = _super.call(this) || this;
-            _this._canvas = document.createElement('canvas');
-            return _this;
-        }
-        AbstractFilter.prototype.dispose = function () {
-            _super.prototype.dispose.call(this);
-            this._canvas = null;
-            this._render = null;
-        };
-        AbstractFilter.prototype.process = function (tex) {
-            var w = tex.textureWidth, h = tex.textureHeight;
-            this._canvas.width = w;
-            this._canvas.height = h;
-            this._render = this._canvas.getContext('2d');
-            this._render.drawImage(tex._bitmapData, 0, 0);
-            var rawdata = this._render.getImageData(0, 0, w, h);
-            this.processdata(rawdata.data);
-            this._render.putImageData(rawdata, 0, 0);
-            var img = new Image();
-            img.src = this._canvas.toDataURL();
-            //todo
-            //var r = new egret.Texture();
-            //r._setBitmapData(img);
-            //return r;
-            return null;
-        };
-        AbstractFilter.prototype.processdata = function (data) {
-        };
-        return AbstractFilter;
-    }(nn.SObject));
-    nn.AbstractFilter = AbstractFilter;
-    var GrayFilter = (function (_super) {
-        __extends(GrayFilter, _super);
-        function GrayFilter(color) {
-            if (color === void 0) { color = nn.Color.White; }
-            var _this = _super.call(this) || this;
-            _this.tint = color;
-            return _this;
-        }
-        GrayFilter.prototype.processdata = function (data) {
-            var sr = this.tint.red;
-            var sg = this.tint.green;
-            var sb = this.tint.blue;
-            var sa = this.tint.alpha;
-            for (var i = 3; i < data.length; i += 4) {
-                var d = data[i - 3] + data[i - 2] + data[i - 1];
-                d = d / 3 / 255;
-                data[i - 3] = d * sr;
-                data[i - 2] = d * sg;
-                data[i - 1] = d * sb;
-                data[i - 0] = sa;
-            }
-        };
-        return GrayFilter;
-    }(AbstractFilter));
-    nn.GrayFilter = GrayFilter;
 })(nn || (nn = {}));
 var app;
 (function (app) {
@@ -24347,97 +24496,46 @@ var nn;
         journal.IndexedMapT = IndexedMapT;
     })(journal = nn.journal || (nn.journal = {}));
 })(nn || (nn = {}));
-var egret;
-(function (egret) {
-    egret.VERSION_2_5_6 = egret.MAKE_VERSION(2, 5, 6);
-})(egret || (egret = {}));
 var nn;
 (function (nn) {
-    nn.IMP_TIMEPASS = function () {
-        return egret.getTimer() * 0.001;
-    };
-    nn.IMP_CREATE_TIMER = function (duration, count) {
-        return new egret.Timer(duration * 1000, count);
-    };
-    nn.IMP_START_TIMER = function (tmr, cb, ctx) {
-        tmr.addEventListener(egret.TimerEvent.TIMER, cb, ctx);
-        tmr.start();
-    };
-    nn.IMP_STOP_TIMER = function (tmr, cb, ctx) {
-        tmr.stop();
-        tmr.removeEventListener(egret.TimerEvent.TIMER, cb, ctx);
-    };
-    // 需要判断一下是使用LocalStorage还是使用SessionStorage
-    var _storageMode = (function () {
-        var key = "::n2::test::localstorage::mode";
-        if (egret.localStorage.setItem(key, "test")) {
-            egret.localStorage.removeItem(key);
-            return 0;
+    var EuiApplication = (function (_super) {
+        __extends(EuiApplication, _super);
+        function EuiApplication() {
+            var _this = _super.call(this) || this;
+            nn.EUI_MODE = true;
+            return _this;
         }
-        if (window && window.sessionStorage) {
-            try {
-                window.sessionStorage.setItem(key, "test");
-                window.sessionStorage.removeItem(key);
-                return 1;
-            }
-            catch (e) { } // 不支持sessionStorage
-        }
-        return -1;
-    })();
-    if (_storageMode == 0) {
-        nn.IMP_STORAGE_GET = egret.localStorage.getItem;
-        nn.IMP_STORAGE_SET = egret.localStorage.setItem;
-        nn.IMP_STORAGE_DEL = egret.localStorage.removeItem;
-        nn.IMP_STORAGE_CLEAR = egret.localStorage.clear;
-    }
-    else if (_storageMode == 1) {
-        nn.IMP_STORAGE_GET = function (k) {
-            return window.sessionStorage.getItem(k);
+        EuiApplication.prototype._preloadConfig = function (oper) {
+            var _this = this;
+            _super.prototype._preloadConfig.call(this, oper);
+            var stage = this._imp.stage;
+            stage.registerImplementation("eui.IAssetAdapter", new AssetAdapter());
+            stage.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
+            oper.add(new nn.OperationClosure(function (oper) {
+                var fn = nn.ResManager.directory + _this.themeFile + '?v=' + _this.version;
+                var theme = new eeui.Theme(fn, stage);
+                theme.addEventListener(egret.Event.COMPLETE, function () {
+                    oper.done();
+                }, _this);
+            }, this));
         };
-        nn.IMP_STORAGE_SET = function (k, v) {
-            window.sessionStorage.setItem(k, v);
-        };
-        nn.IMP_STORAGE_DEL = function (k) {
-            window.sessionStorage.removeItem(k);
-        };
-        nn.IMP_STORAGE_CLEAR = function () {
-            window.sessionStorage.clear();
-        };
-    }
-    else {
-        var __g_storage_1 = {};
-        nn.IMP_STORAGE_GET = function (key) {
-            return __g_storage_1[key];
-        };
-        nn.IMP_STORAGE_SET = function (key, v) {
-            __g_storage_1[key] = v;
-        };
-        nn.IMP_STORAGE_DEL = function (key) {
-            delete __g_storage_1[key];
-        };
-        nn.IMP_STORAGE_CLEAR = function () {
-            __g_storage_1 = {};
-        };
-    }
-    nn.Defer = function (cb, ctx) {
-        var p = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            p[_i - 2] = arguments[_i];
-        }
-        egret.callLater.apply(null, [cb, ctx].concat(p));
-    };
-    // 将point伪装成egret.point
-    var __PROTO = nn.Point.prototype;
-    __PROTO.setTo = function (x, y) {
-        this.x = x;
-        this.y = y;
-    };
-    // 解决egret-inspector显示的是实现类而不是业务类的名称
-    Js.OverrideFunction(egret, 'getQualifiedClassName', function (orifn, value) {
-        if ('_fmui' in value)
-            return value._fmui.descriptionName;
-        return orifn(value);
-    });
+        Object.defineProperty(EuiApplication.prototype, "root", {
+            get: function () {
+                var r = this._gameLayer.root;
+                return r.handle();
+            },
+            /** 设置根页面 */
+            set: function (sp) {
+                sp.width = nn.StageBounds.width;
+                sp.height = nn.StageBounds.height;
+                this._gameLayer.root = new nn.BridgedComponent(sp);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return EuiApplication;
+    }(nn.EgretApp));
+    nn.EuiApplication = EuiApplication;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -25010,625 +25108,297 @@ var nn;
     }(Layout));
     nn.HFlow = HFlow;
 })(nn || (nn = {}));
+// 开发专用的服务
 var nn;
 (function (nn) {
-    var LoadingScreen = (function (_super) {
-        __extends(LoadingScreen, _super);
-        function LoadingScreen() {
-            var _this = _super.call(this) || this;
-            _this.labelProgress = new nn.Label();
-            _this.labelVersion = new nn.Label();
-            _this._progressValue = new nn.Percentage();
-            _this.labelProgress.textColor = 0;
-            _this.labelProgress.textAlign = "center";
-            _this.addChild(_this.labelProgress);
-            _this.labelVersion.textColor = 0;
-            _this.labelVersion.textAlign = "center";
-            _this.labelVersion.text = "版本:" + nn.APPVERSION;
-            _this.addChild(_this.labelVersion);
-            return _this;
-        }
-        LoadingScreen.prototype.dispose = function () {
-            _super.prototype.dispose.call(this);
-        };
-        LoadingScreen.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            // 进度条前期工作已经准备完成，可以开始进行资源的加载
-            this._signals.register(nn.SignalStart);
-            // 进度条整体资源已经加载完成，可以进行下一步（通常加载主界面）
-            this._signals.register(nn.SignalDone);
-        };
-        LoadingScreen.prototype.updateLayout = function () {
-            _super.prototype.updateLayout.call(this);
-            new nn.VBox(this).setRect(this.bounds())
-                .addFlex(1)
-                .addPixel(30, this.labelProgress)
-                .addFlex(1)
-                .addPixel(30, this.labelVersion)
-                .apply();
-        };
-        Object.defineProperty(LoadingScreen.prototype, "progressValue", {
-            get: function () {
-                return this._progressValue;
-            },
-            set: function (v) {
-                this._progressValue = v;
-                this.updateData();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        LoadingScreen.prototype.updateData = function () {
-            _super.prototype.updateData.call(this);
-            this.labelProgress.bringFront();
-            this.labelVersion.bringFront();
-            this.labelProgress.text = "正在加载" +
-                this._progressValue.value + "/" +
-                this._progressValue.max;
-        };
-        LoadingScreen.prototype.onLoaded = function () {
-            _super.prototype.onLoaded.call(this);
-            this.prepare();
-        };
-        /** 完成主界面的加载 override */
-        LoadingScreen.prototype.complete = function () {
-            this.close();
-        };
-        /** 关闭当前页面 */
-        LoadingScreen.prototype.close = function () {
-            this.signals.emit(nn.SignalDone);
-        };
-        /** 完成加载前的准备 override */
-        LoadingScreen.prototype.prepare = function () {
-            this.start();
-        };
-        LoadingScreen.prototype.start = function () {
-            this.signals.emit(nn.SignalStart);
-        };
-        return LoadingScreen;
-    }(nn.Sprite));
-    nn.LoadingScreen = LoadingScreen;
-})(nn || (nn = {}));
-// 对egret的RES模块进行功能扩展
-var RES;
-(function (RES) {
-    var ExtResourceItem = (function (_super) {
-        __extends(ExtResourceItem, _super);
-        function ExtResourceItem(name, url, type) {
-            var _this = _super.call(this, name, url, type) || this;
-            _this._priority = nn.ResCurrentPriority;
-            return _this;
-        }
-        return ExtResourceItem;
-    }(RES.ResourceItem));
-    var ExtLazyLoadList = (function () {
-        function ExtLazyLoadList() {
-            this.length = 0;
-            // 不通的等级定义不同的队列
-            this.items = [
-                new Array(),
-                new Array()
-            ];
-        }
-        ExtLazyLoadList.prototype.push = function (item) {
-            var arr = this.items[item._priority];
-            arr.push(item);
-            ++this.length;
-        };
-        ExtLazyLoadList.prototype.pop = function () {
-            if (this.length == 0)
-                return null;
-            var arr = this.items[nn.ResPriority.NORMAL];
-            var poped = arr.pop();
-            if (poped == null) {
-                arr = this.items[nn.ResPriority.CLIP];
-                poped = arr.pop();
+    var developer;
+    (function (developer) {
+        var Connector = (function () {
+            function Connector() {
+                var _this = this;
+                this._cnt = new nn.WebSocketConnector();
+                this._opers = new nn.OperationQueue();
+                this._cnt.host = "ws://127.0.0.1:59001";
+                this._cnt.signals.connect(nn.SignalFailed, function () {
+                    nn.warn("连接开发服务器失败，请使用n2build启动开发服务");
+                }, null);
+                this._opers.add(new nn.OperationClosure(function (oper) {
+                    _this._cnt.signals.once(nn.SignalOpen, function () {
+                        oper.done();
+                    }, null);
+                    _this._cnt.open();
+                }));
             }
-            --this.length;
-            return poped;
-        };
-        return ExtLazyLoadList;
-    }());
-    RES.ResourceItem = ExtResourceItem;
-    // 使用ext换掉原来的lazy以提供附加的优先级控制
-    var lazyLoadListChanged;
-    var PROTO = RES.ResourceLoader.prototype;
-    var funcLoadItem = PROTO.loadItem;
-    PROTO.loadItem = function (resItem) {
-        var self = this;
-        if (!lazyLoadListChanged) {
-            if (self.lazyLoadList == null)
-                nn.fatal("Egret引擎升级RES的LazyLoadList方法，请检查引擎修改");
-            self.lazyLoadList = new ExtLazyLoadList();
-            lazyLoadListChanged = true;
-        }
-        funcLoadItem.call(self, resItem);
-    };
-})(RES || (RES = {}));
-var nn;
-(function (nn) {
-    // 资源池
-    var _ResMemcache = (function (_super) {
-        __extends(_ResMemcache, _super);
-        function _ResMemcache() {
-            var _this = _super.call(this) || this;
-            // 自定义个hashCode
-            _this._hashCode = 0;
-            // cache-key 和 sources 的对照表
-            _this._sources = new KvObject();
-            _this._keys = new KvObject();
-            _this.enable = true;
-            return _this;
-        }
-        _ResMemcache.prototype.doRemoveObject = function (rcd) {
-            var _this = this;
-            _super.prototype.doRemoveObject.call(this, rcd);
-            var srcs = this._sources[rcd.key];
-            srcs.forEach(function (e) {
-                RES.destroyRes(e);
-                if (nn.VERBOSE)
-                    nn.log("释放资源 " + e);
-                delete _this._keys[e];
-            });
-            delete this._sources[rcd.key];
-        };
-        // 根据source添加data
-        _ResMemcache.prototype.add = function (source, data) {
-            // 根据data的不同计算对应的key
-            var key;
-            if (data == null) {
-                key = "::mc::null";
-            }
-            else if ('hashCode' in data) {
-                key = data.hashCode;
-            }
-            else if (typeof (data) == 'object') {
-                key = data[_ResMemcache.IDR_HASHCODE];
-                if (key == null) {
-                    key = '::mc::' + this._hashCode++;
-                    data[_ResMemcache.IDR_HASHCODE] = key;
-                }
-            }
-            else {
-                var rcd = new nn.CacheRecord();
-                rcd.val = data;
-                return rcd;
-            }
-            var srcs = this._sources[key];
-            if (srcs == null) {
-                srcs = [source];
-                this._sources[key] = srcs;
-            }
-            else {
-                srcs.push(source);
-            }
-            this._keys[source] = key;
-            // 添加到缓存中
-            var obj = new _ResCacheObject();
-            obj.key = key;
-            obj.data = data;
-            return this.cache(obj);
-        };
-        _ResMemcache.prototype.query = function (source) {
-            var key = this._keys[source];
-            return _super.prototype.query.call(this, key);
-        };
-        return _ResMemcache;
-    }(nn.Memcache));
-    _ResMemcache.IDR_HASHCODE = '::mc::hashCode';
-    nn._ResMemcache = _ResMemcache;
-    var _ResCacheObject = (function () {
-        function _ResCacheObject() {
-            this.cacheFlush = true;
-            this.cacheUpdated = true;
-            this.cacheTime = -1;
-        }
-        _ResCacheObject.prototype.keyForCache = function () {
-            return this.key;
-        };
-        _ResCacheObject.prototype.valueForCache = function () {
-            return this.data;
-        };
-        return _ResCacheObject;
-    }());
-    var ResCapsule = (function (_super) {
-        __extends(ResCapsule, _super);
-        function ResCapsule(reqres, ewd) {
-            var _this = _super.call(this, reqres) || this;
-            _this._ewd = ewd;
-            return _this;
-        }
-        ResCapsule.prototype.dispose = function () {
-            this._ewd = undefined;
-            _super.prototype.dispose.call(this);
-        };
-        ResCapsule.prototype.loadOne = function (rr, cb, ctx) {
-            var _this = this;
-            var curidx = 0;
-            // 判断是加载资源组，还是直接加载资源
-            if (rr instanceof nn.ResourceEntity) {
-                var re = rr;
-                nn.ResManager.getSourceByType(re.source, nn.ResPriority.NORMAL, function (rcd) {
-                    if (_this.signals.isConnected(nn.SignalChanged)) {
-                        curidx = 1;
-                        _this._idx += 1;
-                        // 发出消息
-                        _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
-                    }
-                    cb.call(ctx);
-                }, this, re.type);
-            }
-            else {
-                var grp = rr;
-                if (RES.isGroupLoaded(grp)) {
-                    if (this.signals.isConnected(nn.SignalChanged)) {
-                        var len = RES.getGroupByName(grp).length;
-                        curidx = len;
-                        this._idx += len;
-                        this.signals.emit(nn.SignalChanged, new nn.Percentage(this._total, this._idx));
-                    }
-                    cb.call(ctx);
-                }
-                else {
-                    this._ewd.add("::res::group::" + grp, cb, ctx);
-                    if (this.signals.isConnected(nn.SignalChanged)) {
-                        this._ewd.add("::res::group::progress::" + grp, function (e) {
-                            // 计算进度
-                            var delta = e.itemsLoaded - curidx;
-                            curidx = e.itemsLoaded;
-                            _this._idx += delta;
-                            // 发出消息
-                            _this.signals.emit(nn.SignalChanged, new nn.Percentage(_this._total, _this._idx));
-                        }, this);
-                    }
-                    RES.loadGroup(grp);
-                }
-            }
-        };
-        ResCapsule.prototype.total = function () {
-            var r = 0;
-            this._reqRes.forEach(function (rr) {
-                if (rr instanceof nn.ResourceEntity)
-                    r += 1;
-                else
-                    r += RES.getGroupByName(rr).length;
-            });
-            return r;
-        };
-        return ResCapsule;
-    }(nn.CResCapsule));
-    nn.ResCapsule = ResCapsule;
-    var EgretItemTypeMap = {};
-    EgretItemTypeMap[nn.ResType.JSON] = RES.ResourceItem.TYPE_JSON;
-    EgretItemTypeMap[nn.ResType.TEXTURE] = RES.ResourceItem.TYPE_IMAGE;
-    EgretItemTypeMap[nn.ResType.TEXT] = RES.ResourceItem.TYPE_TEXT;
-    EgretItemTypeMap[nn.ResType.FONT] = RES.ResourceItem.TYPE_FONT;
-    EgretItemTypeMap[nn.ResType.SOUND] = RES.ResourceItem.TYPE_SOUND;
-    EgretItemTypeMap[nn.ResType.BINARY] = RES.ResourceItem.TYPE_BIN;
-    var _ResManager = (function (_super) {
-        __extends(_ResManager, _super);
-        function _ResManager() {
-            var _this = _super.call(this) || this;
-            // 用来转发事件
-            _this._ewd = new nn.EventWeakDispatcher();
-            // 资源的缓存管理
-            _this.cache = new _ResMemcache();
-            // 正在加载的资源包
-            _this._capsules = new KvObject();
-            // config 只在manager中处理，其他事件转到包中处理
-            RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, _this._cfg_loaded, _this);
-            RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, _this._grp_complete, _this);
-            RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, _this._grp_failed, _this);
-            RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, _this._grp_progress, _this);
-            // 切换为4线程下载资源
-            RES.setMaxLoadingThread(4);
-            return _this;
-        }
-        _ResManager.prototype.loadConfig = function (file, cb, ctx) {
-            this._ewd.add("::res::config", cb, ctx);
-            // 如过file是绝对地址，则不添加directory
-            if (file.indexOf('://') == -1)
-                file = this.directory + file;
-            RES.loadConfig(file, this.directory);
-        };
-        Object.defineProperty(_ResManager.prototype, "cacheEnabled", {
-            get: function () {
-                return this.cache.enable;
-            },
-            set: function (v) {
-                this.cache.enable = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        _ResManager.prototype._cfg_loaded = function (e) {
-            var idr = "::res::config";
-            this._ewd.invoke(idr, e, false);
-            this._ewd.remove(idr);
-        };
-        _ResManager.prototype._grp_complete = function (e) {
-            var idr0 = "::res::group::" + e.groupName;
-            var idr1 = "::res::group::progress::" + e.groupName;
-            this._ewd.invoke(idr0, e, false);
-            this._ewd.remove(idr0);
-            this._ewd.remove(idr1);
-        };
-        _ResManager.prototype._grp_failed = function (e) {
-            this._grp_complete(e);
-        };
-        _ResManager.prototype._grp_progress = function (e) {
-            var item = e.resItem;
-            // 增加其他数据文件
-            if (item.type == RES.ResourceItem.TYPE_BIN) {
-                // 增加字体
-                if (nn.FontFilePattern.test(item.url)) {
-                    nn.FontsManager.add(item.name, item.url);
-                }
-            }
-            var idr = "::res::group::progress::" + e.groupName;
-            this._ewd.invoke(idr, e, false);
-        };
-        _ResManager.prototype.isGroupsArrayLoaded = function (grps) {
-            if (grps) {
-                for (var i = 0; i < grps.length; ++i) {
-                    if (RES.isGroupLoaded(grps[i]) == false)
-                        return false;
-                }
-            }
-            return true;
-        };
-        _ResManager.prototype.capsules = function (grps) {
-            var k = ResCapsule.HashKey(grps);
-            var cp = this._capsules[k];
-            if (cp == null) {
-                cp = new ResCapsule(grps, this._ewd);
-                this._capsules[k] = cp;
-            }
-            return cp;
-        };
-        _ResManager.prototype.removeCapsule = function (cp) {
-            var k = cp.hashKey();
-            cp.drop();
-            delete this._capsules[k];
-        };
-        _ResManager.prototype.tryGetRes = function (key) {
-            var rcd = this.cache.query(key);
-            if (rcd == null) {
-                var d = RES.getRes(key);
-                if (d) {
-                    rcd = this.cache.add(key, d);
-                }
-                else {
-                    return new nn.CacheRecord();
-                }
-            }
-            return rcd;
-        };
-        _ResManager.prototype.getResAsync = function (key, priority, cb, ctx) {
-            var _this = this;
-            if (nn.length(key) == 0) {
-                cb.call(ctx, new nn.CacheRecord());
-                return;
-            }
-            var rcd = this.cache.query(key);
-            if (rcd == null) {
-                nn.ResCurrentPriority = priority;
-                RES.getResAsync(key, function (d) {
-                    if (d) {
-                        rcd = _this.cache.add(key, d);
-                    }
-                    else {
-                        rcd = new nn.CacheRecord();
-                        nn.warn("res " + key + " not found");
-                    }
-                    cb.call(ctx, rcd);
-                }, this);
-            }
-            else {
-                cb.call(ctx, rcd);
-            }
-        };
-        _ResManager.prototype.if = function (DEBUG) {
-            if (RES.configInstance == undefined)
-                nn.fatal('ResManager 存在兼容问题');
-        };
-        _ResManager.prototype.getResUrl = function (key) {
-            var obj = RES.configInstance.keyMap[key];
-            if (obj == null) {
-                nn.warn("res " + key + " not found");
-                return null;
-            }
-            return obj.url;
-        };
-        _ResManager.prototype.getResByUrl = function (src, priority, cb, ctx, type) {
-            var _this = this;
-            // 如果位于缓存中，则直接返回
-            var rcd = this.cache.query(src);
-            if (rcd != null) {
-                cb.call(ctx, rcd);
-                return;
-            }
-            // 不在缓存中，需要直接获得
-            nn.ResCurrentPriority = priority;
-            RES.getResByUrl(src, function (d) {
-                // 添加到缓存
-                rcd = _this.cache.add(src, d);
-                // 回调
-                cb.call(ctx, rcd);
-            }, this, EgretItemTypeMap[type]);
-        };
-        _ResManager.prototype.hasAsyncUri = function (uri) {
-            return this.cache.query(uri) != null;
-        };
-        _ResManager.prototype.getTexture = function (src, priority, cb, ctx) {
-            if (src instanceof nn.COriginType) {
-                var t = new nn.CacheRecord();
-                t.val = src.imp;
-                cb.call(ctx, t);
-                return;
-            }
-            if (src instanceof egret.Texture) {
-                var t = new nn.CacheRecord();
-                t.val = src;
-                cb.call(ctx, t);
-                return;
-            }
-            this.getSourceByType(src, priority, cb, ctx, nn.ResType.TEXTURE);
-        };
-        _ResManager.prototype.getBitmapFont = function (src, priority, cb, ctx) {
-            if (src instanceof nn.COriginType) {
-                var t = new nn.CacheRecord();
-                t.val = src.imp;
-                cb.call(ctx, t);
-                return;
-            }
-            if (src instanceof egret.BitmapFont) {
-                var t = new nn.CacheRecord();
-                t.val = src;
-                cb.call(ctx, t);
-                return;
-            }
-            // 通过配置来获得
-            if (src instanceof nn.FontConfig) {
-                var cfg = src;
-                if (cfg.name) {
-                    this.getSourceByType(cfg.name, priority, cb, ctx, nn.ResType.FONT);
-                }
-                else {
-                    // 通过两个配置文件来获得
-                    this.getSources([[cfg.texture, nn.ResType.TEXTURE],
-                        [cfg.config, nn.ResType.JSON]], priority, function (ds) {
-                        var tex = ds[0];
-                        var cfg = ds[1];
-                        // todo 现在为简化font缓存处理(直接调用use逻辑避免tex和cfg被释放)
-                        var t = new nn.CacheRecord();
-                        t.val = new egret.BitmapFont(tex.use(), cfg.use());
-                        cb.call(ctx, t);
-                    }, this);
-                }
-                return;
-            }
-            // 通过key来获得
-            this.getSourceByType(src, priority, cb, ctx, nn.ResType.FONT);
-        };
-        _ResManager.prototype.getSound = function (src, priority, cb, ctx) {
-            if (src instanceof nn.COriginType) {
-                var t = new nn.CacheRecord();
-                t.val = src.imp;
-                cb.call(ctx, t);
-                return;
-            }
-            if (src instanceof egret.Sound) {
-                var t = new nn.CacheRecord();
-                t.val = src;
-                cb.call(ctx, t);
-                return;
-            }
-            this.getSourceByType(src, priority, cb, ctx, nn.ResType.SOUND);
-        };
-        return _ResManager;
-    }(nn.CResManager));
-    nn._ResManager = _ResManager;
-    nn.ResManager = new _ResManager();
-})(nn || (nn = {}));
-//////////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (c) 2014-2015, Egret Technology Inc.
-//  All rights reserved.
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright
-//       notice, this list of conditions and the following disclaimer in the
-//       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Egret nor the
-//       names of its contributors may be used to endorse or promote products
-//       derived from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
-//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//////////////////////////////////////////////////////////////////////////////////////
-var AssetAdapter = (function () {
-    function AssetAdapter() {
-    }
-    /**
-     * @language zh_CN
-     * 解析素材
-     * @param source 待解析的新素材标识符
-     * @param compFunc 解析完成回调函数，示例：callBack(content:any,source:string):void;
-     * @param thisObject callBack的 this 引用
-     */
-    AssetAdapter.prototype.getAsset = function (source, compFunc, thisObject) {
-        function onGetRes(data) {
-            compFunc.call(thisObject, data, source);
-        }
-        if (RES.hasRes(source)) {
-            var data = RES.getRes(source);
-            if (data) {
-                onGetRes(data);
-            }
-            else {
-                RES.getResAsync(source, onGetRes, this);
-            }
-        }
-        else {
-            RES.getResByUrl(source, onGetRes, this, RES.ResourceItem.TYPE_IMAGE);
-        }
-    };
-    return AssetAdapter;
-}());
-var nn;
-(function (nn) {
-    var EuiApplication = (function (_super) {
-        __extends(EuiApplication, _super);
-        function EuiApplication() {
-            var _this = _super.call(this) || this;
-            nn.EUI_MODE = true;
-            return _this;
-        }
-        EuiApplication.prototype._preloadConfig = function (oper) {
-            var _this = this;
-            _super.prototype._preloadConfig.call(this, oper);
-            var stage = this._imp.stage;
-            stage.registerImplementation("eui.IAssetAdapter", new AssetAdapter());
-            stage.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
-            oper.add(new nn.OperationClosure(function (oper) {
-                var fn = nn.ResManager.directory + _this.themeFile + '?v=' + _this.version;
-                var theme = new eeui.Theme(fn, stage);
-                theme.addEventListener(egret.Event.COMPLETE, function () {
+            Connector.prototype.fetch = function (cb) {
+                var _this = this;
+                this._cnt.signals.once(nn.SignalDataChanged, function (d) {
+                    var data = JSON.parse(d.data);
+                    cb(data);
+                }, null);
+                this._opers.add(new nn.OperationClosure(function (oper) {
+                    _this._cnt.write(JSON.stringify({ 'cmd': "::wswrk::developer",
+                        'method': _this.method,
+                        'fields': _this.fields }));
                     oper.done();
-                }, _this);
-            }, this));
-        };
-        Object.defineProperty(EuiApplication.prototype, "root", {
-            get: function () {
-                var r = this._gameLayer.root;
-                return r.handle();
-            },
-            /** 设置根页面 */
-            set: function (sp) {
-                sp.width = nn.StageBounds.width;
-                sp.height = nn.StageBounds.height;
-                this._gameLayer.root = new nn.BridgedComponent(sp);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return EuiApplication;
-    }(nn.EgretApp));
-    nn.EuiApplication = EuiApplication;
+                }));
+            };
+            return Connector;
+        }());
+        var FileDialog = (function () {
+            function FileDialog() {
+            }
+            FileDialog.prototype.pathForSave = function (cb) {
+                var cnt = new Connector();
+                cnt.method = "::file::dialog::save";
+                cnt.fields = { 'filter': this.filter };
+                cnt.fetch(function (d) {
+                    cb(d.path);
+                });
+            };
+            FileDialog.prototype.pathForOpen = function (cb) {
+                var cnt = new Connector();
+                cnt.method = "::file::dialog::open";
+                cnt.fields = { 'filter': this.filter };
+                cnt.fetch(function (d) {
+                    cb(d.path);
+                });
+            };
+            FileDialog.prototype.pathForDir = function (cb) {
+                var cnt = new Connector();
+                cnt.method = "::file::dialog::dir";
+                cnt.fields = { 'filter': this.filter };
+                cnt.fetch(function (d) {
+                    cb(d.path);
+                });
+            };
+            return FileDialog;
+        }());
+        developer.FileDialog = FileDialog;
+        var FileSystem = (function () {
+            function FileSystem() {
+            }
+            /** 创建文件夹
+                @param p Create intermediate directories as required
+            */
+            FileSystem.prototype.mkdir = function (path, p, cb) {
+                var cnt = new Connector();
+                cnt.method = "::fs::mkdir";
+                cnt.fields = { 'p': p, 'path': path };
+                cnt.fetch(function (d) {
+                    cb();
+                });
+            };
+            return FileSystem;
+        }());
+        developer.FileSystem = FileSystem;
+        var Image = (function (_super) {
+            __extends(Image, _super);
+            function Image() {
+                return _super.apply(this, arguments) || this;
+            }
+            Image.prototype.open = function (path, cb) {
+                var _this = this;
+                var cnt = new Connector();
+                cnt.method = "::image::open";
+                cnt.fields = { 'file': path };
+                cnt.fetch(function (d) {
+                    _this._hdl = d.hdl;
+                    cb(_this._hdl != null);
+                });
+            };
+            Image.prototype.save = function (path, cb) {
+                var cnt = new Connector();
+                cnt.method = "::image::save";
+                cnt.fields = { 'file': path, 'hdl': this._hdl };
+                cnt.fetch(function (d) {
+                    cb(true);
+                });
+            };
+            Image.prototype.scale = function (x, y, cb) {
+                var cnt = new Connector();
+                cnt.method = "::image::scale";
+                cnt.fields = { 'x': x, 'y': y, 'hdl': this._hdl };
+                cnt.fetch(function (d) {
+                    var r = new Image();
+                    r._hdl = d.hdl;
+                    cb(r);
+                });
+            };
+            Image.prototype.subimage = function (rc, cb) {
+                var cnt = new Connector();
+                cnt.method = "::image::subimage";
+                cnt.fields = { 'hdl': this._hdl, 'rect': { x: rc.x, y: rc.y, w: rc.width, h: rc.height } };
+                cnt.fetch(function (d) {
+                    var r = new Image();
+                    r._hdl = d.hdl;
+                    cb(r);
+                });
+            };
+            return Image;
+        }(nn.SObject));
+        developer.Image = Image;
+    })(developer = nn.developer || (nn.developer = {}));
 })(nn || (nn = {}));
+var eui;
+(function (eui) {
+    var gs_convertpt = new egret.Point();
+    var _EUIExt = (function () {
+        function _EUIExt() {
+        }
+        _EUIExt.onPartBinded = function (self, name, target) {
+            // 自动绑定点击, _onNameClicked
+            var clicked = '_on' + _EUIExt.Propname(name) + 'Clicked';
+            if (clicked in target) {
+                self.addEventListener(egret.TouchEvent.TOUCH_TAP, function (e) {
+                    target[clicked].call(target);
+                    e.stopPropagation();
+                });
+            }
+        };
+        // 获得使用大驼峰法定义的属性名称
+        _EUIExt.Propname = function (name) {
+            var c = name[0];
+            if (c == '_')
+                return name;
+            c = c.toUpperCase();
+            return c + name.substr(1);
+        };
+        _EUIExt.removeFromParent = function (self) {
+            if (self.parent)
+                self.parent.removeChild(self);
+        };
+        _EUIExt.setViewStack = function (self, sck) {
+            self._viewStack = sck;
+        };
+        _EUIExt.getViewStack = function (self) {
+            if (self._viewStack)
+                return self._viewStack;
+            var p = self.parent;
+            if (p && !('viewStack' in p)) {
+                while (p) {
+                    if ('viewStack' in p)
+                        break;
+                    p = p.parent;
+                }
+            }
+            return p ? p.viewStack : null;
+        };
+        /* 返回上一级，采用逐层实现的方式，比如A(B(C(D，调用D的goback，如果D没有实现goback，则使用C，如果C是Dialog，则必然实现了goback方式，如果C没有goback方法（比如标准的eui对象），那继续向上追溯，一般业务中必然会遇到一个扩充后的对象
+         */
+        _EUIExt.goBack = function (self) {
+            // 查找含有goback方法的上级
+            var p = nn.queryParent(self, function (o) {
+                if (o.goBack != undefined)
+                    return o;
+                return null;
+            });
+            // 调用父级元素的回退方法
+            p.goBack();
+        };
+        /* eui提供了基础的visible和includeInLayout，但是业务中会遇到同时操作这两个属性，所以提供一个便捷的设置 */
+        _EUIExt.setExhibition = function (self, b) {
+            if (_EUIExt.getExhibition(self) == b)
+                return;
+            self._exhibition = b;
+            self.visible = b;
+            self.includeInLayout = b;
+        };
+        _EUIExt.getExhibition = function (self) {
+            return self._exhibition === null || self._exhibition;
+        };
+        /** 设置遮罩 */
+        _EUIExt.setClipbounds = function (self, rc) {
+            self.mask = rc;
+        };
+        _EUIExt.getClipbounds = function (self) {
+            return self.mask;
+        };
+        // 播放动画相关
+        _EUIExt.playAnimate = function (self, ani, idr) {
+            if (idr == null)
+                idr = ani.tag ? ani.tag : ani.hashCode;
+            if (self._playingAnimates == null)
+                self._playingAnimates = new Array();
+            if (self.findAnimate(idr) != null) {
+                nn.warn("动画 " + idr + " 正在运行");
+                return null;
+            }
+            ani = ani.clone();
+            ani.tag = idr;
+            self._playingAnimates.push(ani);
+            ani.complete(function (s) {
+                nn.ArrayT.RemoveObject(self._playingAnimates, ani);
+            }, self);
+            ani.bind(self).play();
+            return ani;
+        };
+        _EUIExt.findAnimate = function (self, idr) {
+            if (self._playingAnimates)
+                return nn.ArrayT.QueryObject(self._playingAnimates, function (ani) {
+                    return ani.tag == idr;
+                });
+            return null;
+        };
+        _EUIExt.stopAnimate = function (self, idr) {
+            if (self._playingAnimates == null)
+                return;
+            var ani = self.findAnimate(idr);
+            if (ani == null)
+                return;
+            ani.stop();
+            nn.ArrayT.RemoveObject(self._playingAnimates, ani);
+        };
+        _EUIExt.stopAllAnimates = function (self) {
+            if (self._playingAnimates) {
+                nn.ArrayT.Clear(self._playingAnimates, function (ani) {
+                    ani.stop();
+                });
+            }
+        };
+        return _EUIExt;
+    }());
+    eui._EUIExt = _EUIExt;
+    function ConvertPoint(fromsp, pt, tosp) {
+        var from;
+        if (fromsp instanceof nn.CComponent)
+            from = fromsp.handle();
+        else
+            from = fromsp;
+        var to;
+        if (tosp instanceof nn.CComponent)
+            to = tosp.handle();
+        else
+            to = tosp;
+        if (from == null)
+            from = nn.CApplication.shared.gameLayer._imp;
+        if (to == null)
+            to = nn.CApplication.shared.gameLayer._imp;
+        from.localToGlobal(pt.x, pt.y, gs_convertpt);
+        to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
+        return new nn.Point(gs_convertpt.x, gs_convertpt.y);
+    }
+    eui.ConvertPoint = ConvertPoint;
+    function ConvertRect(fromsp, rc, tosp) {
+        var from;
+        if (fromsp instanceof nn.CComponent)
+            from = fromsp.handle();
+        else
+            from = fromsp;
+        var to;
+        if (tosp instanceof nn.CComponent)
+            to = tosp.handle();
+        else
+            to = tosp;
+        if (from == null)
+            from = nn.CApplication.shared.gameLayer._imp;
+        if (to == null)
+            to = nn.CApplication.shared.gameLayer._imp;
+        from.localToGlobal(rc.x, rc.y, gs_convertpt);
+        to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
+        return new nn.Rect(gs_convertpt.x, gs_convertpt.y, rc.width, rc.height);
+    }
+    eui.ConvertRect = ConvertRect;
+})(eui || (eui = {}));
 var nn;
 (function (nn) {
     var _CrossLoader = (function () {
@@ -25780,137 +25550,6 @@ var nn;
         return UrlModel;
     }(nn.Model));
     nn.UrlModel = UrlModel;
-})(nn || (nn = {}));
-// 开发专用的服务
-var nn;
-(function (nn) {
-    var developer;
-    (function (developer) {
-        var Connector = (function () {
-            function Connector() {
-                var _this = this;
-                this._cnt = new nn.WebSocketConnector();
-                this._opers = new nn.OperationQueue();
-                this._cnt.host = "ws://127.0.0.1:59001";
-                this._cnt.signals.connect(nn.SignalFailed, function () {
-                    nn.warn("连接开发服务器失败，请使用n2build启动开发服务");
-                }, null);
-                this._opers.add(new nn.OperationClosure(function (oper) {
-                    _this._cnt.signals.once(nn.SignalOpen, function () {
-                        oper.done();
-                    }, null);
-                    _this._cnt.open();
-                }));
-            }
-            Connector.prototype.fetch = function (cb) {
-                var _this = this;
-                this._cnt.signals.once(nn.SignalDataChanged, function (d) {
-                    var data = JSON.parse(d.data);
-                    cb(data);
-                }, null);
-                this._opers.add(new nn.OperationClosure(function (oper) {
-                    _this._cnt.write(JSON.stringify({ 'cmd': "::wswrk::developer",
-                        'method': _this.method,
-                        'fields': _this.fields }));
-                    oper.done();
-                }));
-            };
-            return Connector;
-        }());
-        var FileDialog = (function () {
-            function FileDialog() {
-            }
-            FileDialog.prototype.pathForSave = function (cb) {
-                var cnt = new Connector();
-                cnt.method = "::file::dialog::save";
-                cnt.fields = { 'filter': this.filter };
-                cnt.fetch(function (d) {
-                    cb(d.path);
-                });
-            };
-            FileDialog.prototype.pathForOpen = function (cb) {
-                var cnt = new Connector();
-                cnt.method = "::file::dialog::open";
-                cnt.fields = { 'filter': this.filter };
-                cnt.fetch(function (d) {
-                    cb(d.path);
-                });
-            };
-            FileDialog.prototype.pathForDir = function (cb) {
-                var cnt = new Connector();
-                cnt.method = "::file::dialog::dir";
-                cnt.fields = { 'filter': this.filter };
-                cnt.fetch(function (d) {
-                    cb(d.path);
-                });
-            };
-            return FileDialog;
-        }());
-        developer.FileDialog = FileDialog;
-        var FileSystem = (function () {
-            function FileSystem() {
-            }
-            /** 创建文件夹
-                @param p Create intermediate directories as required
-            */
-            FileSystem.prototype.mkdir = function (path, p, cb) {
-                var cnt = new Connector();
-                cnt.method = "::fs::mkdir";
-                cnt.fields = { 'p': p, 'path': path };
-                cnt.fetch(function (d) {
-                    cb();
-                });
-            };
-            return FileSystem;
-        }());
-        developer.FileSystem = FileSystem;
-        var Image = (function (_super) {
-            __extends(Image, _super);
-            function Image() {
-                return _super.apply(this, arguments) || this;
-            }
-            Image.prototype.open = function (path, cb) {
-                var _this = this;
-                var cnt = new Connector();
-                cnt.method = "::image::open";
-                cnt.fields = { 'file': path };
-                cnt.fetch(function (d) {
-                    _this._hdl = d.hdl;
-                    cb(_this._hdl != null);
-                });
-            };
-            Image.prototype.save = function (path, cb) {
-                var cnt = new Connector();
-                cnt.method = "::image::save";
-                cnt.fields = { 'file': path, 'hdl': this._hdl };
-                cnt.fetch(function (d) {
-                    cb(true);
-                });
-            };
-            Image.prototype.scale = function (x, y, cb) {
-                var cnt = new Connector();
-                cnt.method = "::image::scale";
-                cnt.fields = { 'x': x, 'y': y, 'hdl': this._hdl };
-                cnt.fetch(function (d) {
-                    var r = new Image();
-                    r._hdl = d.hdl;
-                    cb(r);
-                });
-            };
-            Image.prototype.subimage = function (rc, cb) {
-                var cnt = new Connector();
-                cnt.method = "::image::subimage";
-                cnt.fields = { 'hdl': this._hdl, 'rect': { x: rc.x, y: rc.y, w: rc.width, h: rc.height } };
-                cnt.fetch(function (d) {
-                    var r = new Image();
-                    r._hdl = d.hdl;
-                    cb(r);
-                });
-            };
-            return Image;
-        }(nn.SObject));
-        developer.Image = Image;
-    })(developer = nn.developer || (nn.developer = {}));
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -26605,163 +26244,75 @@ var nn;
 })(nn || (nn = {}));
 var eui;
 (function (eui) {
-    var gs_convertpt = new egret.Point();
-    var _EUIExt = (function () {
-        function _EUIExt() {
+    var Animate = (function () {
+        function Animate() {
+            this._ani = new nn.Animate();
         }
-        _EUIExt.onPartBinded = function (self, name, target) {
-            // 自动绑定点击, _onNameClicked
-            var clicked = '_on' + _EUIExt.Propname(name) + 'Clicked';
-            if (clicked in target) {
-                self.addEventListener(egret.TouchEvent.TOUCH_TAP, function (e) {
-                    target[clicked].call(target);
-                    e.stopPropagation();
-                });
-            }
+        Animate.prototype.bind = function (ui) {
+            this._ani.bind(nn.BridgedComponent.Wrapper(ui));
+            return this;
         };
-        // 获得使用大驼峰法定义的属性名称
-        _EUIExt.Propname = function (name) {
-            var c = name[0];
-            if (c == '_')
-                return name;
-            c = c.toUpperCase();
-            return c + name.substr(1);
+        Animate.prototype.clone = function () {
+            var obj = nn.InstanceNewObject(this);
+            obj._ani = this._ani.clone();
+            return obj;
         };
-        _EUIExt.removeFromParent = function (self) {
-            if (self.parent)
-                self.parent.removeChild(self);
+        Object.defineProperty(Animate.prototype, "tag", {
+            get: function () {
+                return this._ani.tag;
+            },
+            set: function (v) {
+                this._ani.tag = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Animate.prototype, "hashCode", {
+            get: function () {
+                return this._ani.hashCode;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Animate.prototype.next = function (props, duration, tf) {
+            this._ani.next(props, duration, tf);
+            return this;
         };
-        _EUIExt.setViewStack = function (self, sck) {
-            self._viewStack = sck;
+        Animate.prototype.to = function (duration, tf, ani, ctx) {
+            this._ani.to(duration, tf, ani, ctx);
+            return this;
         };
-        _EUIExt.getViewStack = function (self) {
-            if (self._viewStack)
-                return self._viewStack;
-            var p = self.parent;
-            if (p && !('viewStack' in p)) {
-                while (p) {
-                    if ('viewStack' in p)
-                        break;
-                    p = p.parent;
-                }
-            }
-            return p ? p.viewStack : null;
+        Animate.prototype.then = function (ani, ctx, duration, tf) {
+            if (ctx === void 0) { ctx = null; }
+            if (duration === void 0) { duration = nn.CAnimate.Duration; }
+            if (tf === void 0) { tf = null; }
+            this._ani.then(ani, ctx, duration, tf);
+            return this;
         };
-        /* 返回上一级，采用逐层实现的方式，比如A(B(C(D，调用D的goback，如果D没有实现goback，则使用C，如果C是Dialog，则必然实现了goback方式，如果C没有goback方法（比如标准的eui对象），那继续向上追溯，一般业务中必然会遇到一个扩充后的对象
-         */
-        _EUIExt.goBack = function (self) {
-            // 查找含有goback方法的上级
-            var p = nn.queryParent(self, function (o) {
-                if (o.goBack != undefined)
-                    return o;
-                return null;
-            });
-            // 调用父级元素的回退方法
-            p.goBack();
+        Animate.prototype.stop = function () {
+            this._ani.stop();
         };
-        /* eui提供了基础的visible和includeInLayout，但是业务中会遇到同时操作这两个属性，所以提供一个便捷的设置 */
-        _EUIExt.setExhibition = function (self, b) {
-            if (_EUIExt.getExhibition(self) == b)
-                return;
-            self._exhibition = b;
-            self.visible = b;
-            self.includeInLayout = b;
+        Animate.prototype.complete = function (cb, ctx) {
+            this._ani.complete(cb, ctx);
+            return this;
         };
-        _EUIExt.getExhibition = function (self) {
-            return self._exhibition === null || self._exhibition;
+        Animate.prototype.repeat = function (count) {
+            this._ani.repeat(count);
+            return this;
         };
-        /** 设置遮罩 */
-        _EUIExt.setClipbounds = function (self, rc) {
-            self.mask = rc;
+        Animate.prototype.play = function () {
+            this._ani.play();
+            return this;
         };
-        _EUIExt.getClipbounds = function (self) {
-            return self.mask;
+        Animate.prototype.pause = function () {
+            this._ani.pause();
         };
-        // 播放动画相关
-        _EUIExt.playAnimate = function (self, ani, idr) {
-            if (idr == null)
-                idr = ani.tag ? ani.tag : ani.hashCode;
-            if (self._playingAnimates == null)
-                self._playingAnimates = new Array();
-            if (self.findAnimate(idr) != null) {
-                nn.warn("动画 " + idr + " 正在运行");
-                return null;
-            }
-            ani = ani.clone();
-            ani.tag = idr;
-            self._playingAnimates.push(ani);
-            ani.complete(function (s) {
-                nn.ArrayT.RemoveObject(self._playingAnimates, ani);
-            }, self);
-            ani.bind(self).play();
-            return ani;
+        Animate.prototype.resume = function () {
+            this._ani.resume();
         };
-        _EUIExt.findAnimate = function (self, idr) {
-            if (self._playingAnimates)
-                return nn.ArrayT.QueryObject(self._playingAnimates, function (ani) {
-                    return ani.tag == idr;
-                });
-            return null;
-        };
-        _EUIExt.stopAnimate = function (self, idr) {
-            if (self._playingAnimates == null)
-                return;
-            var ani = self.findAnimate(idr);
-            if (ani == null)
-                return;
-            ani.stop();
-            nn.ArrayT.RemoveObject(self._playingAnimates, ani);
-        };
-        _EUIExt.stopAllAnimates = function (self) {
-            if (self._playingAnimates) {
-                nn.ArrayT.Clear(self._playingAnimates, function (ani) {
-                    ani.stop();
-                });
-            }
-        };
-        return _EUIExt;
+        return Animate;
     }());
-    eui._EUIExt = _EUIExt;
-    function ConvertPoint(fromsp, pt, tosp) {
-        var from;
-        if (fromsp instanceof nn.CComponent)
-            from = fromsp.handle();
-        else
-            from = fromsp;
-        var to;
-        if (tosp instanceof nn.CComponent)
-            to = tosp.handle();
-        else
-            to = tosp;
-        if (from == null)
-            from = nn.CApplication.shared.gameLayer._imp;
-        if (to == null)
-            to = nn.CApplication.shared.gameLayer._imp;
-        from.localToGlobal(pt.x, pt.y, gs_convertpt);
-        to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
-        return new nn.Point(gs_convertpt.x, gs_convertpt.y);
-    }
-    eui.ConvertPoint = ConvertPoint;
-    function ConvertRect(fromsp, rc, tosp) {
-        var from;
-        if (fromsp instanceof nn.CComponent)
-            from = fromsp.handle();
-        else
-            from = fromsp;
-        var to;
-        if (tosp instanceof nn.CComponent)
-            to = tosp.handle();
-        else
-            to = tosp;
-        if (from == null)
-            from = nn.CApplication.shared.gameLayer._imp;
-        if (to == null)
-            to = nn.CApplication.shared.gameLayer._imp;
-        from.localToGlobal(rc.x, rc.y, gs_convertpt);
-        to.globalToLocal(gs_convertpt.x, gs_convertpt.y, gs_convertpt);
-        return new nn.Rect(gs_convertpt.x, gs_convertpt.y, rc.width, rc.height);
-    }
-    eui.ConvertRect = ConvertRect;
+    eui.Animate = Animate;
 })(eui || (eui = {}));
 var nn;
 (function (nn) {
@@ -27106,75 +26657,327 @@ var nn;
 })(nn || (nn = {}));
 var eui;
 (function (eui) {
-    var Animate = (function () {
-        function Animate() {
-            this._ani = new nn.Animate();
+    var BitmapLabelU = (function (_super) {
+        __extends(BitmapLabelU, _super);
+        function BitmapLabelU() {
+            var _this = _super.apply(this, arguments) || this;
+            _this._format = null;
+            return _this;
         }
-        Animate.prototype.bind = function (ui) {
-            this._ani.bind(nn.BridgedComponent.Wrapper(ui));
-            return this;
+        BitmapLabelU.prototype.onPartBinded = function (name, target) {
+            eui._EUIExt.onPartBinded(this, name, target);
         };
-        Animate.prototype.clone = function () {
-            var obj = nn.InstanceNewObject(this);
-            obj._ani = this._ani.clone();
-            return obj;
-        };
-        Object.defineProperty(Animate.prototype, "tag", {
+        Object.defineProperty(BitmapLabelU.prototype, "exhibition", {
             get: function () {
-                return this._ani.tag;
+                return eui._EUIExt.getExhibition(this);
+            },
+            set: function (b) {
+                eui._EUIExt.setExhibition(this, b);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BitmapLabelU.prototype, "value", {
+            get: function () {
+                return this._value;
             },
             set: function (v) {
-                this._ani.tag = v;
+                this._value = v;
+                if (v == null) {
+                    this.text = '';
+                    return;
+                }
+                if (this._format) {
+                    var args = nn.ArrayT.Concat([this._format], nn.ArrayT.ToArray(v));
+                    this.text = nn.formatString.apply(null, args);
+                }
+                else {
+                    this.text = nn.asString(v);
+                }
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(Animate.prototype, "hashCode", {
+        Object.defineProperty(BitmapLabelU.prototype, "format", {
             get: function () {
-                return this._ani.hashCode;
+                return this._format;
+            },
+            set: function (fmt) {
+                this._format = fmt;
             },
             enumerable: true,
             configurable: true
         });
-        Animate.prototype.next = function (props, duration, tf) {
-            this._ani.next(props, duration, tf);
-            return this;
+        BitmapLabelU.prototype.dispose = function () {
         };
-        Animate.prototype.to = function (duration, tf, ani, ctx) {
-            this._ani.to(duration, tf, ani, ctx);
-            return this;
+        BitmapLabelU.prototype.drop = function () {
+            this.dispose();
         };
-        Animate.prototype.then = function (ani, ctx, duration, tf) {
-            if (ctx === void 0) { ctx = null; }
-            if (duration === void 0) { duration = nn.CAnimate.Duration; }
-            if (tf === void 0) { tf = null; }
-            this._ani.then(ani, ctx, duration, tf);
-            return this;
+        BitmapLabelU.prototype.$onRemoveFromStage = function () {
+            _super.prototype.$onRemoveFromStage.call(this);
+            this.drop();
         };
-        Animate.prototype.stop = function () {
-            this._ani.stop();
+        return BitmapLabelU;
+    }(eui.BitmapLabel));
+    eui.BitmapLabelU = BitmapLabelU;
+})(eui || (eui = {}));
+var eui;
+(function (eui) {
+    var BoneConfig = (function (_super) {
+        __extends(BoneConfig, _super);
+        function BoneConfig() {
+            return _super.apply(this, arguments) || this;
+        }
+        Object.defineProperty(BoneConfig.prototype, "skeleton", {
+            get: function () {
+                var src = this._skeleton;
+                if (src) {
+                    if (src.indexOf('://') == -1)
+                        if (src.indexOf('_skeleton') == -1)
+                            src += '_skeleton'; // 和hd中的区别是wing的项目一般使用自动管理资源，此时生成resjson中对于name_skeleton.json的命名将是name_skeleton而不是期望的name_skeleton_json
+                }
+                return src;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return BoneConfig;
+    }(nn.BoneConfig));
+    var BoneU = (function (_super) {
+        __extends(BoneU, _super);
+        function BoneU() {
+            var _this = _super.call(this) || this;
+            _this.slots = null;
+            _this.tag = null;
+            _this._sourceChanged = false;
+            /** 骨骼动画的名字 */
+            _this._boneName = null;
+            /** 角色名字 */
+            _this._boneCharacter = null;
+            /** 骨骼资源名 */
+            _this._boneSkeleton = null;
+            /** 骨骼定义资源名 */
+            _this._bonePlace = null;
+            /** 骨骼材质资源名 */
+            _this._boneTexture = null;
+            /** 播放的速度 */
+            _this._boneFps = 30;
+            /** 附加缩放系数 */
+            _this.additionScale = 1;
+            /** 填充模式 */
+            _this.fillMode = 0x3000; //nn.FillMode.ASPECTSTRETCH;
+            /** 序列帧的对齐位置 */
+            _this.clipAlign = 4; //nn.POSITION.CENTER;
+            /** 动作名称 */
+            _this.motion = null;
+            /** 播放次数 */
+            _this.playCount = 1;
+            /** 自动播放 */
+            _this.autoPlay = true;
+            return _this;
+        }
+        BoneU.prototype.dispose = function () {
+            if (this._signals) {
+                this._signals.dispose();
+                this._signals = undefined;
+            }
+            if (this._hbone)
+                this._hbone.drop();
         };
-        Animate.prototype.complete = function (cb, ctx) {
-            this._ani.complete(cb, ctx);
-            return this;
+        BoneU.prototype.drop = function () {
+            this.dispose();
         };
-        Animate.prototype.repeat = function (count) {
-            this._ani.repeat(count);
-            return this;
+        BoneU.prototype.onPartBinded = function (name, target) {
+            eui._EUIExt.onPartBinded(this, name, target);
         };
-        Animate.prototype.play = function () {
-            this._ani.play();
-            return this;
+        BoneU.prototype.goBack = function () {
+            eui._EUIExt.goBack(this);
         };
-        Animate.prototype.pause = function () {
-            this._ani.pause();
+        BoneU.prototype.$onRemoveFromStage = function () {
+            _super.prototype.$onRemoveFromStage.call(this);
+            this.drop();
         };
-        Animate.prototype.resume = function () {
-            this._ani.resume();
+        BoneU.prototype._initSignals = function () {
+            // 基础相关
+            this._signals.delegate = this;
+            this._signals.register(nn.SignalClicked);
+            // 骨骼相关
+            this._signals.register(nn.SignalStart);
+            this._signals.register(nn.SignalChanged);
+            this._signals.register(nn.SignalUpdated);
+            this._signals.register(nn.SignalEnd);
+            this._signals.register(nn.SignalDone);
         };
-        return Animate;
-    }());
-    eui.Animate = Animate;
+        Object.defineProperty(BoneU.prototype, "signals", {
+            get: function () {
+                if (this._signals)
+                    return this._signals;
+                this._instanceSignals();
+                return this._signals;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        BoneU.prototype._instanceSignals = function () {
+            this._signals = new nn.Signals(this);
+            this._initSignals();
+        };
+        BoneU.prototype._signalConnected = function (sig, s) {
+            var bone = this.bone();
+            switch (sig) {
+                case nn.SignalClicked:
+                    nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
+                    break;
+                case nn.SignalChanged:
+                    bone.signals.redirect(nn.SignalChanged, this);
+                    break;
+                case nn.SignalUpdated:
+                    bone.signals.redirect(nn.SignalUpdated, this);
+                    break;
+                case nn.SignalStart:
+                    bone.signals.redirect(nn.SignalStart, this);
+                    break;
+                case nn.SignalEnd:
+                    bone.signals.redirect(nn.SignalEnd, this);
+                    break;
+                case nn.SignalDone:
+                    bone.signals.redirect(nn.SignalDone, this);
+                    break;
+            }
+        };
+        BoneU.prototype.__cmp_tap = function (e) {
+            this.signals.emit(nn.SignalClicked);
+            e.stopPropagation();
+        };
+        Object.defineProperty(BoneU.prototype, "boneName", {
+            get: function () {
+                return this._boneName;
+            },
+            set: function (s) {
+                this._boneName = s;
+                this._sourceChanged = true;
+                this.invalidateProperties();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneU.prototype, "boneCharacter", {
+            get: function () {
+                return this._boneCharacter;
+            },
+            set: function (s) {
+                this._boneCharacter = s;
+                this._sourceChanged = true;
+                this.invalidateProperties();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneU.prototype, "boneSkeleton", {
+            get: function () {
+                return this._boneSkeleton;
+            },
+            set: function (s) {
+                this._boneSkeleton = s;
+                this._sourceChanged = true;
+                this.invalidateProperties();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneU.prototype, "bonePlace", {
+            get: function () {
+                return this._bonePlace;
+            },
+            set: function (s) {
+                this._bonePlace = s;
+                this._sourceChanged = true;
+                this.invalidateProperties();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneU.prototype, "boneTexture", {
+            get: function () {
+                return this._boneTexture;
+            },
+            set: function (s) {
+                this._boneTexture = s;
+                this._sourceChanged = true;
+                this.invalidateProperties();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BoneU.prototype, "boneFps", {
+            get: function () {
+                return this._boneFps;
+            },
+            set: function (v) {
+                this._boneFps = v;
+                this._sourceChanged = true;
+                this.invalidateProperties();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        BoneU.prototype.bone = function () {
+            if (this._hbone)
+                return this._hbone;
+            this._hbone = new nn.Bones();
+            return this._hbone;
+        };
+        BoneU.prototype.createChildren = function () {
+            _super.prototype.createChildren.call(this);
+            var bone = this.bone();
+            bone.autoPlay = this.autoPlay;
+            bone.count = this.playCount;
+            bone.additionScale = this.additionScale;
+            bone.fillMode = this.fillMode;
+            bone.clipAlign = this.clipAlign;
+            bone.motion = this.motion;
+            this.addChild(bone.handle());
+        };
+        BoneU.prototype.commitProperties = function () {
+            _super.prototype.commitProperties.call(this);
+            if (this._sourceChanged) {
+                this._sourceChanged = false;
+                // 重新设置资源
+                var cfg = new BoneConfig(this._boneName, this._boneCharacter, this._boneSkeleton, this._bonePlace, this._boneTexture);
+                cfg.fps = this._boneFps;
+                this.boneSource = cfg;
+            }
+        };
+        Object.defineProperty(BoneU.prototype, "boneSource", {
+            get: function () {
+                var bone = this.bone();
+                return bone.boneSource;
+            },
+            set: function (cfg) {
+                var bone = this.bone();
+                bone.boneSource = cfg;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        BoneU.prototype.updateDisplayList = function (unscaledWidth, unscaledHeight) {
+            _super.prototype.updateDisplayList.call(this, unscaledWidth, unscaledHeight);
+            var bone = this.bone();
+            // 设置bone和当前的容器大小一致
+            bone.frame = new nn.Rect(0, 0, unscaledWidth, unscaledHeight);
+            bone.flushLayout();
+        };
+        /** 播放 */
+        BoneU.prototype.play = function () {
+            this.bone().play();
+        };
+        BoneU.prototype.stop = function () {
+            this.bone().stop();
+        };
+        return BoneU;
+    }(eui.Group));
+    eui.BoneU = BoneU;
+    eui._EUIExtFix(BoneU);
 })(eui || (eui = {}));
 var nn;
 (function (nn) {
@@ -27247,17 +27050,38 @@ var nn;
 })(nn || (nn = {}));
 var eui;
 (function (eui) {
-    var BitmapLabelU = (function (_super) {
-        __extends(BitmapLabelU, _super);
-        function BitmapLabelU() {
+    var ButtonU = (function (_super) {
+        __extends(ButtonU, _super);
+        function ButtonU() {
             var _this = _super.apply(this, arguments) || this;
+            _this.slots = null;
+            _this.tag = null;
+            _this._help = null;
+            /** 点击频度限制 */
+            _this.eps = 3;
+            _this._textColor = null;
             _this._format = null;
             return _this;
         }
-        BitmapLabelU.prototype.onPartBinded = function (name, target) {
+        ButtonU.prototype.onPartBinded = function (name, target) {
             eui._EUIExt.onPartBinded(this, name, target);
         };
-        Object.defineProperty(BitmapLabelU.prototype, "exhibition", {
+        ButtonU.prototype.goBack = function () {
+            eui._EUIExt.goBack(this);
+        };
+        ButtonU.prototype.playAnimate = function (ani, idr) {
+            return eui._EUIExt.playAnimate(this, ani, idr);
+        };
+        ButtonU.prototype.findAnimate = function (idr) {
+            return eui._EUIExt.findAnimate(this, idr);
+        };
+        ButtonU.prototype.stopAnimate = function (idr) {
+            eui._EUIExt.stopAnimate(this, idr);
+        };
+        ButtonU.prototype.stopAllAnimates = function () {
+            eui._EUIExt.stopAllAnimates(this);
+        };
+        Object.defineProperty(ButtonU.prototype, "exhibition", {
             get: function () {
                 return eui._EUIExt.getExhibition(this);
             },
@@ -27267,7 +27091,113 @@ var eui;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(BitmapLabelU.prototype, "value", {
+        Object.defineProperty(ButtonU.prototype, "help", {
+            get: function () {
+                return this._help;
+            },
+            set: function (h) {
+                this._help = h;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ButtonU.prototype.dispose = function () {
+            if (this._signals) {
+                this._signals.dispose();
+                this._signals = undefined;
+            }
+            this.belong = null;
+        };
+        ButtonU.prototype.drop = function () {
+            this.dispose();
+        };
+        ButtonU.prototype.$onRemoveFromStage = function () {
+            _super.prototype.$onRemoveFromStage.call(this);
+            this.drop();
+        };
+        ButtonU.prototype._initSignals = function () {
+            this._signals.delegate = this;
+            this._signals.register(nn.SignalClicked);
+            this._signals.register(nn.SignalVisibleChanged);
+        };
+        Object.defineProperty(ButtonU.prototype, "signals", {
+            get: function () {
+                if (this._signals)
+                    return this._signals;
+                this._instanceSignals();
+                return this._signals;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ButtonU.prototype._instanceSignals = function () {
+            this._signals = new nn.Signals(this);
+            this._initSignals();
+        };
+        ButtonU.prototype._signalConnected = function (sig, s) {
+            if (sig == nn.SignalClicked) {
+                s.eps = this.eps;
+                nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
+            }
+        };
+        ButtonU.prototype.__cmp_tap = function (e) {
+            this.signals.emit(nn.SignalClicked);
+            e.stopPropagation();
+        };
+        ButtonU.prototype._getLabel = function () {
+            return this.labelDisplay instanceof eui.Label ? this.labelDisplay : null;
+        };
+        ButtonU.prototype.childrenCreated = function () {
+            _super.prototype.childrenCreated.call(this);
+            if (this._textColor && this._getLabel()) {
+                this._getLabel().textColor = this._textColor;
+            }
+        };
+        Object.defineProperty(ButtonU.prototype, "data", {
+            get: function () {
+                return this._data;
+            },
+            set: function (d) {
+                this._data = d;
+                if (this.skin)
+                    this.updateData();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ButtonU.prototype, "text", {
+            get: function () {
+                return this.label;
+            },
+            set: function (s) {
+                this.label = s;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ButtonU.prototype, "textColor", {
+            get: function () {
+                return this._getLabel() ? this._getLabel().textColor : this._textColor;
+            },
+            set: function (c) {
+                this._textColor = c;
+                if (this._getLabel())
+                    this._getLabel().textColor = c;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ButtonU.prototype, "itemIndex", {
+            get: function () {
+                return this._itemIndex;
+            },
+            set: function (n) {
+                this._itemIndex = n;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ButtonU.prototype, "value", {
             get: function () {
                 return this._value;
             },
@@ -27288,7 +27218,7 @@ var eui;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(BitmapLabelU.prototype, "format", {
+        Object.defineProperty(ButtonU.prototype, "format", {
             get: function () {
                 return this._format;
             },
@@ -27298,127 +27228,135 @@ var eui;
             enumerable: true,
             configurable: true
         });
-        BitmapLabelU.prototype.dispose = function () {
+        Object.defineProperty(ButtonU.prototype, "selected", {
+            get: function () {
+                return this._selected;
+            },
+            set: function (s) {
+                if (this._selected == s)
+                    return;
+                this._selected = s;
+                this.updateSelection();
+                this.invalidateState();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ButtonU.prototype.getCurrentState = function () {
+            if (this._selected)
+                return "down";
+            if (this.enabled == false)
+                return 'disabled';
+            return _super.prototype.getCurrentState.call(this);
         };
-        BitmapLabelU.prototype.drop = function () {
-            this.dispose();
+        /** 刷新选中状态 */
+        ButtonU.prototype.updateSelection = function () { };
+        /** 刷新数据 */
+        ButtonU.prototype.updateData = function () { };
+        Object.defineProperty(ButtonU.prototype, "viewStack", {
+            /** 隶属的栈 */
+            get: function () {
+                return eui._EUIExt.getViewStack(this);
+            },
+            set: function (sck) {
+                eui._EUIExt.setViewStack(this, sck);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ButtonU.prototype.convertPointTo = function (pt, sp) {
+            return eui.ConvertPoint(this, pt, sp);
         };
-        BitmapLabelU.prototype.$onRemoveFromStage = function () {
-            _super.prototype.$onRemoveFromStage.call(this);
-            this.drop();
+        ButtonU.prototype.convertRectTo = function (rc, sp) {
+            return eui.ConvertRect(this, rc, sp);
         };
-        return BitmapLabelU;
-    }(eui.BitmapLabel));
-    eui.BitmapLabelU = BitmapLabelU;
+        Object.defineProperty(ButtonU.prototype, "frame", {
+            get: function () {
+                return nn.getFrame(this);
+            },
+            set: function (rc) {
+                nn.setFrame(this, rc);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ButtonU.prototype.onAppeared = function () {
+        };
+        ButtonU.prototype.onDisappeared = function () {
+        };
+        ButtonU.prototype.onVisibleChanged = function () {
+            if (this._signals)
+                this._signals.emit(nn.SignalVisibleChanged);
+        };
+        ButtonU.prototype.$setVisible = function (b) {
+            if (_super.prototype.$setVisible.call(this, b)) {
+                this.onVisibleChanged();
+                return true;
+            }
+            return false;
+        };
+        Object.defineProperty(ButtonU.prototype, "source", {
+            get: function () {
+                return this.icon;
+            },
+            set: function (s) {
+                this.icon = s;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return ButtonU;
+    }(eui.Button));
+    eui.ButtonU = ButtonU;
 })(eui || (eui = {}));
 var eui;
 (function (eui) {
-    var TabBarU = (function (_super) {
-        __extends(TabBarU, _super);
-        function TabBarU() {
+    var ImpViewStack = (function (_super) {
+        __extends(ImpViewStack, _super);
+        function ImpViewStack() {
+            return _super.apply(this, arguments) || this;
+        }
+        ImpViewStack.prototype.getViews = function () {
+            return this._views;
+        };
+        return ImpViewStack;
+    }(nn.ViewStack));
+    var TabStackU = (function (_super) {
+        __extends(TabStackU, _super);
+        function TabStackU() {
             var _this = _super.call(this) || this;
-            _this.slots = null;
-            nn.EventHook(_this, egret.Event.CHANGE, _this.__lst_selchanged, _this);
+            _this.createImp();
+            _this.addChild(_this._imp);
             return _this;
         }
-        TabBarU.prototype.onPartBinded = function (name, target) {
-            eui._EUIDataGroupExt.onPartBinded(this, name, target);
+        TabStackU.prototype.createImp = function () {
+            this._imp = new ImpViewStack();
         };
-        TabBarU.prototype.dispose = function () {
-            if (this._signals) {
-                this._signals.dispose();
-                this._signals = undefined;
-            }
+        TabStackU.prototype.updateLayout = function () {
+            if (this._imp)
+                this._imp.frame = nn.getFrame(this);
         };
-        TabBarU.prototype.drop = function () {
-            this.dispose();
+        /** 通过类查找对应的页面 */
+        TabStackU.prototype.findPage = function (cls) {
+            var views = this._imp.getViews();
+            var page = nn.ArrayT.QueryObject(views, function (p) {
+                var obj = p.obj;
+                return obj instanceof cls;
+            });
+            return page.obj.handle();
         };
-        TabBarU.prototype.$onRemoveFromStage = function () {
-            _super.prototype.$onRemoveFromStage.call(this);
-            this.drop();
+        TabStackU.prototype.push = function (ui) {
+            var bc = new nn.BridgedComponent(ui);
+            eui._EUIExt.setViewStack(ui, this);
+            this._imp.push(bc);
         };
-        TabBarU.prototype._initSignals = function () {
-            this._signals.delegate = this;
-            this._signals.register(nn.SignalSelectionChanged);
-            this._signals.register(nn.SignalSelectionChanging);
+        TabStackU.prototype.pop = function () { };
+        TabStackU.prototype.pages = function () {
+            return nn.ArrayT.Convert(this._imp.getViews(), function (page) {
+                return page.obj.handle();
+            });
         };
-        Object.defineProperty(TabBarU.prototype, "signals", {
-            get: function () {
-                if (this._signals)
-                    return this._signals;
-                this._instanceSignals();
-                return this._signals;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TabBarU.prototype._instanceSignals = function () {
-            this._signals = new nn.Signals(this);
-            this._initSignals();
-        };
-        TabBarU.prototype._signalConnected = function (sig, s) {
-            if (sig == nn.SignalSelectionChanged) {
-            }
-            else if (sig == nn.SignalSelectionChanging) {
-                nn.EventHook(this, egret.Event.CHANGING, this.__lst_selchanging, this);
-            }
-        };
-        Object.defineProperty(TabBarU.prototype, "selectedIndex", {
-            get: function () {
-                return egret.superGetter(TabBarU, this, 'selectedIndex');
-            },
-            set: function (v) {
-                egret.superSetter(TabBarU, this, 'selectedIndex', v);
-                if (this.pageStack) {
-                    this.pageStack.selectedIndex = this.selectedIndex;
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TabBarU.prototype.__lst_selchanged = function () {
-            if (this._signals)
-                this._signals.emit(nn.SignalSelectionChanged);
-            // 动作page
-            if (this.pageStack) {
-                this.pageStack.selectedIndex = this.selectedIndex;
-            }
-        };
-        TabBarU.prototype.__lst_selchanging = function (e) {
-            // egret的一个bug
-            e.$cancelable = true;
-            // 传透
-            var tun = new nn.SlotTunnel();
-            // 封装changing的对象
-            var info = eui._EUIDataGroupExt.GetChanging(this);
-            this._signals.emit(nn.SignalSelectionChanging, info, tun);
-            if (tun.veto)
-                e.preventDefault();
-        };
-        Object.defineProperty(TabBarU.prototype, "data", {
-            get: function () {
-                return this._data;
-            },
-            set: function (data) {
-                if (data == null)
-                    this.dataProvider = null;
-                else
-                    this.dataProvider = new eui.ArrayCollection(data);
-                this._data = data;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TabBarU.prototype.reload = function () {
-            this.dataProviderRefreshed();
-        };
-        TabBarU.prototype.updateRenderer = function (renderer, itemIndex, data) {
-            var r = _super.prototype.updateRenderer.call(this, renderer, itemIndex, data);
-            if (this.__imp_updateitem)
-                this.__imp_updateitem(r, itemIndex, data);
-            return r;
-        };
-        return TabBarU;
-    }(eui.TabBar));
-    eui.TabBarU = TabBarU;
+        return TabStackU;
+    }(eui.ComponentU));
+    eui.TabStackU = TabStackU;
 })(eui || (eui = {}));
