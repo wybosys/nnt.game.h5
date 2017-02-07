@@ -122,6 +122,12 @@ module nn {
                 DomOffsetY = canvas.offsetTop;
             }
 
+            // 初始化3d环境
+            if (egret.Capabilities.renderMode == "webgl") {
+                stage3d = new egret3d.Egret3DCanvas(this.stage);
+                egret.setRendererContext(stage3d);
+            }
+
             // 直接刷新主布局
             this.updateLayout();
         }

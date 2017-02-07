@@ -3984,6 +3984,13 @@ declare module nn {
     }
 }
 declare module nn {
+    class CoreApplication extends EgretApp {
+        constructor();
+        /** 设置根页面 */
+        root: CComponent;
+    }
+}
+declare module nn {
     /** 用来将标准对象包装成业务对象 */
     class BridgedComponent extends Component {
         constructor(tgt: any);
@@ -4925,74 +4932,7 @@ declare module nn.journal {
     }
 }
 declare module nn {
-    class EntrySettings {
-        /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
-        singletone: boolean;
-        /** 其他数据 */
-        ext: any;
-        static Default: EntrySettings;
-    }
-    interface IEntry {
-        /** 模块的配置 */
-        entrySettings?: EntrySettings;
-    }
-    interface ILauncher {
-        /** 处理模块的启动
-            @param cls 待启动模块的类
-            @param data 附加的参数
-        */
-        launchEntry(cls: any, data?: any): any;
-    }
-    abstract class Manager extends SObject {
-        /** 初始化自己和其它manager或者其它对象之间的关系 */
-        abstract onLoaded(): any;
-        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
-        onDataLoaded(): void;
-    }
-    abstract class Managers extends SObject {
-        register<T>(obj: T): T;
-        onLoaded(): void;
-        onDataLoaded(): void;
-        protected _managers: Manager[];
-    }
-    interface IEntryClass {
-        name: string;
-        clazz: () => Function;
-    }
-    type EntryIdrToLauncherIdr = (entryidr: string) => string;
-    type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
-    type EntryClassType = Function | IEntryClass;
-    class _EntriesManager {
-        /** 注册一个模块
-            @param entryClass类
-        */
-        register(entryClass: EntryClassType, data?: EntrySettings): void;
-        /** 启动一个模块
-            @param entry 类或者标类名
-            @param launcher 启动点的标示号或者启动点的实例
-            @pram data 附加的参数
-        */
-        invoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
-        protected _doInvoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
-        private _entries;
-        private _entriesdata;
-        toString(): string;
-    }
-    let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
-    let EntriesManager: _EntriesManager;
-    class _LaunchersManager extends nn.SObject {
-        constructor();
-        protected _initSignals(): void;
-        /** 注册一个启动器 */
-        register(obj: ILauncher): void;
-        /** 取消 */
-        unregister(obj: ILauncher): void;
-        /** 查找一个启动器 */
-        find(str: string): ILauncher;
-        private _launchers;
-        toString(): string;
-    }
-    let LaunchersManager: _LaunchersManager;
+    let stage3d: egret3d.Egret3DCanvas;
 }
 declare module nn {
     class Vector2d extends Point {
@@ -5138,10 +5078,102 @@ declare module nn {
         protected applyRows(rows: Array<FlowSegment>, pos: Point, w: number): void;
     }
 }
+declare module nn {
+    class EntrySettings {
+        /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
+        singletone: boolean;
+        /** 其他数据 */
+        ext: any;
+        static Default: EntrySettings;
+    }
+    interface IEntry {
+        /** 模块的配置 */
+        entrySettings?: EntrySettings;
+    }
+    interface ILauncher {
+        /** 处理模块的启动
+            @param cls 待启动模块的类
+            @param data 附加的参数
+        */
+        launchEntry(cls: any, data?: any): any;
+    }
+    abstract class Manager extends SObject {
+        /** 初始化自己和其它manager或者其它对象之间的关系 */
+        abstract onLoaded(): any;
+        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
+        onDataLoaded(): void;
+    }
+    abstract class Managers extends SObject {
+        register<T>(obj: T): T;
+        onLoaded(): void;
+        onDataLoaded(): void;
+        protected _managers: Manager[];
+    }
+    interface IEntryClass {
+        name: string;
+        clazz: () => Function;
+    }
+    type EntryIdrToLauncherIdr = (entryidr: string) => string;
+    type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
+    type EntryClassType = Function | IEntryClass;
+    class _EntriesManager {
+        /** 注册一个模块
+            @param entryClass类
+        */
+        register(entryClass: EntryClassType, data?: EntrySettings): void;
+        /** 启动一个模块
+            @param entry 类或者标类名
+            @param launcher 启动点的标示号或者启动点的实例
+            @pram data 附加的参数
+        */
+        invoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
+        protected _doInvoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
+        private _entries;
+        private _entriesdata;
+        toString(): string;
+    }
+    let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
+    let EntriesManager: _EntriesManager;
+    class _LaunchersManager extends nn.SObject {
+        constructor();
+        protected _initSignals(): void;
+        /** 注册一个启动器 */
+        register(obj: ILauncher): void;
+        /** 取消 */
+        unregister(obj: ILauncher): void;
+        /** 查找一个启动器 */
+        find(str: string): ILauncher;
+        private _launchers;
+        toString(): string;
+    }
+    let LaunchersManager: _LaunchersManager;
+}
 declare module egret {
     var VERSION_2_5_6: any;
 }
 declare module nn {
+}
+declare module nn {
+    class _CrossLoader {
+        private static _regID;
+        static completeCall: any;
+        static process(m: Model): void;
+        private static start(m, id);
+    }
+    interface IRestSession extends ISObject {
+        SID: string;
+        post(m: Model, cb?: (s?: Slot) => void, cbctx?: any): any;
+        fetch(m: Model, cbsuc?: (s?: Slot) => void, cbctx?: any, cbfail?: (s?: Slot) => void, cbend?: () => void): any;
+        fetchs(ms: Array<Model>, cbsuc?: (ss?: Array<Slot>) => void, cbctx?: any): any;
+    }
+    var RestSession: IRestSession;
+    /** 基本的通过URL来访问数据的模型对象 */
+    class UrlModel extends Model {
+        /** 请求的地址 */
+        request: string;
+        url(): string;
+        urlForLog(): string;
+    }
 }
 declare module RES {
 }
@@ -5205,36 +5237,6 @@ declare module nn {
         getBitmapFont(src: FontSource, priority: ResPriority, cb: (fnt: ICacheFont) => void, ctx: any): void;
         getSound(src: SoundSource, priority: ResPriority, cb: (snd: ICacheSound) => void, ctx: any): void;
     }
-}
-declare module nn {
-    class _CrossLoader {
-        private static _regID;
-        static completeCall: any;
-        static process(m: Model): void;
-        private static start(m, id);
-    }
-    interface IRestSession extends ISObject {
-        SID: string;
-        post(m: Model, cb?: (s?: Slot) => void, cbctx?: any): any;
-        fetch(m: Model, cbsuc?: (s?: Slot) => void, cbctx?: any, cbfail?: (s?: Slot) => void, cbend?: () => void): any;
-        fetchs(ms: Array<Model>, cbsuc?: (ss?: Array<Slot>) => void, cbctx?: any): any;
-    }
-    var RestSession: IRestSession;
-    /** 基本的通过URL来访问数据的模型对象 */
-    class UrlModel extends Model {
-        /** 请求的地址 */
-        request: string;
-        url(): string;
-        urlForLog(): string;
-    }
-}
-declare module nn {
-    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
-    class _DatasManager extends nn.SObject {
-        constructor();
-        _load(): void;
-    }
-    let DatasManager: _DatasManager;
 }
 declare module nn {
     class ServiceMock extends svc.Service {
@@ -5318,29 +5320,12 @@ declare module nn {
     }
 }
 declare module nn {
-    let FontFilePattern: RegExp;
-    let FontKeyPattern: RegExp;
-    class _FontsManager {
-        add(name: string, url: string): void;
-        protected _doAddH5Font(name: string, url: string): void;
-        private _fonts;
-        private _dfonts;
-        font(name: string): string;
+    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
+    class _DatasManager extends nn.SObject {
+        constructor();
+        _load(): void;
     }
-    let FontsManager: _FontsManager;
-    class FontConfig {
-        /** 字体名称 */
-        family: string;
-        name: string;
-        /** 位图字体的贴图 */
-        texture: UriSource;
-        /** 位图字体的配置 */
-        config: UriSource;
-        static Font(family: string): FontConfig;
-        static Bitmap(name: string): FontConfig;
-        static Bitmap(texture: string, config: string): FontConfig;
-    }
-    type FontSource = FontConfig | UriSource | COriginType;
+    let DatasManager: _DatasManager;
 }
 declare module nn {
     class SocketModel extends SObject {
@@ -5384,6 +5369,31 @@ declare module nn {
     }
     var SocketSession: ISocketSession;
 }
+declare module nn {
+    let FontFilePattern: RegExp;
+    let FontKeyPattern: RegExp;
+    class _FontsManager {
+        add(name: string, url: string): void;
+        protected _doAddH5Font(name: string, url: string): void;
+        private _fonts;
+        private _dfonts;
+        font(name: string): string;
+    }
+    let FontsManager: _FontsManager;
+    class FontConfig {
+        /** 字体名称 */
+        family: string;
+        name: string;
+        /** 位图字体的贴图 */
+        texture: UriSource;
+        /** 位图字体的配置 */
+        config: UriSource;
+        static Font(family: string): FontConfig;
+        static Bitmap(name: string): FontConfig;
+        static Bitmap(texture: string, config: string): FontConfig;
+    }
+    type FontSource = FontConfig | UriSource | COriginType;
+}
 declare module nn.developer {
     class FileDialog {
         filter: string;
@@ -5403,6 +5413,19 @@ declare module nn.developer {
         scale(x: number, y: number, cb: (img: Image) => void): void;
         subimage(rc: Rect, cb: (sub: Image) => void): void;
         private _hdl;
+    }
+}
+declare module nn {
+    type TiledSource = string;
+    class TiledMap extends Sprite {
+        constructor();
+        dispose(): void;
+        protected _map: tiled.TMXTilemap;
+        private _data;
+        private _url;
+        private _tiledSource;
+        tiledSource: TiledSource;
+        updateLayout(): void;
     }
 }
 declare var LZString: {
@@ -5446,26 +5469,6 @@ declare module nn {
         load(d: any): boolean;
         plain: string;
         file(path: string, type: ResType, cb: (str: any) => void, ctx?: any): void;
-    }
-}
-declare module nn {
-    type TiledSource = string;
-    class TiledMap extends Sprite {
-        constructor();
-        dispose(): void;
-        protected _map: tiled.TMXTilemap;
-        private _data;
-        private _url;
-        private _tiledSource;
-        tiledSource: TiledSource;
-        updateLayout(): void;
-    }
-}
-declare module nn {
-    class CoreApplication extends EgretApp {
-        constructor();
-        /** 设置根页面 */
-        root: CComponent;
     }
 }
 declare module nn {

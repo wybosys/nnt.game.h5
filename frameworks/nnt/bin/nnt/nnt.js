@@ -11433,6 +11433,11 @@ var nn;
                 nn.DomOffsetX = canvas.offsetLeft;
                 nn.DomOffsetY = canvas.offsetTop;
             }
+            // 初始化3d环境
+            if (egret.Capabilities.renderMode == "webgl") {
+                nn.stage3d = new egret3d.Egret3DCanvas(this.stage);
+                egret.setRendererContext(nn.stage3d);
+            }
             // 直接刷新主布局
             this.updateLayout();
         };
@@ -15161,6 +15166,28 @@ var nn;
         return PagedModel;
     }());
     nn.PagedModel = PagedModel;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var CoreApplication = (function (_super) {
+        __extends(CoreApplication, _super);
+        function CoreApplication() {
+            return _super.call(this) || this;
+        }
+        Object.defineProperty(CoreApplication.prototype, "root", {
+            get: function () {
+                return this._gameLayer.root;
+            },
+            /** 设置根页面 */
+            set: function (sp) {
+                this._gameLayer.root = sp;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return CoreApplication;
+    }(nn.EgretApp));
+    nn.CoreApplication = CoreApplication;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -19681,195 +19708,8 @@ var nn;
         journal.IndexedMapT = IndexedMapT;
     })(journal = nn.journal || (nn.journal = {}));
 })(nn || (nn = {}));
-// 标准APP架构
 var nn;
 (function (nn) {
-    var EntrySettings = (function () {
-        function EntrySettings() {
-            /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
-            this.singletone = true;
-        }
-        return EntrySettings;
-    }());
-    EntrySettings.Default = new EntrySettings();
-    nn.EntrySettings = EntrySettings;
-    var Manager = (function (_super) {
-        __extends(Manager, _super);
-        function Manager() {
-            return _super.apply(this, arguments) || this;
-        }
-        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
-        Manager.prototype.onDataLoaded = function () {
-        };
-        return Manager;
-    }(nn.SObject));
-    nn.Manager = Manager;
-    var Managers = (function (_super) {
-        __extends(Managers, _super);
-        function Managers() {
-            var _this = _super.apply(this, arguments) || this;
-            _this._managers = new Array();
-            return _this;
-        }
-        Managers.prototype.register = function (obj) {
-            this._managers.push(obj);
-            return obj;
-        };
-        Managers.prototype.onLoaded = function () {
-            this._managers.forEach(function (e) {
-                e.onLoaded();
-            });
-        };
-        Managers.prototype.onDataLoaded = function () {
-            this._managers.forEach(function (e) {
-                e.onDataLoaded();
-            });
-        };
-        return Managers;
-    }(nn.SObject));
-    nn.Managers = Managers;
-    var _EntriesManager = (function () {
-        function _EntriesManager() {
-            this._entries = new KvObject();
-            this._entriesdata = new KvObject();
-        }
-        /** 注册一个模块
-            @param entryClass类
-        */
-        _EntriesManager.prototype.register = function (entryClass, data) {
-            if (data === void 0) { data = EntrySettings.Default; }
-            var idr;
-            if (typeof (entryClass) == 'object') {
-                var o = entryClass;
-                idr = o.name;
-            }
-            else {
-                idr = nn.Classname(entryClass);
-            }
-            this._entries[idr] = entryClass;
-            this._entriesdata[idr] = data;
-        };
-        /** 启动一个模块
-            @param entry 类或者标类名
-            @param launcher 启动点的标示号或者启动点的实例
-            @pram data 附加的参数
-        */
-        _EntriesManager.prototype.invoke = function (entry, launcher, ext) {
-            this._doInvoke(entry, launcher, ext);
-        };
-        _EntriesManager.prototype._doInvoke = function (entry, launcher, ext) {
-            var _this = this;
-            if (entry == null) {
-                nn.warn("不能打开空的实例");
-                return;
-            }
-            var idr = typeof (entry) == 'string' ? entry : nn.Classname(entry);
-            var cls = this._entries[idr];
-            if (typeof (cls) == 'object') {
-                // 复杂定义一个类型，为了支持动态入口逻辑
-                var o = cls;
-                cls = o.clazz();
-            }
-            if (cls == null) {
-                nn.fatal("找不到实体类型 " + idr + "，请检查是否没有注册到EntriesManager");
-                return;
-            }
-            // 在launchers中查启动点
-            var ler;
-            if (typeof (launcher) == 'string')
-                ler = nn.LaunchersManager.find(launcher);
-            if (ler == null && typeof (launcher) == 'function') {
-                var leridr_1 = launcher(idr);
-                ler = nn.LaunchersManager.find(leridr_1);
-                // 如果ler为null，则代表目标模块还没有加载，需要先加载目标模块，待之准备好后，再加载当前模块
-                if (ler == null) {
-                    var wait_1 = function (s) {
-                        if (s.data != leridr_1)
-                            return;
-                        nn.LaunchersManager.signals.disconnect(nn.SignalChanged, wait_1);
-                        var data = _this._entriesdata[idr];
-                        // 重新查找，此次不可能查不到
-                        ler = nn.LaunchersManager.find(leridr_1);
-                        ler.launchEntry(cls, data);
-                    };
-                    nn.LaunchersManager.signals.connect(nn.SignalChanged, wait_1, null);
-                    this._doInvoke(leridr_1, launcher);
-                    return;
-                }
-            }
-            if (ler == null && typeof (launcher) == 'object')
-                ler = launcher;
-            if (ler == null) {
-                nn.fatal("没有找到停靠点" + launcher);
-                return;
-            }
-            // 加载最终的模块
-            var data = this._entriesdata[idr];
-            if (!nn.EntryCheckSettings(cls, data))
-                return;
-            // 检查是否可以打开
-            if (data == null)
-                data = new EntrySettings();
-            data.ext = ext;
-            ler.launchEntry(cls, data);
-        };
-        _EntriesManager.prototype.toString = function () {
-            var t = [];
-            nn.MapT.Foreach(this._entries, function (k) {
-                t.push(k);
-            });
-            return t.join(';');
-        };
-        return _EntriesManager;
-    }());
-    nn._EntriesManager = _EntriesManager;
-    // 应用实例管理器
-    nn.EntriesManager = new _EntriesManager();
-    var _LaunchersManager = (function (_super) {
-        __extends(_LaunchersManager, _super);
-        function _LaunchersManager() {
-            var _this = _super.call(this) || this;
-            _this._launchers = new KvObject();
-            return _this;
-        }
-        _LaunchersManager.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalChanged);
-        };
-        /** 注册一个启动器 */
-        _LaunchersManager.prototype.register = function (obj) {
-            var idr = nn.Classname(obj);
-            var fnd = this._launchers[idr];
-            if (fnd) {
-                nn.warn('LaunchersManager 已经注册过 ' + idr);
-                return;
-            }
-            this._launchers[idr] = obj;
-            // 直接设置UI对象中的对应标记，用来当UI关闭时释放该停靠点
-            obj.__need_remove_from_launchersmanager = true;
-            this.signals.emit(nn.SignalChanged, idr);
-        };
-        /** 取消 */
-        _LaunchersManager.prototype.unregister = function (obj) {
-            var idr = nn.Classname(obj);
-            nn.MapT.RemoveKey(this._launchers, idr);
-        };
-        /** 查找一个启动器 */
-        _LaunchersManager.prototype.find = function (str) {
-            return this._launchers[str];
-        };
-        _LaunchersManager.prototype.toString = function () {
-            var t = [];
-            nn.MapT.Foreach(this._launchers, function (k) {
-                t.push(k);
-            });
-            return t.join(';');
-        };
-        return _LaunchersManager;
-    }(nn.SObject));
-    nn._LaunchersManager = _LaunchersManager;
-    // 应用入口管理器
-    nn.LaunchersManager = new _LaunchersManager();
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -20442,6 +20282,196 @@ var nn;
     }(Layout));
     nn.HFlow = HFlow;
 })(nn || (nn = {}));
+// 标准APP架构
+var nn;
+(function (nn) {
+    var EntrySettings = (function () {
+        function EntrySettings() {
+            /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
+            this.singletone = true;
+        }
+        return EntrySettings;
+    }());
+    EntrySettings.Default = new EntrySettings();
+    nn.EntrySettings = EntrySettings;
+    var Manager = (function (_super) {
+        __extends(Manager, _super);
+        function Manager() {
+            return _super.apply(this, arguments) || this;
+        }
+        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
+        Manager.prototype.onDataLoaded = function () {
+        };
+        return Manager;
+    }(nn.SObject));
+    nn.Manager = Manager;
+    var Managers = (function (_super) {
+        __extends(Managers, _super);
+        function Managers() {
+            var _this = _super.apply(this, arguments) || this;
+            _this._managers = new Array();
+            return _this;
+        }
+        Managers.prototype.register = function (obj) {
+            this._managers.push(obj);
+            return obj;
+        };
+        Managers.prototype.onLoaded = function () {
+            this._managers.forEach(function (e) {
+                e.onLoaded();
+            });
+        };
+        Managers.prototype.onDataLoaded = function () {
+            this._managers.forEach(function (e) {
+                e.onDataLoaded();
+            });
+        };
+        return Managers;
+    }(nn.SObject));
+    nn.Managers = Managers;
+    var _EntriesManager = (function () {
+        function _EntriesManager() {
+            this._entries = new KvObject();
+            this._entriesdata = new KvObject();
+        }
+        /** 注册一个模块
+            @param entryClass类
+        */
+        _EntriesManager.prototype.register = function (entryClass, data) {
+            if (data === void 0) { data = EntrySettings.Default; }
+            var idr;
+            if (typeof (entryClass) == 'object') {
+                var o = entryClass;
+                idr = o.name;
+            }
+            else {
+                idr = nn.Classname(entryClass);
+            }
+            this._entries[idr] = entryClass;
+            this._entriesdata[idr] = data;
+        };
+        /** 启动一个模块
+            @param entry 类或者标类名
+            @param launcher 启动点的标示号或者启动点的实例
+            @pram data 附加的参数
+        */
+        _EntriesManager.prototype.invoke = function (entry, launcher, ext) {
+            this._doInvoke(entry, launcher, ext);
+        };
+        _EntriesManager.prototype._doInvoke = function (entry, launcher, ext) {
+            var _this = this;
+            if (entry == null) {
+                nn.warn("不能打开空的实例");
+                return;
+            }
+            var idr = typeof (entry) == 'string' ? entry : nn.Classname(entry);
+            var cls = this._entries[idr];
+            if (typeof (cls) == 'object') {
+                // 复杂定义一个类型，为了支持动态入口逻辑
+                var o = cls;
+                cls = o.clazz();
+            }
+            if (cls == null) {
+                nn.fatal("找不到实体类型 " + idr + "，请检查是否没有注册到EntriesManager");
+                return;
+            }
+            // 在launchers中查启动点
+            var ler;
+            if (typeof (launcher) == 'string')
+                ler = nn.LaunchersManager.find(launcher);
+            if (ler == null && typeof (launcher) == 'function') {
+                var leridr_1 = launcher(idr);
+                ler = nn.LaunchersManager.find(leridr_1);
+                // 如果ler为null，则代表目标模块还没有加载，需要先加载目标模块，待之准备好后，再加载当前模块
+                if (ler == null) {
+                    var wait_1 = function (s) {
+                        if (s.data != leridr_1)
+                            return;
+                        nn.LaunchersManager.signals.disconnect(nn.SignalChanged, wait_1);
+                        var data = _this._entriesdata[idr];
+                        // 重新查找，此次不可能查不到
+                        ler = nn.LaunchersManager.find(leridr_1);
+                        ler.launchEntry(cls, data);
+                    };
+                    nn.LaunchersManager.signals.connect(nn.SignalChanged, wait_1, null);
+                    this._doInvoke(leridr_1, launcher);
+                    return;
+                }
+            }
+            if (ler == null && typeof (launcher) == 'object')
+                ler = launcher;
+            if (ler == null) {
+                nn.fatal("没有找到停靠点" + launcher);
+                return;
+            }
+            // 加载最终的模块
+            var data = this._entriesdata[idr];
+            if (!nn.EntryCheckSettings(cls, data))
+                return;
+            // 检查是否可以打开
+            if (data == null)
+                data = new EntrySettings();
+            data.ext = ext;
+            ler.launchEntry(cls, data);
+        };
+        _EntriesManager.prototype.toString = function () {
+            var t = [];
+            nn.MapT.Foreach(this._entries, function (k) {
+                t.push(k);
+            });
+            return t.join(';');
+        };
+        return _EntriesManager;
+    }());
+    nn._EntriesManager = _EntriesManager;
+    // 应用实例管理器
+    nn.EntriesManager = new _EntriesManager();
+    var _LaunchersManager = (function (_super) {
+        __extends(_LaunchersManager, _super);
+        function _LaunchersManager() {
+            var _this = _super.call(this) || this;
+            _this._launchers = new KvObject();
+            return _this;
+        }
+        _LaunchersManager.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalChanged);
+        };
+        /** 注册一个启动器 */
+        _LaunchersManager.prototype.register = function (obj) {
+            var idr = nn.Classname(obj);
+            var fnd = this._launchers[idr];
+            if (fnd) {
+                nn.warn('LaunchersManager 已经注册过 ' + idr);
+                return;
+            }
+            this._launchers[idr] = obj;
+            // 直接设置UI对象中的对应标记，用来当UI关闭时释放该停靠点
+            obj.__need_remove_from_launchersmanager = true;
+            this.signals.emit(nn.SignalChanged, idr);
+        };
+        /** 取消 */
+        _LaunchersManager.prototype.unregister = function (obj) {
+            var idr = nn.Classname(obj);
+            nn.MapT.RemoveKey(this._launchers, idr);
+        };
+        /** 查找一个启动器 */
+        _LaunchersManager.prototype.find = function (str) {
+            return this._launchers[str];
+        };
+        _LaunchersManager.prototype.toString = function () {
+            var t = [];
+            nn.MapT.Foreach(this._launchers, function (k) {
+                t.push(k);
+            });
+            return t.join(';');
+        };
+        return _LaunchersManager;
+    }(nn.SObject));
+    nn._LaunchersManager = _LaunchersManager;
+    // 应用入口管理器
+    nn.LaunchersManager = new _LaunchersManager();
+})(nn || (nn = {}));
 var egret;
 (function (egret) {
     egret.VERSION_2_5_6 = egret.MAKE_VERSION(2, 5, 6);
@@ -20533,6 +20563,158 @@ var nn;
             return value._fmui.descriptionName;
         return orifn(value);
     });
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var _CrossLoader = (function () {
+        function _CrossLoader() {
+        }
+        _CrossLoader.process = function (m) {
+            _CrossLoader.completeCall["call_" + _CrossLoader._regID] = function (data) {
+                var id = _CrossLoader._regID;
+                m.__mdl_completed(data);
+                delete _CrossLoader.completeCall["call_" + id];
+            };
+            _CrossLoader.start(m, _CrossLoader._regID++);
+        };
+        _CrossLoader.start = function (m, id) {
+            var script = document.createElement('script');
+            m.modelcallback = "nn._CrossLoader.completeCall.call_" + id + "";
+            script.src = m.url();
+            document.body.appendChild(script);
+        };
+        return _CrossLoader;
+    }());
+    _CrossLoader._regID = 0;
+    _CrossLoader.completeCall = {};
+    nn._CrossLoader = _CrossLoader;
+    var _RestSession = (function (_super) {
+        __extends(_RestSession, _super);
+        function _RestSession() {
+            return _super.apply(this, arguments) || this;
+        }
+        _RestSession.prototype._initSignals = function () {
+            _super.prototype._initSignals.call(this);
+            this._signals.register(nn.SignalStart);
+            this._signals.register(nn.SignalSucceed);
+            this._signals.register(nn.SignalFailed);
+            this._signals.register(nn.SignalEnd);
+            this._signals.register(nn.SignalTimeout);
+        };
+        _RestSession.prototype.post = function (m, cb, cbctx) {
+            m.showWaiting = false;
+            m.showError = false;
+            this.fetch(m, cb, cbctx);
+        };
+        /** 获取一个数据
+            @param cb, 成功后的回调
+            @param cbfail, 失败后的回调
+            @param cbend, 结束的回调（不区分成功、失败）
+        */
+        _RestSession.prototype.fetch = function (m, cbsuc, cbctx, cbfail, cbend) {
+            m.ts = nn.DateTime.Now();
+            // 为了防止正在调用 api 时，接受信号的对象析构，保护一下
+            if (cbctx)
+                m.attach(cbctx);
+            if (cbsuc)
+                m.signals.connect(nn.SignalSucceed, cbsuc, cbctx);
+            if (cbfail)
+                m.signals.connect(nn.SignalFailed, cbfail, cbctx);
+            if (cbend)
+                m.signals.connect(nn.SignalEnd, cbend, cbctx);
+            // 判断是否支持缓存
+            if (m.cacheTime && !m.cacheFlush) {
+                // 先去查找一下原来的数据
+                var respn = nn.Memcache.shared.query(m.keyForCache());
+                if (respn) {
+                    if (nn.VERBOSE)
+                        nn.log("成功获取到缓存数据");
+                    // 手动激活一下请求开始
+                    m.__mdl_start();
+                    // 存在可用的缓存，则直接 parse
+                    m.response = respn;
+                    m.processResponse();
+                    // 处理结束
+                    m.__mdl_end();
+                    return;
+                }
+            }
+            // 如果不支持缓存，则为了兼容获取时对数据新旧的判断，设置为强刷
+            m.cacheFlush = true;
+            // 初始化网络
+            m._urlreq = new nn.HttpConnector();
+            if (m.withCredentials)
+                m._urlreq.useCredentials();
+            m._urlreq.signals.connect(nn.SignalDone, m.__mdl_completed, m);
+            m._urlreq.signals.connect(nn.SignalFailed, m.__mdl_failed, m);
+            m.__mdl_start();
+            if (m.iscross()) {
+                _CrossLoader.process(m);
+            }
+            else {
+                var url = m.url();
+                if (url.indexOf('?') == -1)
+                    url += '?';
+                else
+                    url += '&';
+                // _ts_ 时间戳用来防止浏览器缓存API调用
+                url += '_ts_=' + m.ts;
+                // 增加sessionid以解决cookie不稳定导致的问题
+                if (this.SID)
+                    url += '&_sid=' + this.SID;
+                m._urlreq.url = url;
+                m._urlreq.method = m.method;
+                m._urlreq.fields = m.fields();
+                m._urlreq.start();
+            }
+        };
+        /** 批量调用一堆接口，返回和调用的顺序保持一致 */
+        _RestSession.prototype.fetchs = function (ms, cbsuc, cbctx) {
+            var _this = this;
+            var ss = [];
+            var work = function (ms, idx) {
+                if (idx == ms.length) {
+                    cbsuc.call(cbctx, ss);
+                    return;
+                }
+                _this.fetch(ms[idx++], function (s) {
+                    ss.push(s);
+                    // 下一个
+                    work(ms, idx);
+                }, null);
+            };
+            work(ms, 0);
+        };
+        return _RestSession;
+    }(nn.SObject));
+    // 请求API的序列号
+    _RestSession.__sequenceId = 0;
+    nn.RestSession = new _RestSession();
+    /** 基本的通过URL来访问数据的模型对象 */
+    var UrlModel = (function (_super) {
+        __extends(UrlModel, _super);
+        function UrlModel() {
+            return _super.apply(this, arguments) || this;
+        }
+        UrlModel.prototype.url = function () {
+            if (this.useproxy()) {
+                var ret = 'http://gameapi.wyb.u1.hgame.com/web/index.php?r=redirect/redirect';
+                var p = {};
+                p['url'] = this.request;
+                p['method'] = this.method == nn.HttpMethod.POST ? 'post' : 'get';
+                p['uid'] = nn.CApplication.shared.uniqueId;
+                ret += '&data=';
+                ret += nn.URL.encode(JSON.stringify(p));
+                return ret;
+            }
+            return this.request;
+        };
+        UrlModel.prototype.urlForLog = function () {
+            return this.request;
+        };
+        return UrlModel;
+    }(nn.Model));
+    nn.UrlModel = UrlModel;
 })(nn || (nn = {}));
 // 对egret的RES模块进行功能扩展
 var RES;
@@ -20975,174 +21157,6 @@ var nn;
     }(nn.CResManager));
     nn._ResManager = _ResManager;
     nn.ResManager = new _ResManager();
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    var _CrossLoader = (function () {
-        function _CrossLoader() {
-        }
-        _CrossLoader.process = function (m) {
-            _CrossLoader.completeCall["call_" + _CrossLoader._regID] = function (data) {
-                var id = _CrossLoader._regID;
-                m.__mdl_completed(data);
-                delete _CrossLoader.completeCall["call_" + id];
-            };
-            _CrossLoader.start(m, _CrossLoader._regID++);
-        };
-        _CrossLoader.start = function (m, id) {
-            var script = document.createElement('script');
-            m.modelcallback = "nn._CrossLoader.completeCall.call_" + id + "";
-            script.src = m.url();
-            document.body.appendChild(script);
-        };
-        return _CrossLoader;
-    }());
-    _CrossLoader._regID = 0;
-    _CrossLoader.completeCall = {};
-    nn._CrossLoader = _CrossLoader;
-    var _RestSession = (function (_super) {
-        __extends(_RestSession, _super);
-        function _RestSession() {
-            return _super.apply(this, arguments) || this;
-        }
-        _RestSession.prototype._initSignals = function () {
-            _super.prototype._initSignals.call(this);
-            this._signals.register(nn.SignalStart);
-            this._signals.register(nn.SignalSucceed);
-            this._signals.register(nn.SignalFailed);
-            this._signals.register(nn.SignalEnd);
-            this._signals.register(nn.SignalTimeout);
-        };
-        _RestSession.prototype.post = function (m, cb, cbctx) {
-            m.showWaiting = false;
-            m.showError = false;
-            this.fetch(m, cb, cbctx);
-        };
-        /** 获取一个数据
-            @param cb, 成功后的回调
-            @param cbfail, 失败后的回调
-            @param cbend, 结束的回调（不区分成功、失败）
-        */
-        _RestSession.prototype.fetch = function (m, cbsuc, cbctx, cbfail, cbend) {
-            m.ts = nn.DateTime.Now();
-            // 为了防止正在调用 api 时，接受信号的对象析构，保护一下
-            if (cbctx)
-                m.attach(cbctx);
-            if (cbsuc)
-                m.signals.connect(nn.SignalSucceed, cbsuc, cbctx);
-            if (cbfail)
-                m.signals.connect(nn.SignalFailed, cbfail, cbctx);
-            if (cbend)
-                m.signals.connect(nn.SignalEnd, cbend, cbctx);
-            // 判断是否支持缓存
-            if (m.cacheTime && !m.cacheFlush) {
-                // 先去查找一下原来的数据
-                var respn = nn.Memcache.shared.query(m.keyForCache());
-                if (respn) {
-                    if (nn.VERBOSE)
-                        nn.log("成功获取到缓存数据");
-                    // 手动激活一下请求开始
-                    m.__mdl_start();
-                    // 存在可用的缓存，则直接 parse
-                    m.response = respn;
-                    m.processResponse();
-                    // 处理结束
-                    m.__mdl_end();
-                    return;
-                }
-            }
-            // 如果不支持缓存，则为了兼容获取时对数据新旧的判断，设置为强刷
-            m.cacheFlush = true;
-            // 初始化网络
-            m._urlreq = new nn.HttpConnector();
-            if (m.withCredentials)
-                m._urlreq.useCredentials();
-            m._urlreq.signals.connect(nn.SignalDone, m.__mdl_completed, m);
-            m._urlreq.signals.connect(nn.SignalFailed, m.__mdl_failed, m);
-            m.__mdl_start();
-            if (m.iscross()) {
-                _CrossLoader.process(m);
-            }
-            else {
-                var url = m.url();
-                if (url.indexOf('?') == -1)
-                    url += '?';
-                else
-                    url += '&';
-                // _ts_ 时间戳用来防止浏览器缓存API调用
-                url += '_ts_=' + m.ts;
-                // 增加sessionid以解决cookie不稳定导致的问题
-                if (this.SID)
-                    url += '&_sid=' + this.SID;
-                m._urlreq.url = url;
-                m._urlreq.method = m.method;
-                m._urlreq.fields = m.fields();
-                m._urlreq.start();
-            }
-        };
-        /** 批量调用一堆接口，返回和调用的顺序保持一致 */
-        _RestSession.prototype.fetchs = function (ms, cbsuc, cbctx) {
-            var _this = this;
-            var ss = [];
-            var work = function (ms, idx) {
-                if (idx == ms.length) {
-                    cbsuc.call(cbctx, ss);
-                    return;
-                }
-                _this.fetch(ms[idx++], function (s) {
-                    ss.push(s);
-                    // 下一个
-                    work(ms, idx);
-                }, null);
-            };
-            work(ms, 0);
-        };
-        return _RestSession;
-    }(nn.SObject));
-    // 请求API的序列号
-    _RestSession.__sequenceId = 0;
-    nn.RestSession = new _RestSession();
-    /** 基本的通过URL来访问数据的模型对象 */
-    var UrlModel = (function (_super) {
-        __extends(UrlModel, _super);
-        function UrlModel() {
-            return _super.apply(this, arguments) || this;
-        }
-        UrlModel.prototype.url = function () {
-            if (this.useproxy()) {
-                var ret = 'http://gameapi.wyb.u1.hgame.com/web/index.php?r=redirect/redirect';
-                var p = {};
-                p['url'] = this.request;
-                p['method'] = this.method == nn.HttpMethod.POST ? 'post' : 'get';
-                p['uid'] = nn.CApplication.shared.uniqueId;
-                ret += '&data=';
-                ret += nn.URL.encode(JSON.stringify(p));
-                return ret;
-            }
-            return this.request;
-        };
-        UrlModel.prototype.urlForLog = function () {
-            return this.request;
-        };
-        return UrlModel;
-    }(nn.Model));
-    nn.UrlModel = UrlModel;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
-    var _DatasManager = (function (_super) {
-        __extends(_DatasManager, _super);
-        function _DatasManager() {
-            return _super.call(this) || this;
-        }
-        // 读取所有数据，由application自动调用
-        _DatasManager.prototype._load = function () {
-        };
-        return _DatasManager;
-    }(nn.SObject));
-    nn._DatasManager = _DatasManager;
-    nn.DatasManager = new _DatasManager();
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -21837,103 +21851,19 @@ var nn;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
-    nn.FontFilePattern = /\.(ttf|otf|woff)$/i;
-    nn.FontKeyPattern = /(.+)_(?:ttf|otf|woff)$/i;
-    var _FontsManager = (function () {
-        function _FontsManager() {
-            this._fonts = new KvObject();
-            this._dfonts = new KvObject();
+    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
+    var _DatasManager = (function (_super) {
+        __extends(_DatasManager, _super);
+        function _DatasManager() {
+            return _super.call(this) || this;
         }
-        _FontsManager.prototype.add = function (name, url) {
-            this._fonts[name] = url;
-            this._doAddH5Font(name, url);
+        // 读取所有数据，由application自动调用
+        _DatasManager.prototype._load = function () {
         };
-        _FontsManager.prototype._doAddH5Font = function (name, url) {
-            var res = name.match(nn.FontKeyPattern);
-            if (nn.length(res) != 2)
-                return;
-            var family = res[1];
-            // 解析字体信息，插入 CSS3
-            var h = "@font-face { font-family:'" + family + "'; src:url(" + url + '); }';
-            var n = document.createElement('style');
-            n.innerHTML = h;
-            var p = document.getElementsByTagName('head')[0];
-            p.appendChild(n);
-        };
-        // 计算出默认的字体组合
-        _FontsManager.prototype.font = function (name) {
-            var fnd = this._dfonts[name];
-            if (fnd)
-                return fnd;
-            if (name == "黑体") {
-                if (nn.Device.shared.isIOS || nn.Device.shared.isMac) {
-                    fnd = "PingFangSC-Regular";
-                }
-                else if (nn.Device.shared.isWin) {
-                    fnd = "微软雅黑";
-                }
-                else {
-                    fnd = "黑体";
-                }
-            }
-            else if (name == "宋体") {
-                if (nn.Device.shared.isIOS || nn.Device.shared.isMac) {
-                    fnd = "SimSun";
-                }
-                else {
-                    fnd = "宋体";
-                }
-            }
-            else {
-                fnd = name;
-            }
-            this._dfonts[name] = fnd;
-            return fnd;
-        };
-        return _FontsManager;
-    }());
-    nn._FontsManager = _FontsManager;
-    nn.FontsManager = new _FontsManager();
-    var WebUriCheckPattern = /^[\w]+:\/\/.+$/i;
-    // 支持普通字体和bitmapfont字体
-    var FontConfig = (function () {
-        function FontConfig() {
-        }
-        FontConfig.Font = function (family) {
-            var r = new FontConfig();
-            r.family = family;
-            return r;
-        };
-        FontConfig.Bitmap = function () {
-            var p = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                p[_i] = arguments[_i];
-            }
-            var cfg = new FontConfig();
-            if (p.length == 1) {
-                var s = p[0];
-                if (s.indexOf("_fnt") == -1)
-                    cfg.name = s + "_fnt";
-                else
-                    cfg.name = s;
-            }
-            else {
-                var t = p[0];
-                var c = p[1];
-                if (t.search(WebUriCheckPattern) != -1)
-                    cfg.texture = t;
-                else if (t.indexOf("_png") == -1)
-                    cfg.texture = t + "_png";
-                if (c.search(WebUriCheckPattern) != -1)
-                    cfg.config = c;
-                else if (c.indexOf("_fnt") != -1)
-                    cfg.config = t + "_fnt";
-            }
-            return cfg;
-        };
-        return FontConfig;
-    }());
-    nn.FontConfig = FontConfig;
+        return _DatasManager;
+    }(nn.SObject));
+    nn._DatasManager = _DatasManager;
+    nn.DatasManager = new _DatasManager();
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -22276,6 +22206,106 @@ var nn;
     }(nn.SObject));
     nn.SocketSession = new _SocketSession();
 })(nn || (nn = {}));
+var nn;
+(function (nn) {
+    nn.FontFilePattern = /\.(ttf|otf|woff)$/i;
+    nn.FontKeyPattern = /(.+)_(?:ttf|otf|woff)$/i;
+    var _FontsManager = (function () {
+        function _FontsManager() {
+            this._fonts = new KvObject();
+            this._dfonts = new KvObject();
+        }
+        _FontsManager.prototype.add = function (name, url) {
+            this._fonts[name] = url;
+            this._doAddH5Font(name, url);
+        };
+        _FontsManager.prototype._doAddH5Font = function (name, url) {
+            var res = name.match(nn.FontKeyPattern);
+            if (nn.length(res) != 2)
+                return;
+            var family = res[1];
+            // 解析字体信息，插入 CSS3
+            var h = "@font-face { font-family:'" + family + "'; src:url(" + url + '); }';
+            var n = document.createElement('style');
+            n.innerHTML = h;
+            var p = document.getElementsByTagName('head')[0];
+            p.appendChild(n);
+        };
+        // 计算出默认的字体组合
+        _FontsManager.prototype.font = function (name) {
+            var fnd = this._dfonts[name];
+            if (fnd)
+                return fnd;
+            if (name == "黑体") {
+                if (nn.Device.shared.isIOS || nn.Device.shared.isMac) {
+                    fnd = "PingFangSC-Regular";
+                }
+                else if (nn.Device.shared.isWin) {
+                    fnd = "微软雅黑";
+                }
+                else {
+                    fnd = "黑体";
+                }
+            }
+            else if (name == "宋体") {
+                if (nn.Device.shared.isIOS || nn.Device.shared.isMac) {
+                    fnd = "SimSun";
+                }
+                else {
+                    fnd = "宋体";
+                }
+            }
+            else {
+                fnd = name;
+            }
+            this._dfonts[name] = fnd;
+            return fnd;
+        };
+        return _FontsManager;
+    }());
+    nn._FontsManager = _FontsManager;
+    nn.FontsManager = new _FontsManager();
+    var WebUriCheckPattern = /^[\w]+:\/\/.+$/i;
+    // 支持普通字体和bitmapfont字体
+    var FontConfig = (function () {
+        function FontConfig() {
+        }
+        FontConfig.Font = function (family) {
+            var r = new FontConfig();
+            r.family = family;
+            return r;
+        };
+        FontConfig.Bitmap = function () {
+            var p = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                p[_i] = arguments[_i];
+            }
+            var cfg = new FontConfig();
+            if (p.length == 1) {
+                var s = p[0];
+                if (s.indexOf("_fnt") == -1)
+                    cfg.name = s + "_fnt";
+                else
+                    cfg.name = s;
+            }
+            else {
+                var t = p[0];
+                var c = p[1];
+                if (t.search(WebUriCheckPattern) != -1)
+                    cfg.texture = t;
+                else if (t.indexOf("_png") == -1)
+                    cfg.texture = t + "_png";
+                if (c.search(WebUriCheckPattern) != -1)
+                    cfg.config = c;
+                else if (c.indexOf("_fnt") != -1)
+                    cfg.config = t + "_fnt";
+            }
+            return cfg;
+        };
+        return FontConfig;
+    }());
+    nn.FontConfig = FontConfig;
+})(nn || (nn = {}));
 // 开发专用的服务
 var nn;
 (function (nn) {
@@ -22406,6 +22436,75 @@ var nn;
         }(nn.SObject));
         developer.Image = Image;
     })(developer = nn.developer || (nn.developer = {}));
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    var TiledMap = (function (_super) {
+        __extends(TiledMap, _super);
+        function TiledMap() {
+            return _super.call(this) || this;
+        }
+        TiledMap.prototype.dispose = function () {
+            if (this._map) {
+                this._map.destory();
+                this._map = undefined;
+            }
+            this._data = undefined;
+            _super.prototype.dispose.call(this);
+        };
+        Object.defineProperty(TiledMap.prototype, "tiledSource", {
+            get: function () {
+                return this._tiledSource;
+            },
+            set: function (ts) {
+                if (this._tiledSource == ts)
+                    return;
+                // 移除旧的
+                if (this._map) {
+                    this._imp.removeChild(this._map);
+                    this._map.destory();
+                    this._map = undefined;
+                    this._data = undefined;
+                }
+                this._tiledSource = ts;
+                if (ts) {
+                    var d = RES.getRes(ts);
+                    if (typeof (d) != 'string') {
+                        nn.warn('TiledMap 的资源文件类型错误: ' + ts + ' 的类型应该为 text，清通过ResDepo工具修改');
+                        return;
+                    }
+                    this._data = egret.XML.parse(d);
+                    this._url = nn.ResManager.getResUrl(ts);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TiledMap.prototype.updateLayout = function () {
+            _super.prototype.updateLayout.call(this);
+            if (this._data == null)
+                return;
+            var rc = this.boundsForLayout();
+            // 判断是否要重新生成一下
+            if (this._map) {
+                if (this._map.renderwidth * nn.ScaleFactorDeW != rc.width ||
+                    this._map.renderheight * nn.ScaleFactorDeH != rc.height) {
+                    this._imp.removeChild(this._map);
+                    this._map.destory();
+                    this._map = undefined;
+                }
+            }
+            // 生成一个新的map
+            if (this._map == null) {
+                this._map = new tiled.TMXTilemap(rc.width, rc.height, this._data, this._url);
+                this._map.render();
+                this._imp.addChild(this._map);
+            }
+            this.impSetFrame(rc, this._map);
+        };
+        return TiledMap;
+    }(nn.Sprite));
+    nn.TiledMap = TiledMap;
 })(nn || (nn = {}));
 // Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>
 // This work is free. You can redistribute it and/or modify it
@@ -23231,97 +23330,6 @@ var nn;
     }());
     LzmaArchiver.Unavaliable = typeof (LZMA) == 'undefined';
     nn.LzmaArchiver = LzmaArchiver;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    var TiledMap = (function (_super) {
-        __extends(TiledMap, _super);
-        function TiledMap() {
-            return _super.call(this) || this;
-        }
-        TiledMap.prototype.dispose = function () {
-            if (this._map) {
-                this._map.destory();
-                this._map = undefined;
-            }
-            this._data = undefined;
-            _super.prototype.dispose.call(this);
-        };
-        Object.defineProperty(TiledMap.prototype, "tiledSource", {
-            get: function () {
-                return this._tiledSource;
-            },
-            set: function (ts) {
-                if (this._tiledSource == ts)
-                    return;
-                // 移除旧的
-                if (this._map) {
-                    this._imp.removeChild(this._map);
-                    this._map.destory();
-                    this._map = undefined;
-                    this._data = undefined;
-                }
-                this._tiledSource = ts;
-                if (ts) {
-                    var d = RES.getRes(ts);
-                    if (typeof (d) != 'string') {
-                        nn.warn('TiledMap 的资源文件类型错误: ' + ts + ' 的类型应该为 text，清通过ResDepo工具修改');
-                        return;
-                    }
-                    this._data = egret.XML.parse(d);
-                    this._url = nn.ResManager.getResUrl(ts);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TiledMap.prototype.updateLayout = function () {
-            _super.prototype.updateLayout.call(this);
-            if (this._data == null)
-                return;
-            var rc = this.boundsForLayout();
-            // 判断是否要重新生成一下
-            if (this._map) {
-                if (this._map.renderwidth * nn.ScaleFactorDeW != rc.width ||
-                    this._map.renderheight * nn.ScaleFactorDeH != rc.height) {
-                    this._imp.removeChild(this._map);
-                    this._map.destory();
-                    this._map = undefined;
-                }
-            }
-            // 生成一个新的map
-            if (this._map == null) {
-                this._map = new tiled.TMXTilemap(rc.width, rc.height, this._data, this._url);
-                this._map.render();
-                this._imp.addChild(this._map);
-            }
-            this.impSetFrame(rc, this._map);
-        };
-        return TiledMap;
-    }(nn.Sprite));
-    nn.TiledMap = TiledMap;
-})(nn || (nn = {}));
-var nn;
-(function (nn) {
-    var CoreApplication = (function (_super) {
-        __extends(CoreApplication, _super);
-        function CoreApplication() {
-            return _super.call(this) || this;
-        }
-        Object.defineProperty(CoreApplication.prototype, "root", {
-            get: function () {
-                return this._gameLayer.root;
-            },
-            /** 设置根页面 */
-            set: function (sp) {
-                this._gameLayer.root = sp;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return CoreApplication;
-    }(nn.EgretApp));
-    nn.CoreApplication = CoreApplication;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
