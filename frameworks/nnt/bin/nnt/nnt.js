@@ -11619,11 +11619,8 @@ var nn;
             egret.runEgret({ renderMode: "webgl" });
         else
             egret.runEgret();
-        // 如过是webgl模式，根据egret官方文档因为dirtyRegion已经起不到多大作用，所以关闭
-        if (egret.Capabilities.renderMode == "webgl") {
-            egret.MainContext.instance.stage.dirtyRegionPolicy = egret.DirtyRegionPolicy.OFF;
+        if (egret.Capabilities.renderMode == "webgl")
             nn.Device.shared.isCanvas = false;
-        }
     };
     // 启动原生程序
     nn.loader.nativestart = function () {

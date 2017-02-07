@@ -21,6 +21,9 @@
 			"name": "egret"
 		},
 		{
+			"name": "egret3d"
+		},
+		{
 			"name": "game"
 		},
 		{
