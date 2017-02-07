@@ -68,6 +68,10 @@ extends nn.CoreApplication
     static BestFrame():nn.Rect {
         return new nn.Rect(0, 0, 720, 1280);
     }
+
+    static UseWebGl():boolean {
+        return true;
+    }
     
     static ScreenScale():number {
         return 1;

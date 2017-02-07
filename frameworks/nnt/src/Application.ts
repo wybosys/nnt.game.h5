@@ -341,6 +341,11 @@ module nn {
             return null;
         }
 
+        /** 是否使用webgl */
+        static UseWebGl():boolean {
+            return false;
+        }
+
         /** 应用的主方向 */
         static Orientation():number {
             if (typeof(document_orientation) == 'undefined')

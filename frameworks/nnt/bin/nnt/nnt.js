@@ -9459,6 +9459,10 @@ var nn;
         CApplication.BestFrame = function () {
             return null;
         };
+        /** 是否使用webgl */
+        CApplication.UseWebGl = function () {
+            return false;
+        };
         /** 应用的主方向 */
         CApplication.Orientation = function () {
             if (typeof (document_orientation) == 'undefined')
@@ -11603,7 +11607,7 @@ var nn;
         // 初始化舞台
         _AppStage.Init();
         // 约定是否使用webgl
-        var glmode = false;
+        var glmode = CLAZZ_MAIN.UseWebGl();
         if (location.href.indexOf('nowebgl=1') != -1)
             glmode = false;
         else if (location.href.indexOf('webgl=1') != -1)

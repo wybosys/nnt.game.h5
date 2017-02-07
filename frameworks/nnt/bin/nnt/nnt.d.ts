@@ -2424,6 +2424,8 @@ declare module nn {
         uniqueKey(key: string): string;
         /** 期望的尺寸，返回 null，则代表使用当前屏幕的尺寸 */
         static BestFrame(): Rect;
+        /** 是否使用webgl */
+        static UseWebGl(): boolean;
         /** 应用的主方向 */
         static Orientation(): number;
         /** 是否使用屏幕尺寸
