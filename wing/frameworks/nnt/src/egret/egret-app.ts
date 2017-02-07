@@ -345,13 +345,9 @@ module nn {
         if (glmode) 
             egret.runEgret({renderMode:"webgl"});
         else
-            egret.runEgret();
-        
-        // 如过是webgl模式，根据egret官方文档因为dirtyRegion已经起不到多大作用，所以关闭
-        if (egret.Capabilities.renderMode == "webgl") {
-            egret.MainContext.instance.stage.dirtyRegionPolicy = egret.DirtyRegionPolicy.OFF;
+            egret.runEgret();        
+        if (egret.Capabilities.renderMode == "webgl")
             Device.shared.isCanvas = false;
-        }
     };
     
     // 启动原生程序
