@@ -37,10 +37,6 @@
 		{
 			"name": "promise",
 			"path": "frameworks/promise"
-		},
-		{
-			"name": "nnt",
-			"path": "frameworks/nnt"
 		}
 	]
 }
