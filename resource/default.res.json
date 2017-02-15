@@ -25,7 +25,7 @@
 			"name":"scene"
 		},
 		{
-			"keys":"king,victory",
+			"keys":"king,victory_mp3",
 			"name":"sound"
 		},
 		{
@@ -284,7 +284,7 @@
 			"url":"assets/sound/king.mp3"
 		},
 		{
-			"name":"victory",
+			"name":"victory_mp3",
 			"type":"sound",
 			"url":"assets/sound/victory.mp3"
 		},
