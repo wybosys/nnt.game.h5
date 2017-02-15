@@ -24,9 +24,9 @@ extends nn.Sprite
 
     onAppeared() {
         super.onAppeared();
-        nn.SoundManager.effect.player("victory_mp3").play();
+        nn.SoundManager.background.player("assets://sound/king.mp3").play();
     }
-
+    
     _btnPlay = new TButton();
     _btnPause = new TButton();
     _btnResume = new TButton();
