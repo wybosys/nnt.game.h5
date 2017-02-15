@@ -1,2 +1,1 @@
-# nnt.h5g
-::nnt::html5::game
+#H5Game@NnToolkit
