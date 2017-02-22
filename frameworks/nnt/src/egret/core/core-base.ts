@@ -833,8 +833,7 @@ module nn {
         private __dsp_tap(e:egret.TouchEvent) {
             let t = this.touch;
             t._event = e;
-            if (this._signals)
-                this._signals.emit(SignalClicked, t);
+            this._signals.emit(SignalClicked, t);
             // 防止之后的被点击
             e.stopPropagation();
         }
