@@ -11,6 +11,7 @@ module app {
     interface IMainScene
     {
         //slot {
+        _actTouchMoved(s?:nn.Slot);
         _actEnter(s?:nn.Slot);
         _actOpenLink(s?:nn.Slot);
         //slot }
@@ -32,6 +33,7 @@ module app {
         lblHtml:eui.HtmlLabelU;
         list0:eui.ListU;
         list1:eui.ListU;
+        sp_touch:eui.GroupU;
         tabbar0:eui.TabBarU;
         //skin }
 
@@ -114,7 +116,10 @@ module app {
                 return item.TestButton;
             return item.TestButton1;
         }
+
+        _actTouchMoved(s?:nn.Slot) {
+            nn.info(s.data.currentPosition);
+        }
             
     }
-    
 }
