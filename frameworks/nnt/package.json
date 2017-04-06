@@ -26,6 +26,7 @@
                 "./egret/core/impl/core-bitmaplabel.ts", 
                 "./egret/core/impl/core-bone.ts", 
                 "./egret/core/impl/core-clip.ts", 
+                "./egret/core/impl/core-graphics.ts", 
                 "./egret/core/impl/core-label.ts", 
                 "./egret/core/impl/core-particle.ts", 
                 "./egret/core/impl/core-scroll.ts", 

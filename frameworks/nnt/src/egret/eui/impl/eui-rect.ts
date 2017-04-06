@@ -3,6 +3,13 @@ module eui {
     export class RectU
     extends eui.Rect
     {
+        private _gra:nn.CGraphics;
+        get painter():nn.CGraphics {
+            if (this._gra == null)
+                this._gra = new nn.Graphics(this.graphics);
+            return this._gra;
+        }
+        
         onPartBinded(name:string, target:any) {
             _EUIExt.onPartBinded(this, name, target);
         }

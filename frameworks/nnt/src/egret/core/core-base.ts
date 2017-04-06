@@ -160,6 +160,13 @@ module nn {
             this._imp = new egret.Sprite();
         }
 
+        private _gra:CGraphics;
+        get painter():CGraphics {
+            if (this._gra == null)
+                this._gra = new Graphics(this._imp.graphics);
+            return this._gra;
+        }
+
         protected validate():boolean {
             let imp = this._imp;
             return imp != null

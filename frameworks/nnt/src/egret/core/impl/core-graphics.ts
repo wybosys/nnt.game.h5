@@ -8,10 +8,10 @@ module nn {
             this._gra = gra;
         }
 
-        private _gra:egret.Grahpics;
+        private _gra:egret.Graphics;
 
         clear():void {
-            _gra.clear();
+            this._gra.clear();
         }
     }
     
