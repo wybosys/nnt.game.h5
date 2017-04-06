@@ -5,6 +5,17 @@ module nn {
     {        
     }
 
+    Pen.setIn = (context:egret.Graphics, pen:Pen)=>{
+        context.lineStyle(pen.width, pen.color.rgb, pen.color.alphaf);
+    };
+
+    Brush.setIn = (context:egret.Graphics, br:Brush, old:Brush)=>{
+        if (old)
+            context.endFill();
+        if (br)
+            context.beginFill(br.color.rgb, br.color.alphaf);
+    };
+
     GLine.renderIn = (context:egret.Graphics, cmd:GLine)=>{
         context.moveTo(cmd.start.x, cmd.start.y);
         context.lineTo(cmd.end.x, cmd.end.y);
