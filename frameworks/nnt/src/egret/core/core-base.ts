@@ -160,11 +160,10 @@ module nn {
             this._imp = new egret.Sprite();
         }
 
-        private _gra:CGraphics;
-        get painter():CGraphics {
-            if (this._gra == null)
-                this._gra = new Graphics(this._imp.graphics);
-            return this._gra;
+        paint(gra:CGraphics) {
+            let g = this._imp.graphics;
+            g.clear();
+            gra.renderIn(g);
         }
 
         protected validate():boolean {

@@ -1967,8 +1967,7 @@ declare module nn {
         _signalConnected(sig: string, s?: Slot): void;
         dispose(): void;
         protected instance(): void;
-        private _gra;
-        readonly painter: CGraphics;
+        paint(gra: CGraphics): void;
         protected validate(): boolean;
         protected hitTestChild(x: number, y: number): egret.DisplayObject;
         protected hitTestClient(stageX: number, stageY: number): egret.DisplayObject;
@@ -3284,11 +3283,66 @@ declare module eui {
 }
 declare module nn {
     class Pen {
+        color: Color;
+        width: number;
+        clone(): this;
+        static setIn: (context: any, pen: Pen) => void;
     }
     class Brush {
+        color: Color;
+        clone(): this;
+        static setIn: (context: any, brush: Brush, pre: Brush) => void;
+    }
+    class GCommand {
+        pen: Pen;
+        brush: Brush;
+        static renderIn: (context: any, cmd: GCommand) => void;
+    }
+    class GLine extends GCommand {
+        start: Point;
+        end: Point;
+    }
+    class GBezier extends GCommand {
+        controlA: Point;
+        controlB: Point;
+        anchor: Point;
+    }
+    class GCurve extends GCommand {
+        control: Point;
+        anchor: Point;
+    }
+    class GArc extends GCommand {
+        center: Point;
+        radius: number;
+        start: Angle;
+        end: Angle;
+        sweep: Angle;
+        ccw: boolean;
+    }
+    class GCircle extends GCommand {
+        center: Point;
+        radius: number;
+    }
+    class GEllipse extends GCommand {
+        center: Point;
+        width: number;
+        height: number;
+    }
+    class GRect extends GCommand {
+        rect: Rect;
+        round: number;
+        ellipseWidth: number;
+        ellipseHeight: number;
     }
     abstract class CGraphics {
-        abstract clear(): void;
+        pushState(): void;
+        popState(): void;
+        draw(c: GCommand): void;
+        pen: Pen;
+        brush: Brush;
+        private _states;
+        protected _commands: GCommand[];
+        renderIn(context: any): void;
     }
 }
 declare module nn {
@@ -4722,8 +4776,7 @@ declare module eui {
 }
 declare module eui {
     class RectU extends eui.Rect {
-        private _gra;
-        readonly painter: nn.CGraphics;
+        paint(gra: nn.CGraphics): void;
         onPartBinded(name: string, target: any): void;
         onAppeared(): void;
         onDisappeared(): void;
@@ -5242,9 +5295,6 @@ declare module nn {
 }
 declare module nn {
     class Graphics extends CGraphics {
-        constructor(gra: egret.Graphics);
-        private _gra;
-        clear(): void;
     }
 }
 declare module nn {

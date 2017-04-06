@@ -7084,15 +7084,11 @@ var nn;
         Component.prototype.instance = function () {
             this._imp = new egret.Sprite();
         };
-        Object.defineProperty(Component.prototype, "painter", {
-            get: function () {
-                if (this._gra == null)
-                    this._gra = new nn.Graphics(this._imp.graphics);
-                return this._gra;
-            },
-            enumerable: true,
-            configurable: true
-        });
+        Component.prototype.paint = function (gra) {
+            var g = this._imp.graphics;
+            g.clear();
+            gra.renderIn(g);
+        };
         Component.prototype.validate = function () {
             var imp = this._imp;
             return imp != null
@@ -12987,19 +12983,133 @@ var nn;
     var Pen = (function () {
         function Pen() {
         }
+        Pen.prototype.clone = function () {
+            var r = nn.InstanceNewObject(this);
+            r.color = this.color;
+            r.width = this.width;
+            return r;
+        };
         return Pen;
     }());
     nn.Pen = Pen;
     var Brush = (function () {
         function Brush() {
         }
+        Brush.prototype.clone = function () {
+            var r = nn.InstanceNewObject(this);
+            r.color = this.color;
+            return r;
+        };
         return Brush;
     }());
     nn.Brush = Brush;
-    // 先采用直绘模式，以后有需求再修改成命令组的模式
+    var _GState = (function () {
+        function _GState() {
+        }
+        return _GState;
+    }());
+    var GCommand = (function () {
+        function GCommand() {
+        }
+        return GCommand;
+    }());
+    nn.GCommand = GCommand;
+    var GLine = (function (_super) {
+        __extends(GLine, _super);
+        function GLine() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return GLine;
+    }(GCommand));
+    nn.GLine = GLine;
+    var GBezier = (function (_super) {
+        __extends(GBezier, _super);
+        function GBezier() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return GBezier;
+    }(GCommand));
+    nn.GBezier = GBezier;
+    var GCurve = (function (_super) {
+        __extends(GCurve, _super);
+        function GCurve() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return GCurve;
+    }(GCommand));
+    nn.GCurve = GCurve;
+    var GArc = (function (_super) {
+        __extends(GArc, _super);
+        function GArc() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return GArc;
+    }(GCommand));
+    nn.GArc = GArc;
+    var GCircle = (function (_super) {
+        __extends(GCircle, _super);
+        function GCircle() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return GCircle;
+    }(GCommand));
+    nn.GCircle = GCircle;
+    var GEllipse = (function (_super) {
+        __extends(GEllipse, _super);
+        function GEllipse() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return GEllipse;
+    }(GCommand));
+    nn.GEllipse = GEllipse;
+    var GRect = (function (_super) {
+        __extends(GRect, _super);
+        function GRect() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return GRect;
+    }(GCommand));
+    nn.GRect = GRect;
     var CGraphics = (function () {
         function CGraphics() {
+            this._states = new Array();
+            this._commands = new Array();
         }
+        CGraphics.prototype.pushState = function () {
+            var s = new _GState();
+            s.pen = this.pen.clone();
+            s.brush = this.brush.clone();
+            this._states.push(s);
+        };
+        CGraphics.prototype.popState = function () {
+            var s = nn.ArrayT.RemoveObjectAtIndex(this._states, this._states.length - 1);
+            this.pen = s ? s.pen : null;
+            this.brush = s ? s.brush : null;
+        };
+        CGraphics.prototype.draw = function (c) {
+            if (c.pen)
+                c.pen = this.pen;
+            if (c.brush)
+                c.brush = this.brush;
+            this._commands.push(c);
+        };
+        CGraphics.prototype.renderIn = function (context) {
+            var p;
+            var b;
+            this._commands.forEach(function (c) {
+                if (p != c.pen) {
+                    Pen.setIn(context, c.pen);
+                    p = c.pen;
+                }
+                if (b != c.brush) {
+                    Brush.setIn(context, c.brush, b);
+                    b = c.brush;
+                }
+                nn.ObjectClass(c).renderIn(context, c);
+            });
+            if (b != null)
+                Brush.setIn(context, null, b);
+        };
         return CGraphics;
     }());
     nn.CGraphics = CGraphics;
@@ -18214,15 +18324,11 @@ var eui;
         function RectU() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        Object.defineProperty(RectU.prototype, "painter", {
-            get: function () {
-                if (this._gra == null)
-                    this._gra = new nn.Graphics(this.graphics);
-                return this._gra;
-            },
-            enumerable: true,
-            configurable: true
-        });
+        RectU.prototype.paint = function (gra) {
+            var g = this.graphics;
+            g.clear();
+            gra.renderIn(g);
+        };
         RectU.prototype.onPartBinded = function (name, target) {
             eui._EUIExt.onPartBinded(this, name, target);
         };
@@ -21145,17 +21251,43 @@ var nn;
 (function (nn) {
     var Graphics = (function (_super) {
         __extends(Graphics, _super);
-        function Graphics(gra) {
-            var _this = _super.call(this) || this;
-            _this._gra = gra;
-            return _this;
+        function Graphics() {
+            return _super !== null && _super.apply(this, arguments) || this;
         }
-        Graphics.prototype.clear = function () {
-            this._gra.clear();
-        };
         return Graphics;
     }(nn.CGraphics));
     nn.Graphics = Graphics;
+    nn.GLine.renderIn = function (context, cmd) {
+        context.moveTo(cmd.start.x, cmd.start.y);
+        context.lineTo(cmd.end.x, cmd.end.y);
+    };
+    nn.GBezier.renderIn = function (context, cmd) {
+        context.cubicCurveTo(cmd.controlA.x, cmd.controlA.y, cmd.controlB.x, cmd.controlB.y, cmd.anchor.x, cmd.anchor.y);
+    };
+    nn.GCurve.renderIn = function (context, cmd) {
+        context.curveTo(cmd.control.x, cmd.control.y, cmd.anchor.x, cmd.anchor.y);
+    };
+    nn.GArc.renderIn = function (context, cmd) {
+        var enda = cmd.end ? cmd.end.angle : (cmd.start.angle + cmd.sweep.angle);
+        context.drawArc(cmd.center.x, cmd.center.y, cmd.radius, cmd.start.angle, enda, cmd.ccw);
+    };
+    nn.GCircle.renderIn = function (context, cmd) {
+        context.drawCircle(cmd.center.x, cmd.center.y, cmd.radius);
+    };
+    nn.GEllipse.renderIn = function (context, cmd) {
+        context.drawEllipse(cmd.center.x, cmd.center.y, cmd.width, cmd.height);
+    };
+    nn.GRect.renderIn = function (context, cmd) {
+        if (cmd.round || cmd.ellipseWidth || cmd.ellipseHeight) {
+            var w = cmd.ellipseWidth, h = cmd.ellipseHeight;
+            if (cmd.round)
+                w = h = cmd.round;
+            context.drawRoundRect(cmd.rect.x, cmd.rect.y, cmd.rect.width, cmd.rect.height, w, h);
+        }
+        else {
+            context.drawRect(cmd.rect.x, cmd.rect.y, cmd.rect.width, cmd.rect.height);
+        }
+    };
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
