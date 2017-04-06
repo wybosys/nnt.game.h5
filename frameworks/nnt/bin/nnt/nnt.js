@@ -12981,7 +12981,10 @@ var eui;
 var nn;
 (function (nn) {
     var Pen = (function () {
-        function Pen() {
+        function Pen(c, width) {
+            if (width === void 0) { width = 1; }
+            this.color = c;
+            this.width = width;
         }
         Pen.prototype.clone = function () {
             var r = nn.InstanceNewObject(this);
@@ -12993,7 +12996,8 @@ var nn;
     }());
     nn.Pen = Pen;
     var Brush = (function () {
-        function Brush() {
+        function Brush(c) {
+            this.color = c;
         }
         Brush.prototype.clone = function () {
             var r = nn.InstanceNewObject(this);
@@ -13087,9 +13091,9 @@ var nn;
             this.brush = s ? s.brush : null;
         };
         CGraphics.prototype.draw = function (c) {
-            if (c.pen)
+            if (!c.pen)
                 c.pen = this.pen;
-            if (c.brush)
+            if (!c.brush)
                 c.brush = this.brush;
             this._commands.push(c);
         };
@@ -21257,6 +21261,15 @@ var nn;
         return Graphics;
     }(nn.CGraphics));
     nn.Graphics = Graphics;
+    nn.Pen.setIn = function (context, pen) {
+        context.lineStyle(pen.width, pen.color.rgb, pen.color.alphaf);
+    };
+    nn.Brush.setIn = function (context, br, old) {
+        if (old)
+            context.endFill();
+        if (br)
+            context.beginFill(br.color.rgb, br.color.alphaf);
+    };
     nn.GLine.renderIn = function (context, cmd) {
         context.moveTo(cmd.start.x, cmd.start.y);
         context.lineTo(cmd.end.x, cmd.end.y);

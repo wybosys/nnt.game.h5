@@ -3283,12 +3283,14 @@ declare module eui {
 }
 declare module nn {
     class Pen {
+        constructor(c: Color, width?: number);
         color: Color;
         width: number;
         clone(): this;
         static setIn: (context: any, pen: Pen) => void;
     }
     class Brush {
+        constructor(c: Color);
         color: Color;
         clone(): this;
         static setIn: (context: any, brush: Brush, pre: Brush) => void;

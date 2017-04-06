@@ -1,6 +1,12 @@
 module nn {
 
     export class Pen {
+        
+        constructor(c:Color, width = 1) {
+            this.color = c;
+            this.width = width;
+        }
+        
         color:Color;
         width:number;
 
@@ -15,6 +21,11 @@ module nn {
     }
 
     export class Brush {
+        
+        constructor(c:Color) {
+            this.color = c;
+        }
+        
         color:Color;
 
         clone():this {
@@ -96,9 +107,9 @@ module nn {
         }
         
         draw(c:GCommand) {
-            if (c.pen)
+            if (!c.pen)
                 c.pen = this.pen;
-            if (c.brush)
+            if (!c.brush)
                 c.brush = this.brush;
             this._commands.push(c);
         }
