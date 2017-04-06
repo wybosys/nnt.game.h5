@@ -82,6 +82,7 @@
                 "./gui/dom.ts", 
                 "./gui/font.ts", 
                 "./gui/frame-manager.ts", 
+                "./gui/graphics.ts", 
                 "./gui/impl/button.ts", 
                 "./gui/impl/desktop.ts", 
                 "./gui/impl/dialog.ts", 

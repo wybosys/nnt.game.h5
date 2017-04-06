@@ -5413,7 +5413,7 @@ var nn;
     var CHttpConnector = (function (_super) {
         __extends(CHttpConnector, _super);
         function CHttpConnector() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             /** 请求方式 */
             _this.method = HttpMethod.GET;
             return _this;
@@ -5454,7 +5454,7 @@ var nn;
     var CSocketConnector = (function (_super) {
         __extends(CSocketConnector, _super);
         function CSocketConnector() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         CSocketConnector.prototype._initSignals = function () {
             _super.prototype._initSignals.call(this);
@@ -6284,7 +6284,7 @@ var nn;
     var SourceVariable = (function (_super) {
         __extends(SourceVariable, _super);
         function SourceVariable() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         SourceVariable.prototype.dispose = function () {
             _super.prototype.dispose.call(this);
@@ -6918,7 +6918,7 @@ var nn;
     var Touch = (function (_super) {
         __extends(Touch, _super);
         function Touch() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Object.defineProperty(Touch.prototype, "target", {
             get: function () {
@@ -7770,8 +7770,7 @@ var nn;
         Component.prototype.__dsp_tap = function (e) {
             var t = this.touch;
             t._event = e;
-            if (this._signals)
-                this._signals.emit(nn.SignalClicked, t);
+            this._signals.emit(nn.SignalClicked, t);
             // 防止之后的被点击
             e.stopPropagation();
         };
@@ -8390,7 +8389,7 @@ var nn;
     var Tween = (function (_super) {
         __extends(Tween, _super);
         function Tween() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Tween.Get = function (c, props) {
             return egret.Tween.get(c.handle(), props);
@@ -10696,7 +10695,7 @@ var nn;
     var CBitmapLabel = (function (_super) {
         __extends(CBitmapLabel, _super);
         function CBitmapLabel() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         return CBitmapLabel;
     }(nn.Widget));
@@ -10707,7 +10706,7 @@ var nn;
     var _GameLayer = (function (_super) {
         __extends(_GameLayer, _super);
         function _GameLayer() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Object.defineProperty(_GameLayer.prototype, "root", {
             get: function () {
@@ -10725,7 +10724,7 @@ var nn;
     var _DesktopLayer = (function (_super) {
         __extends(_DesktopLayer, _super);
         function _DesktopLayer() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         return _DesktopLayer;
     }(nn.Sprite));
@@ -11194,7 +11193,7 @@ var nn;
     var Manager = (function (_super) {
         __extends(Manager, _super);
         function Manager() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
         Manager.prototype.onDataLoaded = function () {
@@ -11205,7 +11204,7 @@ var nn;
     var Managers = (function (_super) {
         __extends(Managers, _super);
         function Managers() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._managers = new Array();
             return _this;
         }
@@ -11403,7 +11402,7 @@ var nn;
     var _CloakMain = (function (_super) {
         __extends(_CloakMain, _super);
         function _CloakMain() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         return _CloakMain;
     }(nn.CApplication));
@@ -11411,7 +11410,7 @@ var nn;
     var _InstrumentObject = (function (_super) {
         __extends(_InstrumentObject, _super);
         function _InstrumentObject() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.totalTime = 0;
             _this.lastTime = 0;
             _this.totalTick = 0;
@@ -11441,7 +11440,7 @@ var nn;
     var _Player = (function (_super) {
         __extends(_Player, _super);
         function _Player() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         _Player.prototype.start = function () {
             _super.prototype.start.call(this);
@@ -11647,7 +11646,7 @@ var nn;
     var ExtScreenAdapter = (function (_super) {
         __extends(ExtScreenAdapter, _super);
         function ExtScreenAdapter() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         ExtScreenAdapter.prototype.calculateStageSize = function (scaleMode, screenWidth, screenHeight, contentWidth, contentHeight) {
             // 如果是标准PC浏览器，使用设计尺寸直接计算
@@ -12596,7 +12595,7 @@ var eui;
     var SpriteU = (function (_super) {
         __extends(SpriteU, _super);
         function SpriteU() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         return SpriteU;
     }(eeui.ComponentU));
@@ -12629,7 +12628,7 @@ var nn;
     var DisabledAutolayoutSprite = (function (_super) {
         __extends(DisabledAutolayoutSprite, _super);
         function DisabledAutolayoutSprite() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         DisabledAutolayoutSprite.prototype.setNeedsLayout = function () { };
         return DisabledAutolayoutSprite;
@@ -12637,7 +12636,7 @@ var nn;
     var DisabledAutolayoutBitmap = (function (_super) {
         __extends(DisabledAutolayoutBitmap, _super);
         function DisabledAutolayoutBitmap() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         DisabledAutolayoutBitmap.prototype.setNeedsLayout = function () { };
         return DisabledAutolayoutBitmap;
@@ -14281,7 +14280,7 @@ var nn;
         var PayContent = (function (_super) {
             __extends(PayContent, _super);
             function PayContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'pay';
                 return _this;
             }
@@ -14292,7 +14291,7 @@ var nn;
         var ShareContent = (function (_super) {
             __extends(ShareContent, _super);
             function ShareContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 /** 分享出去的链接 */
                 _this.url = '';
                 /** 分享出去的图片 */
@@ -14311,7 +14310,7 @@ var nn;
         var LoginContent = (function (_super) {
             __extends(LoginContent, _super);
             function LoginContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'login';
                 return _this;
             }
@@ -14322,7 +14321,7 @@ var nn;
         var ProfileContent = (function (_super) {
             __extends(ProfileContent, _super);
             function ProfileContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'profile';
                 return _this;
             }
@@ -14333,7 +14332,7 @@ var nn;
         var StatusContent = (function (_super) {
             __extends(StatusContent, _super);
             function StatusContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'status';
                 return _this;
             }
@@ -14350,7 +14349,7 @@ var nn;
         var LogoutContent = (function (_super) {
             __extends(LogoutContent, _super);
             function LogoutContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'logout';
                 return _this;
             }
@@ -14361,7 +14360,7 @@ var nn;
         var SwitchUserContent = (function (_super) {
             __extends(SwitchUserContent, _super);
             function SwitchUserContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'switchuser';
                 return _this;
             }
@@ -14385,7 +14384,7 @@ var nn;
         var AuthContent = (function (_super) {
             __extends(AuthContent, _super);
             function AuthContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 /** 游戏在渠道的标志 */
                 _this.app = '';
                 /** 授权的id */
@@ -14423,7 +14422,7 @@ var nn;
         var ReportContent = (function (_super) {
             __extends(ReportContent, _super);
             function ReportContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'report';
                 return _this;
             }
@@ -14434,7 +14433,7 @@ var nn;
         var BindContent = (function (_super) {
             __extends(BindContent, _super);
             function BindContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'bind';
                 return _this;
             }
@@ -14445,7 +14444,7 @@ var nn;
         var BBSContent = (function (_super) {
             __extends(BBSContent, _super);
             function BBSContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'bbs';
                 return _this;
             }
@@ -14456,7 +14455,7 @@ var nn;
         var SubscribeContent = (function (_super) {
             __extends(SubscribeContent, _super);
             function SubscribeContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'subscribe';
                 return _this;
             }
@@ -14467,7 +14466,7 @@ var nn;
         var GetAppContent = (function (_super) {
             __extends(GetAppContent, _super);
             function GetAppContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'getapp';
                 return _this;
             }
@@ -14478,7 +14477,7 @@ var nn;
         var SendToDesktopContent = (function (_super) {
             __extends(SendToDesktopContent, _super);
             function SendToDesktopContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'sendtodesktop';
                 return _this;
             }
@@ -14488,7 +14487,7 @@ var nn;
         var LanZuanContent = (function (_super) {
             __extends(LanZuanContent, _super);
             function LanZuanContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'lanzuan';
                 return _this;
             }
@@ -14498,7 +14497,7 @@ var nn;
         var LanZuanXuFeiContent = (function (_super) {
             __extends(LanZuanXuFeiContent, _super);
             function LanZuanXuFeiContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'lanzuanxufei';
                 return _this;
             }
@@ -14519,7 +14518,7 @@ var nn;
         var CustomerContent = (function (_super) {
             __extends(CustomerContent, _super);
             function CustomerContent() {
-                var _this = _super.apply(this, arguments) || this;
+                var _this = _super !== null && _super.apply(this, arguments) || this;
                 _this.proc = 'customer';
                 return _this;
             }
@@ -14532,7 +14531,7 @@ var nn;
         var SendCustomerContent = (function (_super) {
             __extends(SendCustomerContent, _super);
             function SendCustomerContent() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             return SendCustomerContent;
         }(CustomerContent));
@@ -14717,7 +14716,7 @@ var nn;
     var AnyServices = (function (_super) {
         __extends(AnyServices, _super);
         function AnyServices() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         AnyServices.prototype.detectService = function () {
             var cls = nn.ArrayT.QueryObject(ServicesManager._SERVICES, function (e) {
@@ -16188,7 +16187,7 @@ var nn;
     var CDom = (function (_super) {
         __extends(CDom, _super);
         function CDom() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         return CDom;
     }(nn.Component));
@@ -16199,7 +16198,7 @@ var eui;
     var ButtonU = (function (_super) {
         __extends(ButtonU, _super);
         function ButtonU() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.slots = null;
             _this.tag = null;
             _this._help = null;
@@ -16460,7 +16459,7 @@ var eui;
     var CheckBoxU = (function (_super) {
         __extends(CheckBoxU, _super);
         function CheckBoxU() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.slots = null;
             _this.tag = null;
             _this._format = null;
@@ -16695,7 +16694,7 @@ var eui;
     var _ExtDesktop = (function (_super) {
         __extends(_ExtDesktop, _super);
         function _ExtDesktop() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         _ExtDesktop.prototype.doOpen = function () {
             //super.doOpen();
@@ -16969,7 +16968,7 @@ var eui;
     var GroupU = (function (_super) {
         __extends(GroupU, _super);
         function GroupU() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.slots = null;
             _this.tag = null;
             return _this;
@@ -17019,6 +17018,9 @@ var eui;
         GroupU.prototype._initSignals = function () {
             this._signals.delegate = this;
             this._signals.register(nn.SignalClicked);
+            this._signals.register(nn.SignalTouchBegin);
+            this._signals.register(nn.SignalTouchEnd);
+            this._signals.register(nn.SignalTouchMove);
         };
         Object.defineProperty(GroupU.prototype, "signals", {
             get: function () {
@@ -17034,13 +17036,64 @@ var eui;
             this._signals = new nn.Signals(this);
             this._initSignals();
         };
+        Object.defineProperty(GroupU.prototype, "touch", {
+            get: function () {
+                if (this._touch == null)
+                    this._touch = new nn.Touch();
+                return this._touch;
+            },
+            enumerable: true,
+            configurable: true
+        });
         GroupU.prototype._signalConnected = function (sig, s) {
-            if (sig == nn.SignalClicked) {
-                nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
+            switch (sig) {
+                case nn.SignalTouchBegin:
+                case nn.SignalTouchEnd:
+                case nn.SignalTouchMove:
+                    {
+                        this.touchEnabled = true;
+                        nn.EventHook(this, egret.TouchEvent.TOUCH_BEGIN, this.__dsp_touchbegin, this);
+                        nn.EventHook(this, egret.TouchEvent.TOUCH_END, this.__dsp_touchend, this);
+                        nn.EventHook(this, egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.__dsp_touchrelease, this);
+                        nn.EventHook(this, egret.TouchEvent.TOUCH_MOVE, this.__dsp_touchmove, this);
+                    }
+                    break;
+                case nn.SignalClicked:
+                    {
+                        this.touchEnabled = true;
+                        nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__dsp_tap, this);
+                    }
+                    break;
             }
         };
-        GroupU.prototype.__cmp_tap = function (e) {
-            this.signals.emit(nn.SignalClicked);
+        GroupU.prototype.__dsp_touchbegin = function (e) {
+            if (this._signals) {
+                var t = this.touch;
+                t._event = e;
+                this._signals.emit(nn.SignalTouchBegin, t);
+            }
+        };
+        GroupU.prototype.__dsp_touchend = function (e) {
+            var t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalTouchEnd, t);
+        };
+        GroupU.prototype.__dsp_touchrelease = function (e) {
+            var t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalTouchEnd, t);
+        };
+        GroupU.prototype.__dsp_touchmove = function (e) {
+            var t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalTouchMove, t);
+            t.lastPosition.copy(t.currentPosition);
+        };
+        GroupU.prototype.__dsp_tap = function (e) {
+            var t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalClicked, t);
+            // 防止之后的被点击
             e.stopPropagation();
         };
         Object.defineProperty(GroupU.prototype, "enabled", {
@@ -17088,7 +17141,7 @@ var eui;
     var HtmlLabelU = (function (_super) {
         __extends(HtmlLabelU, _super);
         function HtmlLabelU() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.slots = null;
             _this.tag = null;
             _this._htmlText = null;
@@ -17438,7 +17491,7 @@ var eui;
     var ItemRendererU = (function (_super) {
         __extends(ItemRendererU, _super);
         function ItemRendererU() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.slots = null;
             _this.tag = null;
             return _this;
@@ -17468,7 +17521,7 @@ var eui;
     var LabelU = (function (_super) {
         __extends(LabelU, _super);
         function LabelU() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.slots = null;
             _this.tag = null;
             _this._format = null;
@@ -17575,7 +17628,7 @@ var eui;
     var ListU = (function (_super) {
         __extends(ListU, _super);
         function ListU() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.slots = null;
             return _this;
         }
@@ -17938,7 +17991,7 @@ var eui;
     var _NaviViewStack = (function (_super) {
         __extends(_NaviViewStack, _super);
         function _NaviViewStack() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         _NaviViewStack.prototype.getViews = function () {
             return this._views;
@@ -18011,7 +18064,7 @@ var eui;
     var PanelU = (function (_super) {
         __extends(PanelU, _super);
         function PanelU() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         PanelU.prototype.onPartBinded = function (name, target) {
             eui._EUIExt.onPartBinded(this, name, target);
@@ -18034,7 +18087,7 @@ var eui;
     var ProgressBarU = (function (_super) {
         __extends(ProgressBarU, _super);
         function ProgressBarU() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             /** 通过设置一个格式化脚本来设置显示的文字格式 */
             _this._format = null;
             return _this;
@@ -18105,7 +18158,7 @@ var eui;
     var RadioButtonU = (function (_super) {
         __extends(RadioButtonU, _super);
         function RadioButtonU() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         RadioButtonU.prototype.onPartBinded = function (name, target) {
             eui._EUIExt.onPartBinded(this, name, target);
@@ -18128,7 +18181,7 @@ var eui;
     var RectU = (function (_super) {
         __extends(RectU, _super);
         function RectU() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         RectU.prototype.onPartBinded = function (name, target) {
             eui._EUIExt.onPartBinded(this, name, target);
@@ -18155,7 +18208,7 @@ var eui;
     var RoundU = (function (_super) {
         __extends(RoundU, _super);
         function RoundU() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         RoundU.prototype.updateDisplayList = function (unscaledWidth, unscaledHeight) {
             var gra = this.graphics;
@@ -18180,7 +18233,7 @@ var eui;
     var ScrollerU = (function (_super) {
         __extends(ScrollerU, _super);
         function ScrollerU() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         ScrollerU.prototype.onPartBinded = function (name, target) {
             eui._EUIExt.onPartBinded(this, name, target);
@@ -18580,7 +18633,7 @@ var eui;
     var ToggleSwitchU = (function (_super) {
         __extends(ToggleSwitchU, _super);
         function ToggleSwitchU() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         ToggleSwitchU.prototype.onPartBinded = function (name, target) {
             eui._EUIExt.onPartBinded(this, name, target);
@@ -18603,7 +18656,7 @@ var eui;
     var PageStackU = (function (_super) {
         __extends(PageStackU, _super);
         function PageStackU() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         PageStackU.prototype.onPartBinded = function (name, target) {
             eui._EUIExt.onPartBinded(this, name, target);
@@ -18636,7 +18689,7 @@ var eui;
     var WrapperU = (function (_super) {
         __extends(WrapperU, _super);
         function WrapperU() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Object.defineProperty(WrapperU.prototype, "content", {
             get: function () {
@@ -19240,7 +19293,7 @@ var nn;
     var _FramesManager = (function (_super) {
         __extends(_FramesManager, _super);
         function _FramesManager() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         _FramesManager.prototype.launch = function (c) {
             nn.EventHook(c, egret.Event.ENTER_FRAME, this.onRendering, this);
@@ -20298,7 +20351,7 @@ var nn;
     var FastAnimationState = (function (_super) {
         __extends(FastAnimationState, _super);
         function FastAnimationState() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Object.defineProperty(FastAnimationState.prototype, "progress", {
             get: function () {
@@ -20315,6 +20368,16 @@ var nn;
         return FastAnimationState;
     }(dragonBones.AnimationState));
     dragonBones.AnimationState = FastAnimationState;
+})(nn || (nn = {}));
+var nn;
+(function (nn) {
+    // 先采用直绘模式，以后有需求再修改成命令组的模式
+    var CGraphics = (function () {
+        function CGraphics() {
+        }
+        return CGraphics;
+    }());
+    nn.CGraphics = CGraphics;
 })(nn || (nn = {}));
 var nn;
 (function (nn) {
@@ -21503,7 +21566,7 @@ var nn;
     var GridViewCell = (function (_super) {
         __extends(GridViewCell, _super);
         function GridViewCell() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Object.defineProperty(GridViewCell.prototype, "item", {
             get: function () {
@@ -22965,7 +23028,7 @@ var nn;
     var _Keyboard = (function (_super) {
         __extends(_Keyboard, _super);
         function _Keyboard() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._visible = false;
             return _this;
         }
@@ -23167,7 +23230,7 @@ var nn;
     var EffectSoundPlayer = (function (_super) {
         __extends(EffectSoundPlayer, _super);
         function EffectSoundPlayer() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         EffectSoundPlayer.prototype.setHdl = function (val) {
             if (val)
@@ -23182,7 +23245,7 @@ var nn;
     var BackgroundSourdPlayer = (function (_super) {
         __extends(BackgroundSourdPlayer, _super);
         function BackgroundSourdPlayer() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         BackgroundSourdPlayer.prototype.setHdl = function (val) {
             if (val)
@@ -23197,7 +23260,7 @@ var nn;
     var _SoundManager = (function (_super) {
         __extends(_SoundManager, _super);
         function _SoundManager() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._enable = nn.Device.shared.supportAutoSound;
             return _this;
         }
@@ -24771,7 +24834,7 @@ var nn;
     var Vector2d = (function (_super) {
         __extends(Vector2d, _super);
         function Vector2d() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Vector2d.prototype.applyTransform = function (tfm) {
             tfm._mat.transformPoint(this.x, this.y, this);
@@ -24783,7 +24846,7 @@ var nn;
     var Rect2d = (function (_super) {
         __extends(Rect2d, _super);
         function Rect2d() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Rect2d.prototype.applyTransform = function (tfm) {
             var pt = new Vector2d(this.x, this.y);
@@ -24996,7 +25059,7 @@ var nn;
     var LinearLayout = (function (_super) {
         __extends(LinearLayout, _super);
         function LinearLayout() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._segments = new Array();
             /** 间距 */
             _this.spacing = 0;
@@ -25464,7 +25527,7 @@ var nn;
         var Image = (function (_super) {
             __extends(Image, _super);
             function Image() {
-                return _super.apply(this, arguments) || this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             Image.prototype.open = function (path, cb) {
                 var _this = this;
@@ -25536,7 +25599,7 @@ var nn;
     var _RestSession = (function (_super) {
         __extends(_RestSession, _super);
         function _RestSession() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         _RestSession.prototype._initSignals = function () {
             _super.prototype._initSignals.call(this);
@@ -25639,7 +25702,7 @@ var nn;
     var UrlModel = (function (_super) {
         __extends(UrlModel, _super);
         function UrlModel() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         UrlModel.prototype.url = function () {
             if (this.useproxy()) {
@@ -25971,7 +26034,7 @@ var nn;
     var MockServices = (function (_super) {
         __extends(MockServices, _super);
         function MockServices() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         MockServices.prototype.detectService = function () {
             return ServiceMock;
@@ -26497,7 +26560,7 @@ var nn;
     var XHBServices = (function (_super) {
         __extends(XHBServices, _super);
         function XHBServices() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         XHBServices.prototype.detectService = function () {
             if (ServiceXHB.IsCurrent())
@@ -26607,7 +26670,7 @@ var nn;
     var WebSocketConnector = (function (_super) {
         __extends(WebSocketConnector, _super);
         function WebSocketConnector() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         WebSocketConnector.prototype.open = function () {
             var _this = this;
@@ -26930,7 +26993,7 @@ var eui;
     var BitmapLabelU = (function (_super) {
         __extends(BitmapLabelU, _super);
         function BitmapLabelU() {
-            var _this = _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._format = null;
             return _this;
         }
@@ -27065,7 +27128,7 @@ var eui;
     var BoneConfig = (function (_super) {
         __extends(BoneConfig, _super);
         function BoneConfig() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Object.defineProperty(BoneConfig.prototype, "skeleton", {
             get: function () {
@@ -27323,7 +27386,7 @@ var eui;
     var ImpViewStack = (function (_super) {
         __extends(ImpViewStack, _super);
         function ImpViewStack() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         ImpViewStack.prototype.getViews = function () {
             return this._views;

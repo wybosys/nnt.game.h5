@@ -4444,8 +4444,14 @@ declare module eui {
         protected _signals: nn.Signals;
         readonly signals: nn.Signals;
         protected _instanceSignals(): void;
+        private _touch;
+        readonly touch: nn.Touch;
         _signalConnected(sig: string, s?: nn.Slot): void;
-        private __cmp_tap(e);
+        private __dsp_touchbegin(e);
+        private __dsp_touchend(e);
+        private __dsp_touchrelease(e);
+        private __dsp_touchmove(e);
+        private __dsp_tap(e);
         selected: boolean;
         enabled: boolean;
         interactiveEnabled: boolean;
@@ -5140,6 +5146,10 @@ declare module nn {
         private __db_start();
         private __db_complete();
         private __db_loopcomplete();
+    }
+}
+declare module nn {
+    abstract class CGraphics {
     }
 }
 declare module nn {
