@@ -81,6 +81,9 @@ module nn.svc {
     {
         /** S2S 拿到用户id */
         pid:numstr;
+
+        /** 平台提供的礼包代码 */
+        gift:numstr;
         
         /** 客服系统缓存历史消息的最大条目 */
         maxCustomerMessages:number;

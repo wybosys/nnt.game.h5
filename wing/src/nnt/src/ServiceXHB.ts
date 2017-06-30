@@ -29,8 +29,8 @@ module nn {
         // 价格信息
         static PAYUNIT:string = '元';
         static PAYRATE:number = 1;
-        
-        static Prepare(cb:()=>void, ctx:any) {            
+
+        static Prepare(cb:()=>void, ctx:any) {
             // 如果在其他地方已经初始化，则直接返回
             if (hGameHdl) {
                 cb.call(ctx);
@@ -223,17 +223,24 @@ module nn {
             c.signals.emit(SignalSucceed);
             c.dispose();
         }
+
+        private _gift:numstr;
         
         auth(c:svc.AuthContent) {
             let fs = CApplication.shared.url.fields;
+            let sdkopen = false;
             if (ServiceXHB.IsCurrent())
             {
                 c.pid = '';
-                c.type = toInt(fs["login_type"]);
-                c.ticket = fs["ticket"];
                 c.timestamp = fs["timestamp"];
                 c.nonce = fs["nonce"];
                 c.signature = fs["signature"];
+                if ("ticket" in fs) {
+                    c.type = toInt(fs["login_type"]);
+                    c.ticket = fs["ticket"];
+                } else {
+                    sdkopen = true;
+                }
             }
             else
             {
@@ -281,8 +288,23 @@ module nn {
             c.app = ServiceXHB.GameKey;
             c.platform = ServiceXHB.PLATFORMID;
             c.channel = 0;
-            c.signals.emit(SignalSucceed);
-            c.dispose();
+            if (sdkopen) {
+                hGameHdl.callPsdk("login", function (d:any) {
+                    c.type = toInt(d.login_type);
+                    c.ticket = d.ticket;
+                    c.pid = '';
+                    c.timestamp = d.timestamp;
+                    c.nonce = d.nonce;
+                    c.signature = d.signature;
+                    this._gift = toInt(d.GIFT || d.gift);
+                    c.signals.emit(SignalSucceed);
+                    c.dispose();
+                });
+            }
+            else {
+                c.signals.emit(SignalSucceed);
+                c.dispose();
+            }
         }
 
         private _pid:string;
@@ -292,6 +314,7 @@ module nn {
             this._pid = asString(c.pid);
             if (c.maxCustomerMessages)
                 this._maxmessages = c.maxCustomerMessages;
+            c.gift = this._gift;
             
             // 获得到当前平台的状态
             hGameHdl.queryExtraStatus({openId:this._pid}, (result:any)=>{
