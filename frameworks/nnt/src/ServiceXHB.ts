@@ -289,7 +289,7 @@ module nn {
             c.platform = ServiceXHB.PLATFORMID;
             c.channel = 0;
             if (sdkopen) {
-                hGameHdl.callPsdk("login", function (d:any) {
+                hGameHdl.callPsdk("login", (d:any) => {
                     c.type = toInt(d.login_type);
                     c.ticket = d.ticket;
                     c.pid = '';
