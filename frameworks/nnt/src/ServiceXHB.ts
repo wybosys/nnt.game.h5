@@ -524,8 +524,6 @@ module nn {
             return 'game_key' in fs &&
                 'timestamp' in fs &&
                 'nonce' in fs &&
-                'login_type' in fs &&
-                'ticket' in fs &&
                 'game_url' in fs &&
                 'signature' in fs;
         }
