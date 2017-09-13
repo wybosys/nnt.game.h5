@@ -698,7 +698,7 @@ module nn {
         if (t == 'string')
             return JSON.parse(<string>o);
         else if (t == 'object')
-            return t;
+            return o;
         return def;
     }
 
