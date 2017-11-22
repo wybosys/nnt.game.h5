@@ -1,194 +1,194 @@
 {
-    "resources": [
-        {
-            "url": "assets/bone/ruizi_skeleton.json", 
-            "type": "json", 
-            "name": "ruizi_skeleton"
-        }, 
-        {
-            "url": "assets/bone/ruizi_texture.json", 
-            "type": "json", 
-            "name": "ruizi_texture_json"
-        }, 
-        {
-            "url": "assets/bone/ruizi_texture.png", 
-            "type": "image", 
-            "name": "ruizi_texture_png"
-        }, 
-        {
-            "url": "assets/mc/shangdi.json", 
-            "type": "json", 
-            "name": "shangdi_json"
-        }, 
-        {
-            "url": "assets/mc/shangdi.png", 
-            "type": "image", 
-            "name": "shangdi_png"
-        }, 
-        {
-            "url": "assets/wgt/Button/button_down.png", 
-            "type": "image", 
-            "name": "button_down"
-        }, 
-        {
-            "url": "assets/wgt/Button/button_up.png", 
-            "type": "image", 
-            "name": "button_up"
-        }, 
-        {
-            "url": "assets/wgt/CheckBox/checkbox_select_disabled.png", 
-            "type": "image", 
-            "name": "checkbox_select_disabled"
-        }, 
-        {
-            "url": "assets/wgt/CheckBox/checkbox_select_down.png", 
-            "type": "image", 
-            "name": "checkbox_select_down"
-        }, 
-        {
-            "url": "assets/wgt/CheckBox/checkbox_select_up.png", 
-            "type": "image", 
-            "name": "checkbox_select_up"
-        }, 
-        {
-            "url": "assets/wgt/CheckBox/checkbox_unselect.png", 
-            "type": "image", 
-            "name": "checkbox_unselect"
-        }, 
-        {
-            "url": "assets/wgt/ItemRenderer/selected.png", 
-            "type": "image", 
-            "name": "selected"
-        }, 
-        {
-            "url": "assets/wgt/Panel/border.png", 
-            "type": "image", 
-            "name": "border"
-        }, 
-        {
-            "url": "assets/wgt/Panel/header.png", 
-            "type": "image", 
-            "name": "header"
-        }, 
-        {
-            "url": "assets/wgt/ProgressBar/thumb_pb.png", 
-            "type": "image", 
-            "name": "thumb_pb"
-        }, 
-        {
-            "url": "assets/wgt/ProgressBar/track_pb.png", 
-            "type": "image", 
-            "name": "track_pb"
-        }, 
-        {
-            "url": "assets/wgt/RadioButton/radiobutton_select_disabled.png", 
-            "type": "image", 
-            "name": "radiobutton_select_disabled"
-        }, 
-        {
-            "url": "assets/wgt/RadioButton/radiobutton_select_down.png", 
-            "type": "image", 
-            "name": "radiobutton_select_down"
-        }, 
-        {
-            "url": "assets/wgt/RadioButton/radiobutton_select_up.png", 
-            "type": "image", 
-            "name": "radiobutton_select_up"
-        }, 
-        {
-            "url": "assets/wgt/RadioButton/radiobutton_unselect.png", 
-            "type": "image", 
-            "name": "radiobutton_unselect"
-        }, 
-        {
-            "url": "assets/wgt/ScrollBar/roundthumb.png", 
-            "type": "image", 
-            "name": "roundthumb"
-        }, 
-        {
-            "url": "assets/wgt/ScrollBar/track_sb.png", 
-            "type": "image", 
-            "name": "track_sb"
-        }, 
-        {
-            "url": "assets/wgt/Slider/thumb.png", 
-            "type": "image", 
-            "name": "thumb"
-        }, 
-        {
-            "url": "assets/wgt/Slider/track.png", 
-            "type": "image", 
-            "name": "track"
-        }, 
-        {
-            "url": "assets/wgt/Slider/tracklight.png", 
-            "type": "image", 
-            "name": "tracklight"
-        }, 
-        {
-            "url": "assets/wgt/ToggleSwitch/handle.png", 
-            "type": "image", 
-            "name": "handle"
-        }, 
-        {
-            "url": "assets/wgt/ToggleSwitch/off.png", 
-            "type": "image", 
-            "name": "off"
-        }, 
-        {
-            "url": "assets/wgt/ToggleSwitch/on.png", 
-            "type": "image", 
-            "name": "on"
-        }
-    ], 
     "groups": [
         {
-            "keys": "ruizi_skeleton,ruizi_texture_json,ruizi_texture_png", 
-            "name": "bone"
-        }, 
+            "name": "bone",
+            "keys": "ruizi_skeleton,ruizi_texture_json,ruizi_texture_png"
+        },
         {
-            "keys": "shangdi_json,shangdi_png", 
-            "name": "mc"
-        }, 
+            "name": "mc",
+            "keys": "shangdi_json,shangdi_png"
+        },
         {
-            "keys": "", 
-            "name": "wgt"
-        }, 
+            "name": "wgt",
+            "keys": ""
+        },
         {
-            "keys": "button_down,button_up", 
-            "name": "wgt_Button"
-        }, 
+            "name": "wgt_Button",
+            "keys": "button_down,button_up"
+        },
         {
-            "keys": "checkbox_select_disabled,checkbox_select_down,checkbox_select_up,checkbox_unselect", 
-            "name": "wgt_CheckBox"
-        }, 
+            "name": "wgt_CheckBox",
+            "keys": "checkbox_select_disabled,checkbox_select_down,checkbox_select_up,checkbox_unselect"
+        },
         {
-            "keys": "selected", 
-            "name": "wgt_ItemRenderer"
-        }, 
+            "name": "wgt_ItemRenderer",
+            "keys": "selected"
+        },
         {
-            "keys": "border,header", 
-            "name": "wgt_Panel"
-        }, 
+            "name": "wgt_Panel",
+            "keys": "border,header"
+        },
         {
-            "keys": "thumb_pb,track_pb", 
-            "name": "wgt_ProgressBar"
-        }, 
+            "name": "wgt_ProgressBar",
+            "keys": "thumb_pb,track_pb"
+        },
         {
-            "keys": "radiobutton_select_disabled,radiobutton_select_down,radiobutton_select_up,radiobutton_unselect", 
-            "name": "wgt_RadioButton"
-        }, 
+            "name": "wgt_RadioButton",
+            "keys": "radiobutton_select_disabled,radiobutton_select_down,radiobutton_select_up,radiobutton_unselect"
+        },
         {
-            "keys": "roundthumb,track_sb", 
-            "name": "wgt_ScrollBar"
-        }, 
+            "name": "wgt_ScrollBar",
+            "keys": "roundthumb,track_sb"
+        },
         {
-            "keys": "thumb,track,tracklight", 
-            "name": "wgt_Slider"
-        }, 
+            "name": "wgt_Slider",
+            "keys": "thumb,track,tracklight"
+        },
         {
-            "keys": "handle,off,on", 
-            "name": "wgt_ToggleSwitch"
+            "name": "wgt_ToggleSwitch",
+            "keys": "handle,off,on"
+        }
+    ],
+    "resources": [
+        {
+            "name": "ruizi_skeleton",
+            "type": "json",
+            "url": "assets/bone/ruizi_skeleton.json"
+        },
+        {
+            "name": "ruizi_texture_json",
+            "type": "json",
+            "url": "assets/bone/ruizi_texture.json"
+        },
+        {
+            "name": "ruizi_texture_png",
+            "type": "image",
+            "url": "assets/bone/ruizi_texture.png"
+        },
+        {
+            "name": "shangdi_json",
+            "type": "json",
+            "url": "assets/mc/shangdi.json"
+        },
+        {
+            "name": "shangdi_png",
+            "type": "image",
+            "url": "assets/mc/shangdi.png"
+        },
+        {
+            "name": "button_down",
+            "type": "image",
+            "url": "assets/wgt/Button/button_down.png"
+        },
+        {
+            "name": "button_up",
+            "type": "image",
+            "url": "assets/wgt/Button/button_up.png"
+        },
+        {
+            "name": "checkbox_select_disabled",
+            "type": "image",
+            "url": "assets/wgt/CheckBox/checkbox_select_disabled.png"
+        },
+        {
+            "name": "checkbox_select_down",
+            "type": "image",
+            "url": "assets/wgt/CheckBox/checkbox_select_down.png"
+        },
+        {
+            "name": "checkbox_select_up",
+            "type": "image",
+            "url": "assets/wgt/CheckBox/checkbox_select_up.png"
+        },
+        {
+            "name": "checkbox_unselect",
+            "type": "image",
+            "url": "assets/wgt/CheckBox/checkbox_unselect.png"
+        },
+        {
+            "name": "selected",
+            "type": "image",
+            "url": "assets/wgt/ItemRenderer/selected.png"
+        },
+        {
+            "name": "border",
+            "type": "image",
+            "url": "assets/wgt/Panel/border.png"
+        },
+        {
+            "name": "header",
+            "type": "image",
+            "url": "assets/wgt/Panel/header.png"
+        },
+        {
+            "name": "thumb_pb",
+            "type": "image",
+            "url": "assets/wgt/ProgressBar/thumb_pb.png"
+        },
+        {
+            "name": "track_pb",
+            "type": "image",
+            "url": "assets/wgt/ProgressBar/track_pb.png"
+        },
+        {
+            "name": "radiobutton_select_disabled",
+            "type": "image",
+            "url": "assets/wgt/RadioButton/radiobutton_select_disabled.png"
+        },
+        {
+            "name": "radiobutton_select_down",
+            "type": "image",
+            "url": "assets/wgt/RadioButton/radiobutton_select_down.png"
+        },
+        {
+            "name": "radiobutton_select_up",
+            "type": "image",
+            "url": "assets/wgt/RadioButton/radiobutton_select_up.png"
+        },
+        {
+            "name": "radiobutton_unselect",
+            "type": "image",
+            "url": "assets/wgt/RadioButton/radiobutton_unselect.png"
+        },
+        {
+            "name": "roundthumb",
+            "type": "image",
+            "url": "assets/wgt/ScrollBar/roundthumb.png"
+        },
+        {
+            "name": "track_sb",
+            "type": "image",
+            "url": "assets/wgt/ScrollBar/track_sb.png"
+        },
+        {
+            "name": "thumb",
+            "type": "image",
+            "url": "assets/wgt/Slider/thumb.png"
+        },
+        {
+            "name": "track",
+            "type": "image",
+            "url": "assets/wgt/Slider/track.png"
+        },
+        {
+            "name": "tracklight",
+            "type": "image",
+            "url": "assets/wgt/Slider/tracklight.png"
+        },
+        {
+            "name": "handle",
+            "type": "image",
+            "url": "assets/wgt/ToggleSwitch/handle.png"
+        },
+        {
+            "name": "off",
+            "type": "image",
+            "url": "assets/wgt/ToggleSwitch/off.png"
+        },
+        {
+            "name": "on",
+            "type": "image",
+            "url": "assets/wgt/ToggleSwitch/on.png"
         }
     ]
 }
