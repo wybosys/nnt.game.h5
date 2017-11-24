@@ -146,7 +146,7 @@ def tempfilename():
     return str(_tmpfilecounter)
 
 def hashstring(str):
-    return hashlib.md5(str).hexdigest()
+    return hashlib.md5(str.encode("utf-8")).hexdigest()
 
 def isImage(file):
     reximg = re.compile(r'(\.png$)|(\.jpg$)')
@@ -183,7 +183,7 @@ def checkconfig():
         makeconfig(False)
     if 'uuid' not in cfgdb:
         import uuid
-        cfgdb['uuid'] = str(uuid.uuid4())       
+        cfgdb['uuid'] = str(uuid.uuid4())
     # 比对是否n2build升版
     if 'bver' not in cfgdb or cfgdb['bver'] != version:
         return True    
@@ -329,7 +329,7 @@ def prebuildsrc():
     for file in files:
         hash = simplehashfile(file)
         key = file.replace('/', '_')
-        if not tscdb.has_key(key) or tscdb[key] != hash:            
+        if key not in tscdb or tscdb[key] != hash:            
             prebuild_tsc(file, key)
             tscdb[key] = hash
     # 处理所有的excel文件
@@ -339,7 +339,7 @@ def prebuildsrc():
             continue
         hash = simplehashfile(file)
         key = file.replace('/', '_')
-        if not tscdb.has_key(key) or tscdb[key] != hash:            
+        if key not in tscdb or tscdb[key] != hash:            
             prebuild_xls(file, key)
             tscdb[key] = hash
     tscdb.close()
@@ -437,7 +437,7 @@ def output_xlsdata_tots(name, ids, datas, props, key):
         'CFGS':json.dumps(datas, indent=4),
         'DATA':'{' + ','.join(jsobjs) + '}',
         'PROPERTIES':''.join(props)
-    }).decode("unicode-escape")
+    }).encode('utf-8').decode('unicode_escape')
     codecs.open('src/app/~tsc/doing.ts', 'w', 'utf-8').write(cnt)
     # 输出js
     subprocess.getoutput('tsc -d -t es5 --outDir src/app/~tsc src/app/~tsc/doing.ts')
@@ -635,7 +635,7 @@ def distfile(q, sem, file, func, db, prg):
     idx = prg[0]
     sum = prg[1]
     key = hashstring(file)
-    if db.has_key(key):
+    if key in db:
         # 如果大小不同，再比对hash，加速
         hash = hashfile(file)
         if hash == db[key]:
@@ -2066,7 +2066,7 @@ def pack(file, srcs, sumdb):
         for each in srcs:
             # 计算并比较sum
             tsum = hashfile(each)
-            if sumdb.has_key(each):
+            if each in sumdb:
                 dsum = sumdb[each]
             else:
                 dsum = -1
