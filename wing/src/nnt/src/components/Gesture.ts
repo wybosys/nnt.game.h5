@@ -1,5 +1,11 @@
 module nn {
 
+    // 支持手势的对象需要实现
+    export interface IGesturable {
+        gestures:Gesture[];    
+        signals:Signals;
+    }
+
     export class Gesture
     extends SObject
     implements IGesture
@@ -22,7 +28,7 @@ module nn {
             this._signals.register(SignalDone);
         }
 
-        attach(spr:Component) {
+        attach(spr:IGesturable) {
             if (spr == null) {
                 this.detach();
                 return;
@@ -45,7 +51,7 @@ module nn {
 
         protected doDetach() {}
 
-        protected _spr:Component;
+        protected _spr:IGesturable;
     }
 
     export class GestureTap

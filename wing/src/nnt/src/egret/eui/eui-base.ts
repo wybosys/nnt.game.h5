@@ -21,10 +21,28 @@ module eui {
         constructor() {
             super();
             this.touchEnabled = false;
-            this.addEventListener(eui.UIEvent.CREATION_COMPLETE, this.onLoaded, this);
+            this.addEventListener(eui.UIEvent.COMPLETE, this.__cmp_completed, this);
+            this.addEventListener(eui.UIEvent.CREATION_COMPLETE, this.__cmp_completed, this);
         }
 
         onLoaded() {}
+
+        private __created: boolean;
+        private __thmcreated: boolean;
+        private __cmp_completed(evt:UIEvent) {
+            if (!this.skinName)
+                this.__thmcreated = true;
+            if (evt.type == eui.UIEvent.COMPLETE) {
+                this.__created = true;
+                if (this.__thmcreated)
+                    this.onLoaded();
+            }                
+            else if (evt.type == eui.UIEvent.CREATION_COMPLETE) {
+                this.__thmcreated = true;
+                if (this.__created)
+                    this.onLoaded();
+            }
+        }
 
         /** 直接配置信号 */
         public slots:string = null;
@@ -70,6 +88,9 @@ module eui {
                 this._signals = undefined;
             }            
 
+            // 移出手势
+            this.clearGestures();
+
             // 停止所有动画
             this.stopAllAnimates();
 
@@ -83,6 +104,27 @@ module eui {
             
             if (this.__need_remove_from_launchersmanager)
                 nn.LaunchersManager.unregister(<any>this);
+        }
+
+        private _gestures:Array<nn.Gesture>;
+        get gestures():Array<nn.Gesture> {
+            if (this._gestures == null)
+                this._gestures = new Array<nn.Gesture>();
+            return this._gestures;
+        }        
+
+        addGesture(ges:nn.Gesture) {
+            // 信号的控制由gesture对象自己控制
+            ges.detach();
+            ges.attach(this);
+        }
+
+        clearGestures() {
+            if (this._gestures) {
+                nn.ArrayT.Clear(this._gestures, (o:nn.Gesture)=>{
+                    o.drop();
+                });
+            }
         }
 
         timer(duration:nn.Interval, count:number, idr?:string):nn.Timer
@@ -159,6 +201,9 @@ module eui {
         protected _initSignals() {
             this._signals.delegate = this;
             this._signals.register(nn.SignalClicked);
+            this._signals.register(nn.SignalTouchBegin);
+            this._signals.register(nn.SignalTouchEnd);
+            this._signals.register(nn.SignalTouchMove);
             this._signals.register(nn.SignalVisibleChanged);
         }
 
@@ -176,18 +221,66 @@ module eui {
         }
 
         _signalConnected(sig:string, s?:nn.Slot) {
-            if (sig == nn.SignalClicked) {
+            switch (sig)
+            {
+            case nn.SignalTouchBegin:
+            case nn.SignalTouchEnd:
+            case nn.SignalTouchMove: {
+                this.touchEnabled = true;                
+                nn.EventHook(this, egret.TouchEvent.TOUCH_BEGIN, this.__cmp_touchbegin, this);
+                nn.EventHook(this, egret.TouchEvent.TOUCH_END, this.__cmp_touchend, this);
+                nn.EventHook(this, egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.__cmp_touchrelease, this);
+                nn.EventHook(this, egret.TouchEvent.TOUCH_MOVE, this.__cmp_touchmove, this);
+            } break;
+            case nn.SignalClicked: {
                 this.touchEnabled = true;
                 nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
+            } break;
             }
         }
 
         // 为了支持Arch.ts中定义的模块加载架构
         private __need_remove_from_launchersmanager:boolean;
 
+        private _touch:nn.Touch;
+        get touch():nn.Touch {
+            if (this._touch == null)
+                this._touch = new nn.Touch();
+            return this._touch;
+        }
+
         private __cmp_tap(e:egret.TouchEvent) {
-            this.signals.emit(nn.SignalClicked);
+            let t = this.touch;
+            t._event = e;
+            this.signals.emit(nn.SignalClicked, t);
             e.stopPropagation();
+        }
+        
+        private __cmp_touchbegin(e:egret.TouchEvent) {
+            let t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalTouchBegin, t);
+        }
+        
+        private __cmp_touchend(e:egret.TouchEvent) {
+            let t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalTouchEnd, t);
+        }
+
+        private __cmp_touchrelease(e:egret.TouchEvent) {
+            if (this.__disposed)
+                return;
+            let t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalTouchEnd, t);
+        }
+
+        private __cmp_touchmove(e:egret.TouchEvent) {
+            let t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalTouchMove, t);
+            t.lastPosition.copy(t.currentPosition);
         }
 
         setSkinPart(partName:string, instance:any) {
@@ -417,7 +510,7 @@ module eui {
 
     /** 业务非wing重用模块继承该类型 */
     export class SpriteU
-    extends eeui.ComponentU
+    extends ComponentU
     {
     }
 
