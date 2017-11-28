@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys, getopt, os, re, json, uuid, math
+import sys, getopt, os, re, json, uuid, math, functools
 from PIL import Image
 
 alphathr = 0
@@ -68,7 +68,7 @@ def proc(name, dir, width, height, scale, off, fps, dfps, pat):
     # 分配工作画板
     work = Image.new('RGBA', (width, height), (0, 0, 0, 0))
     # 根据面积从小到大排列，再反向用从大到小pop填充
-    sdatas = sorted(datas, key=mergesort)
+    sdatas = sorted(datas, key=functools.cmp_to_key(mergesort))
     mergeimgs(work, sdatas, (0, 0, width, height))
     # 生成mc的数据文件
     frames = []
