@@ -3,6 +3,12 @@ module eui {
     export class RectU
     extends eui.Rect
     {
+        paint(gra:nn.CGraphics) {
+            let g = this.graphics;
+            g.clear();
+            gra.renderIn(g);
+        }
+        
         onPartBinded(name:string, target:any) {
             _EUIExt.onPartBinded(this, name, target);
         }

@@ -160,6 +160,12 @@ module nn {
             this._imp = new egret.Sprite();
         }
 
+        paint(gra:CGraphics) {
+            let g = this._imp.graphics;
+            g.clear();
+            gra.renderIn(g);
+        }
+
         protected validate():boolean {
             let imp = this._imp;
             return imp != null
@@ -833,8 +839,7 @@ module nn {
         private __dsp_tap(e:egret.TouchEvent) {
             let t = this.touch;
             t._event = e;
-            if (this._signals)
-                this._signals.emit(SignalClicked, t);
+            this._signals.emit(SignalClicked, t);
             // 防止之后的被点击
             e.stopPropagation();
         }

@@ -101,6 +101,9 @@ module nn {
         /** 标记 */
         tag:any;
 
+        /** 绘图板 */
+        paint(gra:CGraphics);
+
         protected validate():boolean {
             return true;
         }

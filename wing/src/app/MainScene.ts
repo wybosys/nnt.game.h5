@@ -11,8 +11,9 @@ module app {
     interface IMainScene
     {
         //slot {
-        _actEnter(s?:nn.Slot);
         _actOpenLink(s?:nn.Slot);
+        _actEnter(s?:nn.Slot);
+        _actTouchMoved(s?:nn.Slot);
         //slot }
     }
 
@@ -32,6 +33,7 @@ module app {
         lblHtml:eui.HtmlLabelU;
         list0:eui.ListU;
         list1:eui.ListU;
+        sp_touch:eui.GroupU;
         tabbar0:eui.TabBarU;
         //skin }
 
@@ -51,6 +53,13 @@ module app {
             this.lblHtml.value = sb;
 
             this.list1.data = [0,1,2,3,4,5,6,7,8];
+
+            let ges = new nn.GestureSwipe();
+            ges.signals.connect(nn.SignalDone, ()=>{
+                if (ges.direction == nn.Direction.LEFT)
+                    nn.Hud.Text("手势激活");
+            }, this);
+            this.addGesture(ges);
         }
 
         protected createChildren() {
@@ -114,7 +123,10 @@ module app {
                 return item.TestButton;
             return item.TestButton1;
         }
+
+        _actTouchMoved(s?:nn.Slot) {
+            nn.info(s.data.currentPosition);
+        }
             
     }
-    
 }

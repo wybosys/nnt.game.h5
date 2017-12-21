@@ -3,40 +3,22 @@ extends nn.Sprite
 {
     constructor() {
         super();
-        //this.setNeedsDisplay();
-    }
 
-    protected onDraw() {
-        /*this.graphics.pushState();
+        let g = new nn.Graphics();
+        g.pen = new nn.Pen(nn.Color.Red, 5);
+        g.brush = new nn.Brush(nn.Color.Blue);
 
-        this.graphics.fillColor = nn.Color.Red;
-        this.graphics.beginFill();
-        this.graphics.drawRect(new nn.Rect(100, 100, 100, 100));
-        this.graphics.endFill();
+        {
+            let e = new nn.GRect();
+            e.rect = new nn.Rect(100, 100, 100, 100);
+            g.draw(e);
 
-        this.graphics.pushState();
-        this.graphics.transform.scale(2, 2);
-        this.graphics.fillColor = nn.Color.Green;
-        this.graphics.beginFill();
-        this.graphics.drawRect(new nn.Rect(100, 100, 100, 100));
-        this.graphics.endFill();
-        this.graphics.popState();
-
-        this.graphics.transform.scale(2, 2).translate(500, 300);
-        this.graphics.fillColor = nn.Color.Green;
-        this.graphics.beginFill();
-        this.graphics.drawRect(new nn.Rect(100, 100, 100, 100));
-        this.graphics.endFill();
-
-        this.graphics.popState();
-        */
-
-        /*
-        this.graphics.fillColor = nn.Color.Red;
-        this.graphics.beginFill();
-        this.graphics.drawRect(new nn.Rect(100, 100, 100, 100));
-        this.graphics.endFill();
-        */
+            e = new nn.GRect();
+            e.rect = new nn.Rect(130, 130, 50, 50);
+            g.draw(e);
+        }
+        
+        this.paint(g);
     }
 
 }

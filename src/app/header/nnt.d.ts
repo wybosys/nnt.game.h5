@@ -1734,6 +1734,8 @@ declare module nn {
         protected hitTest(x: number, y: number): any;
         /** 标记 */
         tag: any;
+        /** 绘图板 */
+        painter: CGraphics;
         protected validate(): boolean;
         abstract addChild(c: CComponent): any;
         abstract addChild(c: CComponent, layout: boolean): any;
@@ -1965,6 +1967,7 @@ declare module nn {
         _signalConnected(sig: string, s?: Slot): void;
         dispose(): void;
         protected instance(): void;
+        paint(gra: CGraphics): void;
         protected validate(): boolean;
         protected hitTestChild(x: number, y: number): egret.DisplayObject;
         protected hitTestClient(stageX: number, stageY: number): egret.DisplayObject;
@@ -2900,6 +2903,87 @@ declare module nn {
     let FramesManager: CFramesManager;
 }
 declare module nn {
+    /** Desktop默认依赖的执行队列，业务可以通过替换对来来手动划分不同的Desktop打开层级
+        @note 如果Desktop放到队列中，则当上一个dialog关闭时，下一个dialog才打开
+    */
+    let DesktopOperationQueue: OperationQueue;
+    /** 桌面，打开时铺平整个屏幕 */
+    class Desktop extends Component {
+        static BackgroundColor: Color;
+        static BackgroundImage: TextureSource;
+        constructor(ui?: CComponent);
+        dispose(): void;
+        static FromView(c: CComponent): Desktop;
+        private __dsk_sizechanged(s);
+        _initSignals(): void;
+        /** 高亮元素，在元素所在的位置镂空背景 */
+        _filters: CComponent[];
+        addFilter(ui: CComponent): void;
+        /** 是否打开高亮穿透的效果
+            @note 如果打开，只有filters的部分可以接受touch的事件
+        */
+        protected _onlyFiltersTouchEnabled: boolean;
+        onlyFiltersTouchEnabled: boolean;
+        static _AllNeedFilters: Desktop[];
+        hitTestInFilters(pt: Point): any;
+        onLoaded(): void;
+        private __dsk_addedtostage();
+        onAppeared(): void;
+        updateFilters(): void;
+        protected _contentView: CComponent;
+        contentView: CComponent;
+        /** 延迟指定时间后关闭
+            @note 因为可能open在队列中，如果由业务层处理，则不好把握什么时候当前dialog才打开
+        */
+        delayClose: number;
+        /** 桌面基于的层，默认为 Application.desktopLayer
+            @note 业务可以指定desktop是打开在全局，还是打开在指定的ui之内
+        */
+        desktopLayer: CComponent;
+        /** 是否已经打开
+            @note 如果open在队列中，则调用open后，当前parent仍然为null，但是逻辑上该dialog算是已经打开，所以需要使用独立的变量来维护打开状态
+        */
+        protected _isOpened: boolean;
+        readonly isOpened: boolean;
+        /** 队列控制时依赖的队列组，业务层设置为自己的队列实例来和标准desktop的队列隔离，避免多重desktop等待时造成业务中弹出的类似如tip的页面在业务dialog后等待的问题 */
+        queue: OperationQueue;
+        protected _oper: Operation;
+        /** 当在队列中打开时，需要延迟的时间
+            @note 同样因为如果打开在队列中，业务层无法很方便的控制打开前等待的时间
+        */
+        delayOpenInQueue: number;
+        /** 打开
+            @param queue, 是否放到队列中打开
+        */
+        open(queue?: boolean): void;
+        /** 接着其他对象打开 */
+        follow(otherContent: CComponent): void;
+        /** 替换打开 */
+        replace(otherContent: CComponent): void;
+        /** desktop打开的样式
+            @note 默认为弹出在desktopLayer，否则为push进desktopLayer
+            弹出不会隐藏后面的内容，push将根据对应的viewStack来决定是否背景的内容隐藏
+        */
+        popupMode: boolean;
+        _addIntoOpening: boolean;
+        static _AllOpenings: Desktop[];
+        protected doOpen(): void;
+        /** 关闭所有正在打开的desktop */
+        static CloseAllOpenings(): void;
+        /** 正在打开的desktop */
+        static Current(): Desktop;
+        /** 关闭 */
+        close(): void;
+        protected doClose(): void;
+        /** 点击桌面自动关闭 */
+        clickedToClose: boolean;
+        private __dsk_clicked();
+        /** 使用自适应来布局内容页面 */
+        adaptiveContentFrame: boolean;
+        updateLayout(): void;
+    }
+}
+declare module nn {
     /** 按钮类
         @note 定义为具有点按状态、文字、图片的元素，可以通过子类化来调整文字、图片的布局方式
      */
@@ -3198,84 +3282,69 @@ declare module eui {
     }
 }
 declare module nn {
-    /** Desktop默认依赖的执行队列，业务可以通过替换对来来手动划分不同的Desktop打开层级
-        @note 如果Desktop放到队列中，则当上一个dialog关闭时，下一个dialog才打开
-    */
-    let DesktopOperationQueue: OperationQueue;
-    /** 桌面，打开时铺平整个屏幕 */
-    class Desktop extends Component {
-        static BackgroundColor: Color;
-        static BackgroundImage: TextureSource;
-        constructor(ui?: CComponent);
-        dispose(): void;
-        static FromView(c: CComponent): Desktop;
-        private __dsk_sizechanged(s);
-        _initSignals(): void;
-        /** 高亮元素，在元素所在的位置镂空背景 */
-        _filters: CComponent[];
-        addFilter(ui: CComponent): void;
-        /** 是否打开高亮穿透的效果
-            @note 如果打开，只有filters的部分可以接受touch的事件
-        */
-        protected _onlyFiltersTouchEnabled: boolean;
-        onlyFiltersTouchEnabled: boolean;
-        static _AllNeedFilters: Desktop[];
-        hitTestInFilters(pt: Point): any;
-        onLoaded(): void;
-        private __dsk_addedtostage();
-        onAppeared(): void;
-        updateFilters(): void;
-        protected _contentView: CComponent;
-        contentView: CComponent;
-        /** 延迟指定时间后关闭
-            @note 因为可能open在队列中，如果由业务层处理，则不好把握什么时候当前dialog才打开
-        */
-        delayClose: number;
-        /** 桌面基于的层，默认为 Application.desktopLayer
-            @note 业务可以指定desktop是打开在全局，还是打开在指定的ui之内
-        */
-        desktopLayer: CComponent;
-        /** 是否已经打开
-            @note 如果open在队列中，则调用open后，当前parent仍然为null，但是逻辑上该dialog算是已经打开，所以需要使用独立的变量来维护打开状态
-        */
-        protected _isOpened: boolean;
-        readonly isOpened: boolean;
-        /** 队列控制时依赖的队列组，业务层设置为自己的队列实例来和标准desktop的队列隔离，避免多重desktop等待时造成业务中弹出的类似如tip的页面在业务dialog后等待的问题 */
-        queue: OperationQueue;
-        protected _oper: Operation;
-        /** 当在队列中打开时，需要延迟的时间
-            @note 同样因为如果打开在队列中，业务层无法很方便的控制打开前等待的时间
-        */
-        delayOpenInQueue: number;
-        /** 打开
-            @param queue, 是否放到队列中打开
-        */
-        open(queue?: boolean): void;
-        /** 接着其他对象打开 */
-        follow(otherContent: CComponent): void;
-        /** 替换打开 */
-        replace(otherContent: CComponent): void;
-        /** desktop打开的样式
-            @note 默认为弹出在desktopLayer，否则为push进desktopLayer
-            弹出不会隐藏后面的内容，push将根据对应的viewStack来决定是否背景的内容隐藏
-        */
-        popupMode: boolean;
-        _addIntoOpening: boolean;
-        static _AllOpenings: Desktop[];
-        protected doOpen(): void;
-        /** 关闭所有正在打开的desktop */
-        static CloseAllOpenings(): void;
-        /** 正在打开的desktop */
-        static Current(): Desktop;
-        /** 关闭 */
-        close(): void;
-        protected doClose(): void;
-        /** 点击桌面自动关闭 */
-        clickedToClose: boolean;
-        private __dsk_clicked();
-        /** 使用自适应来布局内容页面 */
-        adaptiveContentFrame: boolean;
-        updateLayout(): void;
+    class Pen {
+        constructor(c: Color, width?: number);
+        color: Color;
+        width: number;
+        clone(): this;
+        static setIn: (context: any, pen: Pen) => void;
+    }
+    class Brush {
+        constructor(c: Color);
+        color: Color;
+        clone(): this;
+        static setIn: (context: any, brush: Brush, pre: Brush) => void;
+    }
+    class GCommand {
+        pen: Pen;
+        brush: Brush;
+        static renderIn: (context: any, cmd: GCommand) => void;
+    }
+    class GLine extends GCommand {
+        start: Point;
+        end: Point;
+    }
+    class GBezier extends GCommand {
+        controlA: Point;
+        controlB: Point;
+        anchor: Point;
+    }
+    class GCurve extends GCommand {
+        control: Point;
+        anchor: Point;
+    }
+    class GArc extends GCommand {
+        center: Point;
+        radius: number;
+        start: Angle;
+        end: Angle;
+        sweep: Angle;
+        ccw: boolean;
+    }
+    class GCircle extends GCommand {
+        center: Point;
+        radius: number;
+    }
+    class GEllipse extends GCommand {
+        center: Point;
+        width: number;
+        height: number;
+    }
+    class GRect extends GCommand {
+        rect: Rect;
+        round: number;
+        ellipseWidth: number;
+        ellipseHeight: number;
+    }
+    abstract class CGraphics {
+        pushState(): void;
+        popState(): void;
+        draw(c: GCommand): void;
+        pen: Pen;
+        brush: Brush;
+        private _states;
+        protected _commands: GCommand[];
+        renderIn(context: any): void;
     }
 }
 declare module nn {
@@ -4444,8 +4513,14 @@ declare module eui {
         protected _signals: nn.Signals;
         readonly signals: nn.Signals;
         protected _instanceSignals(): void;
+        private _touch;
+        readonly touch: nn.Touch;
         _signalConnected(sig: string, s?: nn.Slot): void;
-        private __cmp_tap(e);
+        private __dsp_touchbegin(e);
+        private __dsp_touchend(e);
+        private __dsp_touchrelease(e);
+        private __dsp_touchmove(e);
+        private __dsp_tap(e);
         selected: boolean;
         enabled: boolean;
         interactiveEnabled: boolean;
@@ -4703,6 +4778,7 @@ declare module eui {
 }
 declare module eui {
     class RectU extends eui.Rect {
+        paint(gra: nn.CGraphics): void;
         onPartBinded(name: string, target: any): void;
         onAppeared(): void;
         onDisappeared(): void;
@@ -5143,6 +5219,37 @@ declare module nn {
     }
 }
 declare module nn {
+    class MovieClip extends CMovieClip {
+        constructor();
+        _signalConnected(sig: string, s: Slot): void;
+        dispose(): void;
+        private _fps;
+        fps: number;
+        private _mc;
+        private _cs;
+        clipSource: ClipSource;
+        _clip: string;
+        clip: string;
+        _location: number;
+        location: number;
+        isPlaying(): boolean;
+        stop(): void;
+        play(): void;
+        bestFrame(): Rect;
+        private _setMovieClipData(d, f);
+        private _reverseMode;
+        reverseMode: boolean;
+        private __needreverse;
+        protected tryReverseMovieClipData(): void;
+        private _flashMode;
+        flashMode: boolean;
+        updateLayout(): void;
+        protected _updateAnimation(): void;
+        private __cb_end(e);
+        private __cb_done(e);
+    }
+}
+declare module nn {
     class Button extends CButton {
         constructor(state?: State);
         dispose(): void;
@@ -5189,34 +5296,7 @@ declare module nn {
     }
 }
 declare module nn {
-    class MovieClip extends CMovieClip {
-        constructor();
-        _signalConnected(sig: string, s: Slot): void;
-        dispose(): void;
-        private _fps;
-        fps: number;
-        private _mc;
-        private _cs;
-        clipSource: ClipSource;
-        _clip: string;
-        clip: string;
-        _location: number;
-        location: number;
-        isPlaying(): boolean;
-        stop(): void;
-        play(): void;
-        bestFrame(): Rect;
-        private _setMovieClipData(d, f);
-        private _reverseMode;
-        reverseMode: boolean;
-        private __needreverse;
-        protected tryReverseMovieClipData(): void;
-        private _flashMode;
-        flashMode: boolean;
-        updateLayout(): void;
-        protected _updateAnimation(): void;
-        private __cb_end(e);
-        private __cb_done(e);
+    class Graphics extends CGraphics {
     }
 }
 declare module nn {

@@ -1,47 +1,43 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-reload(sys)
-sys.setdefaultencoding('utf8')
-
-import getopt, os, os.path, shelve, ConfigParser, hashlib, commands, string, codecs, shutil, datetime, re, zipfile, binascii, time, zlib, signal, subprocess
+import sys, getopt, os, os.path, shelve, configparser, hashlib, string, codecs, shutil, datetime, re, zipfile, binascii, time, zlib, signal, subprocess
 import socket, threading, base64, json, struct, multiprocessing
 from xml.dom import minidom
 
 # 判断必备模块
 try:
     import watchdog, watchdog.observers, watchdog.events
-except Exception, err:
-    print '请先使用 sudo pip install watchdog 安装模块'
+except Exception as err:
+    print('请先使用 sudo pip install watchdog 安装模块')
     sys.exit(0)
 
 try:
     import lxml
-except Exception, err:
-    print '请先使用 sudo pip install lxml 安装模块'
+except Exception as err:
+    print('请先使用 sudo pip install lxml 安装模块')
     sys.exit(0)
 
 try:
     import openpyxl
-except Exception, err:
-    print '请先使用 sudo pip install openpyxl 安装模块'
+except Exception as err:
+    print('请先使用 sudo pip install openpyxl 安装模块')
     sys.exit(0)
     
-if len(commands.getoutput('which npm')) == 0:
-    print '请先使用 sudo port install npm 安装node.js环境'
+if len(subprocess.getoutput('which npm')) == 0:
+    print('请先使用 sudo port install npm 安装node.js环境')
     sys.exit(0)
 
-if len(commands.getoutput('which tsc')) == 0:
-    print '请先使用 sudo npm install -g typescript 安装Typescript环境'
+if len(subprocess.getoutput('which tsc')) == 0:
+    print('请先使用 sudo npm install -g typescript 安装Typescript环境')
     sys.exit(0)
 
-if len(commands.getoutput('which md5sum')) == 0:
-    print '请显示用 sudo port install md5sha1sum 安装必要工具'
+if len(subprocess.getoutput('which md5sum')) == 0:
+    print('请显示用 sudo port install md5sha1sum 安装必要工具')
     sys.exit(0)
 
-if len(commands.getoutput('which wget')) == 0:
-    print '请显示用 sudo port install wget 安装必要工具'
+if len(subprocess.getoutput('which wget')) == 0:
+    print('请显示用 sudo port install wget 安装必要工具')
     sys.exit(0)
     
 cfgdb = None
@@ -51,7 +47,7 @@ if not os.path.isdir('.n2~'):
     os.mkdir('.n2~')
 
 def usage():
-    print """
+    print("""
     n2build <-ht> <debug|publish|config|dpack|api file> \n
     -h 帮助
     -t 不启动service
@@ -70,7 +66,7 @@ def usage():
     pubres \t 发布resource到publish中
     checkout \t 切换分支
     debugindex \t 生成debugindex(windows编译出来的index.html中的文件顺序不对的时候需要在mac上生成debug.html)
-    """
+    """)
 
 # 跨进程锁实现
 try:  
@@ -97,7 +93,7 @@ class GlobalLock:
                 hfile = win32file._get_osfhandle(self.handle.fileno())  
                 win32file.LockFileEx(hfile, LOCK_EX, 0, -0x10000, overlapped)
             ret = True
-        except Exception, err:
+        except Exception as err:
             ret = False
         return ret            
     def release(self):
@@ -107,7 +103,7 @@ class GlobalLock:
             else:  
                 hfile = win32file._get_osfhandle(self.handle.fileno())  
                 win32file.UnlockFileEx(hfile, 0, -0x10000, overlapped)
-        except Exception, err:
+        except Exception as err:
             pass
     def __del__(self):
         #try:  
@@ -127,7 +123,7 @@ def hashfile(file):
     #             break
     #         m.update(data)
     #         return m.hexdigest()
-    res = commands.getoutput('md5sum ' + file).split(" ")
+    res = subprocess.getoutput('md5sum ' + file).split(" ")
     return res[0]
 
 def filesize(file):
@@ -150,7 +146,7 @@ def tempfilename():
     return str(_tmpfilecounter)
 
 def hashstring(str):
-    return hashlib.md5(str).hexdigest()
+    return hashlib.md5(str.encode("utf-8")).hexdigest()
 
 def isImage(file):
     reximg = re.compile(r'(\.png$)|(\.jpg$)')
@@ -158,7 +154,7 @@ def isImage(file):
 
 def makeconfig(recfg):
     """使用引导来生成项目的构建配置文件 .n2.cfg"""
-    cfg = ConfigParser.SafeConfigParser()
+    cfg = configparser.SafeConfigParser()
     if recfg:
         cfg.read('.n2.cfg')
     def input(s, k, h):
@@ -185,25 +181,25 @@ def checkconfig():
     """检查决策此次工作的配置"""
     if not os.path.isfile('.n2.cfg'):
         makeconfig(False)
-    if not cfgdb.has_key('uuid'):
+    if 'uuid' not in cfgdb:
         import uuid
-        cfgdb['uuid'] = str(uuid.uuid4())       
+        cfgdb['uuid'] = str(uuid.uuid4())
     # 比对是否n2build升版
-    if not cfgdb.has_key('bver') or cfgdb['bver'] != version:
+    if 'bver' not in cfgdb or cfgdb['bver'] != version:
         return True    
     # 比对配置文件是否修改过
     cfghash = hashfile('.n2.cfg')
-    if not cfgdb.has_key('cfghash') or cfgdb['cfghash'] != cfghash:
+    if 'cfghash' not in cfgdb or cfgdb['cfghash'] != cfghash:
         cfgdb['cfghash'] = cfghash
         return True
     # 比对n2build是否修改过
     n2bhash = hashfile('n2build')
-    if not cfgdb.has_key('n2bhash') or cfgdb['n2bhash'] != n2bhash:
+    if 'n2bhash' not in cfgdb or cfgdb['n2bhash'] != n2bhash:
         cfgdb['n2bhash'] = n2bhash
         return True
     # 比对egretProp是否修改过
     egprj = hashfile('egretProperties.json')
-    if not cfgdb.has_key('egprjhash') or cfgdb['egprjhash'] != egprj:
+    if 'egprjhash' not in cfgdb or cfgdb['egprjhash'] != egprj:
         cfgdb['egprjhash'] = egprj
         return True
     return False
@@ -223,7 +219,7 @@ def apphtmlinfo(debug):
     # 如果直接返回r则代表不使用app.html
     if not os.path.exists("src/app/app.html"):
         return r
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.read('.n2.cfg')
     from lxml import etree
     content = readfile("src/app/app.html")
@@ -246,8 +242,8 @@ def apphtmlinfo(debug):
 
 def pdindex():
     """生成调试用的index相关文件"""
-    print "生成debug的index.html"
-    cfg = ConfigParser.ConfigParser()
+    print("生成debug的index.html")
+    cfg = configparser.ConfigParser()
     cfg.read('.n2.cfg')
     bkg = cfg.get('app', 'background')
     bkgcolor = cfg.get('app', 'background-color')    
@@ -284,11 +280,11 @@ app.debug = {
 
 def prindex():
     # 处理最新的文件
-    print "生成release版的index.html"
+    print("生成release版的index.html")
     if not os.path.isdir('publish'):
         os.mkdir('publish')
     """生成发布版本的index相关文件"""
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.read('.n2.cfg')
     bkg = cfg.get('app', 'background')
     bkgcolor = cfg.get('app', 'background-color')
@@ -333,7 +329,7 @@ def prebuildsrc():
     for file in files:
         hash = simplehashfile(file)
         key = file.replace('/', '_')
-        if not tscdb.has_key(key) or tscdb[key] != hash:            
+        if key not in tscdb or tscdb[key] != hash:            
             prebuild_tsc(file, key)
             tscdb[key] = hash
     # 处理所有的excel文件
@@ -343,7 +339,7 @@ def prebuildsrc():
             continue
         hash = simplehashfile(file)
         key = file.replace('/', '_')
-        if not tscdb.has_key(key) or tscdb[key] != hash:            
+        if key not in tscdb or tscdb[key] != hash:            
             prebuild_xls(file, key)
             tscdb[key] = hash
     tscdb.close()
@@ -352,16 +348,16 @@ def prebuildsrc():
     combinefiles(files, 'resource/default.data.js')
 
 def prebuild_tsc(file, key):
-    print '处理 ' + file
+    print('处理 ' + file)
     shutil.copyfile(file, 'src/app/~tsc/doing.ts')
     # 生成 d.ts 文件
-    commands.getoutput('tsc -d -t es5 --outDir src/app/~tsc src/app/~tsc/doing.ts')
+    subprocess.getoutput('tsc -d -t es5 --outDir src/app/~tsc src/app/~tsc/doing.ts')
     shutil.move('src/app/~tsc/doing.d.ts', 'src/app/~tsc/' + key + '.d.ts')
     shutil.move('src/app/~tsc/doing.js', 'src/app/~tsc/' + key + '.js')
     os.unlink('src/app/~tsc/doing.ts')
 
 def prebuild_xls(file, key):
-    print '处理 ' + file
+    print('处理 ' + file)
     d = openpyxl.reader.excel.load_workbook(file)
     for e in d.sheetnames:
         prebuild_xls_sheet(d, e, key + '_' + e.lower())
@@ -441,19 +437,19 @@ def output_xlsdata_tots(name, ids, datas, props, key):
         'CFGS':json.dumps(datas, indent=4),
         'DATA':'{' + ','.join(jsobjs) + '}',
         'PROPERTIES':''.join(props)
-    }).decode("unicode-escape")
+    }).encode('utf-8').decode('unicode_escape')
     codecs.open('src/app/~tsc/doing.ts', 'w', 'utf-8').write(cnt)
     # 输出js
-    commands.getoutput('tsc -d -t es5 --outDir src/app/~tsc src/app/~tsc/doing.ts')
+    subprocess.getoutput('tsc -d -t es5 --outDir src/app/~tsc src/app/~tsc/doing.ts')
     shutil.move('src/app/~tsc/doing.d.ts', 'src/app/~tsc/' + key + '.d.ts')
     shutil.move('src/app/~tsc/doing.js', 'src/app/~tsc/' + key + '.js')
     os.unlink('src/app/~tsc/doing.ts')
 
 def builddebug(rebuild):
     if rebuild:
-        print "重新编译debug版本"
+        print("重新编译debug版本")
     else:
-        print "编译debug版本"
+        print("编译debug版本")
     # 预处理工程代码
     egret_makerequire()
     prebuildsrc()
@@ -462,12 +458,12 @@ def builddebug(rebuild):
     # 判断使用何种编译
     if rebuild:
         egret_cmd('clean')
-        print egret_cmd('build -e')
+        print(egret_cmd('build -e'))
     else:
-        print egret_cmd('build')
+        print(egret_cmd('build'))
 
 def copydebugtopublish():
-    print "拷贝debug文件到publish"
+    print("拷贝debug文件到publish")
     if not os.path.isdir('publish'):
         os.mkdir('publish')
     shutil.copytree('tools', 'publish/tools')
@@ -479,10 +475,10 @@ def copydebugtopublish():
     shutil.copy('index.html', 'publish/')
     shutil.copy('app.json', 'publish/')
     # 判断是否需要合并
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.read('.n2.cfg')
     if cfg.get('dev', 'automerge') == 'y':
-        print "合并图片"
+        print("合并图片")
         processdirs('publish/resource/assets', automergeimages, blacklist=GENRES_BLACKS, depth=2)
         genresdbdirectory('publish')
 
@@ -553,18 +549,18 @@ def downloadccompiler():
 # 下载 euibooster
 def downloadeuib():
     if not os.path.isfile(".n2~/euibooster"):
-        commands.getoutput("wget https://raw.githubusercontent.com/wybosys/n2egret/master/tools/euibooster.js -O " + ".n2~/euibooster.js")
-        commands.getoutput("wget https://raw.githubusercontent.com/wybosys/n2egret/master/tools/euibooster -O " + ".n2~/euibooster")
-        commands.getoutput("chmod +x .n2~/euibooster")
+        subprocess.getoutput("wget https://raw.githubusercontent.com/wybosys/n2egret/master/tools/euibooster.js -O " + ".n2~/euibooster.js")
+        subprocess.getoutput("wget https://raw.githubusercontent.com/wybosys/n2egret/master/tools/euibooster -O " + ".n2~/euibooster")
+        subprocess.getoutput("chmod +x .n2~/euibooster")
 
 PATTERN_HTML_SCRIPT_SRC = re.compile('src="(.+)"')
         
 def buildrelease():
-    print "编译release版本"
+    print("编译release版本")
     # 判断是否使用eui
     if os.path.exists('resource/eui_skins'):
-        if len(commands.getoutput('which euibooster')) == 0:
-            print '请先使用 sudo npm install -g cli-eui-new 安装模块'
+        if len(subprocess.getoutput('which euibooster')) == 0:
+            print('请先使用 sudo npm install -g cli-eui-new 安装模块')
             sys.exit(0)
         else:
             downloadeuib()
@@ -574,26 +570,26 @@ def buildrelease():
     # 重新编译工程
     egret_cmd('build -e')
     # 读取配置
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.read('.n2.cfg')
     # 清理binrelease
     if os.path.isdir("bin-release"):
         shutil.rmtree("bin-release")
-    print 'publish版本' + egret_cmd('publish --compressjson')
+    print('publish版本' + egret_cmd('publish --compressjson'))
     dir = str(max(map(safeInt, os.listdir('bin-release/web'))))
     # 自动合并release下面的图片
     if cfg.get('dev', 'automerge') == 'y':
-        print "自动合并图片"
+        print("自动合并图片")
         processdirs('bin-release/web/' + dir + '/resource/assets/', automergeimages, blacklist=GENRES_BLACKS, depth=2)
         # 因为自动合并图片，需要刷新下bin-release下面的res.json
         genresdbdirectory('bin-release/web/' + dir)
     # 后处理
-    print "拷贝release版本到publish"
+    print("拷贝release版本到publish")
     shutil.move('bin-release/web/' + dir + '/resource', 'publish/resource')
     shutil.copyfile('bin-release/web/' + dir + '/main.min.js', 'publish/main.min.js')
     # 压缩eui
     if os.path.exists('resource/eui_skins'):
-        print '编译 eui-skins'
+        print('编译 eui-skins')
         shutil.copyfile('publish/resource/default.thm.json', 'publish/resource/default.thm')
         os.system('.n2~/euibooster ' + os.getcwd() + ' publish')
     files = []
@@ -639,11 +635,11 @@ def distfile(q, sem, file, func, db, prg):
     idx = prg[0]
     sum = prg[1]
     key = hashstring(file)
-    if db.has_key(key):
+    if key in db:
         # 如果大小不同，再比对hash，加速
         hash = hashfile(file)
         if hash == db[key]:
-            print 'COPY %d/%d' %(idx,sum), file
+            print('COPY %d/%d' %(idx,sum), file)
             shutil.copyfile('.n2~/dist/' + key, file)
             sem.release()
             return
@@ -651,7 +647,7 @@ def distfile(q, sem, file, func, db, prg):
         oldsz = filesize(file)
         func(file)
         newsz = float(filesize(file))
-        print 'RECOMPRESS %d/%d' %(idx,sum), file, '%d%%' %(newsz/oldsz*100), '%dK' %(newsz/1024)
+        print('RECOMPRESS %d/%d' %(idx,sum), file, '%d%%' %(newsz/oldsz*100), '%dK' %(newsz/1024))
         shutil.copyfile(file, '.n2~/dist/' + key)
         sem.release()
         return
@@ -660,7 +656,7 @@ def distfile(q, sem, file, func, db, prg):
     oldsz = filesize(file)
     func(file)
     newsz = float(filesize(file))
-    print 'COMPRESS %d/%d' %(idx,sum), file, '%d%%' %(newsz/oldsz*100), '%dK' %(newsz/1024)
+    print('COMPRESS %d/%d' %(idx,sum), file, '%d%%' %(newsz/oldsz*100), '%dK' %(newsz/1024))
     shutil.copyfile(file, '.n2~/dist/' + key)
     sem.release()
 
@@ -700,11 +696,11 @@ def distresources():
     db_set(db, '.n2~/dist.db')
         
 def explorer(path):
-    commands.getstatusoutput("terminal-notifier -title N2BUILD -sound default -message 发布成功 " + "-execute \"open " + path + "\"")
+    subprocess.getstatusoutput("terminal-notifier -title N2BUILD -sound default -message 发布成功 " + "-execute \"open " + path + "\"")
 
 def egret_cmd(cmd):
-    s, ot = commands.getstatusoutput('egret ' + cmd)
-    return ot.decode('utf-8')
+    s, ot = subprocess.getstatusoutput('egret ' + cmd)
+    return ot
 
 SRV_DEBUG_RUN = True
 WS_MAGIC_STRING = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
@@ -734,9 +730,9 @@ class WS_SERVICE(threading.Thread):
                             m['rsp'] = True
                             self.send_data(json.dumps(m))
                     else:
-                        print '服务器不支持该命令 ' + cmd
-            except Exception, err:
-                print '处理收到的数据失败', err
+                        print('服务器不支持该命令 ' + cmd)
+            except Exception as err:
+                print('处理收到的数据失败', err)
         self.con.close()
     def work(self, cmd, worker):
         self.workers[cmd] = worker
@@ -840,9 +836,8 @@ def wswrk_launch(port, wrkidr, wrkfun):
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.bind(('localhost', int(port)))
             sock.listen(1000)
-            #print wrkidr + ' 启动成功 localhost:' + port
-        except Exception,err:
-            print err
+        except Exception as err:
+            print(err)
             return
         lck = GlobalLock(wrkidr.replace(':', '_'))
         lck.acquire()
@@ -864,9 +859,7 @@ def wswrk_launch(port, wrkidr, wrkfun):
 def watchfilesystem(name, path, handler):
     lck = GlobalLock(name)
     if lck.acquire() == False:
-        #print 'fswatcher:' + name + ' 已经运行'
         return False
-    #print 'fswatcher:即将启动 ' + name
     lck.release()
     # 创建工作进程
     #wfs_worker(name, path, handler)
@@ -882,17 +875,14 @@ def wfs_worker(name, path, handler):
         obs = watchdog.observers.Observer()
         obs.schedule(handler, path, recursive=True)
         obs.start()
-        #print 'fswatcher:' + name + '启动成功'
         try:
             while True:
                 time.sleep(1)
-                #print 'fswatcher:' + name + '轮询'
         except KeyboardInterrupt:
             obs.stop()
         obs.join()
-    except Exception, err:
-        #print 'fswatcher:' + name + '启动失败'
-        print err
+    except Exception as err:
+        print(err)
     lck.release()
 
 # ----------------------------------- 控制 wing 的状态
@@ -926,9 +916,9 @@ def egret_wing_captureskin(file, dir, to):
     try:
         import pyscreeze
     except:
-        print '请使用 sudo pip install pyscreeze 安装模块'
+        print('请使用 sudo pip install pyscreeze 安装模块')
         sys.exit(0)
-    print "即将生成 " + file + " 的预览"
+    print("即将生成 " + file + " 的预览")
     def captureskin():
         img = pyscreeze.screenshot(region=(700, 160, 780, 900))
         img.save(to)
@@ -998,7 +988,7 @@ def resmaker_buildmod(dir):
         try:
             predict = json.loads(''.join(open(resf).readlines()))
         except:
-            print '处理 ' + resf + ' 失败'
+            print('处理 ' + resf + ' 失败')
         for k in dict:
             if k in predict:
                 v = predict[k]
@@ -1059,7 +1049,7 @@ def resmaker_rundepto(submod):
     })
     open(deptodat, 'wb').write(egret_compress(cnt))
     # 启动resdepto
-    s, ot = commands.getstatusoutput("/Applications/ResDepot.app/Contents/MacOS/ResDepot")
+    s, ot = subprocess.getstatusoutput("/Applications/ResDepot.app/Contents/MacOS/ResDepot")
     # 读取临时的res.json提取9点
     resobj = json.loads(''.join(open(deptoj, 'r').readlines()))
     ress = resobj['resources']
@@ -1196,13 +1186,13 @@ def genresdbdirectory(dir):
     open(dir + '/resource/default.res.json', 'w').write(json.dumps(jsobj, indent=4))
 
 def pubres():
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.read('.n2.cfg')
     shutil.rmtree('publish', True)
-    print 'copy资源'
+    print('copy资源')
     shutil.copytree('resource', 'publish/resource')
     if cfg.get('dev', 'automerge') == 'y':
-        print '自动合并资源'
+        print('自动合并资源')
         processdirs('publish/resource/assets', automergeimages, blacklist=GENRES_BLACKS, depth=2)
         genresdbdirectory('publish')
 
@@ -1295,9 +1285,8 @@ module ${MODULE} {\n
         try:
             open(srcfn, 'w').write(cnt)
         except:
-            print srcfn + "保存处理过的xml失败"
+            print(srcfn + "保存处理过的xml失败")
             raise
-        #print '生成皮肤对应文件 ' + srcfn
     # 生成interface需要的函数
     funs = set()
     for slot in slots:
@@ -1380,13 +1369,13 @@ class hdl_genskinimpls(watchdog.events.FileSystemEventHandler):
 def svc_developer():
     try:
         import wx
-    except Exception, err:
-        print '请先使用 sudo pip install wxPython 安装模块'
+    except Exception as err:
+        print('请先使用 sudo pip install wxPython 安装模块')
         sys.exit(0)
     try:
         import Image
-    except Exception, err:
-        print '请先使用 sudo pip install PIL 安装模块'
+    except Exception as err:
+        print('请先使用 sudo pip install PIL 安装模块')
         sys.exit(0)
     # 临时工作的文件夹
     if not os.path.isdir('.n2~/developer'):
@@ -1402,7 +1391,7 @@ if dialog.ShowModal() == wx.ID_OK:
 else:
     path = ''
 dialog.Destroy()
-print path
+print(path)
 """)
     open('.n2~/file_dlg_save.py', 'w').write("""
 import wx
@@ -1414,7 +1403,7 @@ if dialog.ShowModal() == wx.ID_OK:
 else:
     path = ''
 dialog.Destroy()
-print path
+print(path)
 """)
     open('.n2~/file_dlg_dir.py', 'w').write("""
 import wx
@@ -1425,7 +1414,7 @@ if dialog.ShowModal() == wx.ID_OK:
 else:
     path = ''
 dialog.Destroy()
-print path
+print(path)
 """)
     # wswrk_launch('59000', chrome-devtools) 
     wswrk_launch('59001', WSWRK_DEVELOPER, wswrk_developer)
@@ -1447,7 +1436,7 @@ def main():
     if 'service' in args:
         cmd = args[args.index('service') + 1]
         if cmd == 'list':
-            print get_deamons()
+            print(get_deamons())
             return
         elif cmd == 'stop':
             stop_deamons()
@@ -1501,7 +1490,7 @@ def main():
     if 'skin' in args:
         cmd = args[args.index('skin') + 1]
         if cmd == 'preview':
-            print '将会花费较长时间，请耐心等待'
+            print('将会花费较长时间，请耐心等待')
             preview_skins()
         return
     # 是否需要重新生成index
@@ -1512,7 +1501,7 @@ def main():
         prindex()
         buildrelease()
         # 重新生成resource的目录
-        cfg = ConfigParser.ConfigParser()
+        cfg = configparser.ConfigParser()
         cfg.read('.n2.cfg')
         resdir = 'publish/resource'
         if cfg.get('app', 'resource') == 'p':
@@ -1533,7 +1522,7 @@ def main():
             buildrelease()
             distresources()
             # 重新生成resource的目录
-            cfg = ConfigParser.ConfigParser()
+            cfg = configparser.ConfigParser()
             cfg.read('.n2.cfg')
             resdir = 'publish/resource'
             if cfg.get('app', 'resource') == 'p':
@@ -1737,8 +1726,8 @@ egret_native.egretStart = function () {
 def check_ebnf():
     try:
         import pyparsing
-    except Exception, err:
-        print '请先使用 sudo pip install pyparsing 安装 pyparsing 模块'
+    except Exception as err:
+        print('请先使用 sudo pip install pyparsing 安装 pyparsing 模块')
         sys.exit(0)
 
 # 编译API接口
@@ -1750,7 +1739,7 @@ def buildapi(file):
     open('Api.ts', 'w').write('module app.api {\n\n' + mdl.output_ts() + '\n}\n')
 
 def log(msg):
-    print msg
+    print(msg)
 
 class SprModel:
     lxMain = None
@@ -1790,7 +1779,7 @@ class SprModel:
         
     def load(self, file):
         if os.path.isfile(file) == False:
-            print '警告: ' + file + ' 文件不存在'
+            print('警告: ' + file + ' 文件不存在')
             return
         d = ''.join(open(file).readlines())
         self.segments = SprModel.lxMain.parseString(d)
@@ -2077,7 +2066,7 @@ def pack(file, srcs, sumdb):
         for each in srcs:
             # 计算并比较sum
             tsum = hashfile(each)
-            if sumdb.has_key(each):
+            if each in sumdb:
                 dsum = sumdb[each]
             else:
                 dsum = -1
@@ -2118,12 +2107,12 @@ def dpack():
     sumdb = shelve.open('.n2~/packsums')
     pack('publish/' + fn + '.zip', srcfiles, sumdb)
     os.unlink('.n2~/packsums')
-    print '生成 ' + 'publish/' + fn + '.zip'
+    print('生成 ' + 'publish/' + fn + '.zip')
 
 # 调试服务
 def wrk_find_file4clazz(clazz):
     findstr = "registerClass(" + clazz
-    res = commands.getstatusoutput('grep -r "' + findstr + '" bin-debug')[1]
+    res = subprocess.getstatusoutput('grep -r "' + findstr + '" bin-debug')[1]
     fp = re.compile('^bin-debug/([a-zA-Z0-9_/]+).js:.+$').findall(res)
     if len(fp) == 0:
         return None    
@@ -2215,7 +2204,7 @@ def wrk_parse_tsfile(file):
 def wrk_fetch_clazz_source(clazz, file):
     file = readfile('src/' + file + '.ts')
     segments = wrk_ts_parser().parseString(file)
-    print segments
+    print(segments)
 
 # ------------------------------- 自动合并图片 ---------------------------------
 PATTERN_FILENAME_EXT = re.compile('(.+)\.(.+)')
@@ -2258,12 +2247,12 @@ def automergeimages(dir, name):
         path = dir + '/' + ef[0] + '.' + ef[1]
         img = Image.open(path)
         if img == None:
-            print '打开图像 ' + path + ' 失败'
+            print('打开图像 ' + path + ' 失败')
             continue
         bbx = img.getbbox()
         size = img.size        
         if bbx == None:
-            print "图片的bbx为空，使用整张图片 " + path
+            print("图片的bbx为空，使用整张图片 " + path)
             bbx = (0, 0, size[0], size[1])
         else:
             img = img.crop(bbx)
@@ -2341,9 +2330,9 @@ def wswrk_developer(m):
     method = m['method']
     argus = m['fields']
     if method == '::file::dialog::save':
-        m['path'] = commands.getoutput('python .n2~/file_dlg_save.py ')        
+        m['path'] = subprocess.getoutput('python .n2~/file_dlg_save.py ')        
     elif method == '::file::dialog::open':        
-        src = commands.getoutput('python .n2~/file_dlg_open.py')
+        src = subprocess.getoutput('python .n2~/file_dlg_open.py')
         dst = src
         # 需要将文件copy到本地，不然会被chrome阻止访问
         if src != None:
@@ -2351,7 +2340,7 @@ def wswrk_developer(m):
             shutil.copyfile(src, dst)            
         m['path'] = dst
     elif method == '::file::dialog::dir':
-        m['path'] = commands.getoutput('python .n2~/file_dlg_dir.py')
+        m['path'] = subprocess.getoutput('python .n2~/file_dlg_dir.py')
     elif method == '::fs::mkdir':
         argus = m['fields']
         p = argus['p']

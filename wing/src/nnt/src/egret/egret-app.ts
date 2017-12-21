@@ -329,7 +329,7 @@ module nn {
         _AppStage.Init();        
         
         // 约定是否使用webgl
-        let glmode = false;
+        let glmode = CLAZZ_MAIN.UseWebGl();
         if (location.href.indexOf('nowebgl=1') != -1)
             glmode = false;
         else if (location.href.indexOf('webgl=1') != -1)

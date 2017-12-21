@@ -58,6 +58,9 @@ module eui {
         protected _initSignals() {
             this._signals.delegate = this;
             this._signals.register(nn.SignalClicked);
+            this._signals.register(nn.SignalTouchBegin);
+            this._signals.register(nn.SignalTouchEnd);
+            this._signals.register(nn.SignalTouchMove);
         }
 
         protected _signals:nn.Signals;
@@ -72,15 +75,65 @@ module eui {
             this._signals = new nn.Signals(this);            
             this._initSignals();
         }
+
+        private _touch:nn.Touch;
+        get touch():nn.Touch {
+            if (this._touch == null)
+                this._touch = new nn.Touch();
+            return this._touch;
+        }
         
         _signalConnected(sig:string, s?:nn.Slot) {
-            if (sig == nn.SignalClicked) {
-                nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__cmp_tap, this);
+            switch (sig)
+            {
+            case nn.SignalTouchBegin:
+            case nn.SignalTouchEnd:
+            case nn.SignalTouchMove: {
+                this.touchEnabled = true;                
+                nn.EventHook(this, egret.TouchEvent.TOUCH_BEGIN, this.__dsp_touchbegin, this);
+                nn.EventHook(this, egret.TouchEvent.TOUCH_END, this.__dsp_touchend, this);
+                nn.EventHook(this, egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.__dsp_touchrelease, this);
+                nn.EventHook(this, egret.TouchEvent.TOUCH_MOVE, this.__dsp_touchmove, this);
+            } break;
+            case nn.SignalClicked: {
+                this.touchEnabled = true;
+                nn.EventHook(this, egret.TouchEvent.TOUCH_TAP, this.__dsp_tap, this);
+            } break;
             }
         }
         
-        private __cmp_tap(e:egret.TouchEvent) {
-            this.signals.emit(nn.SignalClicked);
+        private __dsp_touchbegin(e:egret.TouchEvent) {
+            if (this._signals) {
+                let t = this.touch;
+                t._event = e;
+                this._signals.emit(nn.SignalTouchBegin, t);
+            }
+        }
+        
+        private __dsp_touchend(e:egret.TouchEvent) {
+            let t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalTouchEnd, t);
+        }
+
+        private __dsp_touchrelease(e:egret.TouchEvent) {
+            let t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalTouchEnd, t);
+        }
+
+        private __dsp_touchmove(e:egret.TouchEvent) {
+            let t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalTouchMove, t);
+            t.lastPosition.copy(t.currentPosition);
+        }
+
+        private __dsp_tap(e:egret.TouchEvent) {
+            let t = this.touch;
+            t._event = e;       
+            this._signals.emit(nn.SignalClicked, t);
+            // 防止之后的被点击
             e.stopPropagation();
         }
 
