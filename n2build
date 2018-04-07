@@ -157,24 +157,24 @@ def makeconfig(recfg):
     cfg = configparser.SafeConfigParser()
     if recfg:
         cfg.read('.n2.cfg')
-    def input(s, k, h):
+    def wait_input(s, k, h):
         if not cfg.has_section(s):
             cfg.add_section(s)
         if cfg.has_option(s, k):
             t = cfg.get(s, k)
         else:
             t = ''
-        v = raw_input(h + [' 当前(' + t + ')', ''][not t] + ':') or t
+        v = input(h + [' 当前(' + t + ')', ''][not t] + ':') or t
         cfg.set(s, k, v)
-    input('app', 'name', '游戏名称')
-    input('app', 'icon', 'ICON的路径')
-    input('app', 'background', '背景')
-    input('app', 'background-color', '背景颜色')
-    input('app', 'orientation', '方向 [h]ov/[v]ec')
-    input('app', 'resource', '资源的模式 [d]ebug/[p]ublish]')
-    input('app', 'version', '版本号')
-    input('dev', 'genresdb', '自动生成资源数据 [y]es/[n]o')
-    input('dev', 'automerge', '自动合并资源 [y]es/[n]o')
+    wait_input('app', 'name', '游戏名称')
+    wait_input('app', 'icon', 'ICON的路径')
+    wait_input('app', 'background', '背景')
+    wait_input('app', 'background-color', '背景颜色')
+    wait_input('app', 'orientation', '方向 [h]ov/[v]ec')
+    wait_input('app', 'resource', '资源的模式 [d]ebug/[p]ublish]')
+    wait_input('app', 'version', '版本号')
+    wait_input('dev', 'genresdb', '自动生成资源数据 [y]es/[n]o')
+    wait_input('dev', 'automerge', '自动合并资源 [y]es/[n]o')
     cfg.write(open('.n2.cfg', 'w'))
     
 def checkconfig():    
@@ -358,14 +358,14 @@ def prebuild_tsc(file, key):
 
 def prebuild_xls(file, key):
     print('处理 ' + file)
-    d = openpyxl.reader.excel.load_workbook(file)
+    d = openpyxl.reader.excel.load_workbook(file, data_only=True)
     for e in d.sheetnames:
         prebuild_xls_sheet(d, e, key + '_' + e.lower())
 
 def prebuild_xls_sheet(xls, name, key):
     sh = xls.get_sheet_by_name(name)
     data = {}
-    # 第一行是说明，第二行是id会变成property，其他行是数据
+    # 第一行是说明，第二行是id会变成property，第三行是数据定义行，其他行是数据
     # 查找id位于的colid
     colids = []
     colnames = []
@@ -382,12 +382,12 @@ def prebuild_xls_sheet(xls, name, key):
     props = []
     for i in range(len(colids)):
         col = colids[i]
-        cell = sh.cell(row=3, column=col)
+        cell = sh.cell(row=4, column=col)
         val = cell.value        
         valtype = 'number'
         if val == None:
             valtype = 'string'
-        elif isinstance(val, str) or isinstance(val, unicode):
+        elif isinstance(val, str):
             valtype = 'string'
         prop = string.Template("""
         get ${NAME}():${TYPE} { return this._obj[${INDEX}]; }
@@ -402,8 +402,8 @@ def prebuild_xls_sheet(xls, name, key):
     # 拼装所有行数据
     rowdatas = []
     rowids = []
-    for row in range(3, sh.max_row+1):
-        rowid = row - 3
+    for row in range(4, sh.max_row+1):
+        rowid = row - 4
         if idxid != None:
             rowid = sh.cell(row=row, column=idxid).value
         rowdata = []
@@ -1578,7 +1578,7 @@ TPL_INDEX_DEBUG="""
     </style>
     ${APPSTYLE}
     <!-- 小伙伴SDK -->
-    <script src="http://d.hgame.com/loadsdk?v=2"></script>
+    <!-- <script src="http://d.hgame.com/loadsdk?v=2"></script>-->
 </head>
 <body>
     <div id="launchDiv">        
@@ -1590,6 +1590,7 @@ TPL_INDEX_DEBUG="""
          data-orientation="auto"
          data-scale-mode="showAll"
          data-multi-fingered="2"
+         data-frame-rate="60"
          >
     </div>
     <!-- debug信息 -->
@@ -1666,6 +1667,7 @@ TPL_INDEX_RELEASE="""
          data-orientation="auto"
          data-scale-mode="showAll"
          data-multi-fingered="2"
+         data-frame-rate="60"
          >
     </div>
     ${FILESLIST}
