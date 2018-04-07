@@ -12,7 +12,6 @@ def copylib(name):
     shutil.copyfile(fromlib+'/'+name+'/libsrc/bin/'+name+'/'+name+'.d.ts',
     "header/"+name+'.d.ts')
 
-copylib('base64texture')
 copylib('greensock')
 copylib('jszip')
 copylib('md5')

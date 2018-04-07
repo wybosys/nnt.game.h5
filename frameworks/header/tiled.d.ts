@@ -1150,25 +1150,6 @@ declare module tiled {
     }
 }
 declare module tiled {
-    class PolyLine extends egret.Sprite {
-        private points;
-        /**
-         * 创建1个新的折线实例
-         * @param x 水平坐标（单位：像素）
-         * @param y 垂直坐标（单位：像素）
-         * @param points 折线对应的点数据列表
-         * @version Egret 3.0.3
-         */
-        constructor(x: number, y: number, points: number[][]);
-        /**
-         * 根据参数<code>color</code>绘制折线，参数为16进制表示形式，例如：0xff0000
-         * @param color 颜色值
-         * @version Egret 3.0.3
-         */
-        draw(color: number): void;
-    }
-}
-declare module tiled {
     class Polygon extends egret.Sprite {
         private points;
         /**
@@ -1181,6 +1162,25 @@ declare module tiled {
         constructor(x: number, y: number, points: number[][]);
         /**
          * 根据参数<code>color</code>绘制多边形，参数为16进制表示形式，例如：0xff0000
+         * @param color 颜色值
+         * @version Egret 3.0.3
+         */
+        draw(color: number): void;
+    }
+}
+declare module tiled {
+    class PolyLine extends egret.Sprite {
+        private points;
+        /**
+         * 创建1个新的折线实例
+         * @param x 水平坐标（单位：像素）
+         * @param y 垂直坐标（单位：像素）
+         * @param points 折线对应的点数据列表
+         * @version Egret 3.0.3
+         */
+        constructor(x: number, y: number, points: number[][]);
+        /**
+         * 根据参数<code>color</code>绘制折线，参数为16进制表示形式，例如：0xff0000
          * @param color 颜色值
          * @version Egret 3.0.3
          */
