@@ -57,11 +57,8 @@ def usage():
     clean \t 清空
     config \t 使用引导来配置当前项目
     dpack \t diff-package 增量打包项目版本    
-    api file \t 编译 file 文件，产出 api.proto 和 api.ts
     depto <module> \t 使用ResDepto来修改子模块的资源配置文件
     service <list|stop> \t 控制n2build的服务
-    skin <preview> \t 皮肤相关的操作 preview:生成皮肤预览[很长时间]
-    developer \t 启动开发服务
     genres \t 生成res.json文件
     pubres \t 发布resource到publish中
     checkout \t 切换分支
@@ -204,13 +201,6 @@ def checkconfig():
         return True
     return False
 
-def egret_makerequire():
-    """生成egret需要的文件"""
-    # egret3.0.5后，必须准备好native_require.js文件，否则编译报错
-    if not os.path.isfile('template/runtime/native_require.js'):
-        cnt = string.Template(TPL_NATIVE_REQUIRE).substitute()
-        open('template/runtime/native_require.js', 'w').write(cnt)
-
 # 提取app.html中引用独立定义的加载样式
 def apphtmlinfo(debug):
     r = {'APPSTYLE':"",
@@ -250,6 +240,11 @@ def pdindex():
     if bkg.startswith('assets://'):
         bkg = bkg.replace('assets://', 'resource/assets/')
     appinfo = apphtmlinfo(True)
+    # 读取js列表
+    manifest = json.loads(readfile('manifest.json'))
+    files = []
+    for each in manifest['initial'] + manifest['game']:
+        files.append('<script src="' + each + '"></script>')
     index = string.Template(TPL_INDEX_DEBUG).substitute({
         'APPNAME': cfg.get('app', 'name'),
         'APPORI': ['portrait', 'landscape'][cfg.get('app', 'orientation') == 'h'],
@@ -259,7 +254,8 @@ def pdindex():
         'BACKGROUNDCOLOR': bkgcolor,
         'APPSTYLE': appinfo['APPSTYLE'],
         'APPLAUNCH': appinfo['APPLAUNCH'],
-        'APPSCRIPT': appinfo['APPSCRIPT']
+        'APPSCRIPT': appinfo['APPSCRIPT'],
+        'FILESLIST': '\n\t'.join(files)
     })
     open('index.html', 'w').write(index)
     # 为了支持插件调试模式，需要描述一下当前项目的信息
@@ -451,7 +447,6 @@ def builddebug(rebuild):
     else:
         print("编译debug版本")
     # 预处理工程代码
-    egret_makerequire()
     prebuildsrc()
     # 去除publish引起的egret混乱
     shutil.rmtree('publish', True)
@@ -702,98 +697,6 @@ def egret_cmd(cmd):
     s, ot = subprocess.getstatusoutput('egret ' + cmd)
     return ot
 
-SRV_DEBUG_RUN = True
-WS_MAGIC_STRING = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
-WS_HANDSHAKE_STRING = "HTTP/1.1 101 Switching Protocols\r\n" \
-                      "Upgrade:websocket\r\n" \
-                      "Connection: Upgrade\r\n" \
-                      "Sec-WebSocket-Accept: {1}\r\n" \
-                      "WebSocket-Location: ws://{2}/chat\r\n" \
-                      "WebSocket-Protocol:chat\r\n\r\n"
-
-class WS_SERVICE(threading.Thread):
-    def __init__(self, connection):
-        threading.Thread.__init__(self)
-        self.con = connection
-        self.workers = {}
-    def run(self):
-        while True:
-            try:
-                rec = self.recv_data(9216)
-                if type(rec) == str:
-                    m = json.loads(unicode(rec, "utf-8"))
-                    cmd = m[u'cmd']
-                    if self.workers.has_key(cmd):
-                        worker = self.workers[cmd]
-                        if worker(m):
-                            # 发送成功
-                            m['rsp'] = True
-                            self.send_data(json.dumps(m))
-                    else:
-                        print('服务器不支持该命令 ' + cmd)
-            except Exception as err:
-                print('处理收到的数据失败', err)
-        self.con.close()
-    def work(self, cmd, worker):
-        self.workers[cmd] = worker
-    def recv_data(self, num):
-        try:
-            all_data = self.con.recv(num)
-            if not len(all_data):
-                return False
-        except:
-            return False
-        else:
-            code_len = ord(all_data[1]) & 127
-            if code_len == 126:
-                masks = all_data[4:8]
-                data = all_data[8:]
-            elif code_len == 127:
-                masks = all_data[10:14]
-                data = all_data[14:]
-            else:
-                masks = all_data[2:6]
-                data = all_data[6:]
-            raw_str = ""
-            i = 0
-            for d in data:
-                raw_str += chr(ord(d) ^ ord(masks[i % 4]))
-                i += 1
-            return raw_str  
-    def send_data(self, data):
-        if data:
-            data = str(data)
-        else:
-            return False
-        token = "\x81"
-        length = len(data)
-        if length < 126:
-            token += struct.pack("B", length)
-        elif length <= 0xFFFF:
-            token += struct.pack("!BH", 126, length)
-        else:
-            token += struct.pack("!BQ", 127, length)
-        data = '%s%s' % (token, data)
-        self.con.send(data)
-        return True
-
-def ws_handshake(con):
-    headers = {}
-    shake = con.recv(1024)    
-    if not len(shake):
-        return False
-    header, data = shake.split('\r\n\r\n', 1)
-    for line in header.split('\r\n')[1:]:
-        key, val = line.split(': ', 1)
-        headers[key] = val      
-    if 'Sec-WebSocket-Key' not in headers:
-        return False
-    sec_key = headers['Sec-WebSocket-Key']
-    res_key = base64.b64encode(hashlib.sha1(sec_key + WS_MAGIC_STRING).digest())  
-    str_handshake = WS_HANDSHAKE_STRING.replace('{1}', res_key).replace('{2}', 'localhost:59000')
-    con.send(str_handshake)
-    return True
-
 # 运行守护进程
 def start_deamon():
     pid = os.fork()
@@ -821,39 +724,6 @@ def get_deamons():
         except:
             pass
     return r
-
-# 启动标准的ws服务
-def wswrk_launch(port, wrkidr, wrkfun):
-    # 如果已经运行，则跳过
-    lck = GlobalLock(wrkidr.replace(':', '_'))
-    if lck.acquire() == False:
-        return
-    lck.release()
-    # 子进程
-    if start_deamon():
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            sock.bind(('localhost', int(port)))
-            sock.listen(1000)
-        except Exception as err:
-            print(err)
-            return
-        lck = GlobalLock(wrkidr.replace(':', '_'))
-        lck.acquire()
-        while SRV_DEBUG_RUN:
-            connector, addr = sock.accept()
-            if addr[0] != '127.0.0.1':
-                connector.close()
-                continue
-            if ws_handshake(connector):
-                try:
-                    svc = WS_SERVICE(connector)
-                    svc.work(wrkidr, wrkfun)
-                    svc.start()
-                except:
-                    connector.close()
-        lck.release()
                     
 # 监听文件变动
 def watchfilesystem(name, path, handler):
@@ -884,54 +754,6 @@ def wfs_worker(name, path, handler):
     except Exception as err:
         print(err)
     lck.release()
-
-# ----------------------------------- 控制 wing 的状态
-def egret_wing_usefile(file, dir):    
-    hex = """\n\x0b\x01\x1blayoutDefault\n\x01;MainView.WorkSpace.Programmer\x06\x8e${SIZE}<BoxElement width="1886" height="955" id="6">\n  <BoxElement isVertical="true" width="272" height="955" id="2">\n    <TabGroup selectedIndex="0" width="272" height="478" id="0">\n      <TabPanel content="packagePanel"/>\n    </TabGroup>\n    <TabGroup selectedIndex="0" width="272" height="478" id="1">\n      <TabPanel content="outlinePanel"/>\n    </TabGroup>\n  </BoxElement>\n  <BoxElement isVertical="true" width="1615" height="955" id="5">\n    <Document width="1615" height="955" id="3">\n      <TabGroup selectedIndex="0" width="1615" height="955" id="7">\n        <TabPanel path="${FILE}"/>\n      </TabGroup>\n    </Document>\n    <TabGroup selectedIndex="0" minimized="true" id="4">\n      <TabPanel content="consolePanel"/>\n      <TabPanel content="progressPanel"/>\n      <TabPanel content="searchResultPanel"/>\n      <TabPanel content="errorPanel"/>\n    </TabGroup>\n  </BoxElement>\n</BoxElement>\x01\x0fcurrent\n\x01\tname\x06\x02\ttype\x06\x0fdefault\x01\x01"""
-    layout = HOMEDIR + "Library/Application Support/EgretWing/Local Store/layout.amf"    
-    cnt = string.Template(hex).substitute({
-        'SIZE':chr(len(dir) + (len(file) + 1)*2),
-        'FILE':dir + '/' + file
-        })
-    open(layout, 'w').write(egret_compress(cnt))
-
-def egret_wing_openwing(file, dir, fun = None):
-    layout = HOMEDIR + "Library/Application Support/EgretWing/Local Store/layout.amf"
-    # 保存老的
-    shutil.copyfile(layout, layout + ".bak")
-    egret_wing_usefile(file, dir)
-    # 打开wing
-    app = subprocess.Popen("/Applications/EgretWing.app/Contents/MacOS/EgretWing", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if fun != None:
-        # 需要等待20s当wing启动正常后再处理
-        time.sleep(20)
-        fun()
-        # 关闭
-        app.kill()
-    # 退出后恢复
-    app.wait()
-    shutil.move(layout + ".bak", layout)
-
-def egret_wing_captureskin(file, dir, to):
-    try:
-        import pyscreeze
-    except:
-        print('请使用 sudo pip install pyscreeze 安装模块')
-        sys.exit(0)
-    print("即将生成 " + file + " 的预览")
-    def captureskin():
-        img = pyscreeze.screenshot(region=(700, 160, 780, 900))
-        img.save(to)
-    egret_wing_openwing(file, dir, captureskin)
-
-def preview_skins():
-    skins = listfiles('resource/eui_skins/app', whitelist=[re.compile(r'\.exml$')])
-    if not os.path.exists('preview'):
-        os.mkdir('preview')
-    dir = os.getcwd()
-    for skin in skins:
-        name = skin[23:].replace('/', '_') + '.jpg'
-        egret_wing_captureskin(skin, dir, 'preview/' + name)
 
 # ----------------------------------- 生成子资源模块 ---------------------------
 def svc_subresmaker():
@@ -1365,60 +1187,6 @@ class hdl_genskinimpls(watchdog.events.FileSystemEventHandler):
         if not ismatchs(p, GENRES_BLACKS):            
             genresdb()
 
-# ---------------------------------------- 开发专用服务对应于 Developer.ts --------
-def svc_developer():
-    try:
-        import wx
-    except Exception as err:
-        print('请先使用 sudo pip install wxPython 安装模块')
-        sys.exit(0)
-    try:
-        import Image
-    except Exception as err:
-        print('请先使用 sudo pip install PIL 安装模块')
-        sys.exit(0)
-    # 临时工作的文件夹
-    if not os.path.isdir('.n2~/developer'):
-        os.mkdir('.n2~/developer')
-    # 释放辅助脚本
-    open('.n2~/file_dlg_open.py', 'w').write("""
-import wx
-app = wx.App(None)
-style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
-dialog = wx.FileDialog(None, 'Open File', style=style)
-if dialog.ShowModal() == wx.ID_OK:
-    path = dialog.GetPath()
-else:
-    path = ''
-dialog.Destroy()
-print(path)
-""")
-    open('.n2~/file_dlg_save.py', 'w').write("""
-import wx
-app = wx.App(None)
-style = wx.FD_SAVE
-dialog = wx.FileDialog(None, 'Save To', style=style)
-if dialog.ShowModal() == wx.ID_OK:
-    path = dialog.GetPath()
-else:
-    path = ''
-dialog.Destroy()
-print(path)
-""")
-    open('.n2~/file_dlg_dir.py', 'w').write("""
-import wx
-app = wx.App(None)
-dialog = wx.DirDialog(None)
-if dialog.ShowModal() == wx.ID_OK:
-    path = dialog.GetPath()
-else:
-    path = ''
-dialog.Destroy()
-print(path)
-""")
-    # wswrk_launch('59000', chrome-devtools) 
-    wswrk_launch('59001', WSWRK_DEVELOPER, wswrk_developer)
-
 # ---------------------------------------- 生成debug.html --------------------------------
 def debugindex():
     content = readfile('index.html')
@@ -1441,9 +1209,6 @@ def main():
         elif cmd == 'stop':
             stop_deamons()
             return
-    elif 'developer' in args:
-        svc_developer()
-        return
     elif 'genres' in args:
         genresdb()
         return
@@ -1475,9 +1240,6 @@ def main():
     if 'config' in args:
         makeconfig(True)
         return
-    if 'api' in args:
-        buildapi(args[args.index('api') + 1])
-        return
     if 'dpack' in args:
         dpack()
         return
@@ -1487,19 +1249,13 @@ def main():
     if 'depto' in args:
         resmaker_rundepto(args[args.index('depto') + 1])
         return
-    if 'skin' in args:
-        cmd = args[args.index('skin') + 1]
-        if cmd == 'preview':
-            print('将会花费较长时间，请耐心等待')
-            preview_skins()
-        return
     # 是否需要重新生成index
     RepDindex = checkconfig()
     if 'publish' in args:
         # 去除publish引起的egret自动判断文件混乱
         shutil.rmtree('publish', True)
-        prindex()
         buildrelease()
+        prindex()
         # 重新生成resource的目录
         cfg = configparser.ConfigParser()
         cfg.read('.n2.cfg')
@@ -1513,13 +1269,13 @@ def main():
         # 去除publish引起的egret自动判断文件混乱
         shutil.rmtree('publish', True)
         if debug:
-            pdindex()
             builddebug(True)
+            pdindex()
             copydebugtopublish()
             distresources()
         else:
-            prindex()
             buildrelease()
+            prindex()
             distresources()
             # 重新生成resource的目录
             cfg = configparser.ConfigParser()
@@ -1530,9 +1286,9 @@ def main():
                 os.symlink('./resource', resdir)
         explorer('publish')
     else:
+        builddebug(RepDindex)
         if RepDindex:
             pdindex()
-        builddebug(RepDindex)
     cfgdb['bver'] = version
 
 ## 模版
@@ -1577,8 +1333,6 @@ TPL_INDEX_DEBUG="""
         }
     </style>
     ${APPSTYLE}
-    <!-- 小伙伴SDK -->
-    <!-- <script src="http://d.hgame.com/loadsdk?v=2"></script>-->
 </head>
 <body>
     <div id="launchDiv">        
@@ -1597,13 +1351,8 @@ TPL_INDEX_DEBUG="""
     <script src="src/app/~debug.js"></script>
     <!-- dev工具 -->
     <script src="tools/devtools/devtools.js" type="text/javascript"></script>
-    <!-- egret要求 -->
-    <!--modules_files_start-->
-    <!--modules_files_end-->
-    <!--other_libs_files_start-->
-    <!--other_libs_files_end-->
-    <!--game_files_start-->
-    <!--game_files_end-->
+    <!-- 加载的文件列表 -->
+    ${FILESLIST}
     <script>
         var document_orientation = ${APPANGLE};
     	nn.loader.webstart();        
@@ -1655,7 +1404,6 @@ TPL_INDEX_RELEASE="""
         }
     </style>
     ${APPSTYLE}
-    <script src="http://d.hgame.com/loadsdk?v=2"></script>
 </head>
 <body>
     <div id="launchDiv">
@@ -1678,275 +1426,6 @@ TPL_INDEX_RELEASE="""
 </body>
 </html>
 """
-
-TPL_NATIVE_REQUIRE = """
-var game_file_list = [
-//----auto game_file_list start----
-//----auto game_file_list end----
-];
-var window = this;
-egret_native.setSearchPaths([""]);
-egret_native.requireFiles = function () {
-    for (var key in game_file_list) {
-        var src = game_file_list[key];
-        require(src);
-    }
-};
-egret_native.egretInit = function () {
-    egret_native.requireFiles();
-    egret.TextField.default_fontFamily = "/system/fonts/DroidSansFallback.ttf";
-    //egret.dom为空实现
-    egret.dom = {};
-    egret.dom.drawAsCanvas = function () {
-    };
-};
-egret_native.egretStart = function () {
-    var option = {
-        //以下为自动修改，请勿修改
-        //----auto option start----
-		entryClassName: "Main",
-		frameRate: 60,
-		scaleMode: "showAll",
-		contentWidth: 480,
-		contentHeight: 800,
-		showPaintRect: false,
-		showFPS: false,
-		fpsStyles: "",
-		showLog: false,
-		logFilter: "",
-		maxTouches: 2,
-		textureScaleFactor: 1
-		//----auto option end----
-    };
-    egret.native.NativePlayer.option = option;
-    egret.runEgret();
-    egret_native.Label.createLabel(egret.TextField.default_fontFamily, 20, "", 0);
-    egret_native.EGTView.preSetOffScreenBufferEnable(true);
-};
-"""
-
-def check_ebnf():
-    try:
-        import pyparsing
-    except Exception as err:
-        print('请先使用 sudo pip install pyparsing 安装 pyparsing 模块')
-        sys.exit(0)
-
-# 编译API接口
-def buildapi(file):
-    check_ebnf()
-    mdl = SprModel()
-    mdl.load(file)
-    open('Api.dsl', 'w').write(mdl.output_dsl())
-    open('Api.ts', 'w').write('module app.api {\n\n' + mdl.output_ts() + '\n}\n')
-
-def log(msg):
-    print(msg)
-
-class SprModel:
-    lxMain = None
-    def __init__(self):
-        self.subs = [] # 子文件
-        self.segments = [] # 所有的数据段
-
-        if SprModel.lxMain == None:
-            import pyparsing
-            SkipTo = pyparsing.SkipTo
-            Word = pyparsing.Word
-            Literal = pyparsing.Literal
-            LineEnd = pyparsing.LineEnd
-            OneOrMore = pyparsing.OneOrMore
-            ZeroOrMore = pyparsing.ZeroOrMore
-            Group = pyparsing.Group
-            QuotedString = pyparsing.QuotedString
-            Suppress = pyparsing.Suppress
-            Optional = pyparsing.Optional
-            alphanums = pyparsing.alphanums
-            nums = pyparsing.nums
-            lineEnd = pyparsing.lineEnd
-
-            lxComment = '//' + SkipTo(lineEnd)
-            lxVariable = Word(alphanums + '_')
-            lxPackage = 'package' + lxVariable + Suppress(';')
-            lxImport = 'import' + QuotedString("\"") + Suppress(';')
-            lxOption = 'option' + SkipTo(lineEnd)
-            lxRestrict = Literal('required') | Literal('optional') | Literal('repeated')
-            lxType = Word(alphanums)
-            lxEnumField = lxVariable + Suppress('=') + Word(nums) + Suppress(';');
-            lxEnum = 'enum' + Word(alphanums) + Suppress('{') + Group(ZeroOrMore(Group(lxEnumField))) + Suppress('}')
-            lxMessageField = lxRestrict + lxType + lxVariable + Suppress('=') + Word(nums) + Suppress(SkipTo(';', True))
-            lxMessage = 'message' + Word(alphanums) + Suppress('{') + Group(ZeroOrMore(Group(lxMessageField))) + Suppress('}')            
-            lxSegment = Suppress(lxComment) | lxPackage | lxImport | lxEnum | Suppress(lxOption) | lxMessage
-            SprModel.lxMain = ZeroOrMore(Group(lxSegment))        
-        
-    def load(self, file):
-        if os.path.isfile(file) == False:
-            print('警告: ' + file + ' 文件不存在')
-            return
-        d = ''.join(open(file).readlines())
-        self.segments = SprModel.lxMain.parseString(d)
-        for segment in self.segments:
-            if len(segment) == 0:
-                continue
-            cmd = segment[0]
-            # 加载其他
-            if (cmd == 'import'):
-                mdl = SprModel()
-                mdl.load(segment[1])
-                self.subs.append(mdl)
-
-    # 搜集所有的类对象
-    def all_class(self):
-        ret = []
-        for sub in self.subs:
-            t = sub.all_class()
-            ret.extend(t)
-        for segment in self.segments:
-            if len(segment) == 0:
-                continue
-            if segment[0] == 'message':
-                ret.append(segment[1])
-        return ret
-
-    # 导出框架可用的api描述文件
-    def output_dsl(self):
-        buf = []
-        # 先导出外链
-        for sub in self.subs:
-            buf.append(sub.output_dsl())
-        for segment in self.segments:
-            if len(segment) == 0:
-                continue
-            cmd = segment[0]
-            if cmd == 'package':
-                buf.append('package ' + segment[1] + ';')
-            elif cmd == 'message':
-                tmp = 'message ' + segment[1]
-                flds = []
-                for fld in segment[2]:
-                    flds.append(fld[0] + ' ' + fld[1] + ' ' + fld[2] + '=' + fld[3] + ';')
-                tmp += '{\n' + '\n'.join(flds) + '\n}'
-                buf.append(tmp)
-        return '\n'.join(buf)
-
-    # 导出框架可用的api代码文件
-    def output_ts(self, classes = None):
-        if classes == None:
-            classes = self.all_class()
-        buf = []        
-        # 先输出所有的enum
-        for segment in self.segments:
-            if len(segment) == 0:
-                continue
-            cmd = segment[0]
-            if cmd == 'enum':
-                tmp = 'export enum {api} {{\n'.format(api=segment[1])
-                for fld in segment[2]:
-                    val = '\t{name} = {value},\n'
-                    tmp += val.format(name=fld[0], value=fld[1])
-                tmp += '}\n'
-                buf.append(tmp)
-        # 输出其他文件，以使类顺序可用
-        for sub in self.subs:
-            buf.append(sub.output_ts(classes))
-        # 输出自己
-        for segment in self.segments:
-            if len(segment) == 0:
-                continue
-            cmd = segment[0]
-            if cmd == 'message':
-                api = cls = segment[1]
-                if api.endswith('Req') or api.endswith('Rsp') or api.endswith('Ntf'):
-                    cls = cls[:-3]
-                if api.endswith('Req'):
-                    tmp = 'export class {api}\nextends SocketBase\n{{\n\
-\tstatic Command = Cmd.{api}Id;\n\n\
-\tconstructor() {{\n\t\tsuper();\n\t\tthis.name = "{api}";\n\t\tthis.dname = "{cls}Rsp";\n\t}}\
-\n\n'.format(api=api, cls=cls)
-                    for fld in segment[2]:
-                        prop = '\
-\tset {name}(v:{type}) {{\n\t\tthis.params["{name}"] = v;\n\t}}\n\
-\tget {name}():{type} {{\n\t\treturn this.params["{name}"];\n\t}}\n\n'
-                        tmp += prop.format(name=fld[2], type=SprModel.ts_type(fld[1]))
-                    tmp += '\tdata = new {cls}Rsp();\n\n'.format(api=api, cls=cls)
-                    tmp += '}\n'
-                    buf.append(tmp)
-                elif api.endswith('Rsp'):
-                    tmp = 'export class {api}\n{{\n\
-\tstatic Command = Cmd.{api}Id;\
-\n\n'.format(api=api)
-                    for fld in segment[2]:
-                        prop = '\t_{name}:{type};\n\
-\tset {name}(v:{type}) {{\n\t\tthis._{name} = v;\n\t}}\n\
-\tget {name}():{type} {{\n\t\treturn this._{name};\n\t}}\n\n'
-                        tmp += prop.format(name=fld[2], type=SprModel.ts_type(fld[1]))
-                    # 生成反序列化
-                    if len(segment[2]) > 0:
-                        uns = '\tprotected unserialize(rsp:any):boolean {\n\
-\t\tif (rsp == null)\n\t\t\treturn true;\n';
-                        for fld in segment[2]:
-                            prop = '\t\tthis.{name} = rsp.{name};\n'.format(name=fld[2]);
-                            uns += prop
-                        uns += '\t}\n\n'
-                        tmp += uns
-                    tmp += '}\n'
-                    buf.append(tmp)
-                elif api.endswith('Ntf'):
-                    tmp = 'export class {api}\nextends SocketBase\n{{\n\
-\tstatic Command = Cmd.{api}Id;\n\n\
-\tconstructor() {{\n\t\tsuper();\n\t\tthis.name = "{api}";\n\t}}\
-\n\n'.format(api=api, cls=cls)
-                    for fld in segment[2]:
-                        prop = '\t_{name}:any{impl};\n\
-\tset {name}(v:{type}) {{\n\t\tthis._{name} = v;\n\t}}\n\
-\tget {name}():{type} {{\n\t\treturn this._{name};\n\t}}\n\n'
-                        impl = ''
-                        if fld[1] in classes:
-                            impl = ' = new {type}()'.format(type=fld[1]);
-                        tmp += prop.format(name=fld[2], type=SprModel.ts_type(fld[1]), impl=impl)
-                    # 生成反序列化
-                    if len(segment[2]) > 0:
-                        uns = '\tprotected unserialize(rsp:any):boolean {\n\
-\t\tif (rsp == null)\n\t\t\treturn true;\n';
-                        for fld in segment[2]:
-                            if fld[1] in classes:
-                                prop = '\t\tthis._{name}.unserialize(rsp.{name});\n'.format(name=fld[2])
-                            else:
-                                prop = '\t\tthis.{name} = rsp.{name};\n'.format(name=fld[2])
-                            uns += prop
-                        uns += '\t}\n\n'
-                        tmp += uns
-                    tmp += '}\n'
-                    buf.append(tmp)
-                else:
-                    tmp = 'export class {api}\n{{\n'.format(api=api)
-                    for fld in segment[2]:
-                        prop = '\t_{name}:{type};\n\
-\tset {name}(v:{type}) {{\n\t\tthis._{name} = v;\n\t}}\n\
-\tget {name}():{type} {{\n\t\treturn this._{name};\n\t}}\n\n'
-                        tmp += prop.format(name=fld[2], type=SprModel.ts_type(fld[1]))
-                    # 生成反序列化
-                    if len(segment[2]) > 0:
-                        uns = '\tprotected unserialize(rsp:any):boolean {\n\
-\t\tif (rsp == null)\n\t\t\treturn true;\n';
-                        for fld in segment[2]:
-                            if fld[1] in classes:
-                                prop = '\t\tthis._{name}.unserialize(rsp.{name});\n'.format(name=fld[2])
-                            else:
-                                prop = '\t\tthis.{name} = rsp.{name};\n'.format(name=fld[2])
-                            uns += prop
-                        uns += '\t}\n\n'
-                        tmp += uns
-                    tmp += '}\n'
-                    buf.append(tmp)
-        return '\n'.join(buf)
-
-    # 类型转换
-    @staticmethod
-    def ts_type(ptp):
-        if ptp in ['int32', 'int64', 'float', 'double']:
-            return 'number'
-        return ptp
 
 # 判断是否符合一组re的判定
 def ismatchs(str, rexs, non=False):
@@ -2058,8 +1537,6 @@ def clean():
         os.unlink('.n2~/dist.db')
     if os.path.isdir('.n2~/dist'):
         shutil.rmtree('.n2~/dist')
-    if os.path.isfile('template/runtime/native_require.js'):
-        os.unlink('template/runtime/native_require.js')
 
 def pack(file, srcs, sumdb):
     fdiff = open('.n2~/packdiff', 'w')
@@ -2110,103 +1587,6 @@ def dpack():
     pack('publish/' + fn + '.zip', srcfiles, sumdb)
     os.unlink('.n2~/packsums')
     print('生成 ' + 'publish/' + fn + '.zip')
-
-# 调试服务
-def wrk_find_file4clazz(clazz):
-    findstr = "registerClass(" + clazz
-    res = subprocess.getstatusoutput('grep -r "' + findstr + '" bin-debug')[1]
-    fp = re.compile('^bin-debug/([a-zA-Z0-9_/]+).js:.+$').findall(res)
-    if len(fp) == 0:
-        return None    
-    return fp[0]
-
-# 获得类的源码
-lxWrkTs = None
-def wrk_ts_parser():
-    global lxWrkTs
-    if lxWrkTs == None:
-        import pyparsing
-        SkipTo = pyparsing.SkipTo
-        Word = pyparsing.Word
-        Literal = pyparsing.Literal
-        LineEnd = pyparsing.LineEnd
-        OneOrMore = pyparsing.OneOrMore
-        ZeroOrMore = pyparsing.ZeroOrMore
-        Group = pyparsing.Group
-        QuotedString = pyparsing.QuotedString
-        Suppress = pyparsing.Suppress
-        Optional = pyparsing.Optional
-        alphanums = pyparsing.alphanums
-        nums = pyparsing.nums
-        lineEnd = pyparsing.lineEnd
-        Forward = pyparsing.Forward
-        Empty = pyparsing.Empty
-        oneOf = pyparsing.oneOf
-        OnlyOnce = pyparsing.OnlyOnce
-
-        # 预定义
-        lxType = Forward()
-        lxArgus = Forward()
-        lxFunction = Forward()
-        lxStatement = Forward()
-        lxValue = Forward()
-        lxValues = Optional(lxValue) + ZeroOrMore(',' + lxValue)
-        lxStatements = ZeroOrMore(Group(lxStatement))
-        lxLambda = Forward()
-        lxNew = Forward()
-        lxBody = '{' + lxStatements + '}'
-        lxSelf = Forward()
-
-        # 实现
-        lxTpl = '<' + Word(alphanums + '_.') + '>'
-        lxName = Optional(lxTpl) + Word(alphanums + '_$.') + Optional('[' + lxValue + ']') + Optional(lxTpl)
-        lxRestrict = Optional(oneOf('private public protected'))
-        lxInvoke = lxName + '(' + lxValues + ')'
-        lxArray = '[' + lxValues + ']'
-        lxOneValue = lxLambda | lxNew | lxInvoke | lxArray | lxName | QuotedString("'", unquoteResults=False) | QuotedString('"', unquoteResults=False) | lxSelf
-        lxValue <<= lxOneValue + ZeroOrMore(oneOf('+ - * /') + lxOneValue)
-        lxNew <<= 'new' + lxName + '(' + lxValues + ')'
-        lxExtends = 'extends' + lxName
-        lxImplement = 'implements' + lxName
-        lxLambdaDef = '(' + lxArgus + ')' + '=>' + lxType
-        lxLambda <<= '(' + lxArgus + ')' + Optional(':' + lxType) + '=>' + lxBody
-        lxType <<= (lxName | lxLambdaDef) + Optional('[]')
-        lxArgu = lxName + Optional('?') + Optional(':' + lxType + Optional('|' + lxType))
-        lxArgus <<= Optional(lxArgu) + ZeroOrMore(',' + lxArgu)
-        lxParam = lxArgu + Optional('=' + lxValue)
-        lxParams = Optional(lxParam) + ZeroOrMore(',' + lxParam)
-        lxDeclare = Word('declare') + Word('var') + lxArgu + ';'
-        lxFunction <<= lxRestrict + Optional(oneOf('get set')) + lxName + '(' + lxParams + ')' + Optional(':' + lxType) + lxBody
-        lxEqu = lxValue + Word('=!<>.+-*/') + lxValue
-        lxAssign = Optional((Optional('export') + 'var') | Word('static')) + lxArgu + Optional(Word('=!<>.+-*/') + lxValue)
-        lxProperty = lxRestrict + lxAssign + Optional(';')
-        lxSubstatement = lxEqu | lxValue
-        lxSubstatements = lxSubstatement + ZeroOrMore(';' + lxSubstatement)
-        lxSelf <<= '(' + lxSubstatement + ')' + Optional(lxValue)
-        lxReturn = 'return' + lxSubstatement + ';'
-        lxIf = Word('if') + '(' + lxSubstatement + ')' + (lxStatement | lxBody)
-        lxFor = Word('for') + '(' + lxSubstatements + ')' + (lxStatement | lxBody)
-        lxCase = ((Word('case') + lxName) | Word('default')) + ':' + Optional(lxBody) + Word('break') + ';';
-        lxSwitch = Word('switch') + '(' + lxSubstatement + ')' + Empty() + '{' + OneOrMore(lxCase) + '}'
-        lxStatement <<= lxIf | lxFor | lxSwitch | lxDeclare | (lxSubstatement + ';') | (lxAssign + ';' | lxReturn)
-        lxClass = Optional('export') + 'class' + lxName + Optional(lxExtends) + ZeroOrMore(lxImplement) + '{' + ZeroOrMore(Group(lxFunction | lxProperty)) + '}'
-        lxContent = Group(lxClass | lxStatement)
-        lxModule = 'module' + lxName + '{' + ZeroOrMore(lxContent) + '}'
-        lxWrkTs = ZeroOrMore(Group(lxModule) | Group(lxContent)) 
-        lxComment = '//' + SkipTo(lineEnd)
-        lxComments = QuotedString('/*', endQuoteChar='*/')
-        lxWrkTs.ignore(lxComment)
-        lxWrkTs.ignore(lxComments)
-    return lxWrkTs
-
-def wrk_parse_tsfile(file):
-    fs = readfile(file)
-    return wrk_ts_parser().parseString(fs, parseAll=True)
-
-def wrk_fetch_clazz_source(clazz, file):
-    file = readfile('src/' + file + '.ts')
-    segments = wrk_ts_parser().parseString(file)
-    print(segments)
 
 # ------------------------------- 自动合并图片 ---------------------------------
 PATTERN_FILENAME_EXT = re.compile('(.+)\.(.+)')
@@ -2326,64 +1706,6 @@ def mergeImages(work, images, rc):
         return True
     return mergeImages(work, images, (rc[0], rc[1] + sz[1], rc[2], rc[3] - sz[1]))    
             
-# ------------------------------- 开发服务 -------------------------------------
-WSWRK_DEVELOPER = "::wswrk::developer"
-def wswrk_developer(m):
-    method = m['method']
-    argus = m['fields']
-    if method == '::file::dialog::save':
-        m['path'] = subprocess.getoutput('python .n2~/file_dlg_save.py ')        
-    elif method == '::file::dialog::open':        
-        src = subprocess.getoutput('python .n2~/file_dlg_open.py')
-        dst = src
-        # 需要将文件copy到本地，不然会被chrome阻止访问
-        if src != None:
-            dst = '.n2~/developer/' + os.path.basename(src)
-            shutil.copyfile(src, dst)            
-        m['path'] = dst
-    elif method == '::file::dialog::dir':
-        m['path'] = subprocess.getoutput('python .n2~/file_dlg_dir.py')
-    elif method == '::fs::mkdir':
-        argus = m['fields']
-        p = argus['p']
-        path = argus['path']
-        if not os.path.isdir(path):
-            if p:
-                os.makedirs(path)
-            else:
-                os.mkdir(path)
-    elif method == '::image::open':
-        file = argus['file']
-        if os.path.isfile(file):
-            m['hdl'] = file
-    elif method == '::image::save':
-        hdl = argus['hdl']
-        to = argus['file']
-        shutil.copyfile(hdl, to)
-    elif method == '::image::scale':
-        hdl = argus['hdl']
-        x = argus['x']
-        y = arugs['y']
-        from PIL import Image
-        ori = Image.open(hdl)
-        w,h = ori.size
-        w *= x
-        h *= y
-        res = ori.resize(w, h)
-        to = '.n2~/developer/' + tempfilename() + os.path.basename(hdl)
-        res.save(to)
-        m['hdl'] = to
-    elif method == '::image::subimage':
-        hdl = argus['hdl']
-        rect = argus['rect']
-        from PIL import Image
-        ori = Image.open(hdl)
-        res = ori.crop((int(rect['x']), int(rect['y']), int(rect['x']) + int(rect['w']), int(rect['y']) + int(rect['h'])))
-        to = '.n2~/developer/' + tempfilename() + os.path.basename(hdl)
-        res.save(to)
-        m['hdl'] = to
-    return True
-
 # ------------------------------- 主脚本执行 -----------------------------------
 if __name__=="__main__":
     cfgdb = shelve.open('.n2~/build.db')    

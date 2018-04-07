@@ -561,6 +561,11 @@ module nn {
                 failed = null;
                 ctx = p[2];
             }
+            if (!this._shared) {
+                if (suc)
+                    suc.call(ctx);
+                return;
+            }
             let cls = ObjectClass(this._shared._service);
             if (cls.prepared) {
                 this.doFetch(cnt, suc, failed, ctx);

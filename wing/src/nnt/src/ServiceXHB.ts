@@ -543,6 +543,8 @@ module nn {
         }
     }
 
-    // 小伙伴平台有时会去修改location.href但是会提供一个fullGameUrl解决之后获取location错误的问题
-    Js.siteUrl = hGame.fullGameUrl;
+    if (typeof hGame != "undefined") {
+        // 小伙伴平台有时会去修改location.href但是会提供一个fullGameUrl解决之后获取location错误的问题
+        Js.siteUrl = hGame.fullGameUrl;
+    }
 }

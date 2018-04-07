@@ -240,6 +240,11 @@ def pdindex():
     if bkg.startswith('assets://'):
         bkg = bkg.replace('assets://', 'resource/assets/')
     appinfo = apphtmlinfo(True)
+    # 读取js列表
+    manifest = json.loads(readfile('manifest.json'))
+    files = []
+    for each in manifest['initial'] + manifest['game']:
+        files.append('<script src="' + each + '"></script>')
     index = string.Template(TPL_INDEX_DEBUG).substitute({
         'APPNAME': cfg.get('app', 'name'),
         'APPORI': ['portrait', 'landscape'][cfg.get('app', 'orientation') == 'h'],
@@ -249,7 +254,8 @@ def pdindex():
         'BACKGROUNDCOLOR': bkgcolor,
         'APPSTYLE': appinfo['APPSTYLE'],
         'APPLAUNCH': appinfo['APPLAUNCH'],
-        'APPSCRIPT': appinfo['APPSCRIPT']
+        'APPSCRIPT': appinfo['APPSCRIPT'],
+        'FILESLIST': '\n\t'.join(files)
     })
     open('index.html', 'w').write(index)
     # 为了支持插件调试模式，需要描述一下当前项目的信息
@@ -1248,8 +1254,8 @@ def main():
     if 'publish' in args:
         # 去除publish引起的egret自动判断文件混乱
         shutil.rmtree('publish', True)
-        prindex()
         buildrelease()
+        prindex()
         # 重新生成resource的目录
         cfg = configparser.ConfigParser()
         cfg.read('.n2.cfg')
@@ -1263,13 +1269,13 @@ def main():
         # 去除publish引起的egret自动判断文件混乱
         shutil.rmtree('publish', True)
         if debug:
-            pdindex()
             builddebug(True)
+            pdindex()
             copydebugtopublish()
             distresources()
         else:
-            prindex()
             buildrelease()
+            prindex()
             distresources()
             # 重新生成resource的目录
             cfg = configparser.ConfigParser()
@@ -1280,9 +1286,9 @@ def main():
                 os.symlink('./resource', resdir)
         explorer('publish')
     else:
+        builddebug(RepDindex)
         if RepDindex:
             pdindex()
-        builddebug(RepDindex)
     cfgdb['bver'] = version
 
 ## 模版
@@ -1345,13 +1351,8 @@ TPL_INDEX_DEBUG="""
     <script src="src/app/~debug.js"></script>
     <!-- dev工具 -->
     <script src="tools/devtools/devtools.js" type="text/javascript"></script>
-    <!-- egret要求 -->
-    <!--modules_files_start-->
-    <!--modules_files_end-->
-    <!--other_libs_files_start-->
-    <!--other_libs_files_end-->
-    <!--game_files_start-->
-    <!--game_files_end-->
+    <!-- 加载的文件列表 -->
+    ${FILESLIST}
     <script>
         var document_orientation = ${APPANGLE};
     	nn.loader.webstart();        

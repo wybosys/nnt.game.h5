@@ -176,7 +176,7 @@ module nn {
 
                 // 隐藏接入平台的loading
                 let cnt = new svc.LoadingContent(100, 100);
-                ServicesManager.fetch(cnt, ()=>{});
+                ServicesManager.fetch(cnt);
                 
                 // 如果当前显示着 launch 页面，则需要移除
                 let launchdiv = document.getElementById('launchDiv');
