@@ -5,7 +5,7 @@ extends nn.EuiApplication
     constructor() {
         super();
         this.backgroundColor = nn.Color.Random();
-        new nn.XHBServices().setAsDefault();
+        //new nn.XHBServices().setAsDefault();
     }
     
     protected onLoaded() {
