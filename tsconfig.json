@@ -7,18 +7,11 @@
             "es6",
             "dom",
             "es2015.promise"
-        ]
+        ],
+        "types": []
     },
-    "exclude": [        
-        ".n2~",
-        "node_modules",
-        "wing",
-        "tools",
-        "server",
-        "doc",
-        "support",
-        "frameworks",
-        "publish",
-        "resource"
+    "include": [
+        "src",
+        "libs"
     ]
 }

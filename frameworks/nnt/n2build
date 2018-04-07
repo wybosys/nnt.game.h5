@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import json, os, re
@@ -43,7 +43,7 @@ def packagejson():
     os.chdir("src")
     files = listfiles('.', whitelist=[re.compile(r'\.ts$')])
     os.chdir("..")
-    jsobj = {"name":"egret","version":"4.0.0","modules":[{"name":"nnt","description":"nnt","files":files,"root":"src"}]}
+    jsobj = {"name":"egret","version":"5.1.8","modules":[{"name":"nnt","description":"nnt","files":files,"root":"src"}]}
     open("package.json", "w").write(json.dumps(jsobj, indent=4))
 
 def main():

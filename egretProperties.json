@@ -1,35 +1,24 @@
 {
-	"native": {
-		"path_ignore": [
-			"doc",
-			"wing",
-			"tools",
-			"server",
-			"support",
-			"publish"
-		],
-		"ios_path": "nnt.ios",
-		"android_path": "nnt.aos"
-	},
-	"publish": {
-		"web": 0,
-		"native": 1,
-		"path": "bin-release"
+	"engineVersion": "5.1.9",
+	"compilerVersion": "5.1.9",
+	"template": {},
+	"target": {
+		"current": "web"
 	},
 	"modules": [
 		{
 			"name": "egret"
 		},
 		{
-			"name": "egret3d"
-		},
-		{
 			"name": "game"
 		},
 		{
-			"name": "eui"
+			"name": "tween"
 		},
-		{
+        {
+            "name": "eui"
+        },
+        {
 			"name": "res"
 		},
 		{
@@ -39,8 +28,7 @@
 			"name": "dragonbones"
 		},
 		{
-			"name": "promise",
-			"path": "frameworks/promise"
+			"name": "promise"
 		},
         {
             "name": "jszip",
