@@ -203,10 +203,7 @@ def checkconfig():
 
 def egret_makerequire():
     """生成egret需要的文件"""
-    # egret3.0.5后，必须准备好native_require.js文件，否则编译报错
-    if not os.path.isfile('template/runtime/native_require.js'):
-        cnt = string.Template(TPL_NATIVE_REQUIRE).substitute()
-        open('template/runtime/native_require.js', 'w').write(cnt)
+    pass
 
 # 提取app.html中引用独立定义的加载样式
 def apphtmlinfo(debug):
