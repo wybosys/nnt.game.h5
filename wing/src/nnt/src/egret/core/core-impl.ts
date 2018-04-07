@@ -1,8 +1,7 @@
 module nn {
-    
+
     // 应用设置fillMode导致scaleFactor！=1，所以需要对egret的画法进行修正
-    egret.sys.BitmapNode['$updateTextureDataWithScale9Grid'] = function (node, scale9Grid, bitmapX, bitmapY, bitmapWidth, bitmapHeight, offsetX, offsetY, textureWidth, textureHeight, destW, destH)
-    {
+    egret.sys.BitmapNode['$updateTextureDataWithScale9Grid'] = function (node, image, scale9Grid, bitmapX, bitmapY, bitmapWidth, bitmapHeight, offsetX, offsetY, textureWidth, textureHeight, destW, destH) {
         var imageWidth = bitmapWidth;
         var imageHeight = bitmapHeight;
         destW = destW - (textureWidth - bitmapWidth * egret.$TextureScaleFactor);
@@ -49,7 +48,7 @@ module nn {
         // sf
         targetW2 *= ScaleFactorW;
         targetH2 *= ScaleFactorH;
-        
+
         var targetX0 = offsetX;
         var targetX1 = targetX0 + targetW0;
         var targetX2 = targetX0 + (destW - targetW2);

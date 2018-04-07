@@ -11,9 +11,9 @@ module app {
     interface IMainScene
     {
         //slot {
-        _actOpenLink(s?:nn.Slot);
-        _actEnter(s?:nn.Slot);
         _actTouchMoved(s?:nn.Slot);
+        _actEnter(s?:nn.Slot);
+        _actOpenLink(s?:nn.Slot);
         //slot }
     }
 

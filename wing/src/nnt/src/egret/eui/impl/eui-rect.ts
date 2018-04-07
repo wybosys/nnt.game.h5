@@ -1,9 +1,8 @@
 module eui {
 
     export class RectU
-    extends eui.Rect
-    {
-        onPartBinded(name:string, target:any) {
+        extends eui.Rect {
+        onPartBinded(name: string, target: any) {
             _EUIExt.onPartBinded(this, name, target);
         }
 
@@ -29,11 +28,10 @@ module eui {
             this.drop();
         }
     }
-    
+
     export class RoundU
-    extends RectU
-    {
-        updateDisplayList(unscaledWidth:number, unscaledHeight:number) {
+        extends RectU {
+        updateDisplayList(unscaledWidth: number, unscaledHeight: number) {
             let gra = this.graphics;
             gra.clear();
             if (this.fillColor != null) {
@@ -43,12 +41,11 @@ module eui {
             }
             if (this.strokeWeight > 0) {
                 gra.lineStyle(this.strokeWeight,
-                              this.strokeColor,
-                              this.strokeAlpha);
+                    this.strokeColor,
+                    this.strokeAlpha);
                 gra.drawEllipse(0, 0, unscaledWidth, unscaledHeight);
             }
-            this.$invalidateContentBounds();
         }
     }
-    
+
 }
