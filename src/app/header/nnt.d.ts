@@ -1714,6 +1714,29 @@ declare module nn {
     let StageBounds: Rect;
 }
 declare module nn {
+    let SignalPreTouch: string;
+    let SignalPreClick: string;
+    /** 手势的接口 */
+    interface IGesture {
+    }
+    /** 触摸数据 */
+    abstract class CTouch {
+        startPosition: Point;
+        lastPosition: Point;
+        currentPosition: Point;
+        /** 点中的对象 */
+        target: any;
+        currentTarget: any;
+        /** 当前的增量 */
+        readonly delta: Point;
+        /** 移动的距离 */
+        readonly distance: Point;
+        abstract cancel(): any;
+        abstract veto(): any;
+        abstract positionInView(v: CComponent): Point;
+    }
+}
+declare module nn {
     interface IComponent {
         _imp: any;
     }
@@ -1735,7 +1758,7 @@ declare module nn {
         /** 标记 */
         tag: any;
         /** 绘图板 */
-        painter: CGraphics;
+        abstract paint(gra: CGraphics): any;
         protected validate(): boolean;
         abstract addChild(c: CComponent): any;
         abstract addChild(c: CComponent, layout: boolean): any;
@@ -1926,26 +1949,107 @@ declare module nn {
     }
 }
 declare module nn {
-    let SignalPreTouch: string;
-    let SignalPreClick: string;
-    /** 手势的接口 */
-    interface IGesture {
+    /** 页面过渡的动画 */
+    interface ITransition extends IReference {
+        play(appear: CComponent, disappear: CComponent): any;
     }
-    /** 触摸数据 */
-    abstract class CTouch {
-        startPosition: Point;
-        lastPosition: Point;
-        currentPosition: Point;
-        /** 点中的对象 */
-        target: any;
-        currentTarget: any;
-        /** 当前的增量 */
-        readonly delta: Point;
-        /** 移动的距离 */
-        readonly distance: Point;
-        abstract cancel(): any;
-        abstract veto(): any;
-        abstract positionInView(v: CComponent): Point;
+    /** 自定义动画对象 */
+    class Animator {
+        _preproperties: KvObject<string, any>;
+        _properties: KvObject<string, any>;
+        /** 类似于 iOS 的反向设置模式 */
+        backMode: boolean;
+        /** 增量移动 */
+        translate(dpt: Point): Animator;
+        translatex(x: number): Animator;
+        translatey(y: number): Animator;
+        /** 倍数移动 */
+        stranslate(dpt: Point): Animator;
+        /** 移动到点 */
+        moveto(dpt: Point): Animator;
+        movetox(v: number): Animator;
+        movetoy(v: number): Animator;
+        /** 增量缩放倍数 */
+        scale(dpt: Point): Animator;
+        scaleto(dpt: Point): Animator;
+        /** 旋转 */
+        rotate(ang: Angle): this;
+        /** 淡入淡出 */
+        fade(to: number, from?: number): Animator;
+        fadeIn(alpha?: number): Animator;
+        fadeOut(alpha?: number): Animator;
+        /** 任意参数做动画 */
+        change(key: string, to: any, from?: any): Animator;
+    }
+    class TimeFunction {
+        static IN: number;
+        static OUT: number;
+        static INOUT: number;
+        static Pow: (pow: any, inout?: number) => Function;
+        static Quad: (inout?: number) => Function;
+        static Bounce: (inout?: number) => Function;
+        static Elastic: (amplitude?: any, period?: any, inout?: number) => Function;
+        static Circ: (inout?: number) => Function;
+        static Back: (amount?: number, inout?: number) => Function;
+    }
+    abstract class CAnimate extends SObject {
+        constructor();
+        dispose(): void;
+        static Duration: number;
+        /** 播放几次 */
+        count: number;
+        /** 动画的标记 */
+        tag: any;
+        protected _firedCount: number;
+        _initSignals(): void;
+        /** 设置重复的次数 */
+        repeat(count: number): this;
+        /** 清空所有 */
+        abstract clear(): any;
+        /** 结束所有动画 */
+        abstract stop(): any;
+        /** 链接对象 */
+        abstract bind(tgt: CComponent): this;
+        /** 取消对象 */
+        abstract unbind(tgt: CComponent): any;
+        abstract unbindAll(): any;
+        /** 下一步 */
+        abstract next(props: any, duration: number, tf: Function): this;
+        abstract to(duration: number, tf: Function, ani: (ani: Animator) => void, ctx?: any): this;
+        then(ani: (ani: Animator) => void, ctx?: any, duration?: number, tf?: Function): this;
+        /** 等待 */
+        abstract wait(duration: number, passive?: boolean): this;
+        /** 执行函数 */
+        abstract invoke(fun: Function, ctx?: any): this;
+        /** 结束 */
+        complete(cb: (s: Slot) => void, ctx?: any): this;
+        /** 播放 */
+        abstract play(reverse?: boolean): this;
+        /** 暂停 */
+        abstract pause(): any;
+        /** 恢复 */
+        abstract resume(): any;
+        /** 暂停的状态 */
+        abstract isPaused(): boolean;
+        /** 动画结束是否恢复原来的状态 */
+        autoReset: boolean;
+        /** 动画结束是否自动解除绑定 */
+        autoUnbind: boolean;
+        /** 动画结束后是否自动释放 */
+        autoDrop: boolean;
+        /** 复制 */
+        clone(): this;
+        /** 直接停止对象动画 */
+        static Stop(tgt: CComponent): void;
+        inTo(duration: number, cb: (animator: Animator) => void, ctx?: any, tf?: Function): this;
+        outTo(duration: number, cb: (animator: Animator) => void, ctx?: any, tf?: Function): this;
+        tremble(duration?: number, tf?: Function): this;
+    }
+    abstract class CTween {
+        /** 激活一个对象添加动画 */
+        static Get(c: CComponent, props?: any): any;
+        /** 删除对象的全部动画 */
+        static Stop(c: CComponent): void;
     }
 }
 declare module nn {
@@ -2056,110 +2160,6 @@ declare module nn {
         renderToTexture(): TextureSource;
     }
     function impSetTexture(bmp: egret.Bitmap, tex: egret.Texture): void;
-}
-declare module nn {
-    /** 页面过渡的动画 */
-    interface ITransition extends IReference {
-        play(appear: CComponent, disappear: CComponent): any;
-    }
-    /** 自定义动画对象 */
-    class Animator {
-        _preproperties: KvObject<string, any>;
-        _properties: KvObject<string, any>;
-        /** 类似于 iOS 的反向设置模式 */
-        backMode: boolean;
-        /** 增量移动 */
-        translate(dpt: Point): Animator;
-        translatex(x: number): Animator;
-        translatey(y: number): Animator;
-        /** 倍数移动 */
-        stranslate(dpt: Point): Animator;
-        /** 移动到点 */
-        moveto(dpt: Point): Animator;
-        movetox(v: number): Animator;
-        movetoy(v: number): Animator;
-        /** 增量缩放倍数 */
-        scale(dpt: Point): Animator;
-        scaleto(dpt: Point): Animator;
-        /** 旋转 */
-        rotate(ang: Angle): this;
-        /** 淡入淡出 */
-        fade(to: number, from?: number): Animator;
-        fadeIn(alpha?: number): Animator;
-        fadeOut(alpha?: number): Animator;
-        /** 任意参数做动画 */
-        change(key: string, to: any, from?: any): Animator;
-    }
-    class TimeFunction {
-        static IN: number;
-        static OUT: number;
-        static INOUT: number;
-        static Pow: (pow: any, inout?: number) => Function;
-        static Quad: (inout?: number) => Function;
-        static Bounce: (inout?: number) => Function;
-        static Elastic: (amplitude?: any, period?: any, inout?: number) => Function;
-        static Circ: (inout?: number) => Function;
-        static Back: (amount?: number, inout?: number) => Function;
-    }
-    abstract class CAnimate extends SObject {
-        constructor();
-        dispose(): void;
-        static Duration: number;
-        /** 播放几次 */
-        count: number;
-        /** 动画的标记 */
-        tag: any;
-        protected _firedCount: number;
-        _initSignals(): void;
-        /** 设置重复的次数 */
-        repeat(count: number): this;
-        /** 清空所有 */
-        abstract clear(): any;
-        /** 结束所有动画 */
-        abstract stop(): any;
-        /** 链接对象 */
-        abstract bind(tgt: CComponent): this;
-        /** 取消对象 */
-        abstract unbind(tgt: CComponent): any;
-        abstract unbindAll(): any;
-        /** 下一步 */
-        abstract next(props: any, duration: number, tf: Function): this;
-        abstract to(duration: number, tf: Function, ani: (ani: Animator) => void, ctx?: any): this;
-        then(ani: (ani: Animator) => void, ctx?: any, duration?: number, tf?: Function): this;
-        /** 等待 */
-        abstract wait(duration: number, passive?: boolean): this;
-        /** 执行函数 */
-        abstract invoke(fun: Function, ctx?: any): this;
-        /** 结束 */
-        complete(cb: (s: Slot) => void, ctx?: any): this;
-        /** 播放 */
-        abstract play(reverse?: boolean): this;
-        /** 暂停 */
-        abstract pause(): any;
-        /** 恢复 */
-        abstract resume(): any;
-        /** 暂停的状态 */
-        abstract isPaused(): boolean;
-        /** 动画结束是否恢复原来的状态 */
-        autoReset: boolean;
-        /** 动画结束是否自动解除绑定 */
-        autoUnbind: boolean;
-        /** 动画结束后是否自动释放 */
-        autoDrop: boolean;
-        /** 复制 */
-        clone(): this;
-        /** 直接停止对象动画 */
-        static Stop(tgt: CComponent): void;
-        inTo(duration: number, cb: (animator: Animator) => void, ctx?: any, tf?: Function): this;
-        outTo(duration: number, cb: (animator: Animator) => void, ctx?: any, tf?: Function): this;
-        tremble(duration?: number, tf?: Function): this;
-    }
-    abstract class CTween {
-        /** 激活一个对象添加动画 */
-        static Get(c: CComponent, props?: any): any;
-        /** 删除对象的全部动画 */
-        static Stop(c: CComponent): void;
-    }
 }
 declare module nn {
     class Animate extends CAnimate {
@@ -2290,18 +2290,18 @@ declare module nn {
     }
 }
 declare module nn {
-    abstract class CBitmap extends Widget {
-        constructor(res?: TextureSource);
-        dispose(): void;
-        protected _initSignals(): void;
-        /** 9点 */
-        point9: [number, number, number, number];
-        /** 素材 */
-        imageSource: TextureSource;
-        /** 填充模式 */
-        fillMode: FillMode;
-        /** 期望的大小 */
-        preferredFrame: Rect;
+    class Navigation extends ViewStack {
+        constructor();
+        protected _addPage(page: StackPageType, aschild: boolean): void;
+        pages: Array<StackPageType>;
+    }
+    /** 用来进行导航的过渡特效，推进和推出 */
+    class TransitionNavigation extends Transition {
+        constructor(duration?: number);
+    }
+    /** 淡入淡出交替的过渡特效 */
+    class TransitionFade extends Transition {
+        constructor(duration?: number);
     }
 }
 declare module nn {
@@ -2338,240 +2338,6 @@ declare module nn {
         stopDecelerating(): void;
         /** 使用scroll包裹一个空间来滑动 */
         static Wrapper(ui: CComponent): CScrollView;
-    }
-}
-declare module nn {
-    class Navigation extends ViewStack {
-        constructor();
-        protected _addPage(page: StackPageType, aschild: boolean): void;
-        pages: Array<StackPageType>;
-    }
-    /** 用来进行导航的过渡特效，推进和推出 */
-    class TransitionNavigation extends Transition {
-        constructor(duration?: number);
-    }
-    /** 淡入淡出交替的过渡特效 */
-    class TransitionFade extends Transition {
-        constructor(duration?: number);
-    }
-}
-declare module nn {
-    let ERROR_NETWORK_FAILED: number;
-    class Model extends SObject implements ISerializable, ICacheObject {
-        constructor();
-        dispose(): void;
-        protected _initSignals(): void;
-        cacheFlush: boolean;
-        cacheUpdated: boolean;
-        cacheTime: number;
-        keyForCache(): string;
-        paramsForCache(): KvObject<string, string>;
-        valueForCache(): any;
-        /** 动作 */
-        action: string;
-        /** 参数 */
-        params: KvObject<string, string>;
-        /** 域 */
-        host: string;
-        /** 返回的数据 */
-        response: any;
-        /** 需要自动带上授权信息 */
-        withCredentials: boolean;
-        private _modelcallback;
-        modelcallback: string;
-        static HTTP: string;
-        static HTTPS: string;
-        /** 获得请求的类型 */
-        method: HttpMethod;
-        /** 是否跨域 */
-        iscross(): boolean;
-        /** 是否使用代理 */
-        useproxy(): boolean;
-        /** 全路径 */
-        url(): string;
-        /** 可用的参数 */
-        fields(): KvObject<string, string>;
-        /** 是否获取成功 */
-        isSucceed(): boolean;
-        /** 保存成功或失败的状态 */
-        succeed: boolean;
-        /** 调试模式，即使错误也同样激活成功的消息 */
-        isDebug: boolean;
-        /** 是否显示 wait */
-        showWaiting: boolean;
-        /** 是否显示错误信息 */
-        showError: boolean;
-        /** 处理结果数据 */
-        serialize(respn: any): boolean;
-        unserialize(respn: any): boolean;
-        /** 返回的数据 */
-        code: number;
-        message: string;
-        /** 超时 s，默认不使用改特性 */
-        timeout: Interval;
-        private _tmr_timeout;
-        /** 超时当作失败，因为默认的超时有可能是因为这个接口本来就跑的很久，并且通常的超时提示用户也没什么意义，所以先设计为由业务层设置该功能，如果为 true，则当超时时会发送 SignalFailed */
-        timeoutAsFailed: boolean;
-        /** 用于调试的数据 */
-        protected urlForLog(): string;
-        protected fieldsForLog(): KvObject<string, string>;
-        __mdl_start(): void;
-        __mdl_completed(e: any): void;
-        __mdl_failed(e: Slot): void;
-        __mdl_timeout(): void;
-        __mdl_end(): void;
-        processResponse(): void;
-        protected clear(): void;
-        _urlreq: CHttpConnector;
-        /** 调用的时间 */
-        ts: number;
-    }
-    /** 支持分页的model */
-    class PagedModel<ItemT> {
-        constructor();
-        add(page: any, items: Array<ItemT>): void;
-        changed: boolean;
-        page: any;
-        private _items;
-        readonly items: Array<ItemT>;
-        readonly allItems: Array<ItemT>;
-        previous(): boolean;
-        next(): boolean;
-    }
-}
-declare module nn {
-    class ObjectReference {
-        object: any;
-    }
-    function ObjectClass(o: any): any;
-    function Classname(cls: any): string;
-    function SuperClass(o: any): any;
-    function IsInherit(type: Function, parent: Function): boolean;
-    /** 带参数的实例化对象 */
-    function NewObject(cls: any, p: any[]): any;
-    function InstanceNewObject<T>(o: T, ...p: any[]): T;
-    function MethodIsOverrided(cls: any, method: string): boolean;
-    function HasMethod(cls: any, method: string): boolean;
-    function Method(obj: any, method: string): any;
-    class Class<T> {
-        constructor(type?: any);
-        type: any;
-        instance(): T;
-        isEqual<R>(r: Class<R>): boolean;
-    }
-    /** 实例的容器
-        @note 承载实例好的对象或者延迟实例化的类，但是暴露出去的都是实例
-    */
-    class Instance<T> {
-        constructor(o: T | Function);
-        drop(): void;
-        readonly obj: T;
-        readonly clazz: any;
-        isnull(): boolean;
-        private _obj;
-        private _clazz;
-    }
-    function New<T>(v: T): Instance<any>;
-    type InstanceType<T> = T | Instance<T>;
-    class Closure {
-        constructor(cb: Function, ctx: any, ...p: any[]);
-        dispose(): void;
-        protected cb: Function;
-        protected ctx: any;
-        protected argus: any[];
-        payload: any;
-        invoke(...p: any[]): any;
-        reset(cb: Function, ctx: any, ...p: any[]): void;
-    }
-    /** 拼装参数，直接发起函数调用 */
-    function Invoke1(fun: Function, ctx: any, p: any[], ...prefixarguments: any[]): any;
-    function Invoke2(fun: Function, ctx: any, prefixarguments: any[], p: any[]): any;
-    /** 直接运行，返回参数 */
-    function call(cb: () => void): void;
-}
-declare module tmp {
-    function rtname(): string;
-}
-declare module nn {
-    class ScrollView extends CScrollView {
-        constructor(cnt?: Component);
-        dispose(): void;
-        private _scrollView;
-        private _contentEdgeInsets;
-        contentEdgeInsets: EdgeInsets;
-        updateData(): void;
-        stopDecelerating(): void;
-        updateLayout(): void;
-        boundsForContent(): Rect;
-        addChild(c: Component): void;
-        removeChild(c: Component): void;
-        private _verticalIdentifier;
-        verticalIdentifier: Component;
-        private _horizonIdentifier;
-        horizonIdentifier: Component;
-        private _contentSize;
-        contentSize: Size;
-        protected _scrollContent: SpriteWrapper;
-        contentView: Component;
-        protected _updateIdentifier(): void;
-        onPositionChanged(): void;
-        private _scrollTouching;
-        _onTouchBegin(e: egret.TouchEvent): void;
-        _onTouchEnd(e: egret.TouchEvent): void;
-        _onScrollStarted(): void;
-        _onScrollFinished(): void;
-        regionBounds: Rect;
-        setContentOffset(pt: Point, duration: number): void;
-    }
-}
-declare module Js {
-    var siteUrl: string;
-    var printf: () => string;
-    var guid: () => string;
-    var uuid: (len: any, radix: any) => string;
-    var getBrowserSize: () => {
-        width: number;
-        height: number;
-    };
-    var getScreenSize: () => {
-        width: number;
-        height: number;
-    };
-    var getBrowserOrientation: () => any;
-    var hashKey: (o: any) => any;
-    function OverrideGetSet(cls: any, name: any, oset: any, ounset: any): void;
-    function OverrideFunction(cls: any, funm: any, of: any): void;
-    function enterFullscreen(e: any): void;
-    function exitFullscreen(): void;
-    function isFullscreen(): boolean;
-    function loadScripts(list: any, cb: any, ctx: any): void;
-    function loadScript(src: any, cb: any, ctx: any): void;
-    function loadStyles(list: any, cb: any, ctx: any): void;
-    function loadStyle(src: any, cb: any, ctx: any): void;
-    const enum SOURCETYPE {
-        JS = 0,
-        CSS = 1,
-    }
-    function loadSources(list: any, cb: any, ctx: any): void;
-    function loadSource(src: any, cb: any, ctx: any): void;
-    function stacktrace(): string;
-}
-declare module nn {
-    class Bitmap extends CBitmap {
-        constructor(res?: TextureSource);
-        protected _bmp: ExtBitmap;
-        protected onChangeState(obj: any): void;
-        bestFrame(inrc?: Rect): Rect;
-        protected _getTexture(): egret.Texture;
-        /** 按照材质的大小设置显示的大小 */
-        autoFit: boolean;
-        private _imageSource;
-        imageSource: TextureSource;
-        protected _setTexture(tex: egret.Texture): void;
-        updateLayout(): void;
-    }
-    class Picture extends Bitmap {
-        constructor(res?: TextureSource);
     }
 }
 declare module nn {
@@ -2779,617 +2545,433 @@ declare module app.debug {
     let BUILDDATE: number;
 }
 declare module nn {
-    class EntrySettings {
-        /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
-        singletone: boolean;
-        /** 其他数据 */
-        ext: any;
-        static Default: EntrySettings;
-    }
-    interface IEntry {
-        /** 模块的配置 */
-        entrySettings?: EntrySettings;
-    }
-    interface ILauncher {
-        /** 处理模块的启动
-            @param cls 待启动模块的类
-            @param data 附加的参数
-        */
-        launchEntry(cls: any, data?: any): any;
-    }
-    abstract class Manager extends SObject {
-        /** 初始化自己和其它manager或者其它对象之间的关系 */
-        abstract onLoaded(): any;
-        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
-        onDataLoaded(): void;
-    }
-    abstract class Managers extends SObject {
-        register<T>(obj: T): T;
-        onLoaded(): void;
-        onDataLoaded(): void;
-        protected _managers: Manager[];
-    }
-    interface IEntryClass {
-        name: string;
-        clazz: () => Function;
-    }
-    type EntryIdrToLauncherIdr = (entryidr: string) => string;
-    type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
-    type EntryClassType = Function | IEntryClass;
-    class _EntriesManager {
-        /** 注册一个模块
-            @param entryClass类
-        */
-        register(entryClass: EntryClassType, data?: EntrySettings): void;
-        /** 启动一个模块
-            @param entry 类或者标类名
-            @param launcher 启动点的标示号或者启动点的实例
-            @pram data 附加的参数
-        */
-        invoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
-        protected _doInvoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
-        private _entries;
-        private _entriesdata;
-        toString(): string;
-    }
-    let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
-    let EntriesManager: _EntriesManager;
-    class _LaunchersManager extends nn.SObject {
-        constructor();
-        protected _initSignals(): void;
-        /** 注册一个启动器 */
-        register(obj: ILauncher): void;
-        /** 取消 */
-        unregister(obj: ILauncher): void;
-        /** 查找一个启动器 */
-        find(str: string): ILauncher;
-        private _launchers;
-        toString(): string;
-    }
-    let LaunchersManager: _LaunchersManager;
-}
-declare let document_class: any;
-declare let document_orientation: any;
-declare module nn {
-    class EgretApp extends CApplication {
-        constructor();
-        fontFamily: string;
-    }
-    let EUI_MODE: boolean;
-}
-declare module nn {
-    class FrameTimer {
-        constructor();
-        /** 起始时间 ms */
-        start: number;
-        /** 点前的时间点 */
-        now: number;
-        /** 消耗时间 */
-        cost: number;
-        /** 过去了的时间 */
-        past: number;
-        /** 次数统计 */
-        count: number;
-    }
-    interface IFrameRender {
-        onRender(cost: number): any;
-    }
-    abstract class CFramesManager {
-        private _blayouts;
-        private _bzpositions;
-        private _bappears;
-        private _bcaches;
-        private _bmcs;
-        static _layoutthreshold: number;
-        protected onPrepare(): void;
-        protected onRendering(): void;
-        RENDERS: CSet<IFrameRender>;
-        /** 强制更新下一帧 */
-        abstract invalidate(): any;
-        /** 布局 */
-        needsLayout(c: CComponent): void;
-        cancelLayout(c: CComponent): void;
-        /** 调整Z顺序 */
-        needsZPosition(c: CComponent): void;
-        /** 显示 */
-        needsAppear(c: CComponent): void;
-        /** 刷新图形缓存 */
-        needsCache(c: CComponent): void;
-        /** 刷新内存缓存 */
-        needsGC(mc: Memcache): void;
-        abstract launch(c: any): any;
-        private _ft;
-    }
-    let FramesManager: CFramesManager;
-}
-declare module nn {
-    /** Desktop默认依赖的执行队列，业务可以通过替换对来来手动划分不同的Desktop打开层级
-        @note 如果Desktop放到队列中，则当上一个dialog关闭时，下一个dialog才打开
-    */
-    let DesktopOperationQueue: OperationQueue;
-    /** 桌面，打开时铺平整个屏幕 */
-    class Desktop extends Component {
-        static BackgroundColor: Color;
-        static BackgroundImage: TextureSource;
-        constructor(ui?: CComponent);
+    class ScrollView extends CScrollView {
+        constructor(cnt?: Component);
         dispose(): void;
-        static FromView(c: CComponent): Desktop;
-        private __dsk_sizechanged(s);
-        _initSignals(): void;
-        /** 高亮元素，在元素所在的位置镂空背景 */
-        _filters: CComponent[];
-        addFilter(ui: CComponent): void;
-        /** 是否打开高亮穿透的效果
-            @note 如果打开，只有filters的部分可以接受touch的事件
-        */
-        protected _onlyFiltersTouchEnabled: boolean;
-        onlyFiltersTouchEnabled: boolean;
-        static _AllNeedFilters: Desktop[];
-        hitTestInFilters(pt: Point): any;
-        onLoaded(): void;
-        private __dsk_addedtostage();
-        onAppeared(): void;
-        updateFilters(): void;
-        protected _contentView: CComponent;
-        contentView: CComponent;
-        /** 延迟指定时间后关闭
-            @note 因为可能open在队列中，如果由业务层处理，则不好把握什么时候当前dialog才打开
-        */
-        delayClose: number;
-        /** 桌面基于的层，默认为 Application.desktopLayer
-            @note 业务可以指定desktop是打开在全局，还是打开在指定的ui之内
-        */
-        desktopLayer: CComponent;
-        /** 是否已经打开
-            @note 如果open在队列中，则调用open后，当前parent仍然为null，但是逻辑上该dialog算是已经打开，所以需要使用独立的变量来维护打开状态
-        */
-        protected _isOpened: boolean;
-        readonly isOpened: boolean;
-        /** 队列控制时依赖的队列组，业务层设置为自己的队列实例来和标准desktop的队列隔离，避免多重desktop等待时造成业务中弹出的类似如tip的页面在业务dialog后等待的问题 */
-        queue: OperationQueue;
-        protected _oper: Operation;
-        /** 当在队列中打开时，需要延迟的时间
-            @note 同样因为如果打开在队列中，业务层无法很方便的控制打开前等待的时间
-        */
-        delayOpenInQueue: number;
-        /** 打开
-            @param queue, 是否放到队列中打开
-        */
-        open(queue?: boolean): void;
-        /** 接着其他对象打开 */
-        follow(otherContent: CComponent): void;
-        /** 替换打开 */
-        replace(otherContent: CComponent): void;
-        /** desktop打开的样式
-            @note 默认为弹出在desktopLayer，否则为push进desktopLayer
-            弹出不会隐藏后面的内容，push将根据对应的viewStack来决定是否背景的内容隐藏
-        */
-        popupMode: boolean;
-        _addIntoOpening: boolean;
-        static _AllOpenings: Desktop[];
-        protected doOpen(): void;
-        /** 关闭所有正在打开的desktop */
-        static CloseAllOpenings(): void;
-        /** 正在打开的desktop */
-        static Current(): Desktop;
-        /** 关闭 */
-        close(): void;
-        protected doClose(): void;
-        /** 点击桌面自动关闭 */
-        clickedToClose: boolean;
-        private __dsk_clicked();
-        /** 使用自适应来布局内容页面 */
-        adaptiveContentFrame: boolean;
-        updateLayout(): void;
-    }
-}
-declare module nn {
-    /** 按钮类
-        @note 定义为具有点按状态、文字、图片的元素，可以通过子类化来调整文字、图片的布局方式
-     */
-    abstract class CButton extends Widget implements IState {
-        constructor();
-        static STATE_NORMAL: string;
-        static STATE_DISABLED: string;
-        static STATE_HIGHLIGHT: string;
-        static STATE_SELECTED: string;
-        /** 是否可用 */
-        disabled: boolean;
-        /** 字体大小 */
-        fontSize: number;
-        /** 文字颜色 */
-        textColor: ColorType;
-        /** 内容 */
-        text: string;
-        /** 对齐方式 */
-        textAlign: string;
-        /** 图片 */
-        imageSource: TextureSource;
-        /** 普通的状态 */
-        stateNormal: State;
-        /** 禁用的状态 */
-        stateDisabled: State;
-        /** 高亮的状态 */
-        stateHighlight: State;
-        /** 选中的状态 */
-        stateSelected: State;
-        /** 点击频度限制 */
-        eps: number;
-        _signalConnected(sig: string, s?: Slot): void;
-        protected _initSignals(): void;
-        isSelection(): boolean;
-        protected _isSelected: boolean;
-    }
-}
-declare module nn {
-    /** 骨骼的配置信息 */
-    class BoneConfig implements IReqResources {
-        /**
-           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
-           @character 角色名称，通常和name一致
-           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
-           @place 材质节点的位置配置文件，通常为 texture_json 结尾
-           @texture 图片文件，通常为 texture_png 结尾
-        */
-        constructor(name?: string, character?: string, skeleton?: string, place?: string, texture?: string);
-        resourceGroups: Array<string>;
-        protected _skeleton: string;
-        protected _place: string;
-        protected _texture: string;
-        protected _character: string;
-        fps: number;
-        protected _name: string;
-        name: string;
-        skeleton: string;
-        place: string;
-        texture: string;
-        character: string;
-        getReqResources(): Array<ReqResource>;
-    }
-    type BoneSource = BoneData | BoneConfig | UriSource;
-    /** 业务使用的骨骼显示类 */
-    abstract class CBones extends Widget {
-        constructor();
-        protected _initSignals(): void;
-        /** 骨骼的配置 */
-        boneSource: BoneSource;
-        /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
-        additionScale: number;
-        /** 骨骼填充的方式，默认为充满 */
-        fillMode: FillMode;
-        /** 对齐位置 */
-        clipAlign: POSITION;
-        /** 具体动作 */
-        motion: string;
-        abstract pushMotion(val: string): any;
-        abstract popMotion(): any;
-        /** 当前含有的所有动作 */
-        abstract motions(): Array<string>;
-        /** 是否含有该动作 */
-        abstract hasMotion(val: string): boolean;
-        /** 自动开始播放 */
-        autoPlay: boolean;
-        /** 播放次数控制
-            -1: 循环
-            0: 使用文件设置的次数
-            >0: 次数控制
-        */
-        count: number;
-        /** 播放 */
-        abstract play(): any;
-        /** 停止播放 */
-        abstract stop(): any;
-    }
-}
-declare module egret {
-    var VERSION: number;
-    function MAKE_VERSION(maj: any, min: any, patch: any): any;
-}
-declare module eui {
-    class ItemInfo {
-        /** 对应的数据 */
-        data: any;
-        /** 表中的索引 */
-        index: number;
-        /** 渲染用的renderer */
-        renderer: eui.IItemRenderer;
-        static FromEvent(e: eui.ItemTapEvent): ItemInfo;
-    }
-    /** 换选时带出业务层判断的对象 */
-    class SelectionInfo {
-        /** 当前选中 */
-        selected: ItemInfo;
-        /** 即将选中 */
-        selecting: ItemInfo;
-        /** 用来取消此次选中 */
-        cancel: () => void;
-    }
-    function _EUIExtFix(cls: any): void;
-}
-declare module nn {
-    function getBounds(e: egret.DisplayObject): nn.Rect;
-    function getFrame(e: egret.DisplayObject): nn.Rect;
-    function setFrame(e: egret.DisplayObject, rc: nn.Rect): void;
-    function setCenter(e: egret.DisplayObject, pt: nn.Point): void;
-    function setAnchorPoint(e: egret.DisplayObject, anchor: nn.Point): void;
-}
-declare module nn {
-    type ClipSource = ClipConfig;
-    abstract class CMovieClip extends Widget {
-        constructor();
-        protected _initSignals(): void;
-        /** 播放次数，-1代表循环，默认为一次*/
-        count: number;
-        /** 帧率 */
-        fps: number;
-        /** 切换clipSource时清空原来的clip */
-        clearOnChanging: boolean;
-        /** 序列帧资源 */
-        clipSource: ClipSource;
-        /** 目标序列帧的名称 */
-        clip: string;
-        /** 序列帧播放的位置 */
-        location: number;
-        onAppeared(): void;
-        private __autopaused;
-        onDisappeared(): void;
-        /** 是否自动播放 */
-        autoPlay: boolean;
-        /** 是否正在播放 */
-        abstract isPlaying(): boolean;
-        /** 暂停动画 */
-        abstract stop(): any;
-        /** 播放动画 */
-        abstract play(): any;
-        /** 附加缩放 */
-        additionScale: number;
-        /** 填充方式 */
-        fillMode: FillMode;
-        /** 反方向播放 */
-        reverseMode: boolean;
-        /** 序列帧的对齐位置 */
-        clipAlign: POSITION;
-        /** flashMode 采用 flash 标记的锚点来显示动画
-            @note 这种模式下请设置 fillMode 为 CENTER
-        */
-        flashMode: boolean;
-        /** flashAnchor flash模式下使用的锚点信息 */
-        flashAnchorPoint: Point;
-    }
-    class ClipConfig implements IReqResources {
-        /**
-           @name 资源名称，资源由 json\bmp 组成，如过传入的时候没有带后缀，则自动加上后缀
-           @res 动作文件，通常为 _json
-           @tex 素材平成，通常为 _png
-        */
-        constructor(name?: string, res?: string, tex?: string);
-        private _frame;
-        private _texture;
-        frame: UriSource;
-        texture: UriSource;
-        /** 名字 */
-        private _name;
-        name: string;
-        /** OPT 帧速 */
-        fps: number;
-        /** OPT 依赖的资源组 */
-        resourceGroups: Array<string>;
-        /** OPT 附加缩放 */
-        additionScale: number;
-        /** OPT 是否为独立数据，否则同一个资源公用一份帧数据 */
-        key: string;
-        readonly hashCode: number;
-        isEqual(r: this): boolean;
-        getReqResources(): Array<ReqResource>;
-        toString(): string;
-    }
-}
-declare module nn {
-    abstract class CParticle extends Widget {
-        constructor();
-        name: string;
-        abstract start(): any;
-        abstract stop(): any;
-    }
-}
-declare var eeui: typeof eui;
-declare module eui {
-    type StackPageType = nn.InstanceType<egret.DisplayObject>;
-    type UiType = egret.DisplayObject;
-    interface IViewStack {
-        push(page: egret.DisplayObject): any;
-        pop(): any;
-        pages(): egret.DisplayObject[];
-    }
-    class ComponentU extends eui.Component implements eui.IItemRenderer {
-        constructor();
-        onLoaded(): void;
-        /** 直接配置信号 */
-        slots: string;
-        /** 灵活的任意配置的数据 */
-        tag: any;
-        /** 业务中经常会遇到对于该组件的描述，底层提供避免业务重复声明
-            @note 不使用public公开的原因是通常业务层需要重载以实现具体的回馈
-        */
-        protected _help: any;
-        help: any;
-        /** 隶属于的控件，可以方便业务层的数据穿透 */
-        belong: any;
-        __disposed: boolean;
-        protected _refcnt: number;
-        drop(): void;
-        grab(): void;
-        dispose(): void;
-        timer(duration: nn.Interval, count: number, idr?: string): nn.Timer;
-        private _timers;
-        protected onAppeared(): void;
-        protected onDisappeared(): void;
-        static _ProcessAppeared(ui: any): void;
-        static _ProcessDisppeared(ui: any): void;
-        onVisibleChanged(): void;
-        $setVisible(b: boolean): boolean;
-        $onAddToStage(stage: egret.Stage, nestLevel: number): void;
-        $onRemoveFromStage(): void;
-        protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private __need_remove_from_launchersmanager;
-        private __cmp_tap(e);
-        setSkinPart(partName: string, instance: any): void;
-        onPartBinded(name: string, tgt: any): void;
-        addChild(sp: egret.DisplayObject | nn.CComponent): egret.DisplayObject;
-        addChildAt(sp: egret.DisplayObject | nn.CComponent, idx: number): egret.DisplayObject;
-        removeChild(sp: egret.DisplayObject | nn.CComponent): egret.DisplayObject;
-        removeFromParent(): void;
-        playAnimate(ani: Animate, idr?: any): Animate;
-        findAnimate(idr: any): Animate;
-        stopAnimate(idr: any): void;
-        stopAllAnimates(): void;
-        goBack(): void;
-        protected _data: any;
-        data: any;
-        protected _itemIndex: number;
-        itemIndex: number;
-        protected _selected: boolean;
-        selected: boolean;
-        getCurrentState(): string;
-        interactiveEnabled: boolean;
-        setLayoutBoundsSize(width: number, height: number): void;
-        /** 隶属的栈 */
-        viewStack: IViewStack;
-        /** 展示与否 */
-        exhibition: boolean;
-        /** 刷新布局 */
-        updateLayout(): void;
-        /** 刷新数据 */
+        private _scrollView;
+        private _contentEdgeInsets;
+        contentEdgeInsets: EdgeInsets;
         updateData(): void;
-        /** 锚点 */
-        protected _anchorPointX: number;
-        anchorPointX: number;
-        protected _anchorPointY: number;
-        anchorPointY: number;
-        protected updateDisplayList(unscaledWidth: number, unscaledHeight: number): void;
-        convertPointTo(pt: nn.Point, sp: egret.DisplayObject | nn.CComponent): nn.Point;
-        convertRectTo(rc: nn.Rect, sp: egret.DisplayObject | nn.CComponent): nn.Rect;
-        updateCache(): void;
-        frame: nn.Rect;
-        bounds(): nn.Rect;
-    }
-    /** 业务非wing重用模块继承该类型 */
-    class SpriteU extends eeui.ComponentU {
+        stopDecelerating(): void;
+        updateLayout(): void;
+        boundsForContent(): Rect;
+        addChild(c: Component): void;
+        removeChild(c: Component): void;
+        private _verticalIdentifier;
+        verticalIdentifier: Component;
+        private _horizonIdentifier;
+        horizonIdentifier: Component;
+        private _contentSize;
+        contentSize: Size;
+        protected _scrollContent: SpriteWrapper;
+        contentView: Component;
+        protected _updateIdentifier(): void;
+        onPositionChanged(): void;
+        private _scrollTouching;
+        _onTouchBegin(e: egret.TouchEvent): void;
+        _onTouchEnd(e: egret.TouchEvent): void;
+        _onScrollStarted(): void;
+        _onScrollFinished(): void;
+        regionBounds: Rect;
+        setContentOffset(pt: Point, duration: number): void;
     }
 }
 declare module nn {
-    class Pen {
-        constructor(c: Color, width?: number);
-        color: Color;
-        width: number;
-        clone(): this;
-        static setIn: (context: any, pen: Pen) => void;
+    class ObjectReference {
+        object: any;
     }
-    class Brush {
-        constructor(c: Color);
-        color: Color;
-        clone(): this;
-        static setIn: (context: any, brush: Brush, pre: Brush) => void;
+    function ObjectClass(o: any): any;
+    function Classname(cls: any): string;
+    function SuperClass(o: any): any;
+    function IsInherit(type: Function, parent: Function): boolean;
+    /** 带参数的实例化对象 */
+    function NewObject(cls: any, p: any[]): any;
+    function InstanceNewObject<T>(o: T, ...p: any[]): T;
+    function MethodIsOverrided(cls: any, method: string): boolean;
+    function HasMethod(cls: any, method: string): boolean;
+    function Method(obj: any, method: string): any;
+    class Class<T> {
+        constructor(type?: any);
+        type: any;
+        instance(): T;
+        isEqual<R>(r: Class<R>): boolean;
     }
-    class GCommand {
-        pen: Pen;
-        brush: Brush;
-        static renderIn: (context: any, cmd: GCommand) => void;
+    /** 实例的容器
+        @note 承载实例好的对象或者延迟实例化的类，但是暴露出去的都是实例
+    */
+    class Instance<T> {
+        constructor(o: T | Function);
+        drop(): void;
+        readonly obj: T;
+        readonly clazz: any;
+        isnull(): boolean;
+        private _obj;
+        private _clazz;
     }
-    class GLine extends GCommand {
-        start: Point;
-        end: Point;
+    function New<T>(v: T): Instance<any>;
+    type InstanceType<T> = T | Instance<T>;
+    class Closure {
+        constructor(cb: Function, ctx: any, ...p: any[]);
+        dispose(): void;
+        protected cb: Function;
+        protected ctx: any;
+        protected argus: any[];
+        payload: any;
+        invoke(...p: any[]): any;
+        reset(cb: Function, ctx: any, ...p: any[]): void;
     }
-    class GBezier extends GCommand {
-        controlA: Point;
-        controlB: Point;
-        anchor: Point;
-    }
-    class GCurve extends GCommand {
-        control: Point;
-        anchor: Point;
-    }
-    class GArc extends GCommand {
-        center: Point;
-        radius: number;
-        start: Angle;
-        end: Angle;
-        sweep: Angle;
-        ccw: boolean;
-    }
-    class GCircle extends GCommand {
-        center: Point;
-        radius: number;
-    }
-    class GEllipse extends GCommand {
-        center: Point;
+    /** 拼装参数，直接发起函数调用 */
+    function Invoke1(fun: Function, ctx: any, p: any[], ...prefixarguments: any[]): any;
+    function Invoke2(fun: Function, ctx: any, prefixarguments: any[], p: any[]): any;
+    /** 直接运行，返回参数 */
+    function call(cb: () => void): void;
+}
+declare module tmp {
+    function rtname(): string;
+}
+declare module Js {
+    var siteUrl: string;
+    var printf: () => string;
+    var guid: () => string;
+    var uuid: (len: any, radix: any) => string;
+    var getBrowserSize: () => {
         width: number;
         height: number;
+    };
+    var getScreenSize: () => {
+        width: number;
+        height: number;
+    };
+    var getBrowserOrientation: () => any;
+    var hashKey: (o: any) => any;
+    function OverrideGetSet(cls: any, name: any, oset: any, ounset: any): void;
+    function OverrideFunction(cls: any, funm: any, of: any): void;
+    function enterFullscreen(e: any): void;
+    function exitFullscreen(): void;
+    function isFullscreen(): boolean;
+    function loadScripts(list: any, cb: any, ctx: any): void;
+    function loadScript(src: any, cb: any, ctx: any): void;
+    function loadStyles(list: any, cb: any, ctx: any): void;
+    function loadStyle(src: any, cb: any, ctx: any): void;
+    const enum SOURCETYPE {
+        JS = 0,
+        CSS = 1,
     }
-    class GRect extends GCommand {
-        rect: Rect;
-        round: number;
-        ellipseWidth: number;
-        ellipseHeight: number;
-    }
-    abstract class CGraphics {
-        pushState(): void;
-        popState(): void;
-        draw(c: GCommand): void;
-        pen: Pen;
-        brush: Brush;
-        private _states;
-        protected _commands: GCommand[];
-        renderIn(context: any): void;
+    function loadSources(list: any, cb: any, ctx: any): void;
+    function loadSource(src: any, cb: any, ctx: any): void;
+    function stacktrace(): string;
+}
+declare module nn {
+    abstract class CBitmap extends Widget {
+        constructor(res?: TextureSource);
+        dispose(): void;
+        protected _initSignals(): void;
+        /** 9点 */
+        point9: [number, number, number, number];
+        /** 素材 */
+        imageSource: TextureSource;
+        /** 填充模式 */
+        fillMode: FillMode;
+        /** 期望的大小 */
+        preferredFrame: Rect;
     }
 }
 declare module nn {
-    class ExtHtmlTextParser extends egret.HtmlTextParser {
-        constructor();
-        parser(htmltext: string): Array<egret.ITextElement>;
-    }
-    class Label extends CLabel {
-        constructor();
-        _signalConnected(sig: string, s?: Slot): void;
-        protected _lbl: any;
-        protected hitTestClient(x: number, y: number): egret.DisplayObject;
-        updateLayout(): void;
-        bold: boolean;
-        italic: boolean;
-        stroke: number;
-        strokeColor: ColorType;
-        private _lineSpacing;
-        lineSpacing: number;
+    var COPYRIGHT: string;
+    var AUTHOR: string;
+    var ISHTML5: boolean;
+    var ISNATIVE: boolean;
+    var ISHTTPS: boolean;
+    var APPICON: string;
+    var APPNAME: string;
+    var ISDEBUG: boolean;
+    var VERBOSE: boolean;
+    var APPVERSION: string;
+    var PUBLISH: boolean;
+}
+declare module nn {
+    class Bitmap extends CBitmap {
+        constructor(res?: TextureSource);
+        protected _bmp: ExtBitmap;
+        protected onChangeState(obj: any): void;
         bestFrame(inrc?: Rect): Rect;
-        private _tfnsz;
-        protected _setFontSize(v: number): void;
-        fontSize: number;
-        protected _setTextAlign(a: string): void;
-        protected _setTextSide(s: string): void;
-        textAlign: string;
-        textSide: string;
-        protected _setText(s: string): boolean;
-        text: string;
-        attributedText: any;
-        private _htmlText;
-        htmlText: string;
-        protected _setTextFlow(tf: Array<egret.ITextElement>): void;
-        textColor: ColorType;
-        fontFamily: string;
-        numlines: number;
-        multilines: boolean;
-        textFlow: Array<egret.ITextElement>;
-        protected _scaleToFit: boolean;
-        scaleToFit: boolean;
-        protected doScaleToFit(): void;
-        appendText(s: string): void;
-        private _links;
-        href(re: RegExp, cb: (url: string) => void, ctx?: any): void;
-        private __lbl_link(e);
+        protected _getTexture(): egret.Texture;
+        /** 按照材质的大小设置显示的大小 */
+        autoFit: boolean;
+        private _imageSource;
+        imageSource: TextureSource;
+        protected _setTexture(tex: egret.Texture): void;
+        updateLayout(): void;
+    }
+    class Picture extends Bitmap {
+        constructor(res?: TextureSource);
+    }
+}
+declare module nn {
+    interface ITableDataSource {
+        /** 多少行 */
+        numberOfRows(): number;
+        /** 对应行的类型 */
+        classForRow(row: number): any;
+        /** 行高 */
+        heightForRow(row: number): number;
+        /** 设置该行 */
+        updateRow(item: any, cell: TableViewCell, row: number): any;
+    }
+    /** 对于可以调整高度，或者存在 ui 和 data 重入的问题，通过这个参数来分别判断是 UI 过程还是 DATA 过程
+     * @brief 例如在 tableview 中应用时，如果是变高，则 updateData 会重入2次，一次是 UI 过程(粗布局)，一次是 DATA 过程(刷数据显示)，之后就可以拿到实高，但是 updateData 里面会有例如设置图片的操作，而这些操作仅需要在 UI 过程中被调用，所以可以通过该变量区分开
+     */
+    let DATAUPDATE: boolean;
+    class TableViewCell extends Sprite {
+        constructor();
+        static FromItem(cv: CComponent): TableViewCell;
+        _item: any;
+        item: any;
+        updateData(): void;
+        updateLayout(): void;
+        _row: number;
+        row: number;
+    }
+    class TableViewContent extends ScrollView {
+        constructor();
+        protected _initSignals(): void;
+        dispose(): void;
+        /** 是否支持重用的模式
+            @note 关闭重用的好处：固定列表的大小，不需要考虑item重入的问题
+        */
+        reuseMode: boolean;
+        /** 默认的的行显示类型 */
+        rowClass: any;
+        /** 默认的cell类型 */
+        cellClass: typeof TableViewCell;
+        /** 默认的行高 */
+        rowHeight: number;
+        /** 是否横向 */
+        horizonMode: boolean;
+        /** 数据代理 */
+        dataSource: ITableDataSource;
+        /** 间距 */
+        spacing: number;
+        updateLayout(): void;
+        _headerEdgeInsets: EdgeInsets;
+        headerEdgeInsets: EdgeInsets;
+        _footerEdgeInsets: EdgeInsets;
+        footerEdgeInsets: EdgeInsets;
+        _additionEdgeInsets: EdgeInsets;
+        additionEdgeInsets: EdgeInsets;
+        _topIdentifierEdgeInsets: EdgeInsets;
+        topIdentifierEdgeInsets: EdgeInsets;
+        _bottomIdentifierEdgeInsets: EdgeInsets;
+        bottomIdentifierEdgeInsets: EdgeInsets;
+        protected _updateEdgeInsets(): void;
+        clear(): void;
+        reloadData(): void;
+        protected addOneReuseItem(item: any): void;
+        protected getOneReuseItem(type: any): any;
+        protected instanceItem(type: any): any;
+        /** 查找指定的单元格 */
+        findCell(row?: number): TableViewCell;
+        /** 滚动到指定单元格 */
+        scrollToCell(idx: number, duration?: number, edge?: EDGE): void;
+        /** 滚动到指定位置 */
+        scrollToPos(pos: number, duration?: number): void;
+        /** 获取所有可见的单元格 */
+        readonly visibledCells: Array<TableViewCell>;
+        protected useCell(row: number): TableViewCell;
+        protected unuseCell(cell: TableViewCell): void;
+        protected popUsedCell(): void;
+        protected updateRow(item: any, cell: TableViewCell, row: number): void;
+        protected _updateConstriant(s: Slot): void;
+        protected _updateValidCells(update: any): void;
+        private _usedCells;
+        private _unusedCells;
+        private _rowHeights;
+        private _reuseItems;
+        onPositionChanged(): void;
+        /** 表头 */
+        protected _headerView: Component;
+        headerView: Component;
+        /** 表尾 */
+        protected _footerView: Component;
+        footerView: Component;
+        protected _layoutViews(): void;
+    }
+    class TableView extends Sprite implements ITableDataSource {
+        constructor();
+        static FromItem(cv: CComponent): TableView;
+        protected instanceTable(): TableViewContent;
+        protected _table: TableViewContent;
+        readonly table: TableViewContent;
+        classForRow(row: number): any;
+        heightForRow(row: number): number;
+        updateRow(item: any, cell: TableViewCell, row: number): void;
+        numberOfRows(): number;
+        updateLayout(): void;
+    }
+}
+declare module nn {
+    type SoundSource = UriSource | COriginType;
+    /** 音频播放 */
+    abstract class CSoundPlayer extends SObject {
+        constructor();
+        protected _initSignals(): void;
+        /** 播放次数，-1代表循环 */
+        count: number;
+        /** 音频的组名 */
+        resourceGroups: string[];
+        /** 是否可用 */
+        enable: boolean;
+        /** 自动恢复播放状态 */
+        autoRecovery: boolean;
+        /** 音频文件的名称, 一个player只能对应一个声音，如过已经设置，则报错 */
+        abstract setMediaSource(ms: string): any;
+        /** 暂停或者播放到的位置 */
+        position: number;
+        playingState: WorkState;
+        /** 开始播放 */
+        abstract play(): any;
+        /** 重新播放 */
+        abstract replay(): any;
+        /** 暂停 */
+        abstract pause(): any;
+        /** 恢复 */
+        abstract resume(): any;
+        /** 停止 */
+        abstract stop(): any;
+        /** 打断播放 */
+        abstract breakee(): any;
+        readonly isPlaying: boolean;
+        readonly isPaused: boolean;
+    }
+    class SoundTrack extends SObject {
+        constructor();
+        /** 播放次数，-1代表无限循环 */
+        count: number;
+        /** 同时只能有一个在播放 */
+        solo: boolean;
+        /** 用以实现player的类对象 */
+        classForPlayer: typeof SoundPlayer;
+        /** 自动恢复 */
+        _autoRecovery: boolean;
+        autoRecovery: boolean;
+        /** 资源组 */
+        resourceGroups: string[];
+        /** 可用状态 */
+        _enable: boolean;
+        enable: boolean;
+        /** 获取一个播放器 */
+        player(name: string, ...groups: string[]): SoundPlayer;
+        /** 实例化一个播放器，播放完成后会自动清掉 */
+        acquire(name: string, ...groups: string[]): SoundPlayer;
+        protected _sounds: KvObject<string, SoundPlayer>;
+        private _soloplayer;
+        private __cb_play(s);
+        /** 播放全部 */
+        play(): void;
+        /** 停止全部 */
+        stop(): void;
+        private __app_activate_enable;
+        _app_actived(): void;
+        _app_deactived(): void;
+    }
+    abstract class CSoundManager extends SObject {
+        constructor();
+        protected _tracks: KvObject<any, SoundTrack>;
+        /** 默认资源组 */
+        resourceGroups: string[];
+        /** 获取到指定音轨 */
+        track(idr: string): SoundTrack;
+        /** 背景音轨　*/
+        background: SoundTrack;
+        /** 效果音轨 */
+        effect: SoundTrack;
+        /** 可用 */
+        enable: boolean;
+    }
+    let SoundManager: CSoundManager;
+}
+declare module nn {
+    let ERROR_NETWORK_FAILED: number;
+    class Model extends SObject implements ISerializable, ICacheObject {
+        constructor();
+        dispose(): void;
+        protected _initSignals(): void;
+        cacheFlush: boolean;
+        cacheUpdated: boolean;
+        cacheTime: number;
+        keyForCache(): string;
+        paramsForCache(): KvObject<string, string>;
+        valueForCache(): any;
+        /** 动作 */
+        action: string;
+        /** 参数 */
+        params: KvObject<string, string>;
+        /** 域 */
+        host: string;
+        /** 返回的数据 */
+        response: any;
+        /** 需要自动带上授权信息 */
+        withCredentials: boolean;
+        private _modelcallback;
+        modelcallback: string;
+        static HTTP: string;
+        static HTTPS: string;
+        /** 获得请求的类型 */
+        method: HttpMethod;
+        /** 是否跨域 */
+        iscross(): boolean;
+        /** 是否使用代理 */
+        useproxy(): boolean;
+        /** 全路径 */
+        url(): string;
+        /** 可用的参数 */
+        fields(): KvObject<string, string>;
+        /** 是否获取成功 */
+        isSucceed(): boolean;
+        /** 保存成功或失败的状态 */
+        succeed: boolean;
+        /** 调试模式，即使错误也同样激活成功的消息 */
+        isDebug: boolean;
+        /** 是否显示 wait */
+        showWaiting: boolean;
+        /** 是否显示错误信息 */
+        showError: boolean;
+        /** 处理结果数据 */
+        serialize(respn: any): boolean;
+        unserialize(respn: any): boolean;
+        /** 返回的数据 */
+        code: number;
+        message: string;
+        /** 超时 s，默认不使用改特性 */
+        timeout: Interval;
+        private _tmr_timeout;
+        /** 超时当作失败，因为默认的超时有可能是因为这个接口本来就跑的很久，并且通常的超时提示用户也没什么意义，所以先设计为由业务层设置该功能，如果为 true，则当超时时会发送 SignalFailed */
+        timeoutAsFailed: boolean;
+        /** 用于调试的数据 */
+        protected urlForLog(): string;
+        protected fieldsForLog(): KvObject<string, string>;
+        __mdl_start(): void;
+        __mdl_completed(e: any): void;
+        __mdl_failed(e: Slot): void;
+        __mdl_timeout(): void;
+        __mdl_end(): void;
+        processResponse(): void;
+        protected clear(): void;
+        _urlreq: CHttpConnector;
+        /** 调用的时间 */
+        ts: number;
+    }
+    /** 支持分页的model */
+    class PagedModel<ItemT> {
+        constructor();
+        add(page: any, items: Array<ItemT>): void;
+        changed: boolean;
+        page: any;
+        private _items;
+        readonly items: Array<ItemT>;
+        readonly allItems: Array<ItemT>;
+        previous(): boolean;
+        next(): boolean;
     }
 }
 declare module nn {
@@ -3501,108 +3083,236 @@ declare module nn {
     let Dom: _Dom;
 }
 declare module nn {
-    var COPYRIGHT: string;
-    var AUTHOR: string;
-    var ISHTML5: boolean;
-    var ISNATIVE: boolean;
-    var ISHTTPS: boolean;
-    var APPICON: string;
-    var APPNAME: string;
-    var ISDEBUG: boolean;
-    var VERBOSE: boolean;
-    var APPVERSION: string;
-    var PUBLISH: boolean;
+    class ExtHtmlTextParser extends egret.HtmlTextParser {
+        constructor();
+        parser(htmltext: string): Array<egret.ITextElement>;
+    }
+    class Label extends CLabel {
+        constructor();
+        _signalConnected(sig: string, s?: Slot): void;
+        protected _lbl: any;
+        protected hitTestClient(x: number, y: number): egret.DisplayObject;
+        updateLayout(): void;
+        bold: boolean;
+        italic: boolean;
+        stroke: number;
+        strokeColor: ColorType;
+        private _lineSpacing;
+        lineSpacing: number;
+        bestFrame(inrc?: Rect): Rect;
+        private _tfnsz;
+        protected _setFontSize(v: number): void;
+        fontSize: number;
+        protected _setTextAlign(a: string): void;
+        protected _setTextSide(s: string): void;
+        textAlign: string;
+        textSide: string;
+        protected _setText(s: string): boolean;
+        text: string;
+        attributedText: any;
+        private _htmlText;
+        htmlText: string;
+        protected _setTextFlow(tf: Array<egret.ITextElement>): void;
+        textColor: ColorType;
+        fontFamily: string;
+        numlines: number;
+        multilines: boolean;
+        textFlow: Array<egret.ITextElement>;
+        protected _scaleToFit: boolean;
+        scaleToFit: boolean;
+        protected doScaleToFit(): void;
+        appendText(s: string): void;
+        private _links;
+        href(re: RegExp, cb: (url: string) => void, ctx?: any): void;
+        private __lbl_link(e);
+    }
 }
 declare module nn {
-    enum ResPriority {
-        NORMAL = 0,
-        CLIP = 1,
+    class SlotTunnel {
+        /** 是否请求中断了emit过程 */
+        veto: boolean;
+        /** 附加数据 */
+        payload: any;
     }
-    let ResCurrentPriority: ResPriority;
-    /** 使用UriSource均代表支持
-        1, resdepo 的 key
-        2, http/https:// 的远程url
-        3, assets:// 直接访问资源目录下的文件
-        4, <module>://<资源的key(命名方式和resdepto的默认一致)>
-    */
-    type UriSource = string;
-    enum ResType {
-        JSON = 0,
-        TEXTURE = 1,
-        TEXT = 2,
-        FONT = 3,
-        SOUND = 4,
-        BINARY = 5,
-        JSREF = 6,
-    }
-    let ResPartKey: string;
-    type ResourceGroup = string;
-    class ResourceEntity {
-        constructor(src: UriSource, t: ResType);
-        source: UriSource;
-        type: ResType;
-        readonly hashCode: number;
-    }
-    type ReqResource = ResourceGroup | ResourceEntity;
-    abstract class CResCapsule extends SObject {
-        constructor(reqres: ReqResource[]);
+    class Slot {
+        /** 重定向的信号 */
+        redirect: string;
+        /** 回调 */
+        cb: (e: Slot) => void;
+        /** 回调的上下文 */
+        target: any;
+        /** 激发者 */
+        sender: any;
+        /** 数据 */
+        data: any;
+        /** 延迟s启动 */
+        delay: number;
+        /** 穿透用的数据 */
+        tunnel: SlotTunnel;
+        /** connect 时附加的数据 */
+        payload: any;
+        /** 信号源 */
+        signal: string;
+        /** 激发频率限制 (emits per second) */
+        eps: number;
+        private _epstms;
+        /** 是否中断掉信号调用树 */
+        private _veto;
+        veto: boolean;
+        /** 调用几次自动解绑，默认为 null，不使用概设定 */
+        count: number;
+        emitedCount: number;
         dispose(): void;
-        protected _initSignals(): void;
-        private _isloading;
-        load(cb?: () => void, ctx?: any): void;
-        protected abstract loadOne(rr: ReqResource, cb: () => void, ctx: any): any;
-        protected abstract total(): number;
-        hashKey(): number;
-        static HashKey(reqres: ReqResource[]): number;
-        protected _total: number;
-        protected _idx: number;
-        protected _reqRes: Array<ReqResource>;
+        toString(): string;
+        /** 激发信号
+            @data 附带的数据，激发后自动解除引用 */
+        emit(data: any, tunnel: SlotTunnel): void;
+        protected doEmit(): void;
+        static Data(d: any): Slot;
     }
-    abstract class CResManager extends SObject {
-        constructor();
-        /** 是否支持多分辨率架构 */
-        multiRes: boolean;
-        /** Manager 依赖的目录名，其他资源目录均通过附加此目录来定位 */
-        private _directory;
-        directory: string;
-        /** 加载一个资源配置 */
-        abstract loadConfig(file: string, cb: (e: any) => void, ctx: any): any;
-        /** 缓存控制 */
-        cacheEnabled: boolean;
-        /** 资源包管理 */
-        abstract capsules(grps: ReqResource[]): CResCapsule;
-        abstract removeCapsule(cp: CResCapsule): any;
-        /** 一组资源是否已经加载 */
-        abstract isGroupsArrayLoaded(grps: string[]): boolean;
-        /** 尝试加载 */
-        abstract tryGetRes(key: string): ICacheRecord;
-        /** 异步加载资源，和 getRes 的区别不仅是同步异步，而且异步可以忽略掉 group 的状态直接加载资源*/
-        abstract getResAsync(key: string, priority: ResPriority, cb: (rcd: ICacheRecord) => void, ctx?: any): any;
-        /** 获取 key 对应资源 url */
-        abstract getResUrl(key: string): string;
-        /** 根据 src - type 的对照数组来加载资源数组 */
-        getSources(srcs: [[string, ResType]], priority: ResPriority, cb: (ds: [ICacheRecord]) => void, ctx: any): void;
-        /** 异步直接加载远程资源 */
-        abstract getResByUrl(src: UriSource, priority: ResPriority, cb: (rcd: ICacheRecord | CacheRecord) => void, ctx: any, type: ResType): any;
-        abstract hasAsyncUri(uri: UriSource): boolean;
-        /** 根据类型来获得指定的资源 */
-        getSourceByType(src: UriSource, priority: ResPriority, cb: (ds: ICacheRecord) => void, ctx: any, type: ResType): void;
-        getJson(src: UriSource, priority: ResPriority, cb: (obj: ICacheRecord) => void, ctx: any): void;
-        getText(src: UriSource, priority: ResPriority, cb: (obj: ICacheRecord) => void, ctx: any): void;
-        getTexture(src: TextureSource, priority: ResPriority, cb: (tex: ICacheRecord) => void, ctx: any): void;
-        getBitmapFont(src: FontSource, priority: ResPriority, cb: (fnt: ICacheRecord) => void, ctx: any): void;
-        getSound(src: SoundSource, priority: ResPriority, cb: (snd: ICacheRecord) => void, ctx: any): void;
-        getBinary(src: UriSource, priority: ResPriority, cb: (snd: ICacheRecord) => void, ctx: any): void;
+    class Slots {
+        slots: Slot[];
+        owner: any;
+        signal: string;
+        dispose(): void;
+        /** 清空连接 */
+        clear(): void;
+        toString(): string;
+        /** 阻塞信号
+            @note emit被阻塞的信号将不会有任何作用
+        */
+        private _block;
+        block(): void;
+        unblock(): void;
+        /** 是否已经阻塞 */
+        isblocked(): boolean;
+        /** 添加一个插槽 */
+        add(s: Slot): void;
+        /** 对所有插槽激发信号
+            @note 返回被移除的插槽的对象
+         */
+        emit(data: any, tunnel: SlotTunnel): CSet<any>;
+        disconnect(cb: (e: Slot) => void, target: any): boolean;
+        find_connected_function(cb: (e: Slot) => void, target: any): Slot;
+        find_redirected(sig: string, target: any): Slot;
+        is_connected(target: any): boolean;
     }
-    /** 全局唯一的资源管理实体 */
-    let ResManager: CResManager;
-    /** 使用约定的方式获取资源名称 */
-    class ResName {
-        /** 普通 */
-        static normal(name: string): string;
-        /** 高亮 */
-        static hl(name: string): string;
+    interface SignalsDelegate {
+        _signalConnected(sig: string, s?: Slot): any;
     }
+    class Signals {
+        constructor(owner: any);
+        private _slots;
+        owner: any;
+        delegate: SignalsDelegate;
+        dispose(): void;
+        clear(): void;
+        toString(): string;
+        /** 注册信号 */
+        register(sig: string): void;
+        protected avaslots(sig: string): Slots;
+        /** 只连接一次 */
+        once(sig: string, cb: (...p: any[]) => void, target: any): Slot;
+        /** 连接信号插槽 */
+        connect(sig: string, cb: (...p: any[]) => void, target: any): Slot;
+        /** 该信号是否存在连接上的插槽 */
+        isConnected(sig: string): boolean;
+        /** 转发一个信号到另一个对象的信号 */
+        redirect(sig: string, sig2: string, target: any): Slot;
+        redirect(sig: string, target: any): Slot;
+        /** 激发信号 */
+        emit(sig: string, data?: any, tunnel?: SlotTunnel): void;
+        /** 向外抛出信号
+            @note 为了解决诸如金币变更、元宝变更等大部分同时发生的事件但是因为set的时候不能把这些的修改函数合并成1个函数处理，造成同一个消息短时间多次激活，所以使用该函数可以在下一帧开始后归并发出唯一的事件。所以该函数出了信号外不支持其他带参
+        */
+        cast(sig: string): void;
+        private _castings;
+        private _doCastings();
+        /** 断开连接 */
+        disconnectOfTarget(target: any, inv?: boolean): void;
+        /** 断开连接 */
+        disconnect(sig: string, cb?: (e: Slot) => void, target?: any): any;
+        isConnectedOfTarget(target: any): boolean;
+        /** 阻塞一个信号，将不响应激发 */
+        block(sig: string): void;
+        unblock(sig: string): void;
+        isblocked(sig: string): boolean;
+        private __invtargets;
+        private __inv_connect(tgt);
+        private __inv_disconnect(tgt);
+    }
+    class EventWeakDispatcher {
+        private _slots;
+        add<T>(idr: string, cb: (e: T) => void, cbctx: any): void;
+        remove(idr: string): void;
+        invoke<T>(idr: string, e: T, debug?: boolean): void;
+        clear(): void;
+    }
+    class Reactors {
+        private _slots;
+        add<T>(cb: (e: T) => void, ctx: any): void;
+        invoke<T>(e?: T): void;
+        clear(): void;
+    }
+    function emit(obj: any, sig: string, data?: any): void;
+    let SignalException: string;
+    let SignalDone: string;
+    let SignalSucceed: string;
+    let SignalOk: string;
+    let SignalTimeout: string;
+    let SignalEnd: string;
+    let SignalStart: string;
+    let SignalExit: string;
+    let SignalChanged: string;
+    let SignalUpdated: string;
+    let SignalPaused: string;
+    let SignalResume: string;
+    let SignalDataChanged: string;
+    let SignalItemChanged: string;
+    let SignalCancel: string;
+    let SignalFailed: string;
+    let SignalAdding: string;
+    let SignalAdded: string;
+    let SignalRemoving: string;
+    let SignalRemoved: string;
+    let SignalVisibleChanged: string;
+    let SignalNeedRedo: string;
+    let SignalNeedReload: string;
+    let SignalNeedFlush: string;
+    let SignalNewChanged: string;
+    let SignalAction: string;
+    let SignalSelected: string;
+    let SignalDeselected: string;
+    interface SelectionData {
+        old: any;
+        now: any;
+    }
+    let SignalSelectionChanged: string;
+    let SignalSelectionChanging: string;
+    let SignalLoaded: string;
+    let SignalActivated: string;
+    let SignalDeactivated: string;
+    let SignalFocusGot: string;
+    let SignalFocusLost: string;
+    let SignalConstriantChanged: string;
+    let SignalClicked: string;
+    let SignalItemClicked: string;
+    let SignalTouchBegin: string;
+    let SignalTouchEnd: string;
+    let SignalTouchMove: string;
+    let SignalKeyPress: string;
+    let SignalEnterKey: string;
+    let SignalScrollBegin: string;
+    let SignalScrollEnd: string;
+    let SignalScrolled: string;
+    let SignalHitTest: string;
+    let SignalFrameChanged: string;
+    let SignalStateChanged: string;
+    let SignalOrientationChanged: string;
+    let SignalOpening: string;
+    let SignalOpen: string;
+    let SignalClosing: string;
+    let SignalClose: string;
 }
 declare module nn.svc {
     enum Feature {
@@ -3662,6 +3372,8 @@ declare module nn.svc {
     class LoginContent extends Content {
         /** S2S 拿到用户id */
         pid: numstr;
+        /** 平台提供的礼包代码 */
+        gift: numstr;
         /** 客服系统缓存历史消息的最大条目 */
         maxCustomerMessages: number;
         proc: string;
@@ -3945,374 +3657,49 @@ declare module nn {
     }
 }
 declare module nn {
-    class SlotTunnel {
-        /** 是否请求中断了emit过程 */
-        veto: boolean;
-        /** 附加数据 */
-        payload: any;
-    }
-    class Slot {
-        /** 重定向的信号 */
-        redirect: string;
-        /** 回调 */
-        cb: (e: Slot) => void;
-        /** 回调的上下文 */
-        target: any;
-        /** 激发者 */
-        sender: any;
-        /** 数据 */
-        data: any;
-        /** 延迟s启动 */
-        delay: number;
-        /** 穿透用的数据 */
-        tunnel: SlotTunnel;
-        /** connect 时附加的数据 */
-        payload: any;
-        /** 信号源 */
-        signal: string;
-        /** 激发频率限制 (emits per second) */
-        eps: number;
-        private _epstms;
-        /** 是否中断掉信号调用树 */
-        private _veto;
-        veto: boolean;
-        /** 调用几次自动解绑，默认为 null，不使用概设定 */
+    class FrameTimer {
+        constructor();
+        /** 起始时间 ms */
+        start: number;
+        /** 点前的时间点 */
+        now: number;
+        /** 消耗时间 */
+        cost: number;
+        /** 过去了的时间 */
+        past: number;
+        /** 次数统计 */
         count: number;
-        emitedCount: number;
-        dispose(): void;
-        toString(): string;
-        /** 激发信号
-            @data 附带的数据，激发后自动解除引用 */
-        emit(data: any, tunnel: SlotTunnel): void;
-        protected doEmit(): void;
-        static Data(d: any): Slot;
     }
-    class Slots {
-        slots: Slot[];
-        owner: any;
-        signal: string;
-        dispose(): void;
-        /** 清空连接 */
-        clear(): void;
-        toString(): string;
-        /** 阻塞信号
-            @note emit被阻塞的信号将不会有任何作用
-        */
-        private _block;
-        block(): void;
-        unblock(): void;
-        /** 是否已经阻塞 */
-        isblocked(): boolean;
-        /** 添加一个插槽 */
-        add(s: Slot): void;
-        /** 对所有插槽激发信号
-            @note 返回被移除的插槽的对象
-         */
-        emit(data: any, tunnel: SlotTunnel): CSet<any>;
-        disconnect(cb: (e: Slot) => void, target: any): boolean;
-        find_connected_function(cb: (e: Slot) => void, target: any): Slot;
-        find_redirected(sig: string, target: any): Slot;
-        is_connected(target: any): boolean;
+    interface IFrameRender {
+        onRender(cost: number): any;
     }
-    interface SignalsDelegate {
-        _signalConnected(sig: string, s?: Slot): any;
+    abstract class CFramesManager {
+        private _blayouts;
+        private _bzpositions;
+        private _bappears;
+        private _bcaches;
+        private _bmcs;
+        static _layoutthreshold: number;
+        protected onPrepare(): void;
+        protected onRendering(): void;
+        RENDERS: CSet<IFrameRender>;
+        /** 强制更新下一帧 */
+        abstract invalidate(): any;
+        /** 布局 */
+        needsLayout(c: CComponent): void;
+        cancelLayout(c: CComponent): void;
+        /** 调整Z顺序 */
+        needsZPosition(c: CComponent): void;
+        /** 显示 */
+        needsAppear(c: CComponent): void;
+        /** 刷新图形缓存 */
+        needsCache(c: CComponent): void;
+        /** 刷新内存缓存 */
+        needsGC(mc: Memcache): void;
+        abstract launch(c: any): any;
+        private _ft;
     }
-    class Signals {
-        constructor(owner: any);
-        private _slots;
-        owner: any;
-        delegate: SignalsDelegate;
-        dispose(): void;
-        clear(): void;
-        toString(): string;
-        /** 注册信号 */
-        register(sig: string): void;
-        protected avaslots(sig: string): Slots;
-        /** 只连接一次 */
-        once(sig: string, cb: (...p: any[]) => void, target: any): Slot;
-        /** 连接信号插槽 */
-        connect(sig: string, cb: (...p: any[]) => void, target: any): Slot;
-        /** 该信号是否存在连接上的插槽 */
-        isConnected(sig: string): boolean;
-        /** 转发一个信号到另一个对象的信号 */
-        redirect(sig: string, sig2: string, target: any): Slot;
-        redirect(sig: string, target: any): Slot;
-        /** 激发信号 */
-        emit(sig: string, data?: any, tunnel?: SlotTunnel): void;
-        /** 向外抛出信号
-            @note 为了解决诸如金币变更、元宝变更等大部分同时发生的事件但是因为set的时候不能把这些的修改函数合并成1个函数处理，造成同一个消息短时间多次激活，所以使用该函数可以在下一帧开始后归并发出唯一的事件。所以该函数出了信号外不支持其他带参
-        */
-        cast(sig: string): void;
-        private _castings;
-        private _doCastings();
-        /** 断开连接 */
-        disconnectOfTarget(target: any, inv?: boolean): void;
-        /** 断开连接 */
-        disconnect(sig: string, cb?: (e: Slot) => void, target?: any): any;
-        isConnectedOfTarget(target: any): boolean;
-        /** 阻塞一个信号，将不响应激发 */
-        block(sig: string): void;
-        unblock(sig: string): void;
-        isblocked(sig: string): boolean;
-        private __invtargets;
-        private __inv_connect(tgt);
-        private __inv_disconnect(tgt);
-    }
-    class EventWeakDispatcher {
-        private _slots;
-        add<T>(idr: string, cb: (e: T) => void, cbctx: any): void;
-        remove(idr: string): void;
-        invoke<T>(idr: string, e: T, debug?: boolean): void;
-        clear(): void;
-    }
-    class Reactors {
-        private _slots;
-        add<T>(cb: (e: T) => void, ctx: any): void;
-        invoke<T>(e?: T): void;
-        clear(): void;
-    }
-    function emit(obj: any, sig: string, data?: any): void;
-    let SignalException: string;
-    let SignalDone: string;
-    let SignalSucceed: string;
-    let SignalOk: string;
-    let SignalTimeout: string;
-    let SignalEnd: string;
-    let SignalStart: string;
-    let SignalExit: string;
-    let SignalChanged: string;
-    let SignalUpdated: string;
-    let SignalPaused: string;
-    let SignalResume: string;
-    let SignalDataChanged: string;
-    let SignalItemChanged: string;
-    let SignalCancel: string;
-    let SignalFailed: string;
-    let SignalAdding: string;
-    let SignalAdded: string;
-    let SignalRemoving: string;
-    let SignalRemoved: string;
-    let SignalVisibleChanged: string;
-    let SignalNeedRedo: string;
-    let SignalNeedReload: string;
-    let SignalNeedFlush: string;
-    let SignalNewChanged: string;
-    let SignalAction: string;
-    let SignalSelected: string;
-    let SignalDeselected: string;
-    interface SelectionData {
-        old: any;
-        now: any;
-    }
-    let SignalSelectionChanged: string;
-    let SignalSelectionChanging: string;
-    let SignalLoaded: string;
-    let SignalActivated: string;
-    let SignalDeactivated: string;
-    let SignalFocusGot: string;
-    let SignalFocusLost: string;
-    let SignalConstriantChanged: string;
-    let SignalClicked: string;
-    let SignalItemClicked: string;
-    let SignalTouchBegin: string;
-    let SignalTouchEnd: string;
-    let SignalTouchMove: string;
-    let SignalKeyPress: string;
-    let SignalEnterKey: string;
-    let SignalScrollBegin: string;
-    let SignalScrollEnd: string;
-    let SignalScrolled: string;
-    let SignalHitTest: string;
-    let SignalFrameChanged: string;
-    let SignalStateChanged: string;
-    let SignalOrientationChanged: string;
-    let SignalOpening: string;
-    let SignalOpen: string;
-    let SignalClosing: string;
-    let SignalClose: string;
-}
-declare module nn {
-    type SoundSource = UriSource | COriginType;
-    /** 音频播放 */
-    abstract class CSoundPlayer extends SObject {
-        constructor();
-        protected _initSignals(): void;
-        /** 播放次数，-1代表循环 */
-        count: number;
-        /** 音频的组名 */
-        resourceGroups: string[];
-        /** 是否可用 */
-        enable: boolean;
-        /** 自动恢复播放状态 */
-        autoRecovery: boolean;
-        /** 音频文件的名称, 一个player只能对应一个声音，如过已经设置，则报错 */
-        abstract setMediaSource(ms: string): any;
-        /** 暂停或者播放到的位置 */
-        position: number;
-        playingState: WorkState;
-        /** 开始播放 */
-        abstract play(): any;
-        /** 重新播放 */
-        abstract replay(): any;
-        /** 暂停 */
-        abstract pause(): any;
-        /** 恢复 */
-        abstract resume(): any;
-        /** 停止 */
-        abstract stop(): any;
-        /** 打断播放 */
-        abstract breakee(): any;
-        readonly isPlaying: boolean;
-        readonly isPaused: boolean;
-    }
-    class SoundTrack extends SObject {
-        constructor();
-        /** 播放次数，-1代表无限循环 */
-        count: number;
-        /** 同时只能有一个在播放 */
-        solo: boolean;
-        /** 用以实现player的类对象 */
-        classForPlayer: typeof SoundPlayer;
-        /** 自动恢复 */
-        _autoRecovery: boolean;
-        autoRecovery: boolean;
-        /** 资源组 */
-        resourceGroups: string[];
-        /** 可用状态 */
-        _enable: boolean;
-        enable: boolean;
-        /** 获取一个播放器 */
-        player(name: string, ...groups: string[]): SoundPlayer;
-        /** 实例化一个播放器，播放完成后会自动清掉 */
-        acquire(name: string, ...groups: string[]): SoundPlayer;
-        protected _sounds: KvObject<string, SoundPlayer>;
-        private _soloplayer;
-        private __cb_play(s);
-        /** 播放全部 */
-        play(): void;
-        /** 停止全部 */
-        stop(): void;
-        private __app_activate_enable;
-        _app_actived(): void;
-        _app_deactived(): void;
-    }
-    abstract class CSoundManager extends SObject {
-        constructor();
-        protected _tracks: KvObject<any, SoundTrack>;
-        /** 默认资源组 */
-        resourceGroups: string[];
-        /** 获取到指定音轨 */
-        track(idr: string): SoundTrack;
-        /** 背景音轨　*/
-        background: SoundTrack;
-        /** 效果音轨 */
-        effect: SoundTrack;
-        /** 可用 */
-        enable: boolean;
-    }
-    let SoundManager: CSoundManager;
-}
-declare module nn {
-    interface ITableDataSource {
-        /** 多少行 */
-        numberOfRows(): number;
-        /** 对应行的类型 */
-        classForRow(row: number): any;
-        /** 行高 */
-        heightForRow(row: number): number;
-        /** 设置该行 */
-        updateRow(item: any, cell: TableViewCell, row: number): any;
-    }
-    /** 对于可以调整高度，或者存在 ui 和 data 重入的问题，通过这个参数来分别判断是 UI 过程还是 DATA 过程
-     * @brief 例如在 tableview 中应用时，如果是变高，则 updateData 会重入2次，一次是 UI 过程(粗布局)，一次是 DATA 过程(刷数据显示)，之后就可以拿到实高，但是 updateData 里面会有例如设置图片的操作，而这些操作仅需要在 UI 过程中被调用，所以可以通过该变量区分开
-     */
-    let DATAUPDATE: boolean;
-    class TableViewCell extends Sprite {
-        constructor();
-        static FromItem(cv: CComponent): TableViewCell;
-        _item: any;
-        item: any;
-        updateData(): void;
-        updateLayout(): void;
-        _row: number;
-        row: number;
-    }
-    class TableViewContent extends ScrollView {
-        constructor();
-        protected _initSignals(): void;
-        dispose(): void;
-        /** 是否支持重用的模式
-            @note 关闭重用的好处：固定列表的大小，不需要考虑item重入的问题
-        */
-        reuseMode: boolean;
-        /** 默认的的行显示类型 */
-        rowClass: any;
-        /** 默认的cell类型 */
-        cellClass: typeof TableViewCell;
-        /** 默认的行高 */
-        rowHeight: number;
-        /** 是否横向 */
-        horizonMode: boolean;
-        /** 数据代理 */
-        dataSource: ITableDataSource;
-        /** 间距 */
-        spacing: number;
-        updateLayout(): void;
-        _headerEdgeInsets: EdgeInsets;
-        headerEdgeInsets: EdgeInsets;
-        _footerEdgeInsets: EdgeInsets;
-        footerEdgeInsets: EdgeInsets;
-        _additionEdgeInsets: EdgeInsets;
-        additionEdgeInsets: EdgeInsets;
-        _topIdentifierEdgeInsets: EdgeInsets;
-        topIdentifierEdgeInsets: EdgeInsets;
-        _bottomIdentifierEdgeInsets: EdgeInsets;
-        bottomIdentifierEdgeInsets: EdgeInsets;
-        protected _updateEdgeInsets(): void;
-        clear(): void;
-        reloadData(): void;
-        protected addOneReuseItem(item: any): void;
-        protected getOneReuseItem(type: any): any;
-        protected instanceItem(type: any): any;
-        /** 查找指定的单元格 */
-        findCell(row?: number): TableViewCell;
-        /** 滚动到指定单元格 */
-        scrollToCell(idx: number, duration?: number, edge?: EDGE): void;
-        /** 滚动到指定位置 */
-        scrollToPos(pos: number, duration?: number): void;
-        /** 获取所有可见的单元格 */
-        readonly visibledCells: Array<TableViewCell>;
-        protected useCell(row: number): TableViewCell;
-        protected unuseCell(cell: TableViewCell): void;
-        protected popUsedCell(): void;
-        protected updateRow(item: any, cell: TableViewCell, row: number): void;
-        protected _updateConstriant(s: Slot): void;
-        protected _updateValidCells(update: any): void;
-        private _usedCells;
-        private _unusedCells;
-        private _rowHeights;
-        private _reuseItems;
-        onPositionChanged(): void;
-        /** 表头 */
-        protected _headerView: Component;
-        headerView: Component;
-        /** 表尾 */
-        protected _footerView: Component;
-        footerView: Component;
-        protected _layoutViews(): void;
-    }
-    class TableView extends Sprite implements ITableDataSource {
-        constructor();
-        static FromItem(cv: CComponent): TableView;
-        protected instanceTable(): TableViewContent;
-        protected _table: TableViewContent;
-        readonly table: TableViewContent;
-        classForRow(row: number): any;
-        heightForRow(row: number): number;
-        updateRow(item: any, cell: TableViewCell, row: number): void;
-        numberOfRows(): number;
-        updateLayout(): void;
-    }
+    let FramesManager: CFramesManager;
 }
 declare module nn {
     abstract class CDom extends Component {
@@ -4320,675 +3707,351 @@ declare module nn {
         text: string;
     }
 }
-declare module eui {
-    class ButtonU extends eui.Button implements eui.IItemRenderer {
-        slots: string;
-        tag: any;
-        onPartBinded(name: string, target: any): void;
-        goBack(): void;
-        playAnimate(ani: Animate, idr?: any): Animate;
-        findAnimate(idr: any): Animate;
-        stopAnimate(idr: any): void;
-        stopAllAnimates(): void;
-        exhibition: boolean;
-        protected _help: any;
-        help: any;
-        belong: any;
+declare let document_class: any;
+declare let document_orientation: any;
+declare module nn {
+    class EgretApp extends CApplication {
+        constructor();
+        fontFamily: string;
+    }
+    let EUI_MODE: boolean;
+}
+declare module nn {
+    enum ResPriority {
+        NORMAL = 0,
+        CLIP = 1,
+    }
+    let ResCurrentPriority: ResPriority;
+    /** 使用UriSource均代表支持
+     1, resdepo 的 key
+     2, http/https:// 的远程url
+     3, assets:// 直接访问资源目录下的文件
+     4, <module>://<资源的key(命名方式和resdepto的默认一致)>
+     */
+    type UriSource = string;
+    enum ResType {
+        JSON = 0,
+        TEXTURE = 1,
+        TEXT = 2,
+        FONT = 3,
+        SOUND = 4,
+        BINARY = 5,
+        JSREF = 6,
+    }
+    let ResPartKey: string;
+    type ResourceGroup = string;
+    class ResourceEntity {
+        constructor(src: UriSource, t: ResType);
+        source: UriSource;
+        type: ResType;
+        readonly hashCode: number;
+    }
+    type ReqResource = ResourceGroup | ResourceEntity;
+    abstract class CResCapsule extends SObject {
+        constructor(reqres: ReqResource[]);
         dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
         protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
+        private _isloading;
+        load(cb?: () => void, ctx?: any): void;
+        protected abstract loadOne(rr: ReqResource, cb: () => void, ctx: any): any;
+        protected abstract total(): number;
+        hashKey(): number;
+        static HashKey(reqres: ReqResource[]): number;
+        protected _total: number;
+        protected _idx: number;
+        protected _reqRes: Array<ReqResource>;
+    }
+    abstract class CResManager extends SObject {
+        constructor();
+        /** 是否支持多分辨率架构 */
+        multiRes: boolean;
+        /** Manager 依赖的目录名，其他资源目录均通过附加此目录来定位 */
+        private _directory;
+        directory: string;
+        /** 加载一个资源配置 */
+        abstract loadConfig(file: string, cb: (e: any) => void, ctx: any): any;
+        /** 缓存控制 */
+        cacheEnabled: boolean;
+        /** 资源包管理 */
+        abstract capsules(grps: ReqResource[]): CResCapsule;
+        abstract removeCapsule(cp: CResCapsule): any;
+        /** 一组资源是否已经加载 */
+        abstract isGroupsArrayLoaded(grps: string[]): boolean;
+        /** 尝试加载 */
+        abstract tryGetRes(key: string): ICacheRecord;
+        /** 异步加载资源，和 getRes 的区别不仅是同步异步，而且异步可以忽略掉 group 的状态直接加载资源*/
+        abstract getResAsync(key: string, priority: ResPriority, cb: (rcd: ICacheRecord) => void, ctx?: any): any;
+        /** 获取 key 对应资源 url */
+        abstract getResUrl(key: string): string;
+        /** 根据 src - type 的对照数组来加载资源数组 */
+        getSources(srcs: Array<[string, ResType]>, priority: ResPriority, cb: (ds: [ICacheRecord]) => void, ctx: any): void;
+        /** 异步直接加载远程资源 */
+        abstract getResByUrl(src: UriSource, priority: ResPriority, cb: (rcd: ICacheRecord | CacheRecord) => void, ctx: any, type: ResType): any;
+        abstract hasAsyncUri(uri: UriSource): boolean;
+        /** 根据类型来获得指定的资源 */
+        getSourceByType(src: UriSource, priority: ResPriority, cb: (ds: ICacheRecord) => void, ctx: any, type: ResType): void;
+        getJson(src: UriSource, priority: ResPriority, cb: (obj: ICacheRecord) => void, ctx: any): void;
+        getText(src: UriSource, priority: ResPriority, cb: (obj: ICacheRecord) => void, ctx: any): void;
+        getTexture(src: TextureSource, priority: ResPriority, cb: (tex: ICacheRecord) => void, ctx: any): void;
+        getBitmapFont(src: FontSource, priority: ResPriority, cb: (fnt: ICacheRecord) => void, ctx: any): void;
+        getSound(src: SoundSource, priority: ResPriority, cb: (snd: ICacheRecord) => void, ctx: any): void;
+        getBinary(src: UriSource, priority: ResPriority, cb: (snd: ICacheRecord) => void, ctx: any): void;
+    }
+    /** 全局唯一的资源管理实体 */
+    let ResManager: CResManager;
+    /** 使用约定的方式获取资源名称 */
+    class ResName {
+        /** 普通 */
+        static normal(name: string): string;
+        /** 高亮 */
+        static hl(name: string): string;
+    }
+}
+declare module nn {
+    /** 按钮类
+        @note 定义为具有点按状态、文字、图片的元素，可以通过子类化来调整文字、图片的布局方式
+     */
+    abstract class CButton extends Widget implements IState {
+        constructor();
+        static STATE_NORMAL: string;
+        static STATE_DISABLED: string;
+        static STATE_HIGHLIGHT: string;
+        static STATE_SELECTED: string;
+        /** 是否可用 */
+        disabled: boolean;
+        /** 字体大小 */
+        fontSize: number;
+        /** 文字颜色 */
+        textColor: ColorType;
+        /** 内容 */
+        text: string;
+        /** 对齐方式 */
+        textAlign: string;
+        /** 图片 */
+        imageSource: TextureSource;
+        /** 普通的状态 */
+        stateNormal: State;
+        /** 禁用的状态 */
+        stateDisabled: State;
+        /** 高亮的状态 */
+        stateHighlight: State;
+        /** 选中的状态 */
+        stateSelected: State;
         /** 点击频度限制 */
         eps: number;
-        private __cmp_tap(e);
-        protected _getLabel(): Label;
-        childrenCreated(): void;
-        private _data;
-        data: any;
-        text: string;
-        private _textColor;
-        textColor: number;
-        private _itemIndex;
-        itemIndex: number;
-        private _value;
-        value: any;
-        private _format;
-        format: string;
-        private _selected;
-        selected: boolean;
-        getCurrentState(): string;
-        /** 刷新选中状态 */
-        updateSelection(): void;
-        /** 刷新数据 */
-        updateData(): void;
-        /** 隶属的栈 */
-        viewStack: IViewStack;
-        convertPointTo(pt: nn.Point, sp: egret.DisplayObject | nn.CComponent): nn.Point;
-        convertRectTo(rc: nn.Rect, sp: egret.DisplayObject | nn.CComponent): nn.Rect;
-        frame: nn.Rect;
-        onAppeared(): void;
-        onDisappeared(): void;
-        onVisibleChanged(): void;
-        $setVisible(b: boolean): boolean;
-        source: string | egret.Texture;
-    }
-}
-declare module eui {
-    class CheckBoxU extends eui.CheckBox {
-        slots: string;
-        tag: any;
-        onPartBinded(name: string, target: any): void;
-        goBack(): void;
-        playAnimate(ani: Animate, idr?: any): Animate;
-        findAnimate(idr: any): Animate;
-        stopAnimate(idr: any): void;
-        stopAllAnimates(): void;
-        exhibition: boolean;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
+        _signalConnected(sig: string, s?: Slot): void;
         protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private __cb_changed();
-        text: string;
-        private _value;
-        value: any;
-        private _format;
-        format: string;
+        isSelection(): boolean;
+        protected _isSelected: boolean;
     }
 }
-declare module eui {
-    class _EUIDataGroupExt {
-        static onPartBinded(self: any, name: string, target: any): void;
-        private __imp_updateitem;
-        static Selecting(tgt: any): ItemInfo;
-        static Selected(tgt: any): ItemInfo;
-        static GetChanging(tgt: any): SelectionInfo;
-    }
+declare module egret {
+    var VERSION: number;
+    function MAKE_VERSION(maj: any, min: any, patch: any): any;
 }
-declare module eui {
-    /** 用来提供设置参数 */
-    class DesktopU extends eui.ComponentU {
-        static IDRKEY: string;
-        constructor();
-        /** 弹出的形式 */
-        popupMode: boolean;
-        /** 点击即关闭 */
-        clickedToClose: boolean;
-        /** 满屏幕显示 */
-        fullSize: boolean;
-        /** 转换 */
-        static FromView(e: egret.DisplayObject): nn.Desktop;
-    }
-    class DialogU extends eui.SpriteU {
-        constructor();
-        dispose(): void;
-        /** 桌面的颜色 */
-        desktopBackgroundColor: nn.Color;
-        /** 获得视图隶属的dialog对象 */
-        static FromView(cv: egret.DisplayObject): DialogU;
-        protected _initSignals(): void;
-        childrenCreated(): void;
-        onLoaded(): void;
-        /** 全局设置所有的弹出特效 */
-        static AnimateOpen: Animate;
-        static AnimateClose: Animate;
-        /** 对象相关的弹出特效, 默认为 undefine，如果设置成null，则为不使用全局特效 */
-        private _animateOpen;
-        animateOpen: Animate;
-        private _animateClose;
-        animateClose: Animate;
-        /** 弹出的模式
-            @note true为弹出对话框，不会隐藏后面的内容；false则push到对应的viewstack中，隐藏之前的页面
+declare module nn {
+    /** 骨骼的配置信息 */
+    class BoneConfig implements IReqResources {
+        /**
+           @name 骨骼动画的名称，如果设置name而不设置其他，则使用 name 和默认规则来生成缺失的文件
+           @character 角色名称，通常和name一致
+           @skeleton 动作的配置文件，通常为动作名 skeleton_json 结尾
+           @place 材质节点的位置配置文件，通常为 texture_json 结尾
+           @texture 图片文件，通常为 texture_png 结尾
         */
-        popupMode: boolean;
-        /** 点击关闭 */
-        clickedToClose: boolean;
-        /** 满屏幕 */
-        fullSize: boolean;
-        /** 依赖的队列 */
-        queue: nn.OperationQueue;
-        /** 是否可以穿透触摸 */
-        onlyFiltersTouchEnabled: boolean;
-        protected instanceDesktop(): nn.Desktop;
-        _filters: nn.CSet<nn.CComponent>;
-        addFilter(ui: UiType): void;
-        updateFilters(): void;
-        replace(link: Component): nn.Desktop;
-        open(queue?: boolean): nn.Desktop;
-        follow(link: Component): nn.Desktop;
-        goBack(): void;
-        close(): void;
-        bestFrame(): nn.Rect;
-        bestPosition(): nn.Point;
+        constructor(name?: string, character?: string, skeleton?: string, place?: string, texture?: string);
+        resourceGroups: Array<string>;
+        protected _skeleton: string;
+        protected _place: string;
+        protected _texture: string;
+        protected _character: string;
+        fps: number;
+        protected _name: string;
+        name: string;
+        skeleton: string;
+        place: string;
+        texture: string;
+        character: string;
+        getReqResources(): Array<ReqResource>;
     }
-}
-declare module eui {
-    class DivU extends eui.Group {
-        slots: string;
-        tag: any;
-        onPartBinded(name: string, target: any): void;
-        goBack(): void;
+    type BoneSource = BoneData | BoneConfig | UriSource;
+    /** 业务使用的骨骼显示类 */
+    abstract class CBones extends Widget {
         constructor();
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
         protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private _div;
-        createChildren(): void;
-        commitProperties(): void;
-        protected updateDisplayList(unscaledWidth: number, unscaledHeight: number): void;
-        private _text;
-        text: string;
-    }
-}
-declare module eui {
-}
-declare module eui {
-    class GroupU extends eui.Group {
-        slots: string;
-        tag: any;
-        onPartBinded(name: string, target: any): void;
-        goBack(): void;
-        playAnimate(ani: Animate, idr?: any): Animate;
-        findAnimate(idr: any): Animate;
-        stopAnimate(idr: any): void;
-        stopAllAnimates(): void;
-        exhibition: boolean;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-        protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        private _touch;
-        readonly touch: nn.Touch;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private __dsp_touchbegin(e);
-        private __dsp_touchend(e);
-        private __dsp_touchrelease(e);
-        private __dsp_touchmove(e);
-        private __dsp_tap(e);
-        selected: boolean;
-        enabled: boolean;
-        interactiveEnabled: boolean;
-        frame: nn.Rect;
-        onAppeared(): void;
-        onDisappeared(): void;
-    }
-}
-declare module eui {
-    class HtmlLabelU extends eui.Label {
-        slots: string;
-        tag: any;
-        onPartBinded(name: string, target: any): void;
-        goBack(): void;
-        playAnimate(ani: Animate, idr?: any): Animate;
-        findAnimate(idr: any): Animate;
-        stopAnimate(idr: any): void;
-        stopAllAnimates(): void;
-        exhibition: boolean;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-        protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private _htmlText;
-        text: string;
-        private _value;
-        value: any;
-        private _format;
-        format: string;
-        private _links;
-        href(re: RegExp, cb: (url: string) => void, ctx?: any): void;
-        private __lbl_link(e);
-    }
-}
-declare module eui {
-    class ImageU extends eui.Image {
-        slots: string;
-        tag: any;
-        onPartBinded(name: string, target: any): void;
-        goBack(): void;
-        playAnimate(ani: Animate, idr?: any): Animate;
-        findAnimate(idr: any): Animate;
-        stopAnimate(idr: any): void;
-        stopAllAnimates(): void;
-        exhibition: boolean;
-        clipBounds: nn.Rect;
-        constructor();
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-        /** 业务有时候会使用image来代替button，所以提供selected设置 */
-        selected: boolean;
-        protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private __cmp_tap(e);
-        source: string;
-        private _imageSource;
-        imageSource: nn.TextureSource;
-        protected _setTexture(tex: egret.Texture): void;
-        protected _getTexture(): egret.Texture;
-        private _value;
-        value: any;
-        private _format;
-        format: string;
-        bestFrame(inrc?: nn.Rect): nn.Rect;
-        frame: nn.Rect;
-        onAppeared(): void;
-        onDisappeared(): void;
-        updateCache(): void;
-    }
-}
-declare module eui {
-    class ItemRendererU extends eui.ItemRenderer {
-        slots: string;
-        tag: any;
-        onPartBinded(name: string, target: any): void;
-        goBack(): void;
-        /** 隶属于的控件，可以方便业务层的数据穿透 */
-        belong: any;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-    }
-}
-declare module eui {
-    class LabelU extends eui.Label {
-        slots: string;
-        tag: any;
-        onPartBinded(name: string, target: any): void;
-        goBack(): void;
-        playAnimate(ani: Animate, idr?: any): Animate;
-        findAnimate(idr: any): Animate;
-        stopAnimate(idr: any): void;
-        stopAllAnimates(): void;
-        exhibition: boolean;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-        protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private _value;
-        value: any;
-        private _format;
-        format: string;
-    }
-}
-declare module eui {
-}
-declare module eui {
-    class ListU extends eui.List {
-        belong: any;
-        slots: string;
-        onPartBinded(name: string, target: any): void;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-        protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private __lst_selchanged(e);
-        private __lst_selchanging(e);
-        private __lst_itemtap(e);
-        scrollTo(pt: nn.Point): void;
-        scrollToItem(idx: number, edge: nn.EDGE): void;
-        protected _data: any;
-        data: any;
-        updateData(): void;
-        reload(): void;
-        dataProviderRefreshed(): void;
-        private __imp_updateitem;
-        updateRenderer(renderer: eui.IItemRenderer, itemIndex: number, data: any): eui.IItemRenderer;
-        protected itemAdded(item: any, idx: number): void;
-        protected itemRemoved(item: any, idx: number): void;
-        /** 可以在这里面判断item的实例
-        addChild(c:egret.DisplayObject):egret.DisplayObject {
-            let r = super.addChild(c);
-            if (r instanceof this.itemRenderer)
-                ............
-            return r;
-        }
-        */
-        /** 获得指定的元素 */
-        getItem(idx: number): eui.IItemRenderer;
-    }
-}
-declare module eui {
-    class MovieClipU extends eui.Group {
-        slots: string;
-        tag: any;
-        constructor();
-        onPartBinded(name: string, target: any): void;
-        goBack(): void;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-        protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private __cmp_tap(e);
-        private _sourceChanged;
-        /** 资源名称 */
-        private _clipName;
-        clipName: string;
-        /** 素材资源 */
-        private _textureSource;
-        textureSource: string;
-        /** 配置资源 */
-        private _frameSource;
-        frameSource: string;
-        /** 播放次数 */
-        playCount: number;
-        /** 自动播放 */
+        /** 骨骼的配置 */
+        boneSource: BoneSource;
+        /** 同一批骨骼的大小可能一直，但有效区域不一致，所以可以通过该参数附加调整 */
+        additionScale: number;
+        /** 骨骼填充的方式，默认为充满 */
+        fillMode: FillMode;
+        /** 对齐位置 */
+        clipAlign: POSITION;
+        /** 具体动作 */
+        motion: string;
+        abstract pushMotion(val: string): any;
+        abstract popMotion(): any;
+        /** 当前含有的所有动作 */
+        abstract motions(): Array<string>;
+        /** 是否含有该动作 */
+        abstract hasMotion(val: string): boolean;
+        /** 自动开始播放 */
         autoPlay: boolean;
-        /** 是否使用flash中设定的锚点 */
-        flashMode: boolean;
-        /** 填充模式 */
-        fillMode: number;
-        /** 调整序列帧的对齐位置 */
-        clipAlign: number;
+        /** 播放次数控制
+            -1: 循环
+            0: 使用文件设置的次数
+            >0: 次数控制
+        */
+        count: number;
+        /** 播放 */
+        abstract play(): any;
+        /** 停止播放 */
+        abstract stop(): any;
+    }
+}
+declare module nn {
+    abstract class CParticle extends Widget {
+        constructor();
+        name: string;
+        abstract start(): any;
+        abstract stop(): any;
+    }
+}
+declare module nn {
+    type ClipSource = ClipConfig;
+    abstract class CMovieClip extends Widget {
+        constructor();
+        protected _initSignals(): void;
+        /** 播放次数，-1代表循环，默认为一次*/
+        count: number;
+        /** 帧率 */
+        fps: number;
         /** 切换clipSource时清空原来的clip */
         clearOnChanging: boolean;
-        private _hmc;
-        private mc();
-        createChildren(): void;
-        commitProperties(): void;
-        clipSource: nn.ClipConfig;
-        protected updateDisplayList(unscaledWidth: number, unscaledHeight: number): void;
-        /** 播放 */
-        play(): void;
-        /** 停止 */
-        stop(): void;
-    }
-}
-declare module eui {
-    class NavigationU extends eui.ComponentU implements eui.IViewStack {
-        constructor();
-        readonly signals: nn.Signals;
-        private _imp;
-        protected createImp(): void;
-        rootPopable: boolean;
-        updateLayout(): void;
-        topView(): ComponentU;
-        topIndex(): number;
-        push(ui: ComponentU): void;
-        goBack(): void;
-        pop(): void;
-        pages(): ComponentU[];
-    }
-}
-declare module eui {
-    class PanelU extends eui.Panel {
-        onPartBinded(name: string, target: any): void;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-    }
-}
-declare module eui {
-    class ProgressBarU extends eui.ProgressBar {
-        onPartBinded(name: string, target: any): void;
-        private _percent;
-        percent: nn.Percentage;
-        /** 通过设置一个格式化脚本来设置显示的文字格式 */
-        private _format;
-        format: string;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-        protected _data: any;
-        data: any;
-        updateData(): void;
-    }
-}
-declare module eui {
-    class RadioButtonU extends eui.RadioButton {
-        onPartBinded(name: string, target: any): void;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-    }
-}
-declare module eui {
-    class RectU extends eui.Rect {
-        paint(gra: nn.CGraphics): void;
-        onPartBinded(name: string, target: any): void;
+        /** 序列帧资源 */
+        clipSource: ClipSource;
+        /** 目标序列帧的名称 */
+        clip: string;
+        /** 序列帧播放的位置 */
+        location: number;
         onAppeared(): void;
+        private __autopaused;
         onDisappeared(): void;
-        updateCache(): void;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
+        /** 是否自动播放 */
+        autoPlay: boolean;
+        /** 是否正在播放 */
+        abstract isPlaying(): boolean;
+        /** 暂停动画 */
+        abstract stop(): any;
+        /** 播放动画 */
+        abstract play(): any;
+        /** 附加缩放 */
+        additionScale: number;
+        /** 填充方式 */
+        fillMode: FillMode;
+        /** 反方向播放 */
+        reverseMode: boolean;
+        /** 序列帧的对齐位置 */
+        clipAlign: POSITION;
+        /** flashMode 采用 flash 标记的锚点来显示动画
+            @note 这种模式下请设置 fillMode 为 CENTER
+        */
+        flashMode: boolean;
+        /** flashAnchor flash模式下使用的锚点信息 */
+        flashAnchorPoint: Point;
     }
-    class RoundU extends RectU {
-        updateDisplayList(unscaledWidth: number, unscaledHeight: number): void;
-    }
-}
-declare module eui {
-    class ScrollerU extends eui.Scroller {
-        onPartBinded(name: string, target: any): void;
-        static FromView(e: egret.DisplayObject): ScrollerU;
-        scrollToEdge(e: egret.DisplayObject, edge: nn.EDGE): void;
-        contentOffset: nn.Point;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-    }
-}
-declare module eui {
-    class TabBarU extends eui.TabBar {
-        slots: string;
-        onPartBinded(name: string, target: any): void;
-        constructor();
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-        protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        selectedIndex: number;
-        private __lst_selchanged();
-        private __lst_selchanging(e);
-        private _data;
-        data: any;
-        reload(): void;
-        private __imp_updateitem;
-        updateRenderer(renderer: eui.IItemRenderer, itemIndex: number, data: any): eui.IItemRenderer;
-        pageStack: PageStackU;
+    class ClipConfig implements IReqResources {
+        /**
+           @name 资源名称，资源由 json\bmp 组成，如过传入的时候没有带后缀，则自动加上后缀
+           @res 动作文件，通常为 _json
+           @tex 素材平成，通常为 _png
+        */
+        constructor(name?: string, res?: string, tex?: string);
+        private _frame;
+        private _texture;
+        frame: UriSource;
+        texture: UriSource;
+        /** 名字 */
+        private _name;
+        name: string;
+        /** OPT 帧速 */
+        fps: number;
+        /** OPT 依赖的资源组 */
+        resourceGroups: Array<string>;
+        /** OPT 附加缩放 */
+        additionScale: number;
+        /** OPT 是否为独立数据，否则同一个资源公用一份帧数据 */
+        key: string;
+        readonly hashCode: number;
+        isEqual(r: this): boolean;
+        getReqResources(): Array<ReqResource>;
+        toString(): string;
     }
 }
 declare module nn {
-    class CoreApplication extends EgretApp {
-        constructor();
-        /** 设置根页面 */
-        root: CComponent;
+    class Pen {
+        constructor(c: Color, width?: number);
+        color: Color;
+        width: number;
+        clone(): this;
+        static setIn: (context: any, pen: Pen) => void;
     }
-}
-declare module eui {
-    class TextAreaU extends eui.EditableText {
-        slots: string;
-        tag: any;
-        constructor();
-        onPartBinded(name: string, target: any): void;
-        value: string;
-        exhibition: boolean;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-        protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private __txt_changed();
-        private __txt_focusin();
-        private __txt_focusout();
-        readonly: boolean;
+    class Brush {
+        constructor(c: Color);
+        color: Color;
+        clone(): this;
+        static setIn: (context: any, brush: Brush, pre: Brush) => void;
     }
-}
-declare module eui {
-    class TextInputU extends eui.TextInput {
-        slots: string;
-        tag: any;
-        constructor();
-        onPartBinded(name: string, target: any): void;
-        value: numstr;
-        exhibition: boolean;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
-        protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private __txt_changed();
-        private __txt_focusin();
-        private __txt_focusout();
-        private __txt_keypress(s);
-        private _need_fix_textadapter;
-        readonly: boolean;
+    class GCommand {
+        pen: Pen;
+        brush: Brush;
+        static renderIn: (context: any, cmd: GCommand) => void;
     }
-}
-declare module eui {
-    class ToggleSwitchU extends eui.ToggleSwitch {
-        onPartBinded(name: string, target: any): void;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
+    class GLine extends GCommand {
+        start: Point;
+        end: Point;
     }
-}
-declare module eui {
-    class PageStackU extends eui.ViewStack {
-        onPartBinded(name: string, target: any): void;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
+    class GBezier extends GCommand {
+        controlA: Point;
+        controlB: Point;
+        anchor: Point;
     }
-}
-declare module eui {
-    class WrapperU extends eui.ComponentU {
-        private _content;
-        content: ComponentU;
+    class GCurve extends GCommand {
+        control: Point;
+        anchor: Point;
     }
-}
-declare class ThemeAdapter implements eui.IThemeAdapter {
-    /**
-     * 解析主题
-     * @param url 待解析的主题url
-     * @param compFunc 解析完成回调函数，示例：compFunc(e:egret.Event):void;
-     * @param errorFunc 解析失败回调函数，示例：errorFunc():void;
-     * @param thisObject 回调的this引用
-     */
-    getTheme(url: string, compFunc: Function, errorFunc: Function, thisObject: any): void;
-}
-declare module nn {
-    interface ICollectionDataSource {
-        /** 元素总数目 */
-        numberOfItems(): number;
-        /** 元素的类型 */
-        classForItem(idx: number): any;
-        /** 空白元素的类型 */
-        classForNullItem(): any;
-        /** 更新元素 */
-        updateItem(item: CComponent, idx: number): any;
-        /** 更新空元素 */
-        updateNullItem(item: CComponent): any;
+    class GArc extends GCommand {
+        center: Point;
+        radius: number;
+        start: Angle;
+        end: Angle;
+        sweep: Angle;
+        ccw: boolean;
     }
-    abstract class CollectionView extends Sprite implements ICollectionDataSource {
-        constructor();
-        /** 数据源 */
-        dataSource: ICollectionDataSource;
-        /** 元素的默认类型 */
-        itemClass: any;
-        numberOfItems(): number;
-        classForItem(idx: number): any;
-        classForNullItem(): any;
-        updateItem(item: CComponent, idx: number): void;
-        updateNullItem(item: CComponent): void;
-        /** 空余元素 */
-        nullItemClass: any;
-        /** 重新加载数据 */
-        abstract reloadData(): any;
-        /** 弹出一个元素 */
-        protected popUsedItem(): void;
-        /** 拿出一个元素 */
-        protected useItem(...p: any[]): CComponent;
-        /** 放回去一个元素 */
-        protected unuseItem(item: CComponent): void;
-        updateLayout(): void;
+    class GCircle extends GCommand {
+        center: Point;
+        radius: number;
     }
-    /** 类似于iTunes Coverflow的效果 */
-    abstract class CoverFlowView extends CollectionView {
-        constructor();
-        dispose(): void;
-        protected _initSignals(): void;
-        /** 最多屏幕上出现的个数 */
-        maxItemsOnScreen: number;
-        /** 选中那个 */
-        selection: number;
-        /** 触发器的尺寸 */
-        thresholdSize: Size;
-        /** 自动停靠
-            @note 交互一办抬起手指后，是否自动对齐
-         */
-        autoDock: boolean;
-        reloadData(): void;
-        protected popUsedItem(idx?: number): void;
-        protected clear(): void;
-        protected useItem(cls: any, end: boolean): CComponent;
-        protected unuseItem(item: CComponent): void;
-        /** 根据位置更新尺寸 */
-        updateItemSize(item: CComponent, idx: number, pos: number): void;
-        /** 一次性刷新所有尺寸 */
-        updateItemsSize(items: Array<CComponent>, idx: number): void;
-        /** 打开下一个 */
-        gotoNext(): boolean;
-        /** 打开上一个 */
-        gotoPrevious(): boolean;
-        /** 用来测试能否运行goto，如果是false那么touch将被跳掉 */
-        canGoto(): boolean;
-        protected _updateItems(updateData: boolean): void;
-        protected instanceItem(cls: any): any;
-        private _minIndex;
-        private _allItems;
-        private _nullItems;
-        private _usedItems;
-        private _reuseItems;
-        offsetPos: Point;
-        private _startPos;
-        private _cv_touch_begin();
-        private _cv_touch_move();
-        private _cv_touch_end();
+    class GEllipse extends GCommand {
+        center: Point;
+        width: number;
+        height: number;
+    }
+    class GRect extends GCommand {
+        rect: Rect;
+        round: number;
+        ellipseWidth: number;
+        ellipseHeight: number;
+    }
+    abstract class CGraphics {
+        pushState(): void;
+        popState(): void;
+        draw(c: GCommand): void;
+        pen: Pen;
+        brush: Brush;
+        private _states;
+        protected _commands: GCommand[];
+        renderIn(context: any): void;
     }
 }
 declare module nn {
@@ -5016,151 +4079,98 @@ declare module nn {
     }
     type FontSource = FontConfig | UriSource | COriginType;
 }
+declare module RES {
+}
 declare module nn {
-    class HttpConnector extends CHttpConnector {
+    interface ICacheJson extends ICacheRecord {
+        use(): any;
+    }
+    interface ICacheTexture extends ICacheRecord {
+        use(): egret.Texture;
+    }
+    interface ICacheText extends ICacheRecord {
+        use(): string;
+    }
+    interface ICacheFont extends ICacheRecord {
+        use(): egret.BitmapFont;
+    }
+    interface ICacheSound extends ICacheRecord {
+        use(): egret.Sound;
+    }
+    interface ICacheBinary extends ICacheRecord {
+        use(): any;
+    }
+    class _ResMemcache extends Memcache {
+        constructor();
+        protected doRemoveObject(rcd: CacheRecord): void;
+        private _hashCode;
+        static IDR_HASHCODE: string;
+        add(source: string, data: any): ICacheRecord;
+        query(source: string): ICacheRecord;
+        private _sources;
+        private _keys;
+    }
+    class ResCapsule extends CResCapsule {
+        constructor(reqres: ReqResource[], ewd: EventWeakDispatcher);
+        dispose(): void;
+        private _ewd;
+        protected loadOne(rr: ReqResource, cb: () => void, ctx: any): void;
+        protected total(): number;
+    }
+    class _ResManager extends CResManager {
+        constructor();
+        private _ewd;
+        cache: _ResMemcache;
+        loadConfig(file: string, cb: (e: any) => void, ctx: any): void;
+        cacheEnabled: boolean;
+        private _cfg_loaded(e);
+        private _grp_complete(e);
+        private _grp_failed(e);
+        private _grp_progress(e);
+        isGroupsArrayLoaded(grps: string[]): boolean;
+        private _capsules;
+        capsules(grps: ReqResource[]): CResCapsule;
+        removeCapsule(cp: CResCapsule): void;
+        tryGetRes(key: string): ICacheRecord;
+        getResAsync(key: string, priority: ResPriority, cb: (rcd: ICacheRecord) => void, ctx?: any): void;
+        if(DEBUG: any): void;
+        getResUrl(key: string): string;
+        getResByUrl(src: UriSource, priority: ResPriority, cb: (rcd: ICacheRecord | CacheRecord) => void, ctx: any, type: ResType): void;
+        hasAsyncUri(uri: UriSource): boolean;
+        getTexture(src: TextureSource, priority: ResPriority, cb: (tex: ICacheTexture) => void, ctx: any): void;
+        getBitmapFont(src: FontSource, priority: ResPriority, cb: (fnt: ICacheFont) => void, ctx: any): void;
+        getSound(src: SoundSource, priority: ResPriority, cb: (snd: ICacheSound) => void, ctx: any): void;
+    }
+}
+declare module egret {
+    var VERSION_2_5_6: any;
+}
+declare module nn {
+}
+declare module nn {
+    class TextField extends Label implements CTextField {
         constructor();
         dispose(): void;
-        protected _initSignals(): void;
+        _initSignals(): void;
         _signalConnected(sig: string, s?: Slot): void;
-        private _imp;
-        start(): void;
-        useCredentials(): void;
-        private __cnt_completed(e);
-        private __cnt_error(e);
-        private _prg;
-        private __cnt_progress(e);
-    }
-}
-declare module nn {
-    class _FramesManager extends CFramesManager {
-        launch(c: egret.DisplayObject): void;
-        protected onPrepare(): void;
-        private __invalidating;
-        invalidate(): void;
-    }
-}
-declare module nn {
-}
-declare module nn {
-    /** 用来将标准对象包装成业务对象 */
-    class BridgedComponent extends Component {
-        constructor(tgt: any);
-        static Wrapper(tgt: any): BridgedComponent;
-        static FromImp(tgt: any): BridgedComponent;
-        protected createImp(): void;
-        readonly signals: Signals;
-        protected _initSignals(): void;
-        readonly descriptionName: string;
-        bestFrame(): Rect;
-        bestPosition(): Point;
-        updateCache(): void;
-        grab(): void;
-        drop(): void;
-        onAppeared(): void;
-        onDisappeared(): void;
-    }
-}
-declare module nn {
-    /** 连续图片（背景） */
-    class ContinuousBitmap extends Widget {
-        constructor();
-        private _bmpn;
-        private _bmpb;
-        imageSource: TextureSource;
+        protected hitTestClient(x: number, y: number): egret.DisplayObject;
+        readonly: boolean;
+        securityInput: boolean;
+        private _labelPlaceholder;
+        labelPlaceholder: Label;
+        placeholderTextColor: number;
+        placeholder: string;
+        protected _setFontSize(v: number): void;
+        protected _setTextAlign(a: string): void;
+        protected _setText(s: string): boolean;
+        multilines: boolean;
+        private __inp_focus();
+        private __inp_blur();
+        private __lbl_changed(e);
         updateLayout(): void;
-        /** 方向，先默认实现为水平 */
-        direction: Direction;
-        private _pos;
-        /** 偏移的距离 */
-        offset(v: number): void;
-        /** 直接设置位置 */
-        position(v: number): void;
     }
 }
-declare module nn {
-    class Gesture extends SObject implements IGesture {
-        constructor();
-        dispose(): void;
-        protected _initSignals(): void;
-        attach(spr: Component): void;
-        protected doAttach(): void;
-        detach(): void;
-        protected doDetach(): void;
-        protected _spr: Component;
-    }
-    class GestureTap extends Gesture {
-        constructor();
-        protected doAttach(): void;
-        protected doDetach(): void;
-        private __cb_tap();
-        /** 统计次数 */
-        count: number;
-        /** 多少时间清空一次 */
-        interval: number;
-        private _tms;
-    }
-    class GestureLongTap extends Gesture {
-        constructor(duration?: number);
-        dispose(): void;
-        duration: number;
-        protected doAttach(): void;
-        protected doDetach(): void;
-        _tmr: SysTimer;
-        private __cb_touchbegin();
-        private __cb_touchend(s);
-        private __cb_touchmove();
-        private __cb_timer();
-    }
-    class GestureRecognizer extends SObject {
-        constructor();
-        protected _initSignals(): void;
-        /** 上次位置、当前位置 */
-        lastPosition: Point;
-        currentPosition: Point;
-        /** 上次时间、当前时间 */
-        lastTime: number;
-        currentTime: number;
-        /** 增量 */
-        deltaPosition: Point;
-        deltaTime: number;
-        /** 变动次数 */
-        stat: number;
-        /** 加速度 */
-        velocity: Point;
-        /** 最小间隔时间 */
-        thresholdInterval: number;
-        /** 重置 */
-        reset(): void;
-        /** 移动一次位置 */
-        addPosition(x: number, y: number): void;
-        protected doPosition(): void;
-        /** 主方向 */
-        majorDirection(threshold?: Point): Direction;
-    }
-    class GestureSwipe extends Gesture {
-        constructor();
-        protected doAttach(): void;
-        protected doDetach(): void;
-        private __cb_touchbegin(s);
-        private __cb_touchend(s);
-        _recognizer: GestureRecognizer;
-        direction: Direction;
-    }
-}
-declare module nn {
-    class BitmapLabel extends CBitmapLabel {
-        constructor();
-        protected _lbl: any;
-        updateLayout(): void;
-        private _fontSize;
-        private _fontScale;
-        fontSize: number;
-        characterSpacing: number;
-        lineSpacing: number;
-        text: string;
-        private _fontSource;
-        fontSource: FontSource;
-    }
+declare module egret.web {
 }
 declare module nn {
     class Font {
@@ -5169,84 +4179,52 @@ declare module nn {
     }
 }
 declare module nn {
-    class _BonesManager extends SObject {
-        constructor();
-        /** 使用Fast加速骨骼动画 */
-        turboMode: boolean;
-        /** 默认骨骼的帧速 */
-        fps: number;
-        protected _factory: dragonBones.EgretFactory;
-        instance(cfg: BoneConfig, cb: (bn: BoneData) => void, ctx?: any): void;
-        protected instanceOne(character: string, skeleton: string, place: string, texture: string, fps: number, cb: (d: BoneData) => void, ctx?: any): void;
-    }
-    function BonesManager(): _BonesManager;
-    type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
-    class BoneData {
-        constructor(am: ArmatureSource);
-        private _armature;
-        armature: ArmatureSource;
-        addLoop(): void;
-        rmLoop(): void;
-        calcFrameProgress(mo: string, frame: number): number;
-        playMotion(motion: string, times: number, stopAtProgress?: number): void;
-        seekToMotion(motion: string, time: number): void;
-        hasMotion(val: string): boolean;
-        bestFrame(): Rect;
-        readonly display: egret.DisplayObject;
-    }
-    class Bones extends CBones {
+    class SoundPlayer extends CSoundPlayer {
         constructor();
         dispose(): void;
-        private _playingState;
-        private _data;
-        protected getBoneData(): BoneData;
-        protected setBoneData(d: BoneData): void;
-        private _bs;
-        boneSource: BoneSource;
-        bestFrame(): Rect;
-        updateLayout(): void;
-        private _motions;
-        motion: string;
-        pushMotion(val: string): void;
-        popMotion(): void;
-        motions(): Array<string>;
-        hasMotion(val: string): boolean;
+        _enable: boolean;
+        enable: boolean;
+        private _prePlayingState;
+        private _mediaSource;
+        setMediaSource(ms: string): void;
+        private _position;
+        readonly position: number;
+        protected _hdl: egret.Sound;
+        protected _cnl: egret.SoundChannel;
+        protected setHdl(val: egret.Sound): void;
+        protected setCnl(cnl: egret.SoundChannel): void;
         play(): void;
+        replay(): void;
+        pause(): void;
+        resume(): void;
         stop(): void;
-        private __db_start();
-        private __db_complete();
-        private __db_loopcomplete();
+        breakee(): void;
+        private __cb_end();
+        private __cb_pause();
+        private __cb_play();
+    }
+    class _SoundManager extends CSoundManager {
+        readonly background: SoundTrack;
+        readonly effect: SoundTrack;
+        protected _enable: boolean;
+        enable: boolean;
     }
 }
 declare module nn {
-    class MovieClip extends CMovieClip {
+    class _ParticlesManager {
+        instanceParticle(name: string): particle.ParticleSystem;
+    }
+    let ParticlesManager: _ParticlesManager;
+    class Particle extends CParticle {
         constructor();
-        _signalConnected(sig: string, s: Slot): void;
         dispose(): void;
-        private _fps;
-        fps: number;
-        private _mc;
-        private _cs;
-        clipSource: ClipSource;
-        _clip: string;
-        clip: string;
-        _location: number;
-        location: number;
-        isPlaying(): boolean;
-        stop(): void;
-        play(): void;
-        bestFrame(): Rect;
-        private _setMovieClipData(d, f);
-        private _reverseMode;
-        reverseMode: boolean;
-        private __needreverse;
-        protected tryReverseMovieClipData(): void;
-        private _flashMode;
-        flashMode: boolean;
+        _name: string;
+        name: string;
+        _system: particle.ParticleSystem;
+        system: particle.ParticleSystem;
         updateLayout(): void;
-        protected _updateAnimation(): void;
-        private __cb_end(e);
-        private __cb_done(e);
+        start(): void;
+        stop(): void;
     }
 }
 declare module nn {
@@ -5296,7 +4274,84 @@ declare module nn {
     }
 }
 declare module nn {
-    class Graphics extends CGraphics {
+    /** Desktop默认依赖的执行队列，业务可以通过替换对来来手动划分不同的Desktop打开层级
+        @note 如果Desktop放到队列中，则当上一个dialog关闭时，下一个dialog才打开
+    */
+    let DesktopOperationQueue: OperationQueue;
+    /** 桌面，打开时铺平整个屏幕 */
+    class Desktop extends Component {
+        static BackgroundColor: Color;
+        static BackgroundImage: TextureSource;
+        constructor(ui?: CComponent);
+        dispose(): void;
+        static FromView(c: CComponent): Desktop;
+        private __dsk_sizechanged(s);
+        _initSignals(): void;
+        /** 高亮元素，在元素所在的位置镂空背景 */
+        _filters: CComponent[];
+        addFilter(ui: CComponent): void;
+        /** 是否打开高亮穿透的效果
+            @note 如果打开，只有filters的部分可以接受touch的事件
+        */
+        protected _onlyFiltersTouchEnabled: boolean;
+        onlyFiltersTouchEnabled: boolean;
+        static _AllNeedFilters: Desktop[];
+        hitTestInFilters(pt: Point): any;
+        onLoaded(): void;
+        private __dsk_addedtostage();
+        onAppeared(): void;
+        updateFilters(): void;
+        protected _contentView: CComponent;
+        contentView: CComponent;
+        /** 延迟指定时间后关闭
+            @note 因为可能open在队列中，如果由业务层处理，则不好把握什么时候当前dialog才打开
+        */
+        delayClose: number;
+        /** 桌面基于的层，默认为 Application.desktopLayer
+            @note 业务可以指定desktop是打开在全局，还是打开在指定的ui之内
+        */
+        desktopLayer: CComponent;
+        /** 是否已经打开
+            @note 如果open在队列中，则调用open后，当前parent仍然为null，但是逻辑上该dialog算是已经打开，所以需要使用独立的变量来维护打开状态
+        */
+        protected _isOpened: boolean;
+        readonly isOpened: boolean;
+        /** 队列控制时依赖的队列组，业务层设置为自己的队列实例来和标准desktop的队列隔离，避免多重desktop等待时造成业务中弹出的类似如tip的页面在业务dialog后等待的问题 */
+        queue: OperationQueue;
+        protected _oper: Operation;
+        /** 当在队列中打开时，需要延迟的时间
+            @note 同样因为如果打开在队列中，业务层无法很方便的控制打开前等待的时间
+        */
+        delayOpenInQueue: number;
+        /** 打开
+            @param queue, 是否放到队列中打开
+        */
+        open(queue?: boolean): void;
+        /** 接着其他对象打开 */
+        follow(otherContent: CComponent): void;
+        /** 替换打开 */
+        replace(otherContent: CComponent): void;
+        /** desktop打开的样式
+            @note 默认为弹出在desktopLayer，否则为push进desktopLayer
+            弹出不会隐藏后面的内容，push将根据对应的viewStack来决定是否背景的内容隐藏
+        */
+        popupMode: boolean;
+        _addIntoOpening: boolean;
+        static _AllOpenings: Desktop[];
+        protected doOpen(): void;
+        /** 关闭所有正在打开的desktop */
+        static CloseAllOpenings(): void;
+        /** 正在打开的desktop */
+        static Current(): Desktop;
+        /** 关闭 */
+        close(): void;
+        protected doClose(): void;
+        /** 点击桌面自动关闭 */
+        clickedToClose: boolean;
+        private __dsk_clicked();
+        /** 使用自适应来布局内容页面 */
+        adaptiveContentFrame: boolean;
+        updateLayout(): void;
     }
 }
 declare module nn {
@@ -5416,55 +4471,7 @@ declare module nn {
     }
 }
 declare module nn {
-    interface IGridDataSource {
-        /** 多少个元素 */
-        numberOfItems(): number;
-        /** 元素的类型 */
-        classForItem(row: number, col: number, idx: number): any;
-        /** 更新元素 */
-        updateItem(item: any, row: number, col: number, idx: number): any;
-    }
-    class GridCellsItem extends Sprite {
-        constructor(cols: number, cls: any);
-        spacing: number;
-        updateLayout(): void;
-        itemAtIndex(idx: number): CComponent;
-        setItemAtIndex(item: CComponent, idx: number): void;
-        updateData(): void;
-        reuseAll(pool: IReusesPool): void;
-        private cells;
-    }
-    class GridViewCell extends Sprite {
-        private _item;
-        item: CComponent;
-        updateData(): void;
-        updateLayout(): void;
-    }
-    class GridViewContent extends TableViewContent {
-        constructor();
-        gridDataSource: IGridDataSource;
-        /** 默认的元素类型 */
-        itemClass: any;
-        /** 一行有几个 */
-        numberOfColumns: number;
-        /** 用来实现gridcell的类型 */
-        gridCellClass: typeof GridViewCell;
-        protected instanceItem(type: any): GridCellsItem;
-        protected instanceGridItem(cls: any): any;
-        protected updateRow(item: GridCellsItem, cell: TableViewCell, row: number): void;
-        protected addOneReuseItem(item: GridCellsItem): void;
-        private _reuseGridItems;
-    }
-    class GridView extends TableView implements IGridDataSource {
-        constructor();
-        protected instanceTable(): TableViewContent;
-        readonly grid: GridViewContent;
-        numberOfItems(): number;
-        /** 元素的类型 */
-        classForItem(row: number, col: number, idx: number): any;
-        /** 更新元素 */
-        updateItem(item: any, row: number, col: number, idx: number): void;
-        numberOfRows(): number;
+    class Graphics extends CGraphics {
     }
 }
 declare module nn {
@@ -5483,20 +4490,34 @@ declare module nn {
     }
 }
 declare module nn {
-    class _ParticlesManager {
-        instanceParticle(name: string): particle.ParticleSystem;
-    }
-    let ParticlesManager: _ParticlesManager;
-    class Particle extends CParticle {
+    class MovieClip extends CMovieClip {
         constructor();
+        _signalConnected(sig: string, s: Slot): void;
         dispose(): void;
-        _name: string;
-        name: string;
-        _system: particle.ParticleSystem;
-        system: particle.ParticleSystem;
-        updateLayout(): void;
-        start(): void;
+        private _fps;
+        fps: number;
+        private _mc;
+        private _cs;
+        clipSource: ClipSource;
+        _clip: string;
+        clip: string;
+        _location: number;
+        location: number;
+        isPlaying(): boolean;
         stop(): void;
+        play(): void;
+        bestFrame(): Rect;
+        private _setMovieClipData(d, f);
+        private _reverseMode;
+        reverseMode: boolean;
+        private __needreverse;
+        protected tryReverseMovieClipData(): void;
+        private _flashMode;
+        flashMode: boolean;
+        updateLayout(): void;
+        protected _updateAnimation(): void;
+        private __cb_end(e);
+        private __cb_done(e);
     }
 }
 declare module nn {
@@ -5553,47 +4574,54 @@ declare module nn {
         protected _layoutTips(): void;
     }
 }
-declare var LZString: {
-    compressToBase64: (input: any) => string;
-    decompressFromBase64: (input: any) => string;
-    compressToUTF16: (input: any) => string;
-    decompressFromUTF16: (compressed: any) => string;
-    compressToUint8Array: (uncompressed: any) => Uint8Array;
-    decompressFromUint8Array: (compressed: any) => string;
-    compressToEncodedURIComponent: (input: any) => string;
-    decompressFromEncodedURIComponent: (input: any) => string;
-    compress: (uncompressed: any) => string;
-    _compress: (uncompressed: any, bitsPerChar: any, getCharFromInt: any) => string;
-    decompress: (compressed: any) => string;
-    _decompress: (length: any, resetValue: any, getNextValue: any) => string;
-};
 declare module nn {
-    class CodecString implements ICodec {
-        encode(s: string): string;
-        decode(d: string): string;
+    class _BonesManager extends SObject {
+        constructor();
+        /** 使用Fast加速骨骼动画 */
+        turboMode: boolean;
+        /** 默认骨骼的帧速 */
+        fps: number;
+        protected _factory: dragonBones.EgretFactory;
+        instance(cfg: BoneConfig, cb: (bn: BoneData) => void, ctx?: any): void;
+        protected instanceOne(character: string, skeleton: string, place: string, texture: string, fps: number, cb: (d: BoneData) => void, ctx?: any): void;
     }
-    class CodecUrl implements ICodec {
-        encode(s: string): string;
-        decode(d: string): string;
+    function BonesManager(): _BonesManager;
+    type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
+    class BoneData {
+        constructor(am: ArmatureSource);
+        private _armature;
+        armature: ArmatureSource;
+        addLoop(): void;
+        rmLoop(): void;
+        calcFrameProgress(mo: string, frame: number): number;
+        playMotion(motion: string, times: number, stopAtProgress?: number): void;
+        seekToMotion(motion: string, time: number): void;
+        hasMotion(val: string): boolean;
+        bestFrame(): Rect;
+        readonly display: egret.DisplayObject;
     }
-    class CrytoString implements ICodec {
-        key: string;
-        private _iv;
-        iv: string;
-        encode(s: string): string;
-        decode(d: string): string;
-    }
-    class ZipArchiver implements IArchiver {
-        static Unavaliable: boolean;
-        load(d: any): boolean;
-        file(path: string, type: ResType, cb: (str: any) => void, ctx?: any): void;
-        private _hdl;
-    }
-    class LzmaArchiver implements IArchiver {
-        static Unavaliable: boolean;
-        load(d: any): boolean;
-        plain: string;
-        file(path: string, type: ResType, cb: (str: any) => void, ctx?: any): void;
+    class Bones extends CBones {
+        constructor();
+        dispose(): void;
+        private _playingState;
+        private _data;
+        protected getBoneData(): BoneData;
+        protected setBoneData(d: BoneData): void;
+        private _bs;
+        boneSource: BoneSource;
+        bestFrame(): Rect;
+        updateLayout(): void;
+        private _motions;
+        motion: string;
+        pushMotion(val: string): void;
+        popMotion(): void;
+        motions(): Array<string>;
+        hasMotion(val: string): boolean;
+        play(): void;
+        stop(): void;
+        private __db_start();
+        private __db_complete();
+        private __db_loopcomplete();
     }
 }
 declare module nn {
@@ -5608,35 +4636,18 @@ declare module nn {
     let Keyboard: IKeyboard;
 }
 declare module nn {
-    class SoundPlayer extends CSoundPlayer {
+    class BitmapLabel extends CBitmapLabel {
         constructor();
-        dispose(): void;
-        _enable: boolean;
-        enable: boolean;
-        private _prePlayingState;
-        private _mediaSource;
-        setMediaSource(ms: string): void;
-        private _position;
-        readonly position: number;
-        protected _hdl: egret.Sound;
-        protected _cnl: egret.SoundChannel;
-        protected setHdl(val: egret.Sound): void;
-        protected setCnl(cnl: egret.SoundChannel): void;
-        play(): void;
-        replay(): void;
-        pause(): void;
-        resume(): void;
-        stop(): void;
-        breakee(): void;
-        private __cb_end();
-        private __cb_pause();
-        private __cb_play();
-    }
-    class _SoundManager extends CSoundManager {
-        readonly background: SoundTrack;
-        readonly effect: SoundTrack;
-        protected _enable: boolean;
-        enable: boolean;
+        protected _lbl: any;
+        updateLayout(): void;
+        private _fontSize;
+        private _fontScale;
+        fontSize: number;
+        characterSpacing: number;
+        lineSpacing: number;
+        text: string;
+        private _fontSource;
+        fontSource: FontSource;
     }
 }
 declare module nn {
@@ -5661,63 +4672,55 @@ declare module nn {
     }
 }
 declare module nn {
-    class TextField extends Label implements CTextField {
+}
+declare module nn {
+    class _FramesManager extends CFramesManager {
+        launch(c: egret.DisplayObject): void;
+        protected onPrepare(): void;
+        private __invalidating;
+        invalidate(): void;
+    }
+}
+declare module nn {
+    class HttpConnector extends CHttpConnector {
         constructor();
         dispose(): void;
-        _initSignals(): void;
-        _signalConnected(sig: string, s?: Slot): void;
-        protected hitTestClient(x: number, y: number): egret.DisplayObject;
-        readonly: boolean;
-        securityInput: boolean;
-        private _labelPlaceholder;
-        labelPlaceholder: Label;
-        placeholderTextColor: number;
-        placeholder: string;
-        protected _setFontSize(v: number): void;
-        protected _setTextAlign(a: string): void;
-        protected _setText(s: string): boolean;
-        multilines: boolean;
-        private __inp_focus();
-        private __inp_blur();
-        private __lbl_changed(e);
-        updateLayout(): void;
-    }
-}
-declare module egret.web {
-}
-declare module nn {
-    let stage3d: egret3d.Egret3DCanvas;
-}
-declare module nn {
-    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
-    class _DatasManager extends nn.SObject {
-        constructor();
-        _load(): void;
-    }
-    let DatasManager: _DatasManager;
-}
-declare module nn {
-    class SelectionsGroup extends SObject {
-        constructor();
         protected _initSignals(): void;
-        dispose(): void;
-        add(ui: CComponent & IState): void;
-        clear(): void;
-        elements(): any[];
-        private _cbStateChanged(e);
-        selection: number;
-        selectionItem: any;
-        indexOf(o: any): number;
-        readonly previousSelectionItem: any;
-        readonly length: number;
-        private _old;
-        private _store;
+        _signalConnected(sig: string, s?: Slot): void;
+        private _imp;
+        start(): void;
+        useCredentials(): void;
+        private __cnt_completed(e);
+        private __cnt_error(e);
+        private _prg;
+        private __cnt_progress(e);
     }
 }
-declare module egret {
-    var VERSION_2_5_6: any;
+declare module nn {
+    /** 用来将标准对象包装成业务对象 */
+    class BridgedComponent extends Component {
+        constructor(tgt: any);
+        static Wrapper(tgt: any): BridgedComponent;
+        static FromImp(tgt: any): BridgedComponent;
+        protected createImp(): void;
+        readonly signals: Signals;
+        protected _initSignals(): void;
+        readonly descriptionName: string;
+        bestFrame(): Rect;
+        bestPosition(): Point;
+        updateCache(): void;
+        grab(): void;
+        drop(): void;
+        onAppeared(): void;
+        onDisappeared(): void;
+    }
 }
 declare module nn {
+    class CoreApplication extends EgretApp {
+        constructor();
+        /** 设置根页面 */
+        root: CComponent;
+    }
 }
 declare module nn {
     /** 承载不同状态对应的外观 */
@@ -5778,67 +4781,25 @@ declare module nn {
         securityInput: boolean;
     }
 }
-declare module RES {
-}
-declare module nn {
-    interface ICacheJson extends ICacheRecord {
-        use(): any;
+declare module nn.developer {
+    class FileDialog {
+        filter: string;
+        pathForSave(cb: (ph: string) => void): void;
+        pathForOpen(cb: (ph: string) => void): void;
+        pathForDir(cb: (ph: string) => void): void;
     }
-    interface ICacheTexture extends ICacheRecord {
-        use(): egret.Texture;
+    class FileSystem {
+        /** 创建文件夹
+            @param p Create intermediate directories as required
+        */
+        mkdir(path: string, p: boolean, cb: () => void): void;
     }
-    interface ICacheText extends ICacheRecord {
-        use(): string;
-    }
-    interface ICacheFont extends ICacheRecord {
-        use(): egret.BitmapFont;
-    }
-    interface ICacheSound extends ICacheRecord {
-        use(): egret.Sound;
-    }
-    interface ICacheBinary extends ICacheRecord {
-        use(): any;
-    }
-    class _ResMemcache extends Memcache {
-        constructor();
-        protected doRemoveObject(rcd: CacheRecord): void;
-        private _hashCode;
-        static IDR_HASHCODE: string;
-        add(source: string, data: any): ICacheRecord;
-        query(source: string): ICacheRecord;
-        private _sources;
-        private _keys;
-    }
-    class ResCapsule extends CResCapsule {
-        constructor(reqres: ReqResource[], ewd: EventWeakDispatcher);
-        dispose(): void;
-        private _ewd;
-        protected loadOne(rr: ReqResource, cb: () => void, ctx: any): void;
-        protected total(): number;
-    }
-    class _ResManager extends CResManager {
-        constructor();
-        private _ewd;
-        cache: _ResMemcache;
-        loadConfig(file: string, cb: (e: any) => void, ctx: any): void;
-        cacheEnabled: boolean;
-        private _cfg_loaded(e);
-        private _grp_complete(e);
-        private _grp_failed(e);
-        private _grp_progress(e);
-        isGroupsArrayLoaded(grps: string[]): boolean;
-        private _capsules;
-        capsules(grps: ReqResource[]): CResCapsule;
-        removeCapsule(cp: CResCapsule): void;
-        tryGetRes(key: string): ICacheRecord;
-        getResAsync(key: string, priority: ResPriority, cb: (rcd: ICacheRecord) => void, ctx?: any): void;
-        if(DEBUG: any): void;
-        getResUrl(key: string): string;
-        getResByUrl(src: UriSource, priority: ResPriority, cb: (rcd: ICacheRecord | CacheRecord) => void, ctx: any, type: ResType): void;
-        hasAsyncUri(uri: UriSource): boolean;
-        getTexture(src: TextureSource, priority: ResPriority, cb: (tex: ICacheTexture) => void, ctx: any): void;
-        getBitmapFont(src: FontSource, priority: ResPriority, cb: (fnt: ICacheFont) => void, ctx: any): void;
-        getSound(src: SoundSource, priority: ResPriority, cb: (snd: ICacheSound) => void, ctx: any): void;
+    class Image extends SObject {
+        open(path: string, cb: (suc: boolean) => void): void;
+        save(path: string, cb: (suc: boolean) => void): void;
+        scale(x: number, y: number, cb: (img: Image) => void): void;
+        subimage(rc: Rect, cb: (sub: Image) => void): void;
+        private _hdl;
     }
 }
 declare module nn {
@@ -5968,15 +4929,13 @@ declare module nn.journal {
         static Convert<K, T extends ISnapshot, V>(reason: string, arr: Array<V>, convert: (v: V) => [K, T], ctx?: any): IndexedMap<K, T>;
     }
 }
-declare class AssetAdapter implements eui.IAssetAdapter {
-    /**
-     * @language zh_CN
-     * 解析素材
-     * @param source 待解析的新素材标识符
-     * @param compFunc 解析完成回调函数，示例：callBack(content:any,source:string):void;
-     * @param thisObject callBack的 this 引用
-     */
-    getAsset(source: string, compFunc: Function, thisObject: any): void;
+declare module nn {
+    /** 用来管理所有自动生成的位于 resource/assets/~tsc/ 中的数据 */
+    class _DatasManager extends nn.SObject {
+        constructor();
+        _load(): void;
+    }
+    let DatasManager: _DatasManager;
 }
 declare module nn {
     class Vector2d extends Point {
@@ -6123,32 +5082,125 @@ declare module nn {
     }
 }
 declare module nn {
-    class EuiApplication extends EgretApp {
+    interface IGridDataSource {
+        /** 多少个元素 */
+        numberOfItems(): number;
+        /** 元素的类型 */
+        classForItem(row: number, col: number, idx: number): any;
+        /** 更新元素 */
+        updateItem(item: any, row: number, col: number, idx: number): any;
+    }
+    class GridCellsItem extends Sprite {
+        constructor(cols: number, cls: any);
+        spacing: number;
+        updateLayout(): void;
+        itemAtIndex(idx: number): CComponent;
+        setItemAtIndex(item: CComponent, idx: number): void;
+        updateData(): void;
+        reuseAll(pool: IReusesPool): void;
+        private cells;
+    }
+    class GridViewCell extends Sprite {
+        private _item;
+        item: CComponent;
+        updateData(): void;
+        updateLayout(): void;
+    }
+    class GridViewContent extends TableViewContent {
         constructor();
-        protected _preloadConfig(oper: OperationGroup): void;
-        /** 设置根页面 */
-        root: eui.ComponentU;
+        gridDataSource: IGridDataSource;
+        /** 默认的元素类型 */
+        itemClass: any;
+        /** 一行有几个 */
+        numberOfColumns: number;
+        /** 用来实现gridcell的类型 */
+        gridCellClass: typeof GridViewCell;
+        protected instanceItem(type: any): GridCellsItem;
+        protected instanceGridItem(cls: any): any;
+        protected updateRow(item: GridCellsItem, cell: TableViewCell, row: number): void;
+        protected addOneReuseItem(item: GridCellsItem): void;
+        private _reuseGridItems;
+    }
+    class GridView extends TableView implements IGridDataSource {
+        constructor();
+        protected instanceTable(): TableViewContent;
+        readonly grid: GridViewContent;
+        numberOfItems(): number;
+        /** 元素的类型 */
+        classForItem(row: number, col: number, idx: number): any;
+        /** 更新元素 */
+        updateItem(item: any, row: number, col: number, idx: number): void;
+        numberOfRows(): number;
     }
 }
-declare module nn.developer {
-    class FileDialog {
-        filter: string;
-        pathForSave(cb: (ph: string) => void): void;
-        pathForOpen(cb: (ph: string) => void): void;
-        pathForDir(cb: (ph: string) => void): void;
+declare module nn {
+    class Gesture extends SObject implements IGesture {
+        constructor();
+        dispose(): void;
+        protected _initSignals(): void;
+        attach(spr: Component): void;
+        protected doAttach(): void;
+        detach(): void;
+        protected doDetach(): void;
+        protected _spr: Component;
     }
-    class FileSystem {
-        /** 创建文件夹
-            @param p Create intermediate directories as required
-        */
-        mkdir(path: string, p: boolean, cb: () => void): void;
+    class GestureTap extends Gesture {
+        constructor();
+        protected doAttach(): void;
+        protected doDetach(): void;
+        private __cb_tap();
+        /** 统计次数 */
+        count: number;
+        /** 多少时间清空一次 */
+        interval: number;
+        private _tms;
     }
-    class Image extends SObject {
-        open(path: string, cb: (suc: boolean) => void): void;
-        save(path: string, cb: (suc: boolean) => void): void;
-        scale(x: number, y: number, cb: (img: Image) => void): void;
-        subimage(rc: Rect, cb: (sub: Image) => void): void;
-        private _hdl;
+    class GestureLongTap extends Gesture {
+        constructor(duration?: number);
+        dispose(): void;
+        duration: number;
+        protected doAttach(): void;
+        protected doDetach(): void;
+        _tmr: SysTimer;
+        private __cb_touchbegin();
+        private __cb_touchend(s);
+        private __cb_touchmove();
+        private __cb_timer();
+    }
+    class GestureRecognizer extends SObject {
+        constructor();
+        protected _initSignals(): void;
+        /** 上次位置、当前位置 */
+        lastPosition: Point;
+        currentPosition: Point;
+        /** 上次时间、当前时间 */
+        lastTime: number;
+        currentTime: number;
+        /** 增量 */
+        deltaPosition: Point;
+        deltaTime: number;
+        /** 变动次数 */
+        stat: number;
+        /** 加速度 */
+        velocity: Point;
+        /** 最小间隔时间 */
+        thresholdInterval: number;
+        /** 重置 */
+        reset(): void;
+        /** 移动一次位置 */
+        addPosition(x: number, y: number): void;
+        protected doPosition(): void;
+        /** 主方向 */
+        majorDirection(threshold?: Point): Direction;
+    }
+    class GestureSwipe extends Gesture {
+        constructor();
+        protected doAttach(): void;
+        protected doDetach(): void;
+        private __cb_touchbegin(s);
+        private __cb_touchend(s);
+        _recognizer: GestureRecognizer;
+        direction: Direction;
     }
 }
 declare module nn {
@@ -6173,29 +5225,22 @@ declare module nn {
         urlForLog(): string;
     }
 }
-declare module eui {
-    interface IEUIExt {
-        onPartBinded(name: string, target: any): any;
+declare module nn {
+    /** 连续图片（背景） */
+    class ContinuousBitmap extends Widget {
+        constructor();
+        private _bmpn;
+        private _bmpb;
+        imageSource: TextureSource;
+        updateLayout(): void;
+        /** 方向，先默认实现为水平 */
+        direction: Direction;
+        private _pos;
+        /** 偏移的距离 */
+        offset(v: number): void;
+        /** 直接设置位置 */
+        position(v: number): void;
     }
-    class _EUIExt {
-        static onPartBinded(self: any, name: string, target: any): void;
-        static Propname(name: string): string;
-        static removeFromParent(self: any): void;
-        static setViewStack(self: any, sck: IViewStack): void;
-        static getViewStack(self: any): IViewStack;
-        static goBack(self: any): void;
-        static setExhibition(self: any, b: boolean): void;
-        static getExhibition(self: any): boolean;
-        /** 设置遮罩 */
-        static setClipbounds(self: any, rc: nn.Rect): void;
-        static getClipbounds(self: any): nn.Rect;
-        static playAnimate(self: any, ani: Animate, idr?: any): Animate;
-        static findAnimate(self: any, idr: any): Animate;
-        static stopAnimate(self: any, idr: any): void;
-        static stopAllAnimates(self: any): void;
-    }
-    function ConvertPoint(fromsp: egret.DisplayObject | nn.CComponent, pt: nn.Point, tosp: egret.DisplayObject | nn.CComponent): nn.Point;
-    function ConvertRect(fromsp: egret.DisplayObject | nn.CComponent, rc: nn.Rect, tosp: egret.DisplayObject | nn.CComponent): nn.Rect;
 }
 declare module nn {
     class ServiceMock extends svc.Service {
@@ -6253,6 +5298,7 @@ declare module nn {
         share(c: svc.ShareContent): void;
         profile(c: svc.ProfileContent): void;
         status(c: svc.StatusContent): void;
+        private _gift;
         auth(c: svc.AuthContent): void;
         private _pid;
         login(c: svc.LoginContent): void;
@@ -6276,6 +5322,86 @@ declare module nn {
     }
     class XHBServices extends ServicesManager {
         detectService(): any;
+    }
+}
+declare module nn {
+    interface ICollectionDataSource {
+        /** 元素总数目 */
+        numberOfItems(): number;
+        /** 元素的类型 */
+        classForItem(idx: number): any;
+        /** 空白元素的类型 */
+        classForNullItem(): any;
+        /** 更新元素 */
+        updateItem(item: CComponent, idx: number): any;
+        /** 更新空元素 */
+        updateNullItem(item: CComponent): any;
+    }
+    abstract class CollectionView extends Sprite implements ICollectionDataSource {
+        constructor();
+        /** 数据源 */
+        dataSource: ICollectionDataSource;
+        /** 元素的默认类型 */
+        itemClass: any;
+        numberOfItems(): number;
+        classForItem(idx: number): any;
+        classForNullItem(): any;
+        updateItem(item: CComponent, idx: number): void;
+        updateNullItem(item: CComponent): void;
+        /** 空余元素 */
+        nullItemClass: any;
+        /** 重新加载数据 */
+        abstract reloadData(): any;
+        /** 弹出一个元素 */
+        protected popUsedItem(): void;
+        /** 拿出一个元素 */
+        protected useItem(...p: any[]): CComponent;
+        /** 放回去一个元素 */
+        protected unuseItem(item: CComponent): void;
+        updateLayout(): void;
+    }
+    /** 类似于iTunes Coverflow的效果 */
+    abstract class CoverFlowView extends CollectionView {
+        constructor();
+        dispose(): void;
+        protected _initSignals(): void;
+        /** 最多屏幕上出现的个数 */
+        maxItemsOnScreen: number;
+        /** 选中那个 */
+        selection: number;
+        /** 触发器的尺寸 */
+        thresholdSize: Size;
+        /** 自动停靠
+            @note 交互一办抬起手指后，是否自动对齐
+         */
+        autoDock: boolean;
+        reloadData(): void;
+        protected popUsedItem(idx?: number): void;
+        protected clear(): void;
+        protected useItem(cls: any, end: boolean): CComponent;
+        protected unuseItem(item: CComponent): void;
+        /** 根据位置更新尺寸 */
+        updateItemSize(item: CComponent, idx: number, pos: number): void;
+        /** 一次性刷新所有尺寸 */
+        updateItemsSize(items: Array<CComponent>, idx: number): void;
+        /** 打开下一个 */
+        gotoNext(): boolean;
+        /** 打开上一个 */
+        gotoPrevious(): boolean;
+        /** 用来测试能否运行goto，如果是false那么touch将被跳掉 */
+        canGoto(): boolean;
+        protected _updateItems(updateData: boolean): void;
+        protected instanceItem(cls: any): any;
+        private _minIndex;
+        private _allItems;
+        private _nullItems;
+        private _usedItems;
+        private _reuseItems;
+        offsetPos: Point;
+        private _startPos;
+        private _cv_touch_begin();
+        private _cv_touch_move();
+        private _cv_touch_end();
     }
 }
 declare module nn {
@@ -6320,36 +5446,118 @@ declare module nn {
     }
     var SocketSession: ISocketSession;
 }
-declare module eui {
-    class Animate {
-        bind(ui: egret.DisplayObject): this;
-        clone(): this;
-        tag: any;
-        readonly hashCode: number;
-        private _ani;
-        next(props: any, duration: number, tf: Function): this;
-        to(duration: number, tf: Function, ani: (ani: nn.Animator) => void, ctx?: any): this;
-        then(ani: (ani: nn.Animator) => void, ctx?: any, duration?: number, tf?: Function): this;
-        stop(): void;
-        complete(cb: (s: nn.Slot) => void, ctx?: any): this;
-        repeat(count: number): this;
-        play(): this;
-        pause(): void;
-        resume(): void;
+declare var LZString: {
+    compressToBase64: (input: any) => string;
+    decompressFromBase64: (input: any) => string;
+    compressToUTF16: (input: any) => string;
+    decompressFromUTF16: (compressed: any) => string;
+    compressToUint8Array: (uncompressed: any) => Uint8Array;
+    decompressFromUint8Array: (compressed: any) => string;
+    compressToEncodedURIComponent: (input: any) => string;
+    decompressFromEncodedURIComponent: (input: any) => string;
+    compress: (uncompressed: any) => string;
+    _compress: (uncompressed: any, bitsPerChar: any, getCharFromInt: any) => string;
+    decompress: (compressed: any) => string;
+    _decompress: (length: any, resetValue: any, getNextValue: any) => string;
+};
+declare module nn {
+    class CodecString implements ICodec {
+        encode(s: string): string;
+        decode(d: string): string;
+    }
+    class CodecUrl implements ICodec {
+        encode(s: string): string;
+        decode(d: string): string;
+    }
+    class CrytoString implements ICodec {
+        key: string;
+        private _iv;
+        iv: string;
+        encode(s: string): string;
+        decode(d: string): string;
+    }
+    class ZipArchiver implements IArchiver {
+        static Unavaliable: boolean;
+        load(d: any): boolean;
+        file(path: string, type: ResType, cb: (str: any) => void, ctx?: any): void;
+        private _hdl;
+    }
+    class LzmaArchiver implements IArchiver {
+        static Unavaliable: boolean;
+        load(d: any): boolean;
+        plain: string;
+        file(path: string, type: ResType, cb: (str: any) => void, ctx?: any): void;
     }
 }
-declare module eui {
-    class BitmapLabelU extends eui.BitmapLabel {
-        onPartBinded(name: string, target: any): void;
-        exhibition: boolean;
-        private _value;
-        value: any;
-        private _format;
-        format: string;
-        dispose(): void;
-        drop(): void;
-        $onRemoveFromStage(): void;
+declare module nn {
+    class EntrySettings {
+        /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
+        singletone: boolean;
+        /** 其他数据 */
+        ext: any;
+        static Default: EntrySettings;
     }
+    interface IEntry {
+        /** 模块的配置 */
+        entrySettings?: EntrySettings;
+    }
+    interface ILauncher {
+        /** 处理模块的启动
+            @param cls 待启动模块的类
+            @param data 附加的参数
+        */
+        launchEntry(cls: any, data?: any): any;
+    }
+    abstract class Manager extends SObject {
+        /** 初始化自己和其它manager或者其它对象之间的关系 */
+        abstract onLoaded(): any;
+        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
+        onDataLoaded(): void;
+    }
+    abstract class Managers extends SObject {
+        register<T>(obj: T): T;
+        onLoaded(): void;
+        onDataLoaded(): void;
+        protected _managers: Manager[];
+    }
+    interface IEntryClass {
+        name: string;
+        clazz: () => Function;
+    }
+    type EntryIdrToLauncherIdr = (entryidr: string) => string;
+    type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
+    type EntryClassType = Function | IEntryClass;
+    class _EntriesManager {
+        /** 注册一个模块
+            @param entryClass类
+        */
+        register(entryClass: EntryClassType, data?: EntrySettings): void;
+        /** 启动一个模块
+            @param entry 类或者标类名
+            @param launcher 启动点的标示号或者启动点的实例
+            @pram data 附加的参数
+        */
+        invoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
+        protected _doInvoke(entry: any | string, launcher: EntryLauncherType, ext?: any): void;
+        private _entries;
+        private _entriesdata;
+        toString(): string;
+    }
+    let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
+    let EntriesManager: _EntriesManager;
+    class _LaunchersManager extends nn.SObject {
+        constructor();
+        protected _initSignals(): void;
+        /** 注册一个启动器 */
+        register(obj: ILauncher): void;
+        /** 取消 */
+        unregister(obj: ILauncher): void;
+        /** 查找一个启动器 */
+        find(str: string): ILauncher;
+        private _launchers;
+        toString(): string;
+    }
+    let LaunchersManager: _LaunchersManager;
 }
 declare module nn {
     type TiledSource = string;
@@ -6364,74 +5572,21 @@ declare module nn {
         updateLayout(): void;
     }
 }
-declare module eui {
-    class BoneU extends eui.Group {
-        slots: string;
-        tag: any;
+declare module nn {
+    class SelectionsGroup extends SObject {
         constructor();
-        dispose(): void;
-        drop(): void;
-        onPartBinded(name: string, target: any): void;
-        goBack(): void;
-        $onRemoveFromStage(): void;
         protected _initSignals(): void;
-        protected _signals: nn.Signals;
-        readonly signals: nn.Signals;
-        protected _instanceSignals(): void;
-        _signalConnected(sig: string, s?: nn.Slot): void;
-        private __cmp_tap(e);
-        private _sourceChanged;
-        /** 骨骼动画的名字 */
-        private _boneName;
-        boneName: string;
-        /** 角色名字 */
-        private _boneCharacter;
-        boneCharacter: string;
-        /** 骨骼资源名 */
-        private _boneSkeleton;
-        boneSkeleton: string;
-        /** 骨骼定义资源名 */
-        private _bonePlace;
-        bonePlace: string;
-        /** 骨骼材质资源名 */
-        private _boneTexture;
-        boneTexture: string;
-        /** 播放的速度 */
-        private _boneFps;
-        boneFps: number;
-        /** 附加缩放系数 */
-        additionScale: number;
-        /** 填充模式 */
-        fillMode: number;
-        /** 序列帧的对齐位置 */
-        clipAlign: number;
-        /** 动作名称 */
-        motion: string;
-        /** 播放次数 */
-        playCount: number;
-        /** 自动播放 */
-        autoPlay: boolean;
-        private _hbone;
-        private bone();
-        createChildren(): void;
-        commitProperties(): void;
-        boneSource: nn.BoneSource;
-        protected updateDisplayList(unscaledWidth: number, unscaledHeight: number): void;
-        /** 播放 */
-        play(): void;
-        stop(): void;
-    }
-}
-declare module eui {
-    class TabStackU extends eui.ComponentU implements eui.IViewStack {
-        constructor();
-        private _imp;
-        protected createImp(): void;
-        updateLayout(): void;
-        /** 通过类查找对应的页面 */
-        findPage(cls: any): egret.DisplayObject;
-        push(ui: egret.DisplayObject): void;
-        pop(): void;
-        pages(): egret.DisplayObject[];
+        dispose(): void;
+        add(ui: CComponent & IState): void;
+        clear(): void;
+        elements(): any[];
+        private _cbStateChanged(e);
+        selection: number;
+        selectionItem: any;
+        indexOf(o: any): number;
+        readonly previousSelectionItem: any;
+        readonly length: number;
+        private _old;
+        private _store;
     }
 }
