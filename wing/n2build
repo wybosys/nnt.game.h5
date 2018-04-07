@@ -1327,8 +1327,6 @@ TPL_INDEX_DEBUG="""
         }
     </style>
     ${APPSTYLE}
-    <!-- 小伙伴SDK -->
-    <!-- <script src="http://d.hgame.com/loadsdk?v=2"></script>-->
 </head>
 <body>
     <div id="launchDiv">        
@@ -1405,7 +1403,6 @@ TPL_INDEX_RELEASE="""
         }
     </style>
     ${APPSTYLE}
-    <script src="http://d.hgame.com/loadsdk?v=2"></script>
 </head>
 <body>
     <div id="launchDiv">
