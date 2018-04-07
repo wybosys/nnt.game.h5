@@ -40,10 +40,11 @@ def listfiles(dir, rets = None, blacklist = None, whitelist = None, depth = -1):
 
 #produce package.json
 def packagejson():
+    libs = listfiles('libs', whitelist=[re.compile(r'\.ts$')])
     files = listfiles('src', whitelist=[re.compile(r'\.ts$')])
     packobj = {"name":"nnt","version":"5.1.8"}
     open("package.json", "w").write(json.dumps(packobj, indent=4))
-    cfgobj = {"compilerOptions":{"target":"es5", "outFile":"bin/nnt/nnt.js", "declaration":True}, "files":files}
+    cfgobj = {"compilerOptions":{"target":"es5", "outFile":"bin/nnt/nnt.js", "declaration":True}, "files":libs + files}
     open("tsconfig.json", "w").write(json.dumps(cfgobj, indent=4))
     
 def main():

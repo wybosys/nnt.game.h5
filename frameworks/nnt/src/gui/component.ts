@@ -102,7 +102,7 @@ module nn {
         tag:any;
 
         /** 绘图板 */
-        paint(gra:CGraphics);
+        abstract paint(gra:CGraphics);
 
         protected validate():boolean {
             return true;
