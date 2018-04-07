@@ -201,10 +201,6 @@ def checkconfig():
         return True
     return False
 
-def egret_makerequire():
-    """生成egret需要的文件"""
-    pass
-
 # 提取app.html中引用独立定义的加载样式
 def apphtmlinfo(debug):
     r = {'APPSTYLE':"",
@@ -445,7 +441,6 @@ def builddebug(rebuild):
     else:
         print("编译debug版本")
     # 预处理工程代码
-    egret_makerequire()
     prebuildsrc()
     # 去除publish引起的egret混乱
     shutil.rmtree('publish', True)
@@ -1434,52 +1429,6 @@ TPL_INDEX_RELEASE="""
 </html>
 """
 
-TPL_NATIVE_REQUIRE = """
-var game_file_list = [
-//----auto game_file_list start----
-//----auto game_file_list end----
-];
-var window = this;
-egret_native.setSearchPaths([""]);
-egret_native.requireFiles = function () {
-    for (var key in game_file_list) {
-        var src = game_file_list[key];
-        require(src);
-    }
-};
-egret_native.egretInit = function () {
-    egret_native.requireFiles();
-    egret.TextField.default_fontFamily = "/system/fonts/DroidSansFallback.ttf";
-    //egret.dom为空实现
-    egret.dom = {};
-    egret.dom.drawAsCanvas = function () {
-    };
-};
-egret_native.egretStart = function () {
-    var option = {
-        //以下为自动修改，请勿修改
-        //----auto option start----
-		entryClassName: "Main",
-		frameRate: 60,
-		scaleMode: "showAll",
-		contentWidth: 480,
-		contentHeight: 800,
-		showPaintRect: false,
-		showFPS: false,
-		fpsStyles: "",
-		showLog: false,
-		logFilter: "",
-		maxTouches: 2,
-		textureScaleFactor: 1
-		//----auto option end----
-    };
-    egret.native.NativePlayer.option = option;
-    egret.runEgret();
-    egret_native.Label.createLabel(egret.TextField.default_fontFamily, 20, "", 0);
-    egret_native.EGTView.preSetOffScreenBufferEnable(true);
-};
-"""
-
 # 判断是否符合一组re的判定
 def ismatchs(str, rexs, non=False):
     if rexs == None:
@@ -1590,8 +1539,6 @@ def clean():
         os.unlink('.n2~/dist.db')
     if os.path.isdir('.n2~/dist'):
         shutil.rmtree('.n2~/dist')
-    if os.path.isfile('template/runtime/native_require.js'):
-        os.unlink('template/runtime/native_require.js')
 
 def pack(file, srcs, sumdb):
     fdiff = open('.n2~/packdiff', 'w')
