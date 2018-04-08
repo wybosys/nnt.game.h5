@@ -196,4 +196,82 @@ module eui {
         }
     }
     
+    // 自动连续滚动的Image，通常用来卷动背景
+    export class RollableImageU
+    extends ComponentU
+    {
+        constructor() {
+            super();
+            this.addChild(this._img0);
+            this.addChild(this._img1);
+        }
+        
+        private _img0 = new ImageU();
+        private _img1 = new ImageU();        
+
+        updateLayout() {
+            let trc = this.bounds();
+
+            let rc = this._img0.frame;
+            rc.size = trc.size;
+            this._img0.frame = rc;
+
+            rc = this._img1.frame;
+            rc.size = trc.size;
+            this._img1.frame = rc;
+        }
+
+        get imageSource(): nn.TextureSource {
+            return this._img0.imageSource;
+        }
+
+        set imageSource(src: nn.TextureSource) {
+            this._img0.imageSource = src;
+            this._img1.imageSource = src;
+        }
+
+        /** 垂直滚动 */
+        vertical = false;
+
+        private _curoffset = 0;
+
+        /** 卷动偏移 */
+        offset(v: number) {
+            this._curoffset += v;
+            if (this.vertical)
+                this._offset_vec();
+            else
+                this._offset_hov();
+        }
+
+        protected _offset_hov() {
+            let ful = this.width;
+            let dif = this._curoffset % ful;
+
+            let rc = this._img0.frame;
+            rc.x = dif > 0 ? (dif - ful) : (dif);
+            rc.y = 0;
+            this._img0.frame = rc;
+
+            rc = this._img1.frame;
+            rc.x = dif > 0 ? dif : (ful + dif);
+            rc.y = 0;
+            this._img1.frame = rc;
+        }
+
+        protected _offset_vec() {
+            let ful = this.height;
+            let dif = this._curoffset % ful;
+
+            let rc = this._img0.frame;
+            rc.y = dif > 0 ? (dif - ful) : (dif);
+            rc.x = 0;
+            this._img0.frame = rc;
+
+            rc = this._img1.frame;
+            rc.y = dif > 0 ? dif : (ful + dif);
+            rc.x = 0;
+            this._img1.frame = rc;
+        }
+    }
 }
