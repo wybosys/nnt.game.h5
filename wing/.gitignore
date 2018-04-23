@@ -4,3 +4,8 @@ libs
 index.html
 manifest\.json
 default\.*
+.idea
+.n2~
+.wing
+^~
+~*

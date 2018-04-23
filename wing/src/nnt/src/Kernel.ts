@@ -1469,6 +1469,21 @@ module nn {
         static FromCode(c:number[]):string {
             return String.fromCharCode.apply(null, c);
         }
+
+        // 小写化
+        static Lowercase(str: string, def = ""): string {
+            return str ? str.toLowerCase() : def;
+        }
+
+        static Uppercase(str: string, def = ""): string {
+            return str ? str.toUpperCase() : def;
+        }
+
+        static UpcaseFirst(str: string): string {
+            if (!str || !str.length)
+                return "";
+            return str[0].toUpperCase() + str.substr(1);
+        }
     }
     
     /** 提供了操作 array 的工具函数 */

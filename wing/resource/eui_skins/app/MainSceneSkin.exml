@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <e:Skin class="MainSceneSkin" width="480" height="800" xmlns:e="http://ns.egret.com/eui" xmlns:eui="eui.*" xmlns:w="http://ns.egret.com/wing"  states="b" >
-	<eui:ButtonU id="btnXXX" label="按钮" x="24" y="371"/>
+	<eui:ButtonU id="btnLogic" label="logic.echo" x="33" y="318" slots="nn.SignalClicked=&gt;actEcho"/>
 	<e:ListU id="list0" left="30" top="60" bottom="586" itemRendererSkinName="app.item.ButtonSkin" width="191">
 		<e:ArrayCollection>
 			<e:Array>
@@ -50,7 +50,7 @@
 			</e:Array>
 		</e:ArrayCollection>
 	</e:List>
-	<eui:TextInputU x="30" y="262" width="419" prompt="输入框" slots="nn.SignalEnterKey=&gt;actEnter"/>
+	<eui:TextInputU id="lblInp" x="30" y="262" width="419" prompt="输入框" slots="nn.SignalEnterKey=&gt;actEnter"/>
 	<eui:BoneU width="200" height="200" right="0" bottom="69" boneName="ruizi" autoPlay="true" playCount="-1" motion="attack"/>
 	<eui:DivU height="74" y="604" text="&lt;iframe src=&quot;http://www.baidu.com&quot;&gt;&lt;/iframe&gt;" left="20" right="20"/>
 	<eui:GroupU id="sp_touch" width="300" height="177" x="163" y="318" anchorOffsetX="0" anchorOffsetY="0" slots="nn.SignalTouchMove=&gt;actTouchMoved">

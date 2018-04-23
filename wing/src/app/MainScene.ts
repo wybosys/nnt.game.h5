@@ -12,8 +12,9 @@ module app {
     {
         //slot {
         _actTouchMoved(s?:nn.Slot);
-        _actEnter(s?:nn.Slot);
+        _actEcho(s?:nn.Slot);
         _actOpenLink(s?:nn.Slot);
+        _actEnter(s?:nn.Slot);
         //slot }
     }
 
@@ -28,9 +29,10 @@ module app {
         //skin {
         btn0:eui.ButtonU;
         btn1:eui.ButtonU;
-        btnXXX:eui.ButtonU;
+        btnLogic:eui.ButtonU;
         img0:eui.ImageU;
         lblHtml:eui.HtmlLabelU;
+        lblInp:eui.TextInputU;
         list0:eui.ListU;
         list1:eui.ListU;
         sp_touch:eui.GroupU;
@@ -60,6 +62,12 @@ module app {
                     nn.Hud.Text("手势激活");
             }, this);
             this.addGesture(ges);
+
+            let m = api.SampleEcho();
+            m.input = "send to server";
+            nn.RestSession.fetch(m, ()=>{
+                alert(m.output);
+            });
         }
 
         protected createChildren() {
@@ -126,6 +134,14 @@ module app {
 
         _actTouchMoved(s?:nn.Slot) {
             nn.info(s.data.currentPosition);
+        }
+
+        _actEcho() {
+            let m = api.SampleEcho();
+            m.input = this.lblInp.text;
+            nn.RestSession.fetch(m, ()=>{
+                alert(m.output);
+            });
         }
             
     }

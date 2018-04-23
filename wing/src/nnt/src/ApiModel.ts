@@ -13,9 +13,8 @@ module nn {
     */
 
     export class Model
-    extends SObject
-    implements ISerializable, ICacheObject
-    {
+        extends SObject
+        implements ISerializable, ICacheObject {
         constructor() {
             super();
         }
@@ -36,34 +35,36 @@ module nn {
         }
 
         // 实现 mc 接口
-        cacheFlush:boolean;
-        cacheUpdated:boolean;
-        cacheTime:number;
+        cacheFlush: boolean;
+        cacheUpdated: boolean;
+        cacheTime: number;
 
-        keyForCache():string {
+        keyForCache(): string {
             return this.host + '|' + this.action + '|' + JSON.stringify(this.paramsForCache());
         }
-        paramsForCache():KvObject<string, string> {
+
+        paramsForCache(): KvObject<string, string> {
             return this.params;
         }
-        valueForCache():any {
+
+        valueForCache(): any {
             return this.response;
         }
 
         /** 动作 */
-        action:string = '';
+        action: string = '';
 
         /** 参数 */
         params = new KvObject<string, string>();
 
         /** 域 */
-        host:string;
+        host: string;
 
         /** 返回的数据 */
-        response:any;
+        response: any;
 
         /** 需要自动带上授权信息 */
-        withCredentials:boolean = true;
+        withCredentials: boolean = true;
 
         // 为了解决跨域的问题，服务端需要收到 mcb 后，通过调用此函数回调数据
         /*
@@ -74,23 +75,24 @@ module nn {
           return "{$cb}({$res})";
           }
          */
-        private _modelcallback:string;
-        set modelcallback(val:string) {
+        private _modelcallback: string;
+        set modelcallback(val: string) {
             this._modelcallback = val;
             this.params['modelcallback'] = val;
         }
-        get modelcallback():string {
+
+        get modelcallback(): string {
             return this._modelcallback;
         }
 
-        static HTTP:string = "http://" + document.domain;
-        static HTTPS:string = "https://" + document.domain;
+        static HTTP: string = "http://" + document.domain;
+        static HTTPS: string = "https://" + document.domain;
 
         /** 获得请求的类型 */
-        method:HttpMethod = HttpMethod.GET;
+        method: HttpMethod = HttpMethod.GET;
 
         /** 是否跨域 */
-        iscross():boolean {
+        iscross(): boolean {
             // 使用服务器转向来解决跨域的问题
             if (this.useproxy())
                 return false;
@@ -99,57 +101,63 @@ module nn {
         }
 
         /** 是否使用代理 */
-        useproxy():boolean {
+        useproxy(): boolean {
             return ISDEBUG;
         }
 
         /** 全路径 */
-        url():string {
+        url(): string {
             return this.host + this.action;
         }
 
         /** 可用的参数 */
-        fields():KvObject<string, string> {
+        fields(): KvObject<string, string> {
             return this.params;
         }
 
         /** 是否获取成功 */
-        isSucceed():boolean {
+        isSucceed(): boolean {
             return this.code === 0;
         }
 
         /** 保存成功或失败的状态 */
-        succeed:boolean;
+        succeed: boolean;
 
         /** 调试模式，即使错误也同样激活成功的消息 */
         isDebug = false;
 
         /** 是否显示 wait */
-        showWaiting:boolean;
+        showWaiting: boolean;
 
         /** 是否显示错误信息 */
         showError = true;
 
         /** 处理结果数据 */
-        serialize(respn:any):boolean { return false; }
-        unserialize(respn:any):boolean { return true; }
+        serialize(respn: any): boolean {
+            return false;
+        }
+
+        unserialize(respn: any): boolean {
+            return true;
+        }
 
         /** 返回的数据 */
-        code:number;
-        message:string;
+        code: number;
+        message: string;
 
         /** 超时 s，默认不使用改特性 */
-        timeout:Interval = 0;
-        private _tmr_timeout:any;
+        timeout: Interval = 0;
+        private _tmr_timeout: any;
 
         /** 超时当作失败，因为默认的超时有可能是因为这个接口本来就跑的很久，并且通常的超时提示用户也没什么意义，所以先设计为由业务层设置该功能，如果为 true，则当超时时会发送 SignalFailed */
-        timeoutAsFailed:boolean;
+        timeoutAsFailed: boolean;
 
         /** 用于调试的数据 */
-        protected urlForLog():string {
+        protected urlForLog(): string {
             return this.url();
         }
-        protected fieldsForLog():KvObject<string, string> {
+
+        protected fieldsForLog(): KvObject<string, string> {
             return this.fields();
         }
 
@@ -176,7 +184,7 @@ module nn {
         }
 
         // 获取数据成功
-        __mdl_completed(e:any) {
+        __mdl_completed(e: any) {
             let data = this._urlreq ? this._urlreq.data : e;
 
             // 判断是否需要从 json 转换回来
@@ -195,10 +203,10 @@ module nn {
         }
 
         // 获取数据失败
-        __mdl_failed(e:Slot) {
+        __mdl_failed(e: Slot) {
             // 设置网路错误的id
             this.code = ERROR_NETWORK_FAILED;
-            
+
             let tn = new SlotTunnel();
             this.signals.emit(SignalFailed, e.data, tn);
             if (!tn.veto)
@@ -218,14 +226,12 @@ module nn {
         __mdl_timeout() {
             if (VERBOSE)
                 log('API ' + this.action + ' 超时');
-            
-            if (this.isDebug)
-            {
+
+            if (this.isDebug) {
                 this.signals.emit(SignalSucceed);
                 RestSession.signals.emit(SignalSucceed, this);
             }
-            else
-            {
+            else {
                 if (this.timeoutAsFailed) {
                     this.signals.emit(SignalFailed);
                     RestSession.signals.emit(SignalFailed, this);
@@ -252,27 +258,32 @@ module nn {
             this.drop();
         }
 
+        responseCode(): number {
+            if ('code' in this.response)
+                return this.response.code;
+            else if ('1' in this.response)
+                return this.response[1];
+            return -1;
+        }
+
+        responseMessage(): string {
+            if ('message' in this.response)
+                return this.response.message;
+            else if ('2' in this.response)
+                return this.response[2];
+            return "从服务器没有获取到数据";
+        }
+
         // 处理接收到的数据
         processResponse() {
-            if ('code' in this.response)
-                this.code = this.response.code;
-            else if ('1' in this.response)
-                this.code = this.response[1];
-            else
-                this.code = -1;
-            if ('message' in this.response)                
-                this.message = this.response.message;
-            else if ('2' in this.response)
-                this.message = this.response[2];
-            else
-                this.message = "从服务器没有获取到数据";
+            this.code = this.responseCode();
+            this.message = this.responseMessage();
 
             if (VERBOSE)
                 log('API ' + this.action + ' 返回 ' + JSON.stringify(this.response));
-            
+
             this.cacheUpdated = false;
-            if ((this.succeed = this.isSucceed()))
-            {
+            if ((this.succeed = this.isSucceed())) {
                 if (VERBOSE)
                     log('API ' + this.action + ' 请求成功');
 
@@ -286,8 +297,7 @@ module nn {
                 this.signals.emit(SignalSucceed);
                 RestSession.signals.emit(SignalSucceed, this);
             }
-            else
-            {
+            else {
                 warn('API ' + this.action + ' ' + this.message);
 
                 let tn = new SlotTunnel();
@@ -318,20 +328,19 @@ module nn {
             }
         }
 
-        _urlreq:CHttpConnector;
+        _urlreq: CHttpConnector;
 
         /** 调用的时间 */
-        ts:number;
+        ts: number;
     }
 
     /** 支持分页的model */
-    export class PagedModel <ItemT>
-    {
+    export class PagedModel<ItemT> {
         constructor() {
         }
 
         // 添加页数据
-        add(page:any, items:Array<ItemT>) {
+        add(page: any, items: Array<ItemT>) {
             this.changed = false;
             if (this._items.contains(page))
                 return;
@@ -344,39 +353,39 @@ module nn {
         }
 
         // 是否页面数据发生改变
-        changed:boolean;
-        
+        changed: boolean;
+
         // 当前页的标记
-        page:any = 0;
-        
+        page: any = 0;
+
         // 所有分页的数据
-        private _items = new nn.IndexedMap<any, Array<ItemT> >();
+        private _items = new nn.IndexedMap<any, Array<ItemT>>();
 
         // 获得当前页面的items
-        get items():Array<ItemT> {
+        get items(): Array<ItemT> {
             return this._items.objectForKey(this.page);
         }
 
         // 所有页面的对象
-        get allItems():Array<ItemT> {
+        get allItems(): Array<ItemT> {
             let r = [];
-            this._items.forEach((k:any, o:Array<ItemT>)=>{
+            this._items.forEach((k: any, o: Array<ItemT>) => {
                 nn.ArrayT.PushObjects(r, o);
             });
             return r;
         }
 
         // 前一页面
-        previous():boolean {
+        previous(): boolean {
             let idx = this._items.indexOfKey(this.page);
             if (idx == 0)
                 return false;
             this.page = this._items.keyForIndex(idx - 1);
             return true;
         }
-        
+
         // 后一页，如果返回false，则需要去查询有没有后一页
-        next():boolean {
+        next(): boolean {
             let idx = this._items.indexOfKey(this.page);
             let k = this._items.keyForIndex(idx + 1);
             if (k == null)
@@ -384,5 +393,539 @@ module nn {
             this.page = k;
             return true;
         }
+    }
+}
+
+// 支持nnt.logic导出的模型
+
+namespace app.models {
+
+}
+
+namespace app.models.logic {
+
+    type Class<T> = { new(...args: any[]): T, [key: string]: any };
+    type AnyClass = Class<any>;
+    type clazz_type = AnyClass | string;
+    type IndexedObject = { [key: string]: any };
+
+    interface FieldOption {
+        // 唯一序号，后续类似pb的协议会使用id来做数据版本兼容
+        id: number;
+
+        // 默认值
+        val?: any;
+
+        // 可选
+        optional: boolean;
+
+        // 读取控制
+        input: boolean;
+        output: boolean;
+
+        // 类型标签
+        array?: boolean;
+        map?: boolean;
+        string?: boolean;
+        integer?: boolean;
+        double?: boolean;
+        boolean?: boolean;
+        enum?: boolean;
+        file?: boolean;
+        json?: boolean;
+
+        // 注释
+        comment?: string;
+
+        // 关联类型
+        keytype?: clazz_type;
+        valtype?: clazz_type;
+    }
+
+    const FP_KEY = "__fieldproto";
+
+    function CloneFps(fps: IndexedObject): IndexedObject {
+        let r: IndexedObject = {};
+        for (let k in fps) {
+            r[k] = LightClone(fps[k]);
+        }
+        return r;
+    }
+
+    function LightClone(tgt: any): any {
+        let r: IndexedObject = {};
+        for (let k in tgt) {
+            r[k] = tgt[k];
+        }
+        return r;
+    }
+
+    function DefineFp(target: any, key: string, fp: FieldOption) {
+        let fps: IndexedObject;
+        if (target.hasOwnProperty(FP_KEY)) {
+            fps = target[FP_KEY];
+        }
+        else {
+            if (FP_KEY in target) {
+                fps = CloneFps(target[FP_KEY]);
+                for (let k in fps) {
+                    let fp: FieldOption = fps[k];
+                    fp.id *= 100;
+                }
+            }
+            else {
+                fps = {};
+            }
+            Object.defineProperty(target, FP_KEY, {
+                enumerable: false,
+                get: () => {
+                    return fps;
+                }
+            });
+        }
+        fps[key] = fp;
+        Object.defineProperty(target, key, {
+            value: fp.val,
+            writable: true
+        });
+        // 生成get/set方法，便于客户端连写
+        let proto = target.constructor.prototype;
+        let nm = nn.StringT.UpcaseFirst(key);
+        proto["get" + nm] = function () {
+            return this[key];
+        };
+        proto["set" + nm] = function (val: any) {
+            this[key] = val;
+            return this;
+        };
+    }
+
+    // 从base中copy
+    const string_t = "string";
+    const integer_t = "integer";
+    const double_t = "double";
+    const boolean_t = "boolean";
+
+    function toBoolean(v: any): boolean {
+        if (v == "true")
+            return true;
+        else if (v == "false")
+            return false;
+        return !!v;
+    }
+
+    // 填数据
+    function Decode(mdl: any, params: any) {
+        let fps = mdl[FP_KEY];
+        if (!fps)
+            return;
+        for (let key in params) {
+            let fp: FieldOption = fps[key];
+            if (fp == null) // 注意这边和core/proto有些不同，不去判断input的类型
+                continue;
+            let val = params[key];
+            if (fp.valtype) {
+                if (fp.array) {
+                    let arr = new Array();
+                    if (val) {
+                        if (typeof(fp.valtype) == "string") {
+                            if (fp.valtype == string_t) {
+                                val.forEach((e: any) => {
+                                    arr.push(e ? e.toString() : null);
+                                });
+                            }
+                            else if (fp.valtype == integer_t) {
+                                val.forEach((e: any) => {
+                                    arr.push(e ? nn.toInt(e) : 0);
+                                });
+                            }
+                            else if (fp.valtype == double_t) {
+                                val.forEach((e: any) => {
+                                    arr.push(e ? nn.toFloat(e) : 0);
+                                });
+                            }
+                            else if (fp.valtype == boolean_t)
+                                val.forEach((e: any) => {
+                                    arr.push(!!e);
+                                });
+                        }
+                        else {
+                            let clz: any = fp.valtype;
+                            val.forEach((e: any) => {
+                                if (e == null) {
+                                    arr.push(null);
+                                }
+                                else {
+                                    let t = new clz();
+                                    Decode(t, e);
+                                    arr.push(t);
+                                }
+                            });
+                        }
+                    }
+                    mdl[key] = arr;
+                }
+                else if (fp.map) {
+                    let keyconv = (v: any) => {
+                        return v
+                    };
+                    if (fp.keytype == integer_t)
+                        keyconv = nn.toInt;
+                    else if (fp.keytype == double_t)
+                        keyconv = nn.toFloat;
+                    let map = new Map();
+                    if (val) {
+                        if (typeof(fp.valtype) == "string") {
+                            if (fp.valtype == string_t) {
+                                for (let ek in val) {
+                                    let ev = val[ek];
+                                    map.set(keyconv(ek), ev ? ev.toString() : null);
+                                }
+                            }
+                            else if (fp.valtype == integer_t) {
+                                for (let ek in val) {
+                                    let ev = val[ek];
+                                    map.set(keyconv(ek), ev ? nn.toInt(ev) : 0);
+                                }
+                            }
+                            else if (fp.valtype == double_t) {
+                                for (let ek in val) {
+                                    let ev = val[ek];
+                                    map.set(keyconv(ek), ev ? nn.toFloat(ev) : 0);
+                                }
+                            }
+                            else if (fp.valtype == boolean_t)
+                                for (let ek in val) {
+                                    let ev = val[ek];
+                                    map.set(keyconv(ek), !!ev);
+                                }
+                        }
+                        else {
+                            let clz: any = fp.valtype;
+                            for (let ek in val) {
+                                let ev = val[ek];
+                                if (ev == null) {
+                                    map.set(keyconv(ek), null);
+                                }
+                                else {
+                                    let t = new clz();
+                                    Decode(t, ev);
+                                    map.set(keyconv(ek), t);
+                                }
+                            }
+                        }
+                    }
+                    mdl[key] = map;
+                }
+                else if (fp.enum) {
+                    mdl[key] = val ? parseInt(val) : 0;
+                }
+                else if (fp.valtype == Object) {
+                    mdl[key] = val;
+                }
+                else if (val) {
+                    let clz: any = fp.valtype;
+                    let t = new clz();
+                    Decode(t, val);
+                    mdl[key] = t;
+                }
+            }
+            else {
+                if (fp.string)
+                    mdl[key] = val ? val.toString() : null;
+                else if (fp.integer)
+                    mdl[key] = val ? nn.toInt(val) : 0;
+                else if (fp.double)
+                    mdl[key] = val ? nn.toFloat(val) : 0;
+                else if (fp.boolean)
+                    mdl[key] = toBoolean(val);
+                else if (fp.json)
+                    mdl[key] = val;
+                else if (fp.file)
+                    mdl[key] = val;
+            }
+        }
+        // 处理内置参数
+        if ("_mid" in params)
+            mdl["_mid"] = params["_mid"];
+    }
+
+    // 把所有input的数据拿出来
+    function Encode(mdl: any): any {
+        let fps = mdl[FP_KEY];
+        if (fps == null)
+            return null;
+        let r: IndexedObject = {};
+        for (let key in fps) {
+            let fp: FieldOption = fps[key];
+            if (!fp.input || !mdl.hasOwnProperty(key))
+                continue;
+            let v = mdl[key];
+            if (v == null)
+                continue;
+            // 如果是对象，则需要在encode一次
+            if (fp.valtype && !fp.enum && typeof fp.valtype != "string")
+                r[key] = JSON.stringify(Encode(v));
+            else
+                r[key] = v;
+        }
+        return r;
+    }
+
+    // 收集model的输出
+    function Output(mdl: any): any {
+        if (!mdl)
+            return {};
+        let fps = mdl[FP_KEY];
+        let r: IndexedObject = {};
+        for (let fk in fps) {
+            let fp: FieldOption = fps[fk];
+            if (!fp.output)
+                continue;
+            let val = mdl[fk];
+            if (fp.valtype) {
+                if (fp.array) {
+                    // 通用类型，则直接可以输出
+                    if (typeof(fp.valtype) == "string") {
+                        r[fk] = val;
+                    }
+                    else {
+                        // 特殊类型，需要迭代进去
+                        let arr = new Array();
+                        val && val.forEach((e: any) => {
+                            arr.push(Output(e));
+                        });
+                        r[fk] = arr;
+                    }
+                }
+                else if (fp.map) {
+                    let m: IndexedObject = {};
+                    if (val) {
+                        if (typeof(fp.valtype) == "string") {
+                            val.forEach((v: any, k: any) => {
+                                m[k] = v;
+                            });
+                        }
+                        else {
+                            val.forEach((v: any, k: any) => {
+                                m[k] = Output(v);
+                            });
+                        }
+                    }
+                    r[fk] = m;
+                }
+                else if (fp.valtype == Object) {
+                    r[fk] = val;
+                }
+                else {
+                    r[fk] = Output(val);
+                }
+            }
+            else {
+                r[fk] = val;
+            }
+        }
+        return r;
+    }
+
+    export abstract class Base extends nn.Model {
+
+        // --------------从core.proto中移植过来的
+        static string_t = "string";
+        static integer_t = "integer";
+        static double_t = "double";
+        static boolean_t = "boolean";
+
+        // 可选的参数
+        static optional = "optional";
+
+        // 必须的参数，不提供则忽略
+        static required = "required";
+
+        // 输入输出
+        static input = "input";
+        static output = "output";
+
+        static string(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                val: "",
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                string: true,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        static boolean(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                val: false,
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                boolean: true,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        static integer(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                val: 0,
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                integer: true,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        static double(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                val: 0.,
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                double: true,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        // 定义数组
+        static array(id: number, clz: clazz_type, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                array: true,
+                valtype: clz,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        // 定义映射表
+        static map(id: number, keytyp: clazz_type, valtyp: clazz_type, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                map: true,
+                keytype: keytyp,
+                valtype: valtyp,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        // json对象
+        static json(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                json: true,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        // 使用其他类型
+        static type(id: number, clz: clazz_type, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                valtype: clz,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        // 枚举
+        static enumerate(id: number, clz: any, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                valtype: clz,
+                enum: true,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        // 文件类型
+        static file(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                file: true,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        fields(): KvObject<string, string> {
+            return Encode(this);
+        }
+
+        unserialize(respn: any): boolean {
+            Decode(this, respn.data);
+            return true;
+        }
+
+        responseCode(): number {
+            return this.response.code;
+        }
+
+        responseMessage(): string {
+            return this.response.data;
+        }
+    }
+}
+
+namespace app.api {
+
+    // 构造一个请求对象
+    export function NewRequest<T extends models.logic.Base>(req: any): T {
+        let clz: any = req[1];
+        let r = new clz();
+        r.action = req[0];
+        return r;
     }
 }
