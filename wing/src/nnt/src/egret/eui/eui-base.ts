@@ -4,6 +4,7 @@ var eeui = eui;
 // 模块为毛这样命名而不是命名为 nn.eui 是因为2b的wing不能识别nn.eui.这种多级的并且也不识别nneui这种
 module eui {
 
+    import Round = app.manager.Round;
     export type StackPageType = nn.InstanceType<egret.DisplayObject>;
     export type UiType = egret.DisplayObject;
 
@@ -471,6 +472,18 @@ module eui {
                 return;
             this._anchorPointY = v;
             this.invalidateDisplayList();
+        }
+
+        public get anchorPoint():nn.Point {
+            return new nn.Point(this._anchorPointX, this._anchorPointY);
+        }
+
+        public set anchorPoint(pt:nn.Point) {
+            if (this._anchorPointX == pt.x && this._anchorPointY == pt.y)
+                return;
+            this._anchorPointX = pt.x;
+            this._anchorPointY = pt.y;
+            this.invalidateDisplayList();                
         }
         
         // 重载以支持各种需要依赖实际尺寸的功能

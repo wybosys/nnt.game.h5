@@ -343,7 +343,7 @@ module nn {
 
         /** 是否使用webgl */
         static UseWebGl():boolean {
-            return false;
+            return true;
         }
 
         /** 应用的主方向 */

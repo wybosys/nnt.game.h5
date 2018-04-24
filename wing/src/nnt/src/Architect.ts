@@ -49,13 +49,13 @@ module nn {
 
         onLoaded() {
             this._managers.forEach((e:Manager)=>{
-                e.onLoaded();
+                e.onLoaded && e.onLoaded();
             });
         }
 
         onDataLoaded() {
             this._managers.forEach((e:Manager)=>{
-                e.onDataLoaded();
+                e.onDataLoaded && e.onDataLoaded();
             });
         }
         

@@ -183,6 +183,20 @@ module eui {
             this.mc().clipSource = cfg;
         }
 
+        get fps():number {
+            return this.mc().fps;
+        }
+        set fps(v:number) {
+            this.mc().fps = v;
+        }
+
+        get speed():number {
+            return this.mc().speed;
+        }
+        set speed(v:number) {
+            this.mc().speed = v;
+        }
+
         protected updateDisplayList(unscaledWidth:number, unscaledHeight:number) {
             super.updateDisplayList(unscaledWidth, unscaledHeight);
             // 设置mc和当前的容器大小一致

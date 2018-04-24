@@ -74,6 +74,19 @@ module nn {
             this._mc.frameRate = fps;
         }
 
+        // 播放速度
+        private _speed:number = 1;
+        get speed():number {
+            return this._speed;
+        }
+        set speed(v:number) {
+            if (this._fps) {
+                this._mc.frameRate = this._fps * v;
+            } else {
+                this._mc.frameRate = this._mc.originFrameRate * v;
+            }
+        }
+
         private _mc = new ExtMovieClip();
 
         private _cs:ClipSource = null;
@@ -392,7 +405,7 @@ module nn {
 
         protected instanceFromFactory(factory:_ClipFactory, name:string, newdata:boolean):egret.MovieClipData
         {
-            let r = factory.factory.generateMovieClipData(name);
+            let r = factory.factory.generateMovieClipData(name || ""); // 传null则修正为""代表第一个动作
             if (r == null)
             {
                 warn("生成序列帧 " + name + " 失败");

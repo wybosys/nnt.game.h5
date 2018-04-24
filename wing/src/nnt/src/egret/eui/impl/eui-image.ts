@@ -170,7 +170,8 @@ module eui {
         }
         public set format(fmt:string) {
             this._format = fmt;
-        }
+            this.value = this._value;
+        }        
 
         bestFrame(inrc?:nn.Rect):nn.Rect {
             let tex = this._getTexture();
@@ -242,6 +243,15 @@ module eui {
                 this._offset_vec();
             else
                 this._offset_hov();
+        }
+
+        /** 直接设置位置 */
+        moveto(v: number) {
+            this._curoffset = v;
+            if (this.vertical)
+                this._offset_vec();
+            else
+                this._offset_hov();            
         }
 
         protected _offset_hov() {

@@ -1469,7 +1469,7 @@ module nn {
         static FromCode(c:number[]):string {
             return String.fromCharCode.apply(null, c);
         }
-
+        
         // 小写化
         static Lowercase(str: string, def = ""): string {
             return str ? str.toLowerCase() : def;
@@ -1489,6 +1489,54 @@ module nn {
     /** 提供了操作 array 的工具函数 */
     export class ArrayT
     {
+        /** 最大值 */
+        static Max<T>(arr:T[]):T {
+            let t = arr[0];
+            for (let i = 1, l = arr.length; i < l; ++i) {
+                let v = arr[i];
+                if (t < v)
+                    t = v;
+            }
+            return t;
+        }
+
+        static QueryMax<T>(arr:T[], func?:(e:T)=>any):T {
+            let t = func ? func(arr[0]) : arr[0];
+            let o = arr[0];
+            for (let i = 1, l = arr.length; i < l; ++i) {
+                let v = func ? func(arr[i]) : arr[i];
+                if (t < v) {
+                    t = v;
+                    o = arr[i];
+                }
+            }
+            return o;
+        }
+
+        /** 最小值 */
+        static Min<T>(arr:T[]):T {
+            let t = arr[0];
+            for (let i = 1, l = arr.length; i < l; ++i) {
+                let v = arr[i];
+                if (t > v)
+                    t = v;
+            }
+            return t;
+        }
+
+        static QueryMin<T>(arr:T[], func?:(e:T)=>any):T {
+            let t = func ? func(arr[0]) : arr[0];
+            let o = arr[0];
+            for (let i = 1, l = arr.length; i < l; ++i) {
+                let v = func ? func(arr[i]) : arr[i];
+                if (t > v) {
+                    t = v;
+                    o = arr[i];
+                }
+            }
+            return o;
+        }        
+
         /** 初始化数量 */
         static Allocate<T>(count:number, def?:any):T[] {
             let isfun = typeof(def) == 'function';
