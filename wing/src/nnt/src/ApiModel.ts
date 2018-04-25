@@ -426,6 +426,7 @@ namespace app.models.logic {
         // 类型标签
         array?: boolean;
         map?: boolean;
+        multimap?: boolean;
         string?: boolean;
         integer?: boolean;
         double?: boolean;
@@ -617,6 +618,55 @@ namespace app.models.logic {
                     }
                     mdl[key] = map;
                 }
+                 else if (fp.multimap) {
+                    let keyconv = (v: any) => {
+                        return v
+                    };
+                    if (fp.keytype == integer_t)
+                        keyconv = nn.toInt;
+                    else if (fp.keytype == double_t)
+                        keyconv = nn.toFloat;
+                    let mmap = new Multimap();
+                    if (val) {
+                        if (typeof(fp.valtype) == "string") {
+                            if (fp.valtype == string_t) {
+                                for (let ek in val) {
+                                    let ev = val[ek];
+                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.asString(e)));
+                                }
+                            }
+                            else if (fp.valtype == integer_t) {
+                                for (let ek in val) {
+                                    let ev = val[ek];
+                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toInt(e)));                                    
+                                }
+                            }
+                            else if (fp.valtype == double_t) {
+                                for (let ek in val) {
+                                    let ev = val[ek];                                    
+                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toFloat(e)));
+                                }
+                            }
+                            else if (fp.valtype == boolean_t)
+                                for (let ek in val) {
+                                    let ev = val[ek];
+                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => !!e));
+                                }
+                        }
+                        else {
+                            let clz: any = fp.valtype;
+                            for (let ek in val) {
+                                let ev = val[ek];
+                                mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => {
+                                    let t = new clz();
+                                    Decode(t, e);
+                                    return t;
+                                }));
+                            }
+                        }
+                    }
+                    mdl[key] = mmap;
+                }
                 else if (fp.enum) {
                     mdl[key] = val ? parseInt(val) : 0;
                 }
@@ -709,6 +759,22 @@ namespace app.models.logic {
                         else {
                             val.forEach((v: any, k: any) => {
                                 m[k] = Output(v);
+                            });
+                        }
+                    }
+                    r[fk] = m;
+                }
+                else if (fp.multimap) {
+                    let m: IndexedObject = {};
+                    if (val) {
+                        if (typeof(fp.valtype) == "string") {
+                            val.forEach((v: any[], k: any) => {
+                                m[k] = v;
+                            });
+                        }
+                        else {
+                            val.forEach((v: any[], k: any) => {
+                                m[k] = nn.ArrayT.Convert(v, e => Output(e));
                             });
                         }
                     }
@@ -830,6 +896,22 @@ namespace app.models.logic {
                 output: opts.indexOf(Base.output) != -1,
                 optional: opts.indexOf(Base.optional) != -1,
                 map: true,
+                keytype: keytyp,
+                valtype: valtyp,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        static multimap(id: number, keytyp: clazz_type, valtyp: clazz_type, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                multimap: true,
                 keytype: keytyp,
                 valtype: valtyp,
                 comment: comment
