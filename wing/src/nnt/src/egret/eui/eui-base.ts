@@ -3,8 +3,7 @@ var eeui = eui;
 
 // 模块为毛这样命名而不是命名为 nn.eui 是因为2b的wing不能识别nn.eui.这种多级的并且也不识别nneui这种
 module eui {
-
-    import Round = app.manager.Round;
+    
     export type StackPageType = nn.InstanceType<egret.DisplayObject>;
     export type UiType = egret.DisplayObject;
 

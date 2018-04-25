@@ -1,4 +1,4 @@
-module Js {
+namespace Js {
 
     export var siteUrl: string = location.href;
 
@@ -640,7 +640,7 @@ module Js {
 
 }
 
-export class Multimap<K, V> {
+class Multimap<K, V> {
 
     get(k: K): Array<V> {
         return this._store.get(k);
