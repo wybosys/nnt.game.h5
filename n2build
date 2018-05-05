@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys, getopt, os, os.path, shelve, configparser, hashlib, string, codecs, shutil, datetime, re, zipfile, binascii, time, zlib, signal, subprocess
-import socket, threading, base64, json, struct, multiprocessing
+import socket, threading, base64, json, struct, multiprocessing, uuid, functools
 from xml.dom import minidom
 
 # 判断必备模块
@@ -57,7 +57,6 @@ def usage():
     clean \t 清空
     config \t 使用引导来配置当前项目
     dpack \t diff-package 增量打包项目版本    
-    depto <module> \t 使用ResDepto来修改子模块的资源配置文件
     service <list|stop> \t 控制n2build的服务
     genres \t 生成res.json文件
     pubres \t 发布resource到publish中
@@ -111,15 +110,9 @@ class GlobalLock:
         pass #会干扰n2build的挂进程svc服务，造成重复启动
 
 # 使用md5散列文件
-def hashfile(file):    
-    # with open(file, 'rb') as fh:
-    #     m = hashlib.md5()
-    #     while True:
-    #         data = fh.read(8192)
-    #         if not data:
-    #             break
-    #         m.update(data)
-    #         return m.hexdigest()
+def hashfile(file):
+    if not os.path.isfile(file):
+        return "not found"
     res = subprocess.getoutput('md5sum ' + file).split(" ")
     return res[0]
 
@@ -179,25 +172,28 @@ def checkconfig():
     if not os.path.isfile('.n2.cfg'):
         makeconfig(False)
     if 'uuid' not in cfgdb:
-        import uuid
         cfgdb['uuid'] = str(uuid.uuid4())
     # 比对是否n2build升版
     if 'bver' not in cfgdb or cfgdb['bver'] != version:
+        print("n2b版本变更")
         return True    
     # 比对配置文件是否修改过
     cfghash = hashfile('.n2.cfg')
     if 'cfghash' not in cfgdb or cfgdb['cfghash'] != cfghash:
         cfgdb['cfghash'] = cfghash
+        print("项目配置变更")
         return True
     # 比对n2build是否修改过
     n2bhash = hashfile('n2build')
     if 'n2bhash' not in cfgdb or cfgdb['n2bhash'] != n2bhash:
         cfgdb['n2bhash'] = n2bhash
+        print("n2b变更")
         return True
     # 比对egretProp是否修改过
-    egprj = hashfile('egretProperties.json')
-    if 'egprjhash' not in cfgdb or cfgdb['egprjhash'] != egprj:
-        cfgdb['egprjhash'] = egprj
+    props = hashfile('egretProperties.json')
+    if 'propshash' not in cfgdb or cfgdb['propshash'] != props:
+        cfgdb['propshash'] = props
+        print("egret配置变更")
         return True
     return False
 
@@ -301,7 +297,11 @@ def prindex():
         'BACKGROUNDCOLOR' : bkgcolor,
         'APPSTYLE': appinfo['APPSTYLE'],
         'APPLAUNCH': appinfo['APPLAUNCH'],
-        'APPSCRIPT': appinfo['APPSCRIPT']
+        'APPSCRIPT': appinfo['APPSCRIPT'],
+        'FILESLIST': '\n\t'.join([
+            '<script src="engine.min.js?v=' + cfg.get('app', 'version') + '"></script>',
+            '<script src="main.min.js?v=' + cfg.get('app', 'version') + '"></script>'
+        ])
     })
     open('publish/index.html', 'w').write(index)
 
@@ -315,11 +315,12 @@ def combinefiles(files, dest):
     open(dest, 'w').write('\n'.join(cnt))
 
 def prebuildsrc():
+    print("处理附加数据")
     # 处理 tsd 文件
     if not os.path.exists('src/app/~tsc'):
         os.mkdir('src/app/~tsc')
     # 查找所有的tsd, 保存hash到对照表
-    tscdb = shelve.open('src/app/~tsc/.db')
+    tscdb = shelve.open('src/app/~tsc/.prebuild')
     # 处理所有的tsc文件
     files = listfiles('src/app/data', whitelist=[re.compile(r'\.tsc$')])
     for file in files:
@@ -359,8 +360,7 @@ def prebuild_xls(file, key):
         prebuild_xls_sheet(d, e, key + '_' + e.lower())
 
 def prebuild_xls_sheet(xls, name, key):
-    sh = xls.get_sheet_by_name(name)
-    data = {}
+    sh = xls.get_sheet_by_name(name)    
     # 第一行是说明，第二行是id会变成property，第三行是数据定义行，其他行是数据
     # 查找id位于的colid
     colids = []
@@ -441,21 +441,14 @@ def output_xlsdata_tots(name, ids, datas, props, key):
     shutil.move('src/app/~tsc/doing.js', 'src/app/~tsc/' + key + '.js')
     os.unlink('src/app/~tsc/doing.ts')
 
-def builddebug(rebuild):
-    if rebuild:
-        print("重新编译debug版本")
-    else:
-        print("编译debug版本")
+def builddebug():
+    print("编译debug版本")
     # 预处理工程代码
     prebuildsrc()
     # 去除publish引起的egret混乱
     shutil.rmtree('publish', True)
     # 判断使用何种编译
-    if rebuild:
-        egret_cmd('clean')
-        print(egret_cmd('build -e'))
-    else:
-        print(egret_cmd('build'))
+    print(egret_cmd('build'))
 
 def copydebugtopublish():
     print("拷贝debug文件到publish")
@@ -521,7 +514,7 @@ def lines_insert(lines, find, inserts):
     for line in lines:
         idx += 1        
         if rex.search(line):
-            break;
+            break
     if idx == -1:
         return lines
     l = lines[:idx+1]
@@ -536,34 +529,15 @@ def safeInt(str, d = 0):
         pass
     return r
 
-# 下载 closure-compiler
-def downloadccompiler():
-    if not os.path.isfile(".n2~/jscompiler"):
-        os.system("wget http://7xlcco.com1.z0.glb.clouddn.com/closure-compiler.jar -O " + ".n2~/jscompiler")
-
-# 下载 euibooster
-def downloadeuib():
-    if not os.path.isfile(".n2~/euibooster"):
-        subprocess.getoutput("wget https://raw.githubusercontent.com/wybosys/n2egret/master/tools/euibooster.js -O " + ".n2~/euibooster.js")
-        subprocess.getoutput("wget https://raw.githubusercontent.com/wybosys/n2egret/master/tools/euibooster -O " + ".n2~/euibooster")
-        subprocess.getoutput("chmod +x .n2~/euibooster")
-
 PATTERN_HTML_SCRIPT_SRC = re.compile('src="(.+)"')
+PATTERN_IMAGESOURCE = re.compile(r'imageSource = ([a-zA-Z0-9:/_.\- ]+);')
         
 def buildrelease():
     print("编译release版本")
-    # 判断是否使用eui
-    if os.path.exists('resource/eui_skins'):
-        if len(subprocess.getoutput('which euibooster')) == 0:
-            print('请先使用 sudo npm install -g cli-eui-new 安装模块')
-            sys.exit(0)
-        else:
-            downloadeuib()
     # 预处理代码
-    egret_makerequire()
     prebuildsrc()
     # 重新编译工程
-    egret_cmd('build -e')
+    egret_cmd('build')    
     # 读取配置
     cfg = configparser.ConfigParser()
     cfg.read('.n2.cfg')
@@ -571,6 +545,7 @@ def buildrelease():
     if os.path.isdir("bin-release"):
         shutil.rmtree("bin-release")
     print('publish版本' + egret_cmd('publish --compressjson'))
+    # 获取工作目录
     dir = str(max(map(safeInt, os.listdir('bin-release/web'))))
     # 自动合并release下面的图片
     if cfg.get('dev', 'automerge') == 'y':
@@ -579,38 +554,33 @@ def buildrelease():
         # 因为自动合并图片，需要刷新下bin-release下面的res.json
         genresdbdirectory('bin-release/web/' + dir)
     # 后处理
-    print("拷贝release版本到publish")
+    print("复制release版本资源到publish")
     shutil.move('bin-release/web/' + dir + '/resource', 'publish/resource')
-    shutil.copyfile('bin-release/web/' + dir + '/main.min.js', 'publish/main.min.js')
-    # 压缩eui
-    if os.path.exists('resource/eui_skins'):
-        print('编译 eui-skins')
-        shutil.copyfile('publish/resource/default.thm.json', 'publish/resource/default.thm')
-        os.system('.n2~/euibooster ' + os.getcwd() + ' publish')
-    files = []
-    # 提取标准打包出来的数据
-    html = open('bin-release/web/' + dir + '/index.html').readlines()
-    libfiles = lines_between(html, '<!--modules_files_start-->', '<!--modules_files_end-->')
-    # 打包基础的库文件
-    libscnt = []
-    for file in libfiles:
-        file = PATTERN_HTML_SCRIPT_SRC.findall(file)[0]
-        libscnt.append(readfile(file))
-    open("publish/engine.min.js", "w").write('\n'.join(libscnt))
-    files.append('<script src="engine.min.js?v=' + cfg.get('app', 'version') + '"></script>\n')
-    # 打包进自定义生成的数据文件
-    if os.path.isdir("src/app/~tsc"):
-        downloadccompiler()
-        # 保存一下原始的
-        shutil.move('publish/resource/default.data.js', '.n2~/default.data.js')
-        # 使用cc来压缩js
-        os.system("java -jar .n2~/jscompiler --charset utf8 --language_out ECMASCRIPT5 --js .n2~/default.data.js --js_output_file publish/resource/default.data.js")
-    # 需要给js上加上版本标记
-    files.append('<script src="main.min.js?v=' + cfg.get('app', 'version') + '"></script>\n')
-    html = string.Template(''.join(open('publish/index.html').readlines()))
-    open('publish/index.html', 'w').write(html.safe_substitute({
-        'FILESLIST': ''.join(files)
-    }))
+    print("合并release版本的代码文件")
+    mani = json.loads(readfile('bin-release/web/' + dir + '/manifest.json'))
+    libjs = []
+    for file in mani['initial']:
+        libjs.append(readfile('bin-release/web/' + dir + '/' + file))
+    open("publish/engine.min.js", "w").write('\n'.join(libjs))
+    gamejs = []    
+    for file in mani['game']:        
+        # 如果是data文件
+        if file.startswith('js/default.data_'):
+            shutil.copyfile('bin-release/web/' + dir + '/' + file, 'publish/resource/default.data.js')
+        elif file.startswith('js/default.thm_'):
+            # 修正编译皮肤编译错的属性
+            content = readfile('bin-release/web/' + dir + '/' + file)
+            content = PATTERN_IMAGESOURCE.sub('imageSource = "\g<1>";', content)
+            gamejs.append(content)
+        else:
+            gamejs.append(readfile('bin-release/web/' + dir + '/' + file))
+    open("publish/main.min.js", "w").write('\n'.join(gamejs))
+    # 清理数据
+    shutil.rmtree('publish/resource/eui_skins')
+    # 兼容老版本的theme打包机制
+    open('publish/resource/default.thm.json', 'w').write('{}')
+    # 拷配置
+    shutil.copy('app.json', 'publish/')
 
 # 数据库
 def db_get(file, val={}):
@@ -760,6 +730,7 @@ def svc_subresmaker():
     suc = watchfilesystem("resmaker", "resource/assets", hdl_resmaker())
     # 每次第一次打开，自动重建一下索引
     if suc:
+        print("启动resmaker服务")
         resmaker_rebuild()
         
 class hdl_resmaker(watchdog.events.FileSystemEventHandler):
@@ -819,80 +790,12 @@ def resmaker_buildmod(dir):
     fp.write(json.dumps(dict, indent=4))
     fp.close()
 
-def egret_compress(c):
-    r = zlib.compress(c)
-    a = list(r)
-    a[1] = chr(0xda)    
-    return ''.join(a)
-
-def egret_decompress(c):
-    return zlib.decompress(c)
-
-def egret_compressfile(file, to):
-    cnt = ''.join(open(file).readlines())
-    open(to, 'w').write(egret_compress(cnt))
-
-def egret_decompressfile(file, to):
-    cnt = ''.join(open(file).readlines())
-    open(to, 'w').write(egret_decompress(cnt))
-
-def resmaker_rundepto(submod):
-    # 根据module.res.json生成resource.json文件
-    dir = "resource/assets/" + submod + "/"
-    modj = dir + "module.res.json"
-    deptoj = dir + "~module.depto.json"
-    deptodat = HOMEDIR + "Library/Application Support/ResDepot/Local Store/data.dat"
-    # 转换module的结构
-    obj = json.loads(''.join(open(modj, 'r').readlines()))
-    pks = []
-    for k in obj:
-        if isImage(k) == False:
-            continue
-        # 只处理图片
-        d = {
-            "name":k,
-            "type":"image",
-            "url":obj[k]['p']
-        }
-        if 'g' in obj[k]:
-            d["scale9grid"] = obj[k]['g']
-        pks.append(d)
-    pks = {"groups":[], "resources":pks}
-    open(deptoj, 'w').write(json.dumps(pks))
-    # 生成
-    tpl = """\n\x0b\x01\x13rootPaths\t\x03\x01\n\x01\x11rootPath\x06Y${AST}\x07url\x06\x81\x0b${CNT}\x01\x19opendConfigs\t\x03\x01\x06\x08\x19recentlyOpen\t\x03\x01\x06\x08\x1bcurrentConfig\x06\x08\x0fpreview\x03\x01"""
-    # 先保护原始的
-    if os.path.exists(deptodat):
-        shutil.move(deptodat, deptodat + '.bak')
-    # 生成新的
-    cnt = string.Template(tpl).substitute({
-        'CNT':os.getcwd() + "/" + deptoj,
-        'AST':os.getcwd() + "/" + "resource/assets/"
-    })
-    open(deptodat, 'wb').write(egret_compress(cnt))
-    # 启动resdepto
-    s, ot = subprocess.getstatusoutput("/Applications/ResDepot.app/Contents/MacOS/ResDepot")
-    # 读取临时的res.json提取9点
-    resobj = json.loads(''.join(open(deptoj, 'r').readlines()))
-    ress = resobj['resources']
-    for v in ress:
-        nm = v['name']
-        if 'scale9grid' in v:
-            obj[nm]['g'] = v['scale9grid']
-        elif 'g' in obj[nm]:
-            obj[nm].pop('g')
-    # 写回配置
-    open(modj, 'w').write(json.dumps(obj, indent=4))
-    os.unlink(deptoj)
-    # 恢复原来的
-    if os.path.exists(deptodat + '.bak'):
-        shutil.move(deptodat + '.bak', deptodat)
-
 # ---------------------------------------- 生成资源数据表 ----------------------
 def svc_genresdb():
     suc = watchfilesystem("genresdb", "resource/assets", hdl_genresdb())
     # 如过监听成功，则为第一次打开，保险期间自动刷一次res
     if suc:
+        print("启动resdb服务")
         genresdb()
 
 class hdl_genresdb(watchdog.events.FileSystemEventHandler):
@@ -1039,7 +942,8 @@ def skinimpl_regen():
     ]
     for skin in skins:
        cls = skinimpl_genfile(skin)
-       thms.append('"' + cls + '":"' + skin + '"')
+       if cls:
+           thms.append('"' + cls + '":"' + skin + '"')
     # 重新生成default.thm.json
     open('resource/default.thm.json', 'w').write(string.Template("""{
     "autoGenerateExmlsList": true,
@@ -1051,7 +955,10 @@ def skinimpl_regen():
 
 def skinimpl_genfile(file):
     # 解析xml
-    xml = minidom.parse(file)
+    try:
+        xml = minidom.parse(file)
+    except:
+        return None
     root = xml.documentElement
     # 查找所有的id
     nodes = dom_getElementsByAttributeName(root, 'id')
@@ -1154,6 +1061,7 @@ def svc_genskinimpls():
         return
     suc = watchfilesystem("genskinimpls", "resource/eui_skins/app", hdl_genskinimpls())
     if suc:
+        print("启动skinimpls服务")
         skinimpl_regen()
 
 class hdl_genskinimpls(watchdog.events.FileSystemEventHandler):
@@ -1195,6 +1103,7 @@ def debugindex():
     
 # ---------------------------------------- Main --------------------------------
 def main():
+    checkconfig()
     # 处理主命令
     try:
         opts, args = getopt.getopt(sys.argv[1:], "-t", [''])
@@ -1244,13 +1153,9 @@ def main():
         dpack()
         return
     if 'clean' in args:
-        clean();
-        return
-    if 'depto' in args:
-        resmaker_rundepto(args[args.index('depto') + 1])
+        clean()
         return
     # 是否需要重新生成index
-    RepDindex = checkconfig()
     if 'publish' in args:
         # 去除publish引起的egret自动判断文件混乱
         shutil.rmtree('publish', True)
@@ -1269,7 +1174,7 @@ def main():
         # 去除publish引起的egret自动判断文件混乱
         shutil.rmtree('publish', True)
         if debug:
-            builddebug(True)
+            builddebug()
             pdindex()
             copydebugtopublish()
             distresources()
@@ -1286,9 +1191,8 @@ def main():
                 os.symlink('./resource', resdir)
         explorer('publish')
     else:
-        builddebug(RepDindex)
-        if RepDindex:
-            pdindex()
+        builddebug()
+        pdindex()
     cfgdb['bver'] = version
 
 ## 模版
@@ -1525,8 +1429,8 @@ def processdirs(dir, proc, blacklist = None, depth = -1, curdir = None):
 
 # 清空工程
 def clean():
-    if os.path.isfile('.n2~/build.db'):
-        os.unlink('.n2~/build.db')
+    if os.path.isfile('.n2~/build'):
+        os.unlink('.n2~/build')
     if os.path.isdir('libs'):
         shutil.rmtree('libs')
     if os.path.isdir('bin-debug'):
@@ -1590,13 +1494,16 @@ def dpack():
 
 # ------------------------------- 自动合并图片 ---------------------------------
 PATTERN_FILENAME_EXT = re.compile('(.+)\.(.+)')
+IMAGE_EXTS = ['jpeg', 'jpg', 'png']
             
 def automergeimages(dir, name):
     name = name.replace('/', '_').lower()
     from PIL import Image
     files = []
     for ef in os.listdir(dir):
-        files += PATTERN_FILENAME_EXT.findall(ef)
+        res = PATTERN_FILENAME_EXT.findall(ef)        
+        if len(res) == 2 and res[1] in IMAGE_EXTS:        
+            files += res
     ignores = []
     for ef in files:        
         ext = ef[1]
@@ -1605,7 +1512,7 @@ def automergeimages(dir, name):
         elif ext == 'json':
             ignores.append(ef)
         elif ext == 'jpg':
-            ignores.append(ef)
+            ignores.append(ef)        
     for ef in ignores:
         nm = ef[0]
         ext = ef[1]
@@ -1645,7 +1552,7 @@ def automergeimages(dir, name):
             'origin':{'offx':bbx[0], 'offy':bbx[1], 'w':size[0], 'h':size[1]},
             'img':img
         })
-    images = sorted(images, cmp=mergesort)
+    images = sorted(images, key=functools.cmp_to_key(mergesort))
     if len(images) == 0: #不处理空的组
         return
     workid = 0
@@ -1708,7 +1615,7 @@ def mergeImages(work, images, rc):
             
 # ------------------------------- 主脚本执行 -----------------------------------
 if __name__=="__main__":
-    cfgdb = shelve.open('.n2~/build.db')    
+    cfgdb = shelve.open('.n2~/build')    
     main()
     cfgdb.close()
     
