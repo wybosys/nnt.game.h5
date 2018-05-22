@@ -1,145 +1,35 @@
-module nn {    
+module nn {
 
-    export class SocketModel
-    extends SObject
-    {
-        constructor() {
-            super();
-        }
+    // connect解析返回数据时必须实现的接口
+    export interface ISocketResponse {
 
-        protected _initSignals() {
-            super._initSignals();
-            this._signals.register(SignalStart);
-            this._signals.register(SignalEnd);
-            this._signals.register(SignalSucceed);
-            this._signals.register(SignalFailed);
-            this._signals.register(SignalTimeout);
-        }
-
-        fields():KvObject<string, any> {
-            return this.params;
-        }
-
-        /** 请求的时间戳 */
-        ts:number;
-
-        /** 显示等待 */
-        showWaiting:boolean;
-
-        /** 配置文件 */
-        cfg:string;
-
-        /** 请求和返回的类名 */
-        name:string;
-        dname:string;
-
-        /** 命令的标记 */
-        static Command:any;
-
-        /** 参数 */
-        params = new KvObject<string, any>();
-
-        /** 反解析 */
-        protected unserialize(rsp:any):boolean {
-            if ((<any>this).data) {
-                // 反解析数据到data对象
-                (<any>this).data.unserialize(rsp);
-            }
-            return true;
-        }
-
-        // 开始拉数据
-        __mdl_start() {
-            if (this.showWaiting)
-                Hud.ShowProgress();            
-            this.signals.emit(SignalStart);            
-        }
-
-        // 获取数据成功
-        __mdl_completed(rsp:any) {
-            this.unserialize(rsp);
-            this.signals.emit(SignalSucceed);
-            this.__mdl_end();
-        }        
-
-        // 获取数据失败
-        __mdl_failed() {
-            this.signals.emit(SignalFailed);
-            this.__mdl_end();
-        }
-
-        // 处理结束
-        __mdl_end() {
-            this.signals.emit(SignalEnd);
-            
-            if (this.showWaiting)
-                Hud.HideProgress();
-
-            // 调用完成，析构对象
-            this.drop();
-        }
-    }
-
-    class ProtoBufHeader
-    {
-        cmd:number;
-        seqid:number;
-        code:number;
-
-        toString():string {
-            return 'header: ' + this.cmd + ' ' + this.seqid + ' ' + this.code;
-        }
-    }
-
-    class ProtoBufImpl
-    {
-        classForModel(cfg:string, name:string):any {
-            var key = cfg + ':/:' + name;
-            if (this._tpls[key])
-                return this._tpls[key];
-            var mdls = this._cfgs[cfg];
-            if (mdls == null) {
-                var proto = ResManager.getText(cfg + '_dsl', ResPriority.NORMAL, null, null);
-                if (proto == null) {
-                    warn('dsl ' + cfg + ' not found');
-                    return null;
-                }
-                /// mdls = dcodeIO.ProtoBuf.loadProto(proto);
-                this._cfgs[cfg] = mdls;
-            }
-            var cls = mdls.build(name);
-            if (cls == null)
-                warn('没有找到数据模型 ' + name);
-            this._tpls[key] = cls;
-            return cls;
-        }        
-        
-        private _tpls = new KvObject<string, any>();
-        private _cfgs = new KvObject<string, any>();
+        // model发送时标记自己的序号
+        _cmid: number;
     }
 
     export class WebSocketConnector
-    extends CSocketConnector
-    {
+        extends CSocketConnector {
         open() {
             if (this._hdl)
                 return;
-            
-            this._hdl = new WebSocket(this.host);
-            this._hdl.binaryType = "arraybuffer";
-            this._hdl.onopen = ()=>{
-                this.signals.emit(SignalOpen);
+
+            let hdl = new WebSocket(this.host);
+            hdl.binaryType = "arraybuffer";
+            hdl.onopen = e => {
+                this._hdl = hdl;
+                this.onOpen(e);
             };
-            this._hdl.onclose = ()=>{
+            hdl.onclose = e => {
                 this._hdl = null;
-                this.signals.emit(SignalClose);
+                this.onClose(e);
             };
-            this._hdl.onmessage = (e:any)=>{
-                this.signals.emit(SignalDataChanged, e.data);
+            hdl.onmessage = e => {
+                let data = this.parseData(e.data);
+                this.onMessage(data, e);
             };
-            this._hdl.onerror = (e:any)=>{
+            hdl.onerror = e => {
                 this._hdl = null;
-                this.signals.emit(SignalFailed);
+                this.onError(e);
             };
         }
 
@@ -150,36 +40,83 @@ module nn {
             this._hdl == null;
         }
 
-        isopened():boolean {
+        isopened(): boolean {
             return this._hdl != null;
         }
 
-        write(d:any) {
-            this._hdl.send(d);
+        write(d: any) {
+            let str = toJson(d);
+            this._hdl.send(str);
         }
 
-        protected _hdl:WebSocket;
+        watch(d: any, on: boolean) {
+            fatal("不支持监听操作");
+        }
+
+        protected parseData(data: ArrayBuffer): any {
+            let str = StringT.FromArrayBuffer(data);
+            return toJsonObject(str);
+        }
+
+        protected onOpen(e: Event) {
+            this.signals.emit(SignalOpen);
+        }
+
+        protected onClose(e: CloseEvent) {
+            this.signals.emit(SignalClose);
+        }
+
+        protected onMessage(data: any, e: MessageEvent) {
+            this.signals.emit(SignalDataChanged, data);
+        }
+
+        protected onError(e: Event) {
+            this.signals.emit(SignalFailed);
+        }
+
+        private _hdl: WebSocket;
+        private _session: ISocketSession;
+
+        get session(): ISocketSession {
+            return this._session;
+        }
     }
 
-    export interface ISocketSession extends ISObject {
-        connector:CSocketConnector;
-        watch(mdl:SocketModel,
-              cb?:(s?:Slot)=>void, cbctx?:any);
-        unwatch(mdl:SocketModel);
-        fetch(mdl:SocketModel,
-              cb?:(s?:Slot)=>void, cbctx?:any,
-              cbfail?:(s?:Slot)=>void, cbend?:()=>void);
-        host:string;
+    export interface ISocketSession
+        extends ISObject {
+        // 连接器
+        connector: CSocketConnector;
+
+        // 监听模型
+        watch(mdl: Model, cb?: (s?: Slot) => void, cbctx?: any);
+
+        // 取消监听模型
+        unwatch(mdl: Model);
+
+        // 获取模型数据
+        fetch(mdl: Model, cb?: (s?: Slot) => void, cbctx?: any, cbfail?: (s?: Slot) => void, cbend?: () => void);
+
+        // 服务器地址
+        host: string;
+
+        // sessionId
+        SID: string;
+
+        // 打开连接
         open();
     }
-    
-    class _SocketSession
-    extends SObject implements ISocketSession
-    {
-        constructor() {
+
+    /**
+     * WebSocket的服务，和Rest不同，ws不能根据model的url来切换连接，所以不同的url需要实例不同的session
+     */
+    export class SocketSession
+        extends SObject
+        implements ISocketSession {
+        constructor(host?: string) {
             super();
+            this.host = host;
         }
-        
+
         protected _initSignals() {
             super._initSignals();
             this._signals.register(SignalOpen);
@@ -187,141 +124,115 @@ module nn {
             this._signals.register(SignalTimeout);
         }
 
-        private _connector:CSocketConnector;
-        get connector():CSocketConnector {
+        private _connector: CSocketConnector;
+
+        get connector(): CSocketConnector {
             return this._connector;
         }
-        set connector(cnt:CSocketConnector) {
+
+        /**
+         * 不同的服务器对连接的要求是不一样的，所以需要实现对应的连接器，在open之前设置
+         */
+        set connector(cnt: CSocketConnector) {
             if (this._connector == cnt)
                 return;
-            if (this._connector)
-                drop(this._connector);
+            if (this._connector) {
+                (<any>this._connector)._session = null;
+            }
             this._connector = cnt;
             if (cnt) {
+                (<any>cnt)._session = this;
                 cnt.signals.connect(SignalOpen, this.__cnt_connected, this);
                 cnt.signals.connect(SignalClose, this.__cnt_disconnected, this);
-                cnt.signals.connect(SignalDataChanged, this.__cnt_byteavaliable, this);
+                cnt.signals.connect(SignalDataChanged, this.__cnt_gotmessage, this);
             }
         }
 
-        /** 监听服务器发来的一个对象
+        /**
+         * 可选的登录用户SID信息，会自动附加到请求数据中
          */
-        watch(mdl:SocketModel,
-              cb?:(s?:Slot)=>void, cbctx?:any)
-        {
-            if (cbctx)                
-                mdl.attach(cbctx);            
+        SID: string;
+
+        /**
+         * 在服务器上监听该对象
+         */
+        watch(mdl: Model,
+              cb?: (s?: Slot) => void, cbctx?: any) {
+            if (this._listenings.has(mdl.hashCode))
+                return;
+            mdl.session = null;
+
+            if (cbctx)
+                mdl.attach(cbctx);
             if (cb)
                 mdl.signals.connect(SignalSucceed, cb, cbctx);
 
-            var cmd = ObjectClass(mdl).Command;
-            var arr:CSet<SocketModel> = this._ntfMdls[cmd];
-            if (arr == null) {
-                arr = new CSet<SocketModel>();
-                this._ntfMdls[cmd] = arr;
-            }
-            arr.add(mdl);
+            this._listenings.set(mdl.hashCode, mdl);
+            if (this.connector && this.connector.isopened())
+                this.connector.watch(mdl, true);
         }
-        
-        unwatch(mdl:SocketModel) {
-            var cmd = ObjectClass(mdl).Command;
-            var arr = this._ntfMdls[cmd];
-            if (arr == null) {
-                warn('还没有监听该对象 ' + Classname(mdl));
+
+        // 正在监听的对象集，用来当服务器回数据时激发，或者重新建立监听时使用
+        private _listenings = new CMap<number, Model>();
+
+        unwatch(mdl: Model) {
+            if (!this._listenings.has(mdl.hashCode))
                 return;
-            }
-            
+
             // 释放
+            if (this.connector && this.connector.isopened())
+                this.connector.watch(mdl, false);
             mdl.drop();
-            
+
             // 从session中移除
-            nn.SetT.RemoveObject(arr, mdl);
+            this._listenings.delete(mdl.hashCode);
         }
+
+        // 正在等待类rest访问的模型，收到访问或超时后就会被移除
+        private _fetchings = new CMap<number, Model>();
 
         /** 获取一个数据
-            @param cb, 成功后的回调
-            @param cbfail, 失败后的回调
-            @param cbend, 结束的回调（不区分成功、失败）
-        */
-        fetch(mdl:SocketModel,
-              cb?:(s?:Slot)=>void, cbctx?:any,
-              cbfail?:(s?:Slot)=>void, cbend?:()=>void)
-        {
-            var cls = this._pb.classForModel(mdl.cfg, mdl.name);
-            if (cls == null)
+         @param cb, 成功后的回调
+         @param cbfail, 失败后的回调
+         @param cbend, 结束的回调（不区分成功、失败）
+         */
+        fetch(mdl: Model,
+              cb?: (s?: Slot) => void, cbctx?: any,
+              cbfail?: (s?: Slot) => void, cbend?: () => void) {
+            if (!this.connector || !this.connector.isopened()) {
+                if (cbfail)
+                    cbfail.call(cbctx);
+                if (cbend)
+                    cbend.call(cbctx);
                 return;
-
-            mdl.ts = DateTime.Now();
+            }
 
             // 为了防止正在调用 api 时，接受信号的对象析构，保护一下
-            if (cbctx)                
+            if (cbctx)
                 mdl.attach(cbctx);
-            
+
             if (cb)
                 mdl.signals.connect(SignalSucceed, cb, cbctx);
             if (cbfail)
                 mdl.signals.connect(SignalFailed, cbfail, cbctx);
             if (cbend)
                 mdl.signals.connect(SignalEnd, cbend, cbctx);
-            
+
+            mdl.session = this;
             mdl.__mdl_start();
-            
-            var m = new cls();
-            // 设置参数
-            nn.MapT.Foreach(mdl.fields(), (k:string, v:any):boolean=>{
-                m['set_' + k](v);
-                return true;
-            }, this);
-            
-            // 生成数据
-            var buf = new egret.ByteArray();
-            buf.endian = egret.Endian.BIG_ENDIAN;
-            var seqid = ++this._seqId;
-            this.writeHeader(buf, seqid, mdl);
-            buf.writeBytes(new egret.ByteArray(m.toArrayBuffer()));
-
-            // 发送出去
-            this._seqMdls[seqid] = mdl;
-            this.connector.write(buf.buffer);
-        }
-
-        // 当前发送的序号
-        private _seqId = 0;
-
-        // Req&Response模型对照表, seq => model
-        private _seqMdls = new KvObject<number, SocketModel>();
-
-        // Notify模型对照表, type => [model]
-        private _ntfMdls = new KvObject<number, CSet<SocketModel> >();
-
-        /*
-          定义为:
-          binary.BigEndian.PutUint16(data[0:2], uint16(this.CmdId))
-	      binary.BigEndian.PutUint32(data[2:6], uint32(this.TransId))
-	      binary.BigEndian.PutUint16(data[6:8], uint16(this.Code))
-         */
-        protected writeHeader(buf:egret.ByteArray, seqid:number, mdl:SocketModel) {
-            buf.writeShort(ObjectClass(mdl).Command);
-            buf.writeInt(seqid);
-            buf.writeShort(0);
-        }
-
-        protected readHeader(buf:egret.ByteArray):ProtoBufHeader {
-            if (buf.length < 8)
-                return null;
-            
-            var r = new ProtoBufHeader();
-            r.cmd = buf.readShort();
-            r.seqid = buf.readInt();
-            r.code = buf.readShort();
-            return r;
+            this.connector.write(mdl);
         }
 
         /** 服务器的地址 */
-        host:string;
+        host: string;
 
         /** 打开连接 */
         open() {
+            if (!this.connector) {
+                fatal("没有设置connector");
+                return;
+            }
+
             if (this.connector.isopened()) {
                 fatal('连接已经打开');
                 return;
@@ -331,9 +242,18 @@ module nn {
             this.connector.open();
         }
 
+        is_connected() {
+            return this.connector.isopened();
+        }
+
         private __cnt_connected() {
             noti('连接服务器 ' + this.host + ' 成功');
             this.signals.emit(SignalOpen);
+
+            // 重新建立监听
+            this._listenings.forEach(mdl => {
+                this.connector.watch(mdl, true);
+            });
         }
 
         private __cnt_disconnected() {
@@ -341,81 +261,135 @@ module nn {
             this.signals.emit(SignalClose);
         }
 
-        private __cnt_byteavaliable(s:Slot) {
-            var data = new egret.ByteArray(s.data);
-            var header = this.readHeader(data);
-            if (header == null) {
-                warn('收到了不能解析的头');
-                return;
-            }
-            // 读取协议数据段数据
-            var buf = new egret.ByteArray();
-            data.readBytes(buf);
+        private __cnt_gotmessage(s: Slot) {
+            let data: ISocketResponse = s.data;
 
-            // 处理数据时需要分为ReqRsp和Ntf两种处理
-
-            // 处理 ntf 数据
-            var mdls:CSet<SocketModel> = this._ntfMdls[header.cmd];
-            if (mdls && mdls.size) {
-                var arr = this._ntfMdls[header.cmd];
-
-                try {
-                    var cls = null;
-                    var md = null;
-                    arr.forEach((mdl:SocketModel)=>{
-                        if (cls == null) {
-                            // 成组的对象采用同一份描述
-                            cls = this._pb.classForModel(mdl.cfg, mdl.name);
-                            if (cls == null) {
-                                warn('没有找到模型返回对象的描述类');
-                                arr.forEach((mdl:SocketModel)=>{
-                                    mdl.__mdl_failed();
-                                });
-                                return;
-                            }
-                            md = cls.decode(buf.buffer);
-                        }
-                        
-                        mdl.__mdl_completed(md);
-                    }, this);    
-                } catch (e) {
-                    warn('解析数据失败');
-                    arr.forEach((mdl:SocketModel)=>{
-                        mdl.__mdl_failed();
-                    });    
-                }
-                return;
+            // 判断是否是fetch
+            if (this._fetchings.has(data._cmid)) {
+                // 解析对象
+                let mdl = this._fetchings.get(data._cmid);
+                // 后处理
+                mdl.response = data;
+                mdl.processResponse();
+                mdl.__mdl_end();
+                // 清理
+                mdl.drop();
+                this._fetchings.delete(data._cmid);
             }
 
-            // 处理 reqrsp 数据
-            var mdl:SocketModel = this._seqMdls[header.seqid];
-            if (mdl)
-            {
-                // 处理数据
-                var cls = this._pb.classForModel(mdl.cfg, mdl.dname);
-                if (cls == null) {
-                    warn('没有找到模型返回对象的描述类');
-                    mdl.__mdl_failed();
-                    return;
-                }
-
-                try {
-                    var md = cls.decode(buf.buffer);
-                    mdl.__mdl_completed(md);
-                } catch (e) {
-                    warn('解析数据失败');
-                    mdl.__mdl_failed();
-                }
-                
-                nn.MapT.RemoveKey(this._seqMdls, header.seqid);
-                return;
+            // 判断是否是watch请求
+            if (this._listenings.has(data._cmid)) {
+                let mdl = this._listenings.get(data._cmid);
+                mdl.response = data;
+                mdl.processResponse();
             }
-            
-            noti('没有找到模型对象 ' + header);
+        }
+    }
+}
+
+// 实现和nnt.logic服务器配合的socket连接器
+namespace nn.logic {
+
+    export class SocketConnector
+        extends WebSocketConnector {
+
+        protected onOpen(e: Event) {
+            super.onOpen(e);
+
+            // 需要发起 init 请求
+            let m = new Model();
+            m.action = "socket.init";
+            this.write(m);
         }
 
-        private _pb = new ProtoBufImpl();
-    }
+        // 自动重连
+        autoReconnect = true;
 
-    export var SocketSession:ISocketSession = new _SocketSession();
+        protected onClose(e: CloseEvent) {
+            super.onClose(e);
+
+            if (e.code == 1000) {
+                // 服务端主动断开的链接，不能进行重连
+                let reason = <any>toJsonObject(e.reason);
+                switch (reason.code) {
+                    case -859:
+                        log("没有登录，所以服务器主动断开了连接");
+                        break;
+                    case -860:
+                        log("请求了错误的ws协议");
+                        break;
+                    case -858:
+                        log("服务器关闭");
+                        break;
+                }
+                return;
+            }
+            else {
+                // 尝试重连
+                if (this.autoReconnect) {
+                    Delay(this._reconnect_counter++, () => {
+                        this.doReconnect();
+                    }, this);
+                }
+            }
+        }
+
+        protected onError(e: ErrorEvent) {
+            super.onError(e);
+            log(e.message);
+
+            if (this.autoReconnect) {
+                Delay(this._reconnect_counter++, () => {
+                    this.doReconnect();
+                }, this);
+            }
+        }
+
+        protected doReconnect() {
+            log("尝试第" + this._reconnect_counter + "次重新连接");
+            this.open();
+        }
+
+        private _reconnect_counter = 0;
+
+        protected onMessage(data: any, e: MessageEvent) {
+            // 需要对data进行处理，把服务端的IMPMessage结构数据提取出来
+            super.onMessage({
+                _cmid: data.d,
+                code: 0,
+                data: data.p
+            }, e);
+        }
+
+        write(d: Model) {
+            let params = {
+                _cmid: d.hashCode,
+                _sid: this.session.SID,
+                _cid: nn.CApplication.shared.uniqueId,
+                _ts: DateTime.Now(),
+                action: d.action,
+            };
+            let fields = d.fields();
+            for (let k in fields) {
+                params[k] = fields[k];
+            }
+            super.write(params);
+        }
+
+        watch(d: Model, on: boolean) {
+            let params = {
+                _cmid: d.hashCode,
+                _sid: this.session.SID,
+                _cid: nn.CApplication.shared.uniqueId,
+                _ts: DateTime.Now(),
+                _listen: on ? 1 : 2, // 对应于服务器设置的 ListenMode.LISTEN/UNLISTEN
+                action: d.action,
+            };
+            let fields = d.fields();
+            for (let k in fields) {
+                params[k] = fields[k];
+            }
+            super.write(params);
+        }
+    }
 }
