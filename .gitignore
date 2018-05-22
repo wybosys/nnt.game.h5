@@ -4,3 +4,4 @@ libs
 index.html
 manifest\.json
 default\.*
+.idea
