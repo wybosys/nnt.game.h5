@@ -95,7 +95,7 @@ class GlobalLock:
                 hfile = win32file._get_osfhandle(self.handle.fileno())  
                 win32file.LockFileEx(hfile, LOCK_EX, 0, -0x10000, overlapped)
             ret = True
-        except Exception as err:
+        except:
             ret = False
         return ret            
     def release(self):
@@ -105,7 +105,7 @@ class GlobalLock:
             else:  
                 hfile = win32file._get_osfhandle(self.handle.fileno())  
                 win32file.UnlockFileEx(hfile, 0, -0x10000, overlapped)
-        except Exception as err:
+        except:
             pass
     def __del__(self):
         #try:  
@@ -135,7 +135,7 @@ def simplehashfile(file):
     return hashstring(d)
 
 # 简单获取服务相关的临时文件名
-_tmpfilecounter = 0;
+_tmpfilecounter = 0
 def tempfilename():
     global _tmpfilecounter
     _tmpfilecounter = _tmpfilecounter + 1
@@ -859,11 +859,11 @@ def egretfileinfo(file):
         type = 'font'
     else:
         type = 'bin'
-    r['name'] = name;
-    r['type'] = type;
+    r['name'] = name
+    r['type'] = type
     return r
 
-GENRES_BLACKS = RESMAKER_BLACKS + [re.compile('\.d/|\.d$')]
+GENRES_BLACKS = RESMAKER_BLACKS + [re.compile(r'\.d/|\.d$')]
 
 def genresdb():
     # 遍历所有的子文件，找出png\jpg\json，生成default.res.json文件并生成对应的group
@@ -916,6 +916,8 @@ def genresdbdirectory(dir):
     processdirs(dir + "/resource/assets", proc, blacklist=GENRES_BLACKS, depth=2)
     open(dir + '/resource/default.res.json', 'w').write(json.dumps(jsobj, indent=4))
 
+AUTOMERGE_BLACKS = GENRES_BLACKS + [re.compile(r'\.g/|\.g$')]
+
 def pubres():
     cfg = configparser.ConfigParser()
     cfg.read('.n2.cfg')
@@ -924,7 +926,7 @@ def pubres():
     shutil.copytree('resource', 'publish/resource')
     if cfg.get('dev', 'automerge') == 'y':
         print('自动合并资源')
-        processdirs('publish/resource/assets', automergeimages, blacklist=GENRES_BLACKS, depth=2)
+        processdirs('publish/resource/assets', automergeimages, blacklist=AUTOMERGE_BLACKS, depth=2)
         genresdbdirectory('publish')
 
 # ---------------------------------------- 维护Skin和实现类之间的关系 --------------
@@ -1499,7 +1501,7 @@ def dpack():
     print('生成 ' + 'publish/' + fn + '.zip')
 
 # ------------------------------- 自动合并图片 ---------------------------------
-PATTERN_FILENAME_EXT = re.compile('(.+)\\.(.+)')
+PATTERN_FILENAME_EXT = re.compile(r'(.+)\.(.+)')
 IMAGE_EXTS = ['jpeg', 'jpg', 'png']
             
 def automergeimages(dir, name):
