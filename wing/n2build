@@ -23,6 +23,12 @@ try:
 except Exception as err:
     print('请先使用 sudo pip install openpyxl 安装模块')
     sys.exit(0)
+
+try:
+    from PIL import Image
+except:
+    print('请先使用 sudo pip install pillow 安装模块')
+    sys.exit(0)    
     
 if len(subprocess.getoutput('which npm')) == 0:
     print('请先使用 sudo port install npm 安装node.js环境')
@@ -552,7 +558,7 @@ def buildrelease():
         print("自动合并图片")
         processdirs('bin-release/web/' + dir + '/resource/assets/', automergeimages, blacklist=GENRES_BLACKS, depth=2)
         # 因为自动合并图片，需要刷新下bin-release下面的res.json
-        genresdbdirectory('bin-release/web/' + dir)
+        genresdbdirectory('bin-release/web/' + dir)    
     # 后处理
     print("复制release版本资源到publish")
     shutil.move('bin-release/web/' + dir + '/resource', 'publish/resource')
@@ -1493,19 +1499,20 @@ def dpack():
     print('生成 ' + 'publish/' + fn + '.zip')
 
 # ------------------------------- 自动合并图片 ---------------------------------
-PATTERN_FILENAME_EXT = re.compile('(.+)\.(.+)')
+PATTERN_FILENAME_EXT = re.compile('(.+)\\.(.+)')
 IMAGE_EXTS = ['jpeg', 'jpg', 'png']
             
 def automergeimages(dir, name):
+    print("自动合并 " + dir)
     name = name.replace('/', '_').lower()
-    from PIL import Image
     files = []
-    for ef in os.listdir(dir):
-        res = PATTERN_FILENAME_EXT.findall(ef)        
-        if len(res) == 2 and res[1] in IMAGE_EXTS:        
-            files += res
+    for ef in os.listdir(dir):        
+        fnd = PATTERN_FILENAME_EXT.search(ef)
+        if fnd and fnd.group(2) in IMAGE_EXTS:        
+            files.append((fnd.group(1), fnd.group(2)))
+    print("找到了 " + str(len(files)) + " 个文件用于自动合图")
     ignores = []
-    for ef in files:        
+    for ef in files:
         ext = ef[1]
         if ext == 'fnt':
             ignores.append(ef)
@@ -1513,7 +1520,7 @@ def automergeimages(dir, name):
             ignores.append(ef)
         elif ext == 'jpg':
             ignores.append(ef)        
-    for ef in ignores:
+    for ef in ignores:        
         nm = ef[0]
         ext = ef[1]
         if ext == 'fnt':            
@@ -1532,7 +1539,7 @@ def automergeimages(dir, name):
         elif ext == 'jpg':
             files.remove(ef)
     images = []
-    for ef in files:
+    for ef in files:        
         path = dir + '/' + ef[0] + '.' + ef[1]
         img = Image.open(path)
         if img == None:
