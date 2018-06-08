@@ -122,6 +122,9 @@ module nn {
             this._signals.register(SignalOpen);
             this._signals.register(SignalClose);
             this._signals.register(SignalTimeout);
+            this._signals.register(SignalSucceed);
+            this._signals.register(SignalFailed);
+            this._signals.register(SignalEnd);
         }
 
         private _connector: CSocketConnector;
@@ -219,6 +222,8 @@ module nn {
                 mdl.signals.connect(SignalEnd, cbend, cbctx);
 
             mdl.session = this;
+            this._fetchings.set(mdl.hashCode, mdl);
+
             mdl.__mdl_start();
             this.connector.write(mdl);
         }
