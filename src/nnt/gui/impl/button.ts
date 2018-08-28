@@ -1,7 +1,6 @@
 module nn {
 
-    export class Button
-        extends CButton {
+    export class Button extends CButton {
         constructor(state?: State) {
             super();
             this.touchEnabled = true;
@@ -270,9 +269,7 @@ module nn {
         }
     }
 
-    export class RadioButton
-        extends Button
-        implements IState {
+    export class RadioButton extends Button implements IState {
         constructor() {
             super();
             this.signals.connect(SignalClicked, this.__radio_clicked, this);

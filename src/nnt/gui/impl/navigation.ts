@@ -24,8 +24,7 @@ module nn {
     }
 
     /** 用来进行导航的过渡特效，推进和推出 */
-    export class TransitionNavigation
-        extends Transition {
+    export class TransitionNavigation extends Transition {
         constructor(duration: number = Animate.Duration) {
             super();
 
@@ -47,8 +46,7 @@ module nn {
     }
 
     /** 淡入淡出交替的过渡特效 */
-    export class TransitionFade
-        extends Transition {
+    export class TransitionFade extends Transition {
         constructor(duration: number = Animate.Duration) {
             super();
 

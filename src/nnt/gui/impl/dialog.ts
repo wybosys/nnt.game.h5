@@ -2,9 +2,7 @@ module nn {
 
     /** 弹出的对话框类型
      @note 通过返回 bestFrame 来决定对话框的大小 */
-    export class Dialog
-        extends Component
-        implements IPage {
+    export class Dialog extends Component implements IPage {
         constructor() {
             super();
             this.anchor = new Point(0.5, 0.5);

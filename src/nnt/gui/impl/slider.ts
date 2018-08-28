@@ -1,18 +1,15 @@
 module nn {
 
-    export class Slider
-    extends Widget
-    implements IProgress
-    {
+    export class Slider extends Widget implements IProgress {
         constructor() {
             super();
             this.clipsToBounds = true;
-            
+
             this.signals.connect(SignalTouchBegin, this.__sld_touchchanged, this);
             this.signals.connect(SignalTouchEnd, this.__sld_touchchanged, this);
             this.signals.connect(SignalTouchMove, this.__sld_touchchanged, this);
         }
-        
+
         dispose() {
             this._progressValue = undefined;
             super.dispose();
@@ -23,8 +20,8 @@ module nn {
             this._signals.register(SignalChanged);
         }
 
-        _identifierView:CComponent;
-        set identifierView(s:CComponent) {
+        _identifierView: CComponent;
+        set identifierView(s: CComponent) {
             if (this._identifierView == s)
                 return;
             if (this._identifierView)
@@ -33,18 +30,20 @@ module nn {
             if (s)
                 this.addChild(s)
         }
-        get identifierView():CComponent {
+
+        get identifierView(): CComponent {
             return this._identifierView;
         }
 
         /** 水平模式 */
-        horizonMode:boolean = true;
-        
-        _progressValue:Percentage = new Percentage(1, 0);
-        get progressValue():Percentage {
+        horizonMode: boolean = true;
+
+        _progressValue: Percentage = new Percentage(1, 0);
+        get progressValue(): Percentage {
             return this._progressValue;
         }
-        set progressValue(val:Percentage) {
+
+        set progressValue(val: Percentage) {
             this._progressValue = val;
             this.updateLayout();
         }
@@ -66,13 +65,13 @@ module nn {
             this._identifierView.frame = trc;
         }
 
-        private __sld_touchchanged(s:Slot) {
-            let t:CTouch = s.data;
+        private __sld_touchchanged(s: Slot) {
+            let t: CTouch = s.data;
             if (this._identifierView) {
                 let rc = this.boundsForLayout();
                 let idrc = this._identifierView.frame;
                 idrc.x += t.delta.x;
-                
+
                 let pt = idrc.center;
                 if (pt.x > rc.width) {
                     pt = rc.rightCenter;
@@ -83,7 +82,7 @@ module nn {
                     idrc.center = pt;
                 }
                 this._identifierView.frame = idrc;
-                
+
                 let p = pt.x / rc.width;
                 if (p != this.progressValue.percent) {
                     this.progressValue.percent = p;
@@ -92,5 +91,5 @@ module nn {
             }
         }
     }
-    
+
 }

@@ -14,8 +14,7 @@ module nn {
         }
     }
 
-    class DisabledAutolayoutBitmap
-        extends Bitmap {
+    class DisabledAutolayoutBitmap extends Bitmap {
         setNeedsLayout() {
         }
     }
@@ -26,8 +25,7 @@ module nn {
     export let DesktopOperationQueue = new OperationQueue();
 
     /** 桌面，打开时铺平整个屏幕 */
-    export class Desktop
-        extends Component {
+    export class Desktop extends Component {
         static BackgroundColor = Color.RGBf(0, 0, 0, 0.61);
         static BackgroundImage: TextureSource;
 
@@ -395,8 +393,7 @@ module nn {
         }
     }
 
-    class DesktopOperation
-        extends Operation {
+    class DesktopOperation extends Operation {
         constructor(desk: Desktop) {
             super();
             this._desktop = desk;

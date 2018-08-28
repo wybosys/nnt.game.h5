@@ -1,7 +1,6 @@
 module nn {
 
-    export class Hud
-        extends Sprite {
+    export class Hud extends Sprite {
         static BackgroundColor = new Color(0xffffff, 0xf0);
         static BackgroundImage: TextureSource;
 
@@ -92,8 +91,7 @@ module nn {
         }
     }
 
-    export class HudText
-        extends Hud {
+    export class HudText extends Hud {
         static BackgroundColor = null;
         static BackgroundImage = null;
 
@@ -161,9 +159,7 @@ module nn {
         animating: boolean;
     }
 
-    export class HudProgress
-        extends Hud
-        implements IProgress {
+    export class HudProgress extends Hud implements IProgress {
         static BackgroundColor = null;
         static BackgroundImage = null;
 

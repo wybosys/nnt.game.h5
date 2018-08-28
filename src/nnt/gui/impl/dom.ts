@@ -1,8 +1,7 @@
 module nn {
 
     // 只能用在单player的模式下
-    export class Div
-        extends CDom {
+    export class Div extends CDom {
         constructor() {
             super();
 

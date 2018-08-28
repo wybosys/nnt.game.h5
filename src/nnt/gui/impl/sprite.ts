@@ -1,37 +1,32 @@
 module nn {
 
-    export class Widget
-    extends Component
-    {
+    export class Widget extends Component {
         constructor() {
             super();
             this.touchChildren = false;
         }
 
-        protected hitTest(x:number, y:number):any {
+        protected hitTest(x: number, y: number): any {
             if (this.touchEnabled == false)
                 return null;
             return super.hitTest(x, y);
         }
     }
-    
-    export class Sprite
-    extends Component
-    implements IPage
-    {
+
+    export class Sprite extends Component implements IPage {
         constructor() {
             super();
         }
 
-        pathKey:string;
+        pathKey: string;
 
         // 重用控件，以避免大量制作成员变量来承载简单控件
-        private _reuseUis:KvObject<any, any>;
-        reuse(idr:any, cb:()=>any, ctx:any):any;
-        reuse(idr:any, cls:any):any;
-        reuse(idr:any):any;
-        reuse(...params:any[]):any
-        {
+        private _reuseUis: KvObject<any, any>;
+
+        reuse(idr: any, cb: () => any, ctx: any): any;
+        reuse(idr: any, cls: any): any;
+        reuse(idr: any): any;
+        reuse(...params: any[]): any {
             if (this._reuseUis == null)
                 this._reuseUis = new KvObject<string, any>();
             let obj = this._reuseUis[params[0]];
@@ -55,10 +50,8 @@ module nn {
         }
     }
 
-    export class SpriteWrapper
-    extends Component
-    {
-        constructor(cnt?:Component) {
+    export class SpriteWrapper extends Component {
+        constructor(cnt?: Component) {
             super();
             if (cnt)
                 this.contentView = cnt;
@@ -68,12 +61,13 @@ module nn {
             super.dispose();
             this.contentView = null;
         }
-        
-        _contentView:Component;
-        get contentView():Component {
+
+        _contentView: Component;
+        get contentView(): Component {
             return this._contentView;
         }
-        set contentView(cnt:Component) {
+
+        set contentView(cnt: Component) {
             if (this._contentView == cnt)
                 return;
             if (this._contentView) {
@@ -91,5 +85,5 @@ module nn {
                 this._contentView.frame = this.boundsForLayout();
         }
     }
-    
+
 }
