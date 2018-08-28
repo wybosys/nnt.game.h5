@@ -1,8 +1,7 @@
 // 对egret的RES模块进行功能扩展
 module RES {
 
-    class ExtResourceItem
-        extends ResourceItem {
+    class ExtResourceItem extends ResourceItem {
         constructor(name: string, url: string, type: string) {
             super(name, url, type);
         }
@@ -90,8 +89,7 @@ module nn {
     }
 
     // 资源池
-    export class _ResMemcache
-        extends Memcache {
+    export class _ResMemcache extends Memcache {
         constructor() {
             super();
             this.enable = true;
@@ -162,8 +160,7 @@ module nn {
         private _keys = new KvObject<string, any>();
     }
 
-    class _ResCacheObject
-        implements ICacheObject {
+    class _ResCacheObject implements ICacheObject {
         constructor() {
         }
 
@@ -183,8 +180,7 @@ module nn {
         key: any;
     }
 
-    export class ResCapsule
-        extends CResCapsule {
+    export class ResCapsule extends CResCapsule {
         constructor(reqres: ReqResource[], ewd: EventWeakDispatcher) {
             super(reqres);
             this._ewd = ewd;
@@ -262,8 +258,7 @@ module nn {
     EgretItemTypeMap[ResType.SOUND] = RES.ResourceItem.TYPE_SOUND;
     EgretItemTypeMap[ResType.BINARY] = RES.ResourceItem.TYPE_BIN;
 
-    export class _ResManager
-        extends CResManager {
+    export class _ResManager extends CResManager {
         constructor() {
             super();
 

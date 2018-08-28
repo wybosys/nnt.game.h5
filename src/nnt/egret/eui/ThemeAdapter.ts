@@ -42,6 +42,7 @@ class ThemeAdapter implements eui.IThemeAdapter {
         function onResGet(e: string): void {
             onSuccess.call(thisObject, e);
         }
+
         function onResError(e: RES.ResourceEvent): void {
             if (e.resItem.url == url) {
                 RES.removeEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, onResError, null);

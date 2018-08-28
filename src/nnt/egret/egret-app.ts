@@ -4,43 +4,40 @@ if (typeof(document_class) == 'undefined')
     document_class = 'Main';
 
 module nn {
-    
-    export class EgretApp
-    extends CApplication
-    {
+
+    export class EgretApp extends CApplication {
         constructor() {
             super();
-          
+
             // 通用的app事件
             egret.MainContext.instance.stage.addEventListener(egret.Event.ACTIVATE, this.onActivated, this);
             egret.MainContext.instance.stage.addEventListener(egret.Event.DEACTIVATE, this.onDeactived, this);
         }
 
-        set fontFamily(f:string) {
+        set fontFamily(f: string) {
             egret.TextField.default_fontFamily = f;
         }
-        get fontFamily():string {
+
+        get fontFamily(): string {
             return egret.TextField.default_fontFamily;
         }
     }
 
-    export let EUI_MODE:boolean = false;
-    
+    export let EUI_MODE: boolean = false;
+
     // ------------------实现egret需要的加载过程 ------------------------
-    
+
     // 保护Main入口类    
     let CLAZZ_MAIN: any;
-    
+
     // 伪main类，为了支持library(用来支持wing项目)和framework两种模式下的切换
     class _CloakMain
-	extends CApplication
-    {
+        extends CApplication {
     }
 
     // 替换掉egret原始调试信息窗
     class _InstrumentObject
-	extends egret.DisplayObject
-    {
+        extends egret.DisplayObject {
         // 次数、脏比率、时间、为了统计消耗的时间
         update(drawCalls: number, dirtyRatio: number, cost: number, statcost: number) {
             let current = egret.getTimer();
@@ -54,7 +51,7 @@ module nn {
                 COLLECT_DRAWS = drawCalls;
                 COLLECT_DIRTYR = dirtyRatio;
                 Instrument.shared.updateData();
-                
+
                 this.totalTick = 0;
                 this.totalTime = 0;
                 this.drawCalls = 0;
@@ -67,9 +64,7 @@ module nn {
         drawCalls: number = 0;
     }
 
-    class _Player
-	extends egret.sys.Player
-    {
+    class _Player extends egret.sys.Player {
         start() {
             super.start();
             if (DEBUG && this['fpsDisplay'] == null) {
@@ -78,22 +73,21 @@ module nn {
             }
         }
 
-        $render(triggerByFrame:boolean, costTicker:number) {
+        $render(triggerByFrame: boolean, costTicker: number) {
             if (DEBUG) {
                 // 打开fps的统计
                 this['showFPS'] = COLLECT_INSTRUMENT;
             }
             super.$render(triggerByFrame, costTicker);
         }
-    }    
+    }
+
     egret.sys.Player = _Player;
 
     // 需要控制一下 stage 的一些功能
-    class _AppStage
-	extends egret.Sprite
-    {
-        static shared:_AppStage;
-        
+    class _AppStage extends egret.Sprite {
+        static shared: _AppStage;
+
         constructor() {
             super();
             _AppStage.shared = this;
@@ -108,12 +102,12 @@ module nn {
             let app = new CLAZZ_MAIN();
             this.appMain = app;
             this.addChild(app.handle());
-            
+
             // 更新大小
             egret.MainContext.instance.stage.setContentSize(_AppStage.StageBounds.width, _AppStage.StageBounds.height);
 
             // 计算dom的缩放
-            let p:any = document.querySelector('.egret-player');
+            let p: any = document.querySelector('.egret-player');
             if (p) {
                 let canvas = p.children[0];
                 DomScaleFactorX = canvas.clientWidth / toInt(canvas.getAttribute('width'));
@@ -125,12 +119,12 @@ module nn {
             // 直接刷新主布局
             this.updateLayout();
         }
-        
+
         // 首页面的实例
-        appMain:CApplication;
-        
+        appMain: CApplication;
+
         // 设置的 fps
-        static Fps:number;
+        static Fps: number;
 
         // 初始化 Stage 架构
         static Init() {
@@ -166,12 +160,12 @@ module nn {
             this.DesignBounds = CLAZZ_MAIN.BestFrame();
             if (this.DesignBounds == null)
                 this.DesignBounds = this.ScreenBounds.clone();
-            
+
             // 计算 app 的尺寸
             let stageBounds = this.DesignBounds.clone();
             let fillMode = CLAZZ_MAIN.ScreenFillMode();
             this.ScreenScale = ISHTML5 ? CLAZZ_MAIN.ScreenScale() : 1;
-            
+
             // 如果是纯PC，则使用原始分辨率居中
             if (Device.shared.isPurePC) {
                 fillMode = FillMode.CENTER;
@@ -180,7 +174,7 @@ module nn {
 
             // 映射设计分辨率到实际分辨率中
             stageBounds.fill(this.ScreenBounds, fillMode);
-            
+
             // 如果宽度小于800，高度小于480，则需要映射到800*480中
             if (stageBounds.width > stageBounds.height) {
                 let r = stageBounds.width / stageBounds.height;
@@ -215,7 +209,7 @@ module nn {
             else if (scrFactor <= 0.75)
                 Device.shared.screenType = ScreenType.LOW;
             else
-                Device.shared.screenType = ScreenType.NORMAL;        
+                Device.shared.screenType = ScreenType.NORMAL;
 
             // 计算缩放系数，如果是PUREPC，则不进行缩放控制
             if ((fillMode & FillMode.MASK_MAJOR) == FillMode.CENTER) {
@@ -257,10 +251,10 @@ module nn {
 
             // 设置到全局变量，用以其他界面初始化的时候使用
             StageBounds.reset(0, 0,
-				              stageBounds.width * ScaleFactorDeW,
-				              stageBounds.height * ScaleFactorDeH)
+                stageBounds.width * ScaleFactorDeW,
+                stageBounds.height * ScaleFactorDeH)
                 .integral();
-            
+
             // 设置egret内部的舞台大小
             if (egret.MainContext.instance.stage) {
                 egret.MainContext.instance.stage.setContentSize(this.StageBounds.width, this.StageBounds.height);
@@ -269,28 +263,28 @@ module nn {
 
         updateLayout() {
             this.appMain.setFrame(StageBounds);
-        }        
+        }
 
-        static ScreenScale:number;
-        static ScreenBounds:Rect;
-        static DesignBounds:Rect;
-        static StageBounds:Rect;
+        static ScreenScale: number;
+        static ScreenBounds: Rect;
+        static DesignBounds: Rect;
+        static StageBounds: Rect;
     }
 
-    Js.OverrideFunction(egret, 'updateAllScreens', function(orifn:()=>void) {
+    Js.OverrideFunction(egret, 'updateAllScreens', function (orifn: () => void) {
         if (CLAZZ_MAIN == null)
             return;
-        
+
         // 如果键盘弹出，则认定为因为弹出键盘导致的尺寸修改
         if (Keyboard.visible)
             return;
-        log("尺寸改变");            
-        
+        log("尺寸改变");
+
         // 重新计算一下舞台的大小
         _AppStage.UpdateBounds();
-        
+
         // 刷新首页的尺寸        
-        _AppStage.shared.updateLayout();        
+        _AppStage.shared.updateLayout();
 
         // 激活信号            
         emit(CApplication.shared, SignalFrameChanged);
@@ -300,16 +294,14 @@ module nn {
     });
 
     // 需要替换查找入口类的函数，使得我们可以插入非业务类作为主入口
-    Js.OverrideFunction(egret, 'getDefinitionByName', (orifn:(name:string)=>any, name:string):any=>{
+    Js.OverrideFunction(egret, 'getDefinitionByName', (orifn: (name: string) => any, name: string): any => {
         if (name == 'Main')
             return _AppStage;
         return orifn(name);
     });
 
     // 替换掉默认的屏幕适配        
-    class ExtScreenAdapter
-    extends egret.sys.DefaultScreenAdapter
-    {
+    class ExtScreenAdapter extends egret.sys.DefaultScreenAdapter {
         calculateStageSize(scaleMode: string, screenWidth: number, screenHeight: number, contentWidth: number, contentHeight: number): egret.sys.StageDisplaySize {
             // 如果是标准PC浏览器，使用设计尺寸直接计算
             if (Device.shared.isPurePC)
@@ -318,16 +310,17 @@ module nn {
             return super.calculateStageSize(scaleMode, screenWidth, screenHeight, _AppStage.StageBounds.width, _AppStage.StageBounds.height);
         }
     }
+
     // 替换掉系统的adapter
     egret.sys.screenAdapter = new ExtScreenAdapter();
-    
-    loader.webstart = ()=>{
+
+    loader.webstart = () => {
         // 执行加载动作
         loader.InvokeBoot();
 
         // 初始化舞台
-        _AppStage.Init();        
-        
+        _AppStage.Init();
+
         // 约定是否使用webgl
         let glmode = CLAZZ_MAIN.UseWebGl();
         if (location.href.indexOf('nowebgl=1') != -1)
@@ -340,31 +333,31 @@ module nn {
             if (agent.indexOf('UCBrowser') != -1)
                 glmode = false;
         }
-        
+
         // 默认使用webgl渲染
-        if (glmode) 
-            egret.runEgret({renderMode:"webgl"});
+        if (glmode)
+            egret.runEgret({renderMode: "webgl"});
         else
-            egret.runEgret();        
+            egret.runEgret();
         if (egret.Capabilities.renderMode == "webgl")
             Device.shared.isCanvas = false;
     };
-    
+
     // 启动原生程序
-    loader.nativestart = ()=>{
+    loader.nativestart = () => {
         // 创建舞台
         _AppStage.Init();
-        
+
         // 运行原始的入口
         egret.runEgret();
     };
 
     // 启动runtime版本
-    loader.runtimestart = ()=>{
+    loader.runtimestart = () => {
         // 创建舞台
         _AppStage.Init();
-        
+
         // 运行原始的入口
-        egret.runEgret();        
+        egret.runEgret();
     };
 }
