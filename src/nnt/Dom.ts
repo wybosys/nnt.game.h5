@@ -1,14 +1,13 @@
 module nn {
-    
-    export class HtmlBuilder
-    {
-        enter(element:string):this {
+
+    export class HtmlBuilder {
+        enter(element: string): this {
             this._ele = element;
             this._buf += '<' + element + ' ';
             return this;
         }
 
-        pop():this {
+        pop(): this {
             if (this._style)
                 this._buf += 'style="' + this._style + '" ';
             this._buf += '>';
@@ -18,14 +17,14 @@ module nn {
             return this;
         }
 
-        style(key:string, value:string|number):this {
+        style(key: string, value: string | number): this {
             if (this._style == null)
                 this._style = '';
             this._style += key + ':' + value + ';';
             return this;
         }
 
-        attr(key:string, value:string|number):this {
+        attr(key: string, value: string | number): this {
             this._buf += key + '=';
             let strval = <string>value;
             if (typeof(value) == 'string' && strval.length && strval[0] != '#')
@@ -35,28 +34,28 @@ module nn {
             return this;
         }
 
-        text(str:string):this {
+        text(str: string): this {
             this._text = str;
             return this;
         }
-        
-        toString():string {
+
+        toString(): string {
             return this._buf;
         }
 
-        private _ele:string;
-        private _text:string;
-        private _style:string;
-        private _buf:string = '';
+        private _ele: string;
+        private _text: string;
+        private _style: string;
+        private _buf: string = '';
     }
 
-    function getEvent(stop:boolean):Event {
+    function getEvent(stop: boolean): Event {
         let ret;
         if (window.event) {
             ret = window.event;
         } else {
             let e = arguments.callee.caller;
-            while(e.caller!=null){
+            while (e.caller != null) {
                 e = e.caller;
             }
             ret = e.arguments[0];
@@ -68,26 +67,25 @@ module nn {
 
     export module dom {
 
-        export let ScaleFactorX:number;
-        export let ScaleFactorDeX:number;
-        export let ScaleFactorY:number;
-        export let ScaleFactorDeY:number;
-        export let ScaleFactorSize:number;
-        export let ScaleFactorDeSize:number;
+        export let ScaleFactorX: number;
+        export let ScaleFactorDeX: number;
+        export let ScaleFactorY: number;
+        export let ScaleFactorDeY: number;
+        export let ScaleFactorSize: number;
+        export let ScaleFactorDeSize: number;
 
         export type DomId = string | Element;
 
-        export function getElementById(id:DomId):Element {
+        export function getElementById(id: DomId): Element {
             if (typeof(id) == 'string')
                 return document.getElementById(<string>id);
             return <Element>id;
         }
 
         export class DomObject
-        extends SObject
-        implements SignalsDelegate
-        {
-            constructor(id?:DomId) {
+            extends SObject
+            implements SignalsDelegate {
+            constructor(id?: DomId) {
                 super();
                 if (id)
                     this.node = getElementById(id);
@@ -100,7 +98,7 @@ module nn {
                 }
             }
 
-            static From(id:DomId):DomObject {
+            static From(id: DomId): DomObject {
                 return new DomObject(id);
             }
 
@@ -109,116 +107,124 @@ module nn {
                 this._signals.delegate = <SignalsDelegate>this;
                 this._signals.register(SignalClicked);
             }
-            
-            _signalConnected(sig:string) {
+
+            _signalConnected(sig: string) {
                 switch (sig) {
-                case SignalClicked: {
-                    this.setAttr("onclick", this.method('__dom_clicked'));
-                } break;
+                    case SignalClicked: {
+                        this.setAttr("onclick", this.method('__dom_clicked'));
+                    }
+                        break;
                 }
             }
 
-            event:Event;
-            
+            event: Event;
+
             private __dom_clicked() {
-                this.event = getEvent(true);                
+                this.event = getEvent(true);
                 this._signals && this._signals.emit(SignalClicked);
             }
 
-            updateData() {}
+            updateData() {
+            }
 
-            get css():string {
+            get css(): string {
                 return this._node.style.cssText;
             }
-            set css(v:string) {
+
+            set css(v: string) {
                 this._node.style.cssText = v;
             }
 
-            _style:any;
-            get style():any {
+            _style: any;
+            get style(): any {
                 if (this._style == null)
                     this._style = this._node.style;
                 return this._style;
             }
 
-            get content():string {
+            get content(): string {
                 return this._node.textContent;
             }
-            set content(v:string) {
+
+            set content(v: string) {
                 this._node.textContent = v;
             }
 
-            get id():any {
+            get id(): any {
                 return this.getAttr('id');
             }
-            
-            set id(v:any) {
+
+            set id(v: any) {
                 this.setAttr('id', v);
             }
 
-            getAttr(k:any, def?:any):any {
+            getAttr(k: any, def?: any): any {
                 let v = this._node.getAttribute(k);
                 return v == null ? def : v;
             }
-            setAttr(k:any, v:any) {
+
+            setAttr(k: any, v: any) {
                 this._node.setAttribute(k, v);
             }
 
-            private _fontSize:number;
-            get fontSize():number {
+            private _fontSize: number;
+            get fontSize(): number {
                 return this._fontSize * ScaleFactorDeSize;
             }
-            set fontSize(v:number) {
+
+            set fontSize(v: number) {
                 if (this._fontSize == v)
                     return;
                 this._fontSize = v;
                 this._node.style.fontSize = v * ScaleFactorSize + 'em';
             }
 
-            private _src:string;
-            get src():string {
+            private _src: string;
+            get src(): string {
                 return this._src;
             }
-            set src(s:string) {
+
+            set src(s: string) {
                 this._src = s;
                 this._node.style.src = 'url(' + s + ')';
             }
 
-            get width():number {
+            get width(): number {
                 return this._node.clientWidth;
             }
 
-            get height():number {
+            get height(): number {
                 return this._node.clientHeight;
             }
 
-            add(node:DomObject):DomObject {
+            add(node: DomObject): DomObject {
                 node.parent = this;
                 this._node.appendChild(node._node);
                 this.nodes.push(node);
-                node.preload(()=>{
+                node.preload(() => {
                     node.onLoaded();
                 }, this);
                 return this;
             }
-            
-            protected preload(cb:()=>void, ctx?:any) {
+
+            protected preload(cb: () => void, ctx?: any) {
                 cb.call(ctx);
             }
-            
-            protected onLoaded() {}
+
+            protected onLoaded() {
+            }
 
             br() {
                 this._node.appendChild(document.createElement('br'));
             }
 
-            remove(node:DomObject) {
+            remove(node: DomObject) {
                 if (node.parent != this)
                     return;
                 node._node.parentElement.removeChild(node._node);
                 node.parent = null;
                 nn.ArrayT.RemoveObject(this.nodes, node);
-                
+
                 // 移除即代表析构
                 drop(node);
             }
@@ -229,17 +235,18 @@ module nn {
             }
 
             private _visible = true;
-            get visible():boolean {
+            get visible(): boolean {
                 return this._visible;
             }
-            set visible(b:boolean) {
+
+            set visible(b: boolean) {
                 if (b == this._visible)
                     return;
                 this._visible = b;
                 this._node.style.display = b ? 'block' : 'none';
             }
 
-            setFrame(rc:nn.Rect) {
+            setFrame(rc: nn.Rect) {
                 if (this._node.style.position != 'absolute')
                     this._node.style.position = 'absolute';
                 this._node.style.left = rc.x + 'px';
@@ -247,12 +254,13 @@ module nn {
                 this._node.style.width = rc.width + 'px';
                 this._node.style.height = rc.height + 'px';
             }
-                        
-            private _node:any;
-            protected get node():any {
+
+            private _node: any;
+            protected get node(): any {
                 return this._node;
             }
-            protected set node(n:any) {
+
+            protected set node(n: any) {
                 if (n == this._node)
                     return;
                 if (this._node)
@@ -265,38 +273,38 @@ module nn {
                 }
             }
 
-            protected method(mtdname:string):string {
+            protected method(mtdname: string): string {
                 if (this.listener(mtdname) == null)
-                    this._node[mtdname] = this.bindListener(mtdname, ()=>{
+                    this._node[mtdname] = this.bindListener(mtdname, () => {
                         this[mtdname]();
                     });
                 return "document.getElementById(" + this.id + ")['" + mtdname + "']()";
-            }            
-            
-            parent:DomObject;
+            }
+
+            parent: DomObject;
             nodes = new Array<DomObject>();
 
             /** 维护 listener */
-            listener(idr:any):Function {
+            listener(idr: any): Function {
                 return this._listeners ? this._listeners[idr] : undefined;
             }
-            bindListener(idr:any, cb:(e:any)=>void):Function {
+
+            bindListener(idr: any, cb: (e: any) => void): Function {
                 this.listeners[idr] = cb;
                 return cb;
             }
-            
-            protected _listeners:KvObject<any, Function>;
-            protected get listeners():KvObject<any, Function> {
+
+            protected _listeners: KvObject<any, Function>;
+            protected get listeners(): KvObject<any, Function> {
                 if (this._listeners == null)
-                    this._listeners = new KvObject<any, Function>();                
+                    this._listeners = new KvObject<any, Function>();
                 return this._listeners;
             }
         }
-        
+
         export class Button
-        extends DomObject
-        {
-            constructor(id?:DomId) {
+            extends DomObject {
+            constructor(id?: DomId) {
                 super(id);
                 if (id == null)
                     this.node = document.createElement('button');
@@ -304,11 +312,12 @@ module nn {
                 this.style.border = 'none';
             }
 
-            _image:string;
-            get image():string {
+            _image: string;
+            get image(): string {
                 return this._image;
             }
-            set image(img:string) {
+
+            set image(img: string) {
                 if (this._image == undefined) {
                     this.style.backgroundSize = 'contain';
                     this.style.backgroundPosition = 'center';
@@ -320,9 +329,8 @@ module nn {
         }
 
         export class Label
-        extends DomObject
-        {
-            constructor(id?:DomId) {
+            extends DomObject {
+            constructor(id?: DomId) {
                 super(id);
                 if (id == null)
                     this.node = document.createElement('label');
@@ -331,9 +339,8 @@ module nn {
         }
 
         export class Image
-        extends DomObject
-        {
-            constructor(id?:DomId) {
+            extends DomObject {
+            constructor(id?: DomId) {
                 super(id);
                 if (id == null)
                     this.node = document.createElement('img');
@@ -341,9 +348,8 @@ module nn {
         }
 
         export class Sprite
-        extends DomObject
-        {
-            constructor(id?:DomId) {
+            extends DomObject {
+            constructor(id?: DomId) {
                 super(id);
                 if (id == null)
                     this.node = document.createElement('div');
@@ -352,9 +358,8 @@ module nn {
         }
 
         export class Desktop
-        extends DomObject
-        {
-            constructor(dom?:DomObject, id?:DomId) {
+            extends DomObject {
+            constructor(dom?: DomObject, id?: DomId) {
                 super(id);
                 if (id == null)
                     this.node = document.createElement('div');
@@ -372,13 +377,14 @@ module nn {
                 this.signals.connect(SignalClicked, this.__dsk_clicked, this);
             }
 
-            clickedToClose:boolean;
+            clickedToClose: boolean;
 
-            _contentView:DomObject;
-            get contentView():DomObject {
+            _contentView: DomObject;
+            get contentView(): DomObject {
                 return this._contentView;
             }
-            set contentView(v:DomObject) {
+
+            set contentView(v: DomObject) {
                 if (v == this._contentView)
                     return;
                 if (this._contentView) {
@@ -407,22 +413,21 @@ module nn {
             }
         }
 
-        export function x(v:number) {
+        export function x(v: number) {
             return Integral(v * ScaleFactorX);
         }
 
-        export function y(v:number) {
-            return Integral(v * ScaleFactorY);            
+        export function y(v: number) {
+            return Integral(v * ScaleFactorY);
         }
 
-        export function size(v:number) {
+        export function size(v: number) {
             return Integral(v * ScaleFactorSize);
         }
     }
-    
+
     export class _Dom
-    extends dom.DomObject
-    {
+        extends dom.DomObject {
         constructor() {
             super();
             this.node = document.body;
@@ -445,13 +450,13 @@ module nn {
         }
 
         /** 打开新页面 */
-        openLink(url:string) {
+        openLink(url: string) {
             log("打开新页面：" + url);
             window.open(url);
         }
 
         /** 模拟一次点击链接 */
-        simulateLink(url:string) {
+        simulateLink(url: string) {
             log("模拟点击链接：" + url);
             //let n = document.createElement('a');
             //n.href = url;
@@ -464,7 +469,7 @@ module nn {
         }
 
         /** 打开页面 */
-        openUrl(url:string) {
+        openUrl(url: string) {
             if (Device.shared.isMobile)
                 this.simulateLink(url);
             else
@@ -473,15 +478,16 @@ module nn {
 
         /** 模拟一次点击 */
         private _waitclick = new Closure(null, null);
-        simulateClick(cb:()=>void, ctx?:any) {
-            let n:any = document.createElement('div');
+
+        simulateClick(cb: () => void, ctx?: any) {
+            let n: any = document.createElement('div');
             if (n == null) {
                 cb.call(ctx);
                 return;
             }
-            
+
             this._waitclick.reset(cb, ctx);
-            
+
             n.style.display = 'none';
             n.setAttribute('id', '::n2::dom::simulateclick');
             n.setAttribute('onclick', this.method('__cb_simulate_click'));
@@ -497,5 +503,5 @@ module nn {
     }
 
     export let Dom = new _Dom();
-    
+
 }

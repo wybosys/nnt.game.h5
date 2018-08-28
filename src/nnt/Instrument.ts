@@ -1,32 +1,29 @@
-
-module app.dev {        
-    export declare function main(node:nn.dom.DomObject);
+module app.dev {
+    export declare function main(node: nn.dom.DomObject);
 }
 
 module nn {
 
     // 提供底层用来从egret获取一些必要的数据
     export let COLLECT_INSTRUMENT = false;
-    export let COLLECT_FPS:number;
-    export let COLLECT_COST:number;
-    export let COLLECT_DRAWS:number;
-    export let COLLECT_DIRTYR:number;
-    
+    export let COLLECT_FPS: number;
+    export let COLLECT_COST: number;
+    export let COLLECT_DRAWS: number;
+    export let COLLECT_DIRTYR: number;
+
     // 使用Webix框架来生产调试用的UI
-    declare let webix:any;
-    declare let $$:any;
+    declare let webix: any;
+    declare let $$: any;
 
     export class IPLabel
-    extends dom.Label
-    {
+        extends dom.Label {
         constructor() {
             super();
-        }        
+        }
     }
 
     export class ProfilerPanel
-    extends dom.Sprite
-    {
+        extends dom.Sprite {
         constructor() {
             super();
 
@@ -59,8 +56,7 @@ module nn {
     }
 
     export class SystemInfoPanel
-    extends dom.Sprite
-    {
+        extends dom.Sprite {
         constructor() {
             super();
 
@@ -92,14 +88,13 @@ module nn {
     }
 
     export class InstrumentPanel
-    extends dom.Sprite
-    {
+        extends dom.Sprite {
         constructor() {
             super();
             this.css = "position:absolute;bottom:0px;height:90%;width:100%;z-position:999;opacity:0.95;background:white;";
         }
 
-        protected preload(cb:()=>void, ctx?:any) {
+        protected preload(cb: () => void, ctx?: any) {
             Js.loadSources([
                 ["http://7xlcco.com1.z0.glb.clouddn.com/webix/webix.css", Js.SOURCETYPE.CSS],
                 ["http://7xlcco.com1.z0.glb.clouddn.com/webix/webix_debug.js", Js.SOURCETYPE.JS]
@@ -108,32 +103,32 @@ module nn {
 
         onLoaded() {
             super.onLoaded();
-            
-            webix.getElementById = (id:string):Element=>{
+
+            webix.getElementById = (id: string): Element => {
                 return $$(id).getNode();
             };
-            
+
             // 初始化webix
             webix.ui({
-                view:"tabview",
-                cells:[
+                view: "tabview",
+                cells: [
                     {
-                        header:"INFO", body: {
-                            id:"::dt::info"
+                        header: "INFO", body: {
+                            id: "::dt::info"
                         }
                     },
                     {
-                        header:"DEBUG", body: {
-                            id:"::dt::debug"
+                        header: "DEBUG", body: {
+                            id: "::dt::debug"
                         }
                     }
                 ],
                 multiview: {
-                    keepViews:true
+                    keepViews: true
                 },
-                container:this.id
+                container: this.id
             });
-            
+
             // 初始化panel
             let panel = dom.DomObject.From(webix.getElementById("::dt::info"));
             panel.add(this.pnlSysinfo);
@@ -142,11 +137,11 @@ module nn {
             panel = dom.DomObject.From(webix.getElementById("::dt::debug"));
             panel.add(this.pnlDebug);
         }
-        
+
         pnlSysinfo = new SystemInfoPanel();
         pnlProfiler = new ProfilerPanel();
         pnlDebug = new DebugPanel();
-        
+
         open() {
             this.pnlSysinfo.updateData();
             this.pnlProfiler.start();
@@ -163,8 +158,7 @@ module nn {
     }
 
     export class DebugPanel
-    extends dom.Sprite
-    {
+        extends dom.Sprite {
         constructor() {
             super();
         }
@@ -178,11 +172,10 @@ module nn {
     }
 
     export class Instrument
-    extends SObject
-    {
+        extends SObject {
         constructor() {
             super();
-           
+
             this.button.content = "调试器";
             this.button.css = "position:absolute;top:0;left:50%;z-position:999;background:white;opacity:0.3;";
             this.button.signals.connect(SignalClicked, this.open, this);
@@ -192,12 +185,13 @@ module nn {
         button = new dom.Button();
         panel = new InstrumentPanel();
 
-        static shared:Instrument;
+        static shared: Instrument;
+
         static run() {
             // 当前利用dom来实现测试器，不支持原生模式
             if (ISNATIVE)
                 return;
-            
+
             if (Instrument.shared == null)
                 Instrument.shared = new Instrument();
             return Instrument.shared;
@@ -207,9 +201,9 @@ module nn {
             if (this.panel.parent == null) {
                 Dom.add(this.panel);
             }
-            
+
             this.panel.visible = true;
-            
+
             this.button.signals.disconnect(SignalClicked);
             this.button.signals.connect(SignalClicked, this.close, this);
 
@@ -230,9 +224,9 @@ module nn {
         }
     }
 
-    CApplication.InBoot(()=>{        
+    CApplication.InBoot(() => {
         if (ISDEBUG)
             Instrument.run();
     });
-    
+
 }

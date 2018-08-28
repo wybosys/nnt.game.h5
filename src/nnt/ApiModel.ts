@@ -66,6 +66,9 @@ module nn {
         /** 需要自动带上授权信息 */
         withCredentials: boolean = true;
 
+        /** 由哪个session发起的请求 */
+        session: SObject;
+
         // 为了解决跨域的问题，服务端需要收到 mcb 后，通过调用此函数回调数据
         /*
           @code php
@@ -130,7 +133,7 @@ module nn {
         showWaiting: boolean;
 
         /** 是否显示错误信息 */
-        showError = true;
+        showError = false;
 
         /** 处理结果数据 */
         serialize(respn: any): boolean {
@@ -209,11 +212,11 @@ module nn {
 
             let tn = new SlotTunnel();
             this.signals.emit(SignalFailed, e.data, tn);
-            if (!tn.veto)
-                RestSession.signals.emit(SignalFailed, this, tn);
+            if (!tn.veto && this.session)
+                this.session.signals.emit(SignalFailed, this, tn);
 
             // 如果业务层阻塞掉该信号，则不转发
-            if (!tn.veto) {
+            if (!tn.veto && this.showError) {
                 let str = ISDEBUG ?
                     'API ' + this.action + ' 请求服务器失败' :
                     '请检查网络设置';
@@ -229,16 +232,19 @@ module nn {
 
             if (this.isDebug) {
                 this.signals.emit(SignalSucceed);
-                RestSession.signals.emit(SignalSucceed, this);
+                if (this.session)
+                    this.session.signals.emit(SignalSucceed, this);
             }
             else {
                 if (this.timeoutAsFailed) {
                     this.signals.emit(SignalFailed);
-                    RestSession.signals.emit(SignalFailed, this);
+                    if (this.session)
+                        this.session.signals.emit(SignalFailed, this);
                 }
 
                 this.signals.emit(SignalTimeout);
-                RestSession.signals.emit(SignalTimeout, this);
+                if (this.session)
+                    this.session.signals.emit(SignalTimeout, this);
             }
 
             this.__mdl_end();
@@ -249,7 +255,8 @@ module nn {
             this.clear();
 
             this.signals.emit(SignalEnd);
-            RestSession.signals.emit(SignalEnd, this);
+            if (this.session)
+                this.session.signals.emit(SignalEnd, this);
 
             if (this.showWaiting)
                 Hud.HideProgress();
@@ -293,9 +300,12 @@ module nn {
                     Memcache.shared.cache(this);
                 }
 
-                this.unserialize(this.response);
-                this.signals.emit(SignalSucceed);
-                RestSession.signals.emit(SignalSucceed, this);
+                if (this.response.data) {
+                    this.unserialize(this.response);
+                    this.signals.emit(SignalSucceed);
+                    RestSession.signals.emit(SignalSucceed, this);
+                }
+
             }
             else {
                 warn('API ' + this.action + ' ' + this.message);
@@ -618,7 +628,7 @@ namespace app.models.logic {
                     }
                     mdl[key] = map;
                 }
-                 else if (fp.multimap) {
+                else if (fp.multimap) {
                     let keyconv = (v: any) => {
                         return v
                     };
@@ -638,12 +648,12 @@ namespace app.models.logic {
                             else if (fp.valtype == integer_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
-                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toInt(e)));                                    
+                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toInt(e)));
                                 }
                             }
                             else if (fp.valtype == double_t) {
                                 for (let ek in val) {
-                                    let ev = val[ek];                                    
+                                    let ev = val[ek];
                                     mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toFloat(e)));
                                 }
                             }

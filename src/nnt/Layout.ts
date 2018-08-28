@@ -1,28 +1,28 @@
 module nn {
-    
-    export abstract class Layout
-    {
-        constructor(ctx?:any) {
+
+    export abstract class Layout {
+        constructor(ctx?: any) {
             this._ctx = ctx;
         }
 
         // 是否使用 anchor，默认为 false
-        anchor:boolean;
-        useAnchor(b:boolean):this {
+        anchor: boolean;
+
+        useAnchor(b: boolean): this {
             this.anchor = b;
             return this;
         }
 
-        protected _ctx:any;        
-        protected _rc:Rect;
-        protected _orc:Rect;
-        protected _offset:number;
+        protected _ctx: any;
+        protected _rc: Rect;
+        protected _orc: Rect;
+        protected _offset: number;
 
         /** 把 layout 放到某一个具有 bounds 函数的对象中， apply 时的 rect 会变成 bounds */
-        view:any;
+        view: any;
 
         /** 设置整体大小 */
-        setRect(rc:Rect):this {
+        setRect(rc: Rect): this {
             if (this._orc == null) {
                 this._orc = rc;
             } else {
@@ -36,19 +36,20 @@ module nn {
         }
 
         /** 获得整体大小 */
-        get frame():Rect {
+        get frame(): Rect {
             this._avaRect();
             return this._orc.clone();
         }
-        set frame(rc:Rect) {
+
+        set frame(rc: Rect) {
             this.setRect(rc);
         }
-        
+
         // 初始化 rect
-        protected _avaRect():boolean {
+        protected _avaRect(): boolean {
             if (this._orc)
                 return false;
-            
+
             if (this._ctx) {
                 this._orc = this._ctx.boundsForLayout();
             } else {
@@ -59,15 +60,15 @@ module nn {
             return true;
         }
 
-        frameForLayout():Rect {
+        frameForLayout(): Rect {
             this._avaRect();
             return this._rc.clone();
         }
 
-        edgeInsets:EdgeInsets;
-        
+        edgeInsets: EdgeInsets;
+
         /** 设置布局的边距 */
-        padding(ei:EdgeInsets):this {
+        padding(ei: EdgeInsets): this {
             this.edgeInsets = ei;
             if (this._avaRect() == false)
                 this._rc = this._orc.clone().applyEdgeInsets(this.edgeInsets);
@@ -75,7 +76,7 @@ module nn {
         }
 
         /** 偏移 */
-        offset(pt:Point):this {
+        offset(pt: Point): this {
             this._avaRect();
             this._orc.offset(pt);
             this._rc.offset(pt);
@@ -87,7 +88,7 @@ module nn {
             // 确保 rect 不是 null
             this._avaRect();
             this._offset = 0;
-            
+
             // 如果有依赖的 view，则之后的布局均按照在 view 内部布局来处理
             if (this.view) {
                 this.view.setFrame(this._rc);
@@ -98,9 +99,10 @@ module nn {
         }
 
         /** 布局结束的回调 */
-        protected _cbcomplete:(lyt:Layout)=>void;
-        protected _ctxcomplete:any;
-        complete(cb:(lyt:Layout)=>void, ctx?:any) {
+        protected _cbcomplete: (lyt: Layout) => void;
+        protected _ctxcomplete: any;
+
+        complete(cb: (lyt: Layout) => void, ctx?: any) {
             this._cbcomplete = cb;
             this._ctxcomplete = ctx;
         }
@@ -109,19 +111,19 @@ module nn {
         abstract clear();
     }
 
-    export type layoutcb_t = ((obj:any, rc:Rect) => void)|((obj:any, rc:Rect, data:any) => void);
-    export type hboxcb_t = ((box:HBox) => void) | ((box:HBox, data:any) => void);
-    export type vboxcb_t = ((box:VBox) => void) | ((box:VBox, data:any) => void);
+    export type layoutcb_t = ((obj: any, rc: Rect) => void) | ((obj: any, rc: Rect, data: any) => void);
+    export type hboxcb_t = ((box: HBox) => void) | ((box: HBox, data: any) => void);
+    export type vboxcb_t = ((box: VBox) => void) | ((box: VBox, data: any) => void);
 
     export class LinearSegment {
-        val:number;
-        isp:boolean;
-        obj:any;
-        anchor:boolean;
-        
-        cb:layoutcb_t;
-        ctx:any;
-        data:any;
+        val: number;
+        isp: boolean;
+        obj: any;
+        anchor: boolean;
+
+        cb: layoutcb_t;
+        ctx: any;
+        data: any;
 
         dispose() {
             this.obj = undefined;
@@ -130,50 +132,48 @@ module nn {
             this.data = undefined;
         }
 
-        setRect(x:number, y:number, w:number, h:number) {
-            if (this.cb)
-            {
+        setRect(x: number, y: number, w: number, h: number) {
+            if (this.cb) {
                 this.cb.call(this.ctx, this.obj, new Rect(x, y, w, h), this.data);
             }
             else if (this.obj &&
-                     this.obj instanceof CComponent)
-            {
+                this.obj instanceof CComponent) {
                 this.obj.setFrame(new Rect(x, y, w, h), this.anchor);
             }
         }
     }
 
     export abstract class LinearLayout
-    extends Layout
-    {
+        extends Layout {
         /** 获得总长 */
-        abstract length():number;
+        abstract length(): number;
 
         /** 获得对边长 */
-        abstract against():number;
+        abstract against(): number;
 
         /** 设置每段的长度
-            @note 长度、段、第几份，返回具体设置了多长，可以通过修改return来做到附加偏移
+         @note 长度、段、第几份，返回具体设置了多长，可以通过修改return来做到附加偏移
          */
-        protected abstract setSegmentLength(len:number, seg:LinearSegment, idx:number):number;
+        protected abstract setSegmentLength(len: number, seg: LinearSegment, idx: number): number;
+
         protected _segments = new Array<LinearSegment>();
 
         /** 间距 */
-        spacing:number = 0;
+        spacing: number = 0;
 
-        setSpacing(v:number):this {
+        setSpacing(v: number): this {
             this.spacing = v;
             return this;
         }
 
         clear() {
-            nn.ArrayT.Clear(this._segments, (o:LinearSegment)=>{
+            nn.ArrayT.Clear(this._segments, (o: LinearSegment) => {
                 o.dispose();
             });
         }
 
         /** 按照像素划分 */
-        addPixel(pixel:number, obj?:any, cb?:layoutcb_t, ctx?:any, data?:any):this {
+        addPixel(pixel: number, obj?: any, cb?: layoutcb_t, ctx?: any, data?: any): this {
             var seg = new LinearSegment();
             seg.val = pixel;
             seg.isp = true;
@@ -187,7 +187,7 @@ module nn {
         }
 
         /** 按照定比来划分，总比例为各个 flex 之和，每一个 flex 的长度为 (总长 - 固定像素长) / 总 flex */
-        addFlex(flex:number, obj?:any, cb?:layoutcb_t, ctx?:any, data?:any):this {
+        addFlex(flex: number, obj?: any, cb?: layoutcb_t, ctx?: any, data?: any): this {
             var seg = new LinearSegment();
             seg.val = flex;
             seg.isp = false;
@@ -200,8 +200,8 @@ module nn {
             return this;
         }
 
-        addPixelHBox(pixel:number, boxcb:hboxcb_t, ctx?:any, data?:any):this {
-            this.addPixel(pixel, null, <any>function(obj:any, rc:Rect, data:any) {
+        addPixelHBox(pixel: number, boxcb: hboxcb_t, ctx?: any, data?: any): this {
+            this.addPixel(pixel, null, <any>function (obj: any, rc: Rect, data: any) {
                 var box = new HBox(this).setRect(rc);
                 boxcb.call(this, box, data);
                 box.apply();
@@ -209,8 +209,8 @@ module nn {
             return this;
         }
 
-        addPixelVBox(pixel:number, boxcb:vboxcb_t, ctx?:any, data?:any):this {
-            this.addPixel(pixel, null, <any>function(obj:any, rc:Rect, data:any) {
+        addPixelVBox(pixel: number, boxcb: vboxcb_t, ctx?: any, data?: any): this {
+            this.addPixel(pixel, null, <any>function (obj: any, rc: Rect, data: any) {
                 var box = new VBox(this).setRect(rc);
                 boxcb.call(this, box, data);
                 box.apply();
@@ -218,8 +218,8 @@ module nn {
             return this;
         }
 
-        addFlexHBox(flex:number, boxcb:hboxcb_t, ctx?:any, data?:any):this {
-            this.addFlex(flex, null, <any>function(obj:any, rc:Rect, data:any) {
+        addFlexHBox(flex: number, boxcb: hboxcb_t, ctx?: any, data?: any): this {
+            this.addFlex(flex, null, <any>function (obj: any, rc: Rect, data: any) {
                 var box = new HBox(this).setRect(rc);
                 boxcb.call(this, box, data);
                 box.apply();
@@ -227,8 +227,8 @@ module nn {
             return this;
         }
 
-        addFlexVBox(flex:number, boxcb:vboxcb_t, ctx?:any, data?:any):this {
-            this.addFlex(flex, null, <any>function(obj:any, rc:Rect, data:any) {
+        addFlexVBox(flex: number, boxcb: vboxcb_t, ctx?: any, data?: any): this {
+            this.addFlex(flex, null, <any>function (obj: any, rc: Rect, data: any) {
                 var box = new VBox(this).setRect(rc);
                 boxcb.call(this, box, data);
                 box.apply();
@@ -236,24 +236,24 @@ module nn {
             return this;
         }
 
-        addAspect(w:number, h:number, obj?:any, cb?:layoutcb_t, ctx?:any, data?:any):this {
-            return this.addPixel(w/h*this.against(), obj, cb, ctx, data);
+        addAspect(w: number, h: number, obj?: any, cb?: layoutcb_t, ctx?: any, data?: any): this {
+            return this.addPixel(w / h * this.against(), obj, cb, ctx, data);
         }
 
-        addAspectHBox(w:number, h:number, boxcb:hboxcb_t, ctx?:any, data?:any):this {
-            return this.addPixelHBox(w/h*this.against(), boxcb, ctx, data);
+        addAspectHBox(w: number, h: number, boxcb: hboxcb_t, ctx?: any, data?: any): this {
+            return this.addPixelHBox(w / h * this.against(), boxcb, ctx, data);
         }
 
-        addAspectVBox(w:number, h:number, boxcb:vboxcb_t, ctx?:any, data?:any):this {
-            return this.addPixelVBox(w/h*this.against(), boxcb, ctx, data);
+        addAspectVBox(w: number, h: number, boxcb: vboxcb_t, ctx?: any, data?: any): this {
+            return this.addPixelVBox(w / h * this.against(), boxcb, ctx, data);
         }
 
         apply() {
             super.apply();
-            
+
             // 计算所有的定长度，扣除后，计算所有的占比和单份占比
             var sumpixel = 0, sumflex = 0;
-            this._segments.forEach((seg)=>{
+            this._segments.forEach((seg) => {
                 if (seg.isp)
                     sumpixel += seg.val;
                 else
@@ -262,7 +262,7 @@ module nn {
             var lftlen = this.length() - sumpixel;
             var seglen = sumflex ? lftlen / sumflex : 0;
             // 应用长度
-            this._segments.forEach((seg:LinearSegment, idx:number)=>{
+            this._segments.forEach((seg: LinearSegment, idx: number) => {
                 var val = 0;
                 if (seg.isp)
                     val = seg.val;
@@ -274,13 +274,13 @@ module nn {
             // 处理结束
             if (this._cbcomplete)
                 this._cbcomplete.call(this._ctxcomplete ? this._ctxcomplete : this._ctx);
-            
+
             // 清空
             this.clear();
         }
 
         // 获得间距占的长度
-        protected _spacingsLength():number {
+        protected _spacingsLength(): number {
             let self = this;
             if (self.spacing == 0)
                 return 0;
@@ -291,22 +291,20 @@ module nn {
         }
 
         // 一些工具函数
-        
+
         // 按照比例来从中间拿出固定大小
-        clipPixel(pix:number, obj:any, lflex = 1, rflex = 1,
-                  cb?:layoutcb_t, ctx?:any, data?:any):this
-        {
+        clipPixel(pix: number, obj: any, lflex = 1, rflex = 1,
+                  cb?: layoutcb_t, ctx?: any, data?: any): this {
             if (lflex != 0)
-                this.addFlex(lflex);            
+                this.addFlex(lflex);
             this.addPixel(pix, obj, cb, ctx, data);
             if (rflex != 0)
                 this.addFlex(rflex);
             return this;
         }
 
-        clipFlex(flex:number, obj:any, lpix:number, rpix:number,
-                 cb?:layoutcb_t, ctx?:any, data?:any):this
-        {
+        clipFlex(flex: number, obj: any, lpix: number, rpix: number,
+                 cb?: layoutcb_t, ctx?: any, data?: any): this {
             if (lpix != 0)
                 this.addPixel(lpix)
             this.addFlex(flex, obj, cb, ctx, data);
@@ -315,9 +313,8 @@ module nn {
             return this;
         }
 
-        clipPixelHBox(pix:number, boxcb:hboxcb_t, lflex = 1, rflex = 1,
-                      ctx?:any, data?:any):this
-        {
+        clipPixelHBox(pix: number, boxcb: hboxcb_t, lflex = 1, rflex = 1,
+                      ctx?: any, data?: any): this {
             if (lflex != 0)
                 this.addFlex(lflex);
             this.addPixelHBox(pix, boxcb, ctx, data);
@@ -326,31 +323,28 @@ module nn {
             return this;
         }
 
-        clipFlexHBox(flex:number, boxcb:hboxcb_t, lpix:number, rpix:number,
-                     ctx?:any, data?:any):this
-        {
+        clipFlexHBox(flex: number, boxcb: hboxcb_t, lpix: number, rpix: number,
+                     ctx?: any, data?: any): this {
             if (lpix != 0)
-                this.addPixel(lpix);            
+                this.addPixel(lpix);
             this.addFlexHBox(flex, boxcb, ctx, data);
             if (rpix != 0)
                 this.addPixel(rpix);
             return this;
         }
 
-        clipPixelVBox(pix:number, boxcb:vboxcb_t, lflex = 1, rflex = 1,
-                      ctx?:any, data?:any):this
-        {
+        clipPixelVBox(pix: number, boxcb: vboxcb_t, lflex = 1, rflex = 1,
+                      ctx?: any, data?: any): this {
             if (lflex != 0)
-                this.addFlex(lflex);            
+                this.addFlex(lflex);
             this.addPixelVBox(pix, boxcb, ctx, data);
             if (rflex != 0)
                 this.addFlex(rflex);
             return this;
         }
 
-        clipFlexVBox(flex:number, boxcb:vboxcb_t, lpix:number, rpix:number,
-                     ctx?:any, data?:any):this
-        {
+        clipFlexVBox(flex: number, boxcb: vboxcb_t, lpix: number, rpix: number,
+                     ctx?: any, data?: any): this {
             if (lpix != 0)
                 this.addPixel(lpix);
             this.addFlexVBox(flex, boxcb, ctx, data);
@@ -361,59 +355,57 @@ module nn {
     }
 
     export class HBox
-    extends LinearLayout
-    {
-        constructor(ctx?:any) {
+        extends LinearLayout {
+        constructor(ctx?: any) {
             super(ctx);
         }
-        
-        length():number {
+
+        length(): number {
             return this._rc.width - this._spacingsLength();
         }
 
-        against():number {
+        against(): number {
             this._avaRect();
             return this._rc.height;
         }
-        
-        protected setSegmentLength(len:number, seg:LinearSegment, idx:number):number {
+
+        protected setSegmentLength(len: number, seg: LinearSegment, idx: number): number {
             let self = this;
             seg.setRect(self._offset + self._rc.x, self._rc.y,
-                        len, self._rc.height);
+                len, self._rc.height);
             if (self.spacing && (idx + 1) < self._segments.length)
                 len += self.spacing;
             return len;
-        }        
+        }
     }
 
     export class VBox
-    extends LinearLayout
-    {
-        constructor(ctx?:any) {
+        extends LinearLayout {
+        constructor(ctx?: any) {
             super(ctx);
         }
-        
-        length():number {
+
+        length(): number {
             return this._rc.height - this._spacingsLength();
         }
 
-        against():number {
+        against(): number {
             this._avaRect();
             return this._rc.width;
         }
 
-        protected setSegmentLength(len:number, seg:LinearSegment, idx:number):number {
+        protected setSegmentLength(len: number, seg: LinearSegment, idx: number): number {
             var self = this;
             seg.setRect(self._rc.x, self._offset + self._rc.y,
-                        self._rc.width, len);
+                self._rc.width, len);
             if (self.spacing && (idx + 1) < self._segments.length)
                 len += self.spacing;
             return len;
         }
     }
-    
-    export type layoutflowcb_t = (obj:any, rc:Rect, data?:any) => void;
-    
+
+    export type layoutflowcb_t = (obj: any, rc: Rect, data?: any) => void;
+
     export enum FlowOption {
         Fix = 0,
         Stretch = 1,
@@ -421,16 +413,16 @@ module nn {
 
     export class FlowSegment {
 
-        w:number;
-        h:number;
-        obj:any;
-        anchor:boolean;
-        option:FlowOption;
-        
-        cb:layoutflowcb_t;
-        ctx:any;
-        data:any;
-        
+        w: number;
+        h: number;
+        obj: any;
+        anchor: boolean;
+        option: FlowOption;
+
+        cb: layoutflowcb_t;
+        ctx: any;
+        data: any;
+
         dispose() {
             this.obj = undefined;
             this.cb = undefined;
@@ -438,37 +430,33 @@ module nn {
             this.data = undefined;
         }
 
-        setRect(x:number, y:number, w:number) {
-            if (this.cb)
-            {
+        setRect(x: number, y: number, w: number) {
+            if (this.cb) {
                 this.cb.call(this.ctx, this.obj, new Rect(x, y, w, this.h), this.data);
             }
             else if (this.obj &&
-                     this.obj instanceof CComponent)
-            {
+                this.obj instanceof CComponent) {
                 this.obj.setFrame(new Rect(x, y, w, this.h), this.anchor);
             }
         }
     }
-    
+
     export class HFlow
-    extends Layout
-    {
-        constructor(ctx?:any) {
+        extends Layout {
+        constructor(ctx?: any) {
             super(ctx);
         }
 
         clear() {
-            nn.ArrayT.Clear(this._segments, (o:FlowSegment)=>{
+            nn.ArrayT.Clear(this._segments, (o: FlowSegment) => {
                 o.dispose();
             });
         }
-        
+
         protected _segments = new Array<FlowSegment>();
-        
-        addSize(w:number, h:number, option:FlowOption = 0,
-                obj?:any, cb?:layoutflowcb_t, ctx?:any, data?:any):HFlow
-        {
+
+        addSize(w: number, h: number, option: FlowOption = 0,
+                obj?: any, cb?: layoutflowcb_t, ctx?: any, data?: any): HFlow {
             var seg = new FlowSegment();
             seg.w = w;
             seg.h = h;
@@ -482,33 +470,31 @@ module nn {
             return this;
         }
 
-        position:Point;        
+        position: Point;
 
         apply() {
             super.apply();
             this._avaRect();
-            
+
             this.position = this._rc.leftTop;
             var w = this._rc.width;
             var h = this._rc.height;
-            
+
             // 按照行划分格子
             var sw = 0, sh = 0;
             var rows = new Array<FlowSegment>();
-            this._segments.forEach((seg)=>{
-                if (sw + seg.w <= w)
-                {
+            this._segments.forEach((seg) => {
+                if (sw + seg.w <= w) {
                     sw += seg.w;
                     if (sh < seg.h)
                         sh = seg.h;
                     rows.push(seg);
                 }
-                else
-                {                    
+                else {
                     // 超出了当前行的宽度，需要换行并应用掉
                     this.applyRows(rows, this.position, w);
                     nn.ArrayT.Clear(rows);
-                    
+
                     // 开始下一行
                     this.position.y += sh;
                     sw = seg.w;
@@ -516,10 +502,9 @@ module nn {
                     rows.push(seg);
                 }
             }, this);
-            
+
             // 如果最后一行没有遇到换行，则需要附加计算一次
-            if (rows.length)
-            {
+            if (rows.length) {
                 this.applyRows(rows, this.position, w);
                 nn.ArrayT.Clear(rows);
                 this.position.y += sh;
@@ -533,28 +518,28 @@ module nn {
             this.clear();
         }
 
-        protected applyRows(rows:Array<FlowSegment>, pos:Point, w:number) {
+        protected applyRows(rows: Array<FlowSegment>, pos: Point, w: number) {
             this._offset = 0;
-            
+
             // 和 linear 的 flex 算法类似
             var flex = 0, pix = 0;
-            rows.forEach((seg)=>{
+            rows.forEach((seg) => {
                 if (seg.option == FlowOption.Stretch)
-                    flex += 1;                  
+                    flex += 1;
                 pix += seg.w;
             }, this);
-            
+
             // 计算可以拉伸的控件需要拉大多少
             flex = flex ? ((w - pix) / flex) : 0;
             // 布局
-            rows.forEach((seg)=>{
+            rows.forEach((seg) => {
                 var w = seg.w;
                 if (seg.option == FlowOption.Stretch)
                     w += flex;
                 seg.setRect(this._offset + pos.x, pos.y,
-                            w);
+                    w);
                 this._offset += w;
             });
         }
-    }    
+    }
 }

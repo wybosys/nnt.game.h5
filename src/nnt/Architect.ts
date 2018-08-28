@@ -2,35 +2,31 @@
 
 module nn {
 
-    export class EntrySettings
-    {
+    export class EntrySettings {
         /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
-        singletone:boolean = true;
+        singletone: boolean = true;
 
         /** 其他数据 */
-        ext:any;
+        ext: any;
 
         static Default = new EntrySettings();
     }
-    
-    export interface IEntry
-    {
+
+    export interface IEntry {
         /** 模块的配置 */
-        entrySettings?:EntrySettings;
+        entrySettings?: EntrySettings;
     }
-    
-    export interface ILauncher
-    {
-        /** 处理模块的启动 
-            @param cls 待启动模块的类
-            @param data 附加的参数
-        */
-        launchEntry(cls:any, data?:any);
+
+    export interface ILauncher {
+        /** 处理模块的启动
+         @param cls 待启动模块的类
+         @param data 附加的参数
+         */
+        launchEntry(cls: any, data?: any);
     }
-    
+
     export abstract class Manager
-    extends SObject
-    {
+        extends SObject {
         /** 初始化自己和其它manager或者其它对象之间的关系 */
         abstract onLoaded();
 
@@ -38,46 +34,44 @@ module nn {
         onDataLoaded() {
         }
     }
-    
+
     export abstract class Managers
-    extends SObject
-    {
-        register<T>(obj:T):T {            
+        extends SObject {
+        register<T>(obj: T): T {
             this._managers.push(<any>obj);
             return obj;
         }
 
         onLoaded() {
-            this._managers.forEach((e:Manager)=>{
+            this._managers.forEach((e: Manager) => {
                 e.onLoaded && e.onLoaded();
             });
         }
 
         onDataLoaded() {
-            this._managers.forEach((e:Manager)=>{
+            this._managers.forEach((e: Manager) => {
                 e.onDataLoaded && e.onDataLoaded();
             });
         }
-        
+
         protected _managers = new Array<Manager>();
     }
 
     export interface IEntryClass {
-        name:string;
-        clazz:()=>Function;
+        name: string;
+        clazz: () => Function;
     }
 
-    export type EntryIdrToLauncherIdr = (entryidr:string)=>string;
+    export type EntryIdrToLauncherIdr = (entryidr: string) => string;
     export type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
     export type EntryClassType = Function | IEntryClass;
 
-    export class _EntriesManager
-    {
+    export class _EntriesManager {
         /** 注册一个模块
-            @param entryClass类
-        */
-        register(entryClass:EntryClassType, data:EntrySettings = EntrySettings.Default) {
-            let idr:string;
+         @param entryClass类
+         */
+        register(entryClass: EntryClassType, data: EntrySettings = EntrySettings.Default) {
+            let idr: string;
             if (typeof(entryClass) == 'object') {
                 let o = <IEntryClass>entryClass;
                 idr = o.name;
@@ -89,21 +83,21 @@ module nn {
         }
 
         /** 启动一个模块
-            @param entry 类或者标类名
-            @param launcher 启动点的标示号或者启动点的实例
-            @pram data 附加的参数
-        */
-        invoke(entry:any|string, launcher:EntryLauncherType, ext?:any) {
+         @param entry 类或者标类名
+         @param launcher 启动点的标示号或者启动点的实例
+         @pram data 附加的参数
+         */
+        invoke(entry: any | string, launcher: EntryLauncherType, ext?: any) {
             this._doInvoke(entry, launcher, ext);
         }
-        
-        protected _doInvoke(entry:any|string, launcher:EntryLauncherType, ext?:any) {
+
+        protected _doInvoke(entry: any | string, launcher: EntryLauncherType, ext?: any) {
             if (entry == null) {
                 nn.warn("不能打开空的实例");
                 return;
-            }            
-            let idr = typeof(entry) == 'string' ? entry : nn.Classname(entry);            
-            let cls:any = this._entries[idr];
+            }
+            let idr = typeof(entry) == 'string' ? entry : nn.Classname(entry);
+            let cls: any = this._entries[idr];
             if (typeof(cls) == 'object') {
                 // 复杂定义一个类型，为了支持动态入口逻辑
                 let o = <IEntryClass>cls;
@@ -114,16 +108,15 @@ module nn {
                 return;
             }
             // 在launchers中查启动点
-            let ler:ILauncher;
+            let ler: ILauncher;
             if (typeof(launcher) == 'string')
                 ler = LaunchersManager.find(<string>launcher);
-            if (ler == null && typeof(launcher) == 'function')
-            {
+            if (ler == null && typeof(launcher) == 'function') {
                 let leridr = (<EntryIdrToLauncherIdr>launcher)(idr);
                 ler = LaunchersManager.find(leridr);
                 // 如果ler为null，则代表目标模块还没有加载，需要先加载目标模块，待之准备好后，再加载当前模块
                 if (ler == null) {
-                    let wait = (s:nn.Slot)=>{
+                    let wait = (s: nn.Slot) => {
                         if (s.data != leridr)
                             return;
                         LaunchersManager.signals.disconnect(nn.SignalChanged, wait);
@@ -144,7 +137,7 @@ module nn {
                 return;
             }
             // 加载最终的模块
-            let data:EntrySettings = this._entriesdata[idr];
+            let data: EntrySettings = this._entriesdata[idr];
             if (!EntryCheckSettings(cls, data))
                 return;
             // 检查是否可以打开
@@ -152,28 +145,27 @@ module nn {
                 data = new EntrySettings();
             data.ext = ext;
             ler.launchEntry(cls, data);
-        }        
-        
+        }
+
         private _entries = new KvObject<string, EntryClassType>();
         private _entriesdata = new KvObject<string, EntrySettings>();
 
-        toString():string {
+        toString(): string {
             let t = [];
-            nn.MapT.Foreach(this._entries, (k:string)=>{
+            nn.MapT.Foreach(this._entries, (k: string) => {
                 t.push(k);
             });
             return t.join(';');
         }
     }
 
-    export let EntryCheckSettings:(cls:any, data:EntrySettings)=>boolean;
+    export let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
 
     // 应用实例管理器
     export let EntriesManager = new _EntriesManager();
 
     export class _LaunchersManager
-    extends nn.SObject
-    {
+        extends nn.SObject {
         constructor() {
             super();
         }
@@ -182,9 +174,9 @@ module nn {
             super._initSignals();
             this._signals.register(nn.SignalChanged);
         }
-        
+
         /** 注册一个启动器 */
-        register(obj:ILauncher) {
+        register(obj: ILauncher) {
             let idr = nn.Classname(obj);
             let fnd = this._launchers[idr];
             if (fnd) {
@@ -198,21 +190,21 @@ module nn {
         }
 
         /** 取消 */
-        unregister(obj:ILauncher) {
+        unregister(obj: ILauncher) {
             let idr = nn.Classname(obj);
             nn.MapT.RemoveKey(this._launchers, idr);
         }
 
         /** 查找一个启动器 */
-        find(str:string):ILauncher {
+        find(str: string): ILauncher {
             return this._launchers[str];
         }
-        
+
         private _launchers = new KvObject<string, ILauncher>();
 
-        toString():string {
+        toString(): string {
             let t = [];
-            nn.MapT.Foreach(this._launchers, (k:string)=>{
+            nn.MapT.Foreach(this._launchers, (k: string) => {
                 t.push(k);
             });
             return t.join(';');

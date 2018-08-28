@@ -11,34 +11,34 @@ type numstr = number | string | any;
 type jsonobj = string | Object;
 
 module nn {
-    
+
     // 默认的时间单位，秒
     export type Interval = number;
-    
+
     // 获得当前渲染的进度
-    export let IMP_TIMEPASS:()=>number;
+    export let IMP_TIMEPASS: () => number;
 
     // 定时器
-    export let IMP_CREATE_TIMER:(duration:Interval, count:number)=>any;
-    export let IMP_START_TIMER:(tmr:any, cb:()=>void, ctx:any)=>void;
-    export let IMP_STOP_TIMER:(tmr:any, cb:()=>void, ctx:any)=>void;
+    export let IMP_CREATE_TIMER: (duration: Interval, count: number) => any;
+    export let IMP_START_TIMER: (tmr: any, cb: () => void, ctx: any) => void;
+    export let IMP_STOP_TIMER: (tmr: any, cb: () => void, ctx: any) => void;
 
     // 存储
-    export let IMP_STORAGE_GET:(key:string)=>string;
-    export let IMP_STORAGE_SET:(key:string, v:string)=>void;
-    export let IMP_STORAGE_DEL:(key:string)=>void;
-    export let IMP_STORAGE_CLEAR:()=>void;
-    
-    // 推迟
-    export let Defer:(cb:()=>void, ctx:any, ...p:any[])=>void;
+    export let IMP_STORAGE_GET: (key: string) => string;
+    export let IMP_STORAGE_SET: (key: string, v: string) => void;
+    export let IMP_STORAGE_DEL: (key: string) => void;
+    export let IMP_STORAGE_CLEAR: () => void;
 
-    export enum FrameworkFeature {        
+    // 推迟
+    export let Defer: (cb: () => void, ctx: any, ...p: any[]) => void;
+
+    export enum FrameworkFeature {
         // GL 硬件加速
         // GL = 1 << 1,
 
         // 不同步屏幕刷新
         NOSYNC = 1 << 2,
-        
+
         // 多分辨率素材支持
         MULTIRES = 1 << 3,
 
@@ -49,7 +49,7 @@ module nn {
         //MULTIDIRECTION = 1 << 5,
 
         // 默认没有属性
-    DEFAULT = 0,
+        DEFAULT = 0,
     };
 
     /** 定位方式 */
@@ -79,30 +79,30 @@ module nn {
 
     export let MAX_INT = 9007199254740991;
 
-    export function Integral(v:number):number {
+    export function Integral(v: number): number {
         return (v + 0.5) >> 0;
     }
 
     /** 基类的接口 */
     export interface IObject {
-        dispose():void;
-    }
-    
-    /** 引用计数的接口 */
-    export interface IReference {
-        drop():void;
-        grab():void;
+        dispose(): void;
     }
 
-    export class RefVariable<T extends IReference>
-    {
+    /** 引用计数的接口 */
+    export interface IReference {
+        drop(): void;
+
+        grab(): void;
+    }
+
+    export class RefVariable<T extends IReference> {
         // 获取当前值
-        get():T {
+        get(): T {
             return this._val;
         }
 
         // 设置当前值
-        set(o:T, grab:boolean = true) {
+        set(o: T, grab: boolean = true) {
             if (this._val)
                 this._val.drop();
             this._val = o;
@@ -117,29 +117,28 @@ module nn {
             }
         }
 
-        private _val:T;
+        private _val: T;
     }
 
     /** 默认的Object接口 */
     export interface IRefObject
-    extends IObject, IReference
-    {
-    }  
-    
+        extends IObject, IReference {
+    }
+
     /** 序列化的接口 */
     export interface ISerializable {
         /** 序列化对象到流，返回结果 */
-        serialize(stream:any):any;
-        
+        serialize(stream: any): any;
+
         /** 从流中构建对象 */
-        unserialize(stream:any):boolean;
+        unserialize(stream: any): boolean;
     }
-    
+
     /** 单件的接口 */
     export interface ISingleton {
         /** 获得实体 */
         // static getInstance():any;
-        
+
         /** 释放实体 */
         // static freeInstance();        
     }
@@ -151,31 +150,30 @@ module nn {
     }
 
     /** 强制转换 */
-    export function any_cast<T>(obj:any):T {
+    export function any_cast<T>(obj: any): T {
         return obj;
     }
 
     export interface ISObject {
-        signals:Signals;
+        signals: Signals;
     }
-    
+
     /** 带有信号的基类
-        @brief 如果不能直接基类，需要实现信号的相关函数 */
+     @brief 如果不能直接基类，需要实现信号的相关函数 */
     export class SObject
-    implements IRefObject, ISObject
-    {
+        implements IRefObject, ISObject {
         /** 构造函数 */
         constructor() {
         }
 
-        tag:any;
-        
+        tag: any;
+
         /** 唯一id */
         static HashCode = 0;
-        hashCode:number = ++SObject.HashCode;
+        hashCode: number = ++SObject.HashCode;
 
         // 已经析构掉，用来 debug 模式下防止多次析构
-        __disposed = false; 
+        __disposed = false;
 
         /** 析构函数 */
         dispose() {
@@ -183,27 +181,28 @@ module nn {
                 warn("对象 " + Classname(this) + " 已经析构");
             }
             this.__disposed = true;
-            
+
             if (this._attachs) {
-                ArrayT.Clear(this._attachs, (o:any)=>{
+                ArrayT.Clear(this._attachs, (o: any) => {
                     drop(o);
                 });
             }
-            
+
             if (this._signals) {
                 this._signals.dispose();
                 this._signals = undefined;
             }
         }
 
-        /** 实现注册信号 
-            @note 业务通过重载此函数并通过调用 this._signals.register 来注册信号
-        */
-        protected _initSignals() {}
+        /** 实现注册信号
+         @note 业务通过重载此函数并通过调用 this._signals.register 来注册信号
+         */
+        protected _initSignals() {
+        }
 
         /** 信号 */
-        protected _signals:Signals;
-        get signals():Signals {
+        protected _signals: Signals;
+        get signals(): Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -211,27 +210,28 @@ module nn {
         }
 
         protected _instanceSignals() {
-            this._signals = new Signals(this);            
+            this._signals = new Signals(this);
             this._initSignals();
         }
 
         /** 绑定一个生命期 */
-        private _attachs:Array<any>;
-        attach(o:any) {
+        private _attachs: Array<any>;
+
+        attach(o: any) {
             // 如果不存在生命期维护，则直接放弃
             if (o.grab == undefined)
-                return;            
+                return;
             if (this._attachs == null)
                 this._attachs = new Array<any>();
             o.grab();
             this._attachs.push(o);
         }
-        
-        detach(o:any) {
+
+        detach(o: any) {
             if (o.drop == undefined)
-                return;                        
+                return;
             if (this._attachs == null)
-                return;            
+                return;
             if (ISDEBUG && !ArrayT.Contains(this._attachs, o)) {
                 warn("尝试从 attachs 中移除一个本来没有加入的对象");
                 return;
@@ -248,7 +248,7 @@ module nn {
             if (ISDEBUG && this.__disposed) {
                 warn("对象 " + Classname(this) + " 已经析构");
             }
-            
+
             if (--this._refcnt == 0)
                 this.dispose();
         }
@@ -257,56 +257,54 @@ module nn {
         grab() {
             ++this._refcnt;
         }
-        
+
         /** 调用自己 */
-        callself<implT>(cb:(s:implT)=>void, ctx?:any):implT {
+        callself<implT>(cb: (s: implT) => void, ctx?: any): implT {
             cb.call(ctx ? ctx : this, this);
             return <any>this;
         }
 
         /** 获得自己，为了支持 InstanceType */
-        get obj():this {
+        get obj(): this {
             return this;
         }
 
         /** 测试自己是否为空 */
-        isnull():boolean {
+        isnull(): boolean {
             if (this.__disposed)
                 return true;
             return false;
         }
 
         /** 比较函数 */
-        isEqual(r:this):boolean {
+        isEqual(r: this): boolean {
             return this == r;
         }
 
         /** 获得自己的类定义 */
-        get clazz():any {
+        get clazz(): any {
             return ObjectClass(this);
         }
 
         /** 实例化一个对象 */
-        static New<T>(cb:(o:T)=>void, ...p:any[]):T {
-            let obj:any = InstanceNewObject(this, p);
+        static New<T>(cb: (o: T) => void, ...p: any[]): T {
+            let obj: any = InstanceNewObject(this, p);
             if (cb)
                 cb.call(this, obj);
             return obj;
         }
     }
 
-    export interface ISObjectWrapper
-    {
-        signals:Signals;
-        attach:(obj:any)=>void;
-        dispose:()=>void;
+    export interface ISObjectWrapper {
+        signals: Signals;
+        attach: (obj: any) => void;
+        dispose: () => void;
     }
 
     // 包裹一个普通对象为signals对象
     export class SObjectWrapper
-    extends SObject
-    {        
-        constructor(o:any) {
+        extends SObject {
+        constructor(o: any) {
             super();
             this._wrpobj = o;
             let tgt = this._wrpobj;
@@ -316,16 +314,16 @@ module nn {
             tgt.__sobj_wrapper = this;
         }
 
-        static _imp_dispose = function() {
+        static _imp_dispose = function () {
             let tgt = <any>this;
             tgt.__sobj_wrapper.dispose();
         }
 
-        static _imp_attach = function(o:any) {
+        static _imp_attach = function (o: any) {
             let tgt = <any>this;
             tgt.__sobj_wrapper.attach(o);
         }
-        
+
         dispose() {
             let tgt = this._wrpobj;
             tgt.signals = null;
@@ -334,72 +332,71 @@ module nn {
             this._wrpobj = null;
             super.dispose();
         }
-        
-        private _wrpobj:any;
+
+        private _wrpobj: any;
     }
 
     // 默认对象的名称需要跳过名字
     export let OBJECT_DEFAULT_KEYS = ["hashCode"];
 
     // egret等实现框架会重叠listener，所以保护一下addEventListener，防止被多次添加
-    export function EventHook(obj:any, event:any, fun:any, target?:any, capture?:boolean) {
+    export function EventHook(obj: any, event: any, fun: any, target?: any, capture?: boolean) {
         if (target == null)
             target = obj;
         if (obj.hasEventListener(event, fun, target, capture) == false)
             obj.addEventListener(event, fun, target, capture);
     }
-    
-    export function EventUnhook(obj:any, event:any, fun:any, target?:any, capture?:boolean) {
+
+    export function EventUnhook(obj: any, event: any, fun: any, target?: any, capture?: boolean) {
         if (target == null)
             target = obj;
-        obj.removeEventListener(event, fun, target, capture);        
+        obj.removeEventListener(event, fun, target, capture);
     }
 
     /** 增加引用计数 */
-    export function grab<T>(o:T):T {
+    export function grab<T>(o: T): T {
         if (o == null)
             return undefined;
         (<any>o).grab();
         return o;
     }
-    
+
     /** 减计数对象 */
-    export function drop<T>(o:T):T {
+    export function drop<T>(o: T): T {
         if (o == null)
             return undefined;
         return (<any>o).drop();
     }
-    
+
     /** 直接析构一个对象 */
-    export function dispose<T>(o:T) {
+    export function dispose<T>(o: T) {
         if (o == null)
             return;
         (<any>o).dispose();
     }
 
     /** 错误的类型 */
-    export class Failed
-    {
-        constructor(code:number, msg?:string, lmsg?:string) {
+    export class Failed {
+        constructor(code: number, msg?: string, lmsg?: string) {
             this.code = code;
             this.message = msg;
             if (lmsg == null)
                 lmsg = msg;
             this.locationMessage = lmsg;
         }
-        
-        message:string;
-        locationMessage:string;
-        code:number;
-        line:number;
 
-        toString():string {
+        message: string;
+        locationMessage: string;
+        code: number;
+        line: number;
+
+        toString(): string {
             return this.code + ': ' + this.locationMessage;
         }
     }
 
     /** 测试用的 closure, 如果当前不是测试模式，则会抛出一个错误 */
-    export function test(cb:Function, ctx?:any) {
+    export function test(cb: Function, ctx?: any) {
         if (ISDEBUG)
             cb.call(ctx);
         else
@@ -407,32 +404,32 @@ module nn {
     }
 
     /** debug 模式下才执行 */
-    export function debug(cb:Function, ctx?:any) {
+    export function debug(cb: Function, ctx?: any) {
         VERBOSE && cb.call(ctx);
     }
 
     export module debug {
-        
-        export let text = {'p':'%c', 'c':'color:#b0b0b0'};
-        export let obje  = {'p':'%c', 'c':'color:#f8881a'};
-        export let info = {'p':'', 'c':''};
-        export let noti = {'p':'%c', 'c':'color:blue'};
-        export let warn = {'p':'%c', 'c':'color:red'};
 
-        export function log(msg:string, face:any) {
+        export let text = {'p': '%c', 'c': 'color:#b0b0b0'};
+        export let obje = {'p': '%c', 'c': 'color:#f8881a'};
+        export let info = {'p': '', 'c': ''};
+        export let noti = {'p': '%c', 'c': 'color:blue'};
+        export let warn = {'p': '%c', 'c': 'color:red'};
+
+        export function log(msg: string, face: any) {
             if (ISHTML5)
                 console.log(face.p + msg, face.c);
             else
                 console.log(msg);
         }
 
-        export function obj(o:any) {
+        export function obj(o: any) {
             console.log('%o', o);
         }
 
         let FEATURE_GROUP = console.groupCollapsed != null;
 
-        export function group(msg:string, cb:()=>void, ctx:any) {
+        export function group(msg: string, cb: () => void, ctx: any) {
             FEATURE_GROUP && console.groupCollapsed(msg);
             cb.call(ctx);
             FEATURE_GROUP && console.groupEnd();
@@ -440,7 +437,7 @@ module nn {
     }
 
     /** dump一个变量 */
-    export function vardump(o:any, depth = 2):string {
+    export function vardump(o: any, depth = 2): string {
         let buf = '{';
         for (let k in o) {
             buf += '"' + k + '":';
@@ -450,24 +447,29 @@ module nn {
             } else {
                 let tp = typeof(v);
                 switch (tp) {
-                case 'string': {
-                    buf += '"' + v + '"';
-                } break;
-                case 'boolean': {
-                    buf += v ? 'true' : 'false';
-                } break;
-                case 'number': {
-                    buf += v;
-                } break;
-                case 'function': {
-                    buf += v.name + '(#' + v.length + ')';
-                } break;
-                default: {
-                    if (depth)
-                        buf += vardump(v, depth - 1);
-                    else
-                        buf += '<truncated>';
-                } break;
+                    case 'string': {
+                        buf += '"' + v + '"';
+                    }
+                        break;
+                    case 'boolean': {
+                        buf += v ? 'true' : 'false';
+                    }
+                        break;
+                    case 'number': {
+                        buf += v;
+                    }
+                        break;
+                    case 'function': {
+                        buf += v.name + '(#' + v.length + ')';
+                    }
+                        break;
+                    default: {
+                        if (depth)
+                            buf += vardump(v, depth - 1);
+                        else
+                            buf += '<truncated>';
+                    }
+                        break;
                 }
             }
             buf += ',';
@@ -477,28 +479,29 @@ module nn {
     }
 
     /** 获得调用路径 */
-    export function callstack():Array<any> {
+    export function callstack(): Array<any> {
         let r = [];
         let o = arguments.callee.caller;
         while (o) {
-            r.push(o);;
+            r.push(o);
+            ;
             o = o.caller;
         }
         return r;
     }
 
     /** 控制台输出日志 */
-    export function log(msg:string, obj?:any) {
+    export function log(msg: string, obj?: any) {
         VERBOSE && debug.log(msg, debug.text);
     }
 
     /** 控制台打印一个对象 */
-    export function obj(o:any) {
+    export function obj(o: any) {
         VERBOSE && debug.obj(o);
     }
 
     /** 控制台dump一个对象 */
-    export function dump(o:any, depth?:number):string {
+    export function dump(o: any, depth?: number): string {
         if (VERBOSE) {
             let s = vardump(o, depth);
             debug.log(s, debug.obje);
@@ -508,21 +511,21 @@ module nn {
     }
 
     /** 控制台输出信息 */
-    export function info(msg:string) {
+    export function info(msg: string) {
         VERBOSE && debug.log(msg, debug.info);
     }
 
     /** 控制台输出提示 */
-    export function noti(msg:string) {
+    export function noti(msg: string) {
         VERBOSE && debug.log(msg, debug.noti);
     }
 
     /** 控制台输出警告 */
-    export function warn(msg:string, title?:string, ...obj:any[]) {
+    export function warn(msg: string, title?: string, ...obj: any[]) {
         if (VERBOSE) {
             debug.log(msg, debug.warn);
-            obj.length && debug.group(title, function() {
-                obj.forEach((o:any)=>{
+            obj.length && debug.group(title, function () {
+                obj.forEach((o: any) => {
                     debug.obj(o);
                 });
             }, this);
@@ -531,7 +534,7 @@ module nn {
     }
 
     /** 控制台打印一个异常 */
-    export function exception(obj:any, msg?:string) {
+    export function exception(obj: any, msg?: string) {
         if (VERBOSE) {
             let s = '';
             if (msg && msg.length)
@@ -543,13 +546,13 @@ module nn {
     }
 
     /** 控制台弹窗 */
-    export function msgbox(msg:string) {
+    export function msgbox(msg: string) {
         noti(msg);
         VERBOSE && alert(msg);
     }
 
     /** 中断程序流程 */
-    export function assert(exp:boolean, msg?:string) {
+    export function assert(exp: boolean, msg?: string) {
         if (!exp) {
             warn(msg);
             Debugger();
@@ -557,20 +560,20 @@ module nn {
     }
 
     /** 如果为null，返回另外一个值 */
-    export function val<T>(inp:T, def:T):T {
+    export function val<T>(inp: T, def: T): T {
         return inp == null ? def : inp;
     }
 
     /** 取大于的数值 great-than */
-    export function gt(inp:number, cmp:number = 0, def:number = 0):number {
+    export function gt(inp: number, cmp: number = 0, def: number = 0): number {
         return inp > cmp ? inp : def;
     }
-    
+
     /** 取小于的数值 less-than */
-    export function lt(inp:number, cmp:number = 0, def:number = 0):number {
+    export function lt(inp: number, cmp: number = 0, def: number = 0): number {
         return inp < cmp ? inp : def;
     }
-    
+
     /** 是否是Chrome */
     export let ISCHROME = window['chrome'] != null;
 
@@ -581,21 +584,21 @@ module nn {
     }
 
     /** 控制台输出一个错误 */
-    export function fatal(msg:string) {
+    export function fatal(msg: string) {
         warn(msg);
         alert(msg);
         Debugger();
     }
 
     /** 带保护的取得一个对象的长度 */
-    export function length(o:any, def = 0):number {
+    export function length(o: any, def = 0): number {
         if (o == null)
             return def;
         return o.length;
     }
 
     /** 带保护的取一堆中第一个不是空的值 */
-    export function nonnull1st<T>(def:T, ...p:T[]) {
+    export function nonnull1st<T>(def: T, ...p: T[]) {
         for (let i = 0; i < p.length; ++i) {
             let v = p[i];
             if (v != null)
@@ -605,7 +608,7 @@ module nn {
     }
 
     /** 带保护的根据下标取得列表中的对象 */
-    export function at<T>(o:T[], idx:number, def:any = null):any {
+    export function at<T>(o: T[], idx: number, def: any = null): any {
         if (o == null)
             return <T>def;
         if (length(o) <= idx)
@@ -614,7 +617,7 @@ module nn {
     }
 
     /** 带保护的判断对象是不是 0 */
-    export function isZero(o:any):boolean {
+    export function isZero(o: any): boolean {
         if (o == null || o == 0)
             return true;
         if (o.length)
@@ -622,15 +625,15 @@ module nn {
         return false;
     }
 
-    function SafeNumber(o:number, def = 0):number {
+    function SafeNumber(o: number, def = 0): number {
         return isNaN(o) ? def : o;
     }
 
     /** 转换到 float */
-    export function toFloat(o:any, def = 0):number {
+    export function toFloat(o: any, def = 0): number {
         if (o == null)
             return def;
-        let tp = typeof(o);            
+        let tp = typeof(o);
         if (tp == 'number')
             return SafeNumber(o, def);
         if (tp == 'string') {
@@ -643,7 +646,7 @@ module nn {
     }
 
     /** 转换到 int */
-    export function toInt(o:any, def = 0):number {
+    export function toInt(o: any, def = 0): number {
         if (o == null)
             return def;
         let tp = typeof(o);
@@ -656,10 +659,10 @@ module nn {
         return def;
     }
 
-    /** 转换到数字 
-        @brief 如果对象不能直接转换，会尝试调用对象的 toNumber 进行转换
-    */
-    export function toNumber(o:any, def = 0):number {
+    /** 转换到数字
+     @brief 如果对象不能直接转换，会尝试调用对象的 toNumber 进行转换
+     */
+    export function toNumber(o: any, def = 0): number {
         if (o == null)
             return def;
         let tp = typeof(o);
@@ -679,7 +682,7 @@ module nn {
     }
 
     /** 转换到字符串 */
-    export function asString(o:any, def = ''):string {
+    export function asString(o: any, def = ''): string {
         if (o == null)
             return def;
         let tp = typeof(o);
@@ -692,8 +695,23 @@ module nn {
         return def;
     }
 
+    /** 转换到json字串 */
+    export function toJson(o: any, def = null): string {
+        let t = typeof(o);
+        if (t == 'string')
+            return o;
+        let r = null;
+        try {
+            r = JSON.stringify(o);
+        }
+        catch (ex) {
+            r = def;
+        }
+        return r;
+    }
+
     /** 转换到对象 */
-    export function toJsonObject(o:jsonobj, def = null):Object {
+    export function toJsonObject(o: jsonobj, def = null): Object {
         let t = typeof(o);
         if (t == 'string')
             return JSON.parse(<string>o);
@@ -703,7 +721,7 @@ module nn {
     }
 
     /** 格式化字符串 */
-    export function formatString(fmt:string, ...p:any[]):string {
+    export function formatString(fmt: string, ...p: any[]): string {
         try {
             return Invoke1(Js.printf, this, p, fmt);
         } catch (err) {
@@ -711,8 +729,8 @@ module nn {
         }
         return '';
     }
-    
-    export function formatStringV(fmt:string, p:any[]):string {
+
+    export function formatStringV(fmt: string, p: any[]): string {
         try {
             return Invoke1(Js.printf, this, p, fmt);
         } catch (err) {
@@ -722,30 +740,29 @@ module nn {
     }
 
     /** 格式化字符对象 */
-    export class FormatString
-    {
-        constructor(fmt?:any, ...args:any[]) {
+    export class FormatString {
+        constructor(fmt?: any, ...args: any[]) {
             this.fmt = fmt;
             this.args = args;
         }
-        
+
         /** fmt 根据业务的实现，可能为int的id，一般情况下为string，所以设置为any兼容业务的复杂性 */
-        fmt:any;
+        fmt: any;
 
         /** 带上的参数 */
-        args:any[];
+        args: any[];
 
-        toString():string {
+        toString(): string {
             return formatStringV(this.fmt, this.args);
         }
     }
 
     /** json处理，保护防止crash并且打印出数据 */
-    export function json_encode(obj:Object):string {
+    export function json_encode(obj: Object): string {
         return JSON.stringify(obj);
     }
 
-    export function json_decode(str:string):any {
+    export function json_decode(str: string): any {
         let r;
         try {
             r = JSON.parse(str);
@@ -754,9 +771,9 @@ module nn {
         }
         return r;
     }
-    
+
     /** 带保护的判断对象是不是空 */
-    export function IsEmpty(o:any):boolean {
+    export function IsEmpty(o: any): boolean {
         if (o == null)
             return true;
         let tp = typeof(o);
@@ -777,9 +794,9 @@ module nn {
         return Object.keys(o).length == 0;
     }
 
-    export function TRIVALUE<T>(express:boolean, v1:T, v2:T):T;
-    export function TRIVALUE<T>(v1:T, v2:T):T;
-    export function TRIVALUE(...p:any[]):any {
+    export function TRIVALUE<T>(express: boolean, v1: T, v2: T): T;
+    export function TRIVALUE<T>(v1: T, v2: T): T;
+    export function TRIVALUE(...p: any[]): any {
         if (p.length == 3)
             return p[0] ? p[1] : p[2];
         return p[0] ? p[0] : p[1];
@@ -797,55 +814,68 @@ module nn {
         NOTEQUALQ, // !==
     }
 
-    export function Cmp(l:any, r:any, cmp:CMP):boolean {
+    export function Cmp(l: any, r: any, cmp: CMP): boolean {
         switch (cmp) {
-        case CMP.EQUAL: return l == r;
-        case CMP.EQUALQ: return l === r;
-        case CMP.LESSEQUAL: return l <= r;
-        case CMP.GREATEREQUAL:return l >= r;
-        case CMP.LESS: return l < r;
-        case CMP.GREATER: return l > r;
-        case CMP.NOTEQUAL: return l != r;
-        case CMP.NOTEQUALQ: return l !== r;
+            case CMP.EQUAL:
+                return l == r;
+            case CMP.EQUALQ:
+                return l === r;
+            case CMP.LESSEQUAL:
+                return l <= r;
+            case CMP.GREATEREQUAL:
+                return l >= r;
+            case CMP.LESS:
+                return l < r;
+            case CMP.GREATER:
+                return l > r;
+            case CMP.NOTEQUAL:
+                return l != r;
+            case CMP.NOTEQUALQ:
+                return l !== r;
         }
     }
 
     /** 编解码器 */
     export class Codec
-    extends SObject
-    {
+        extends SObject {
         constructor() {
             super();
         }
 
-        /** 讲一个对象写入流 
-            @brief 成功会返回新增的节点，失败返回 null
-        */
-        write(o:any):any { return null; }
+        /** 讲一个对象写入流
+         @brief 成功会返回新增的节点，失败返回 null
+         */
+        write(o: any): any {
+            return null;
+        }
 
         /** 从流里面读取一个对象，返回读出的对象
          */
-        read():any { return null; }
+        read(): any {
+            return null;
+        }
 
         /** 转换成字符串 */
-        toString():string { return null; }
+        toString(): string {
+            return null;
+        }
 
         /** 从字符串构造 */
-        fromString(s:string) {}
+        fromString(s: string) {
+        }
     }
 
-    /** JSON 编解码器 
-        @brief 区分于标准的 JSON 格式化，编解码器会附带额外的类型信息，并且解码时会自动重建对象，所以速度不如格式化快，但是支持自定义对象
-    */
+    /** JSON 编解码器
+     @brief 区分于标准的 JSON 格式化，编解码器会附带额外的类型信息，并且解码时会自动重建对象，所以速度不如格式化快，但是支持自定义对象
+     */
     export class JsonCodec
-    extends Codec
-    {
+        extends Codec {
         constructor() {
             super();
             this._sck.push(this._d);
         }
 
-        write(o:any):any {
+        write(o: any): any {
             if (o == null)
                 return null;
             let top = ArrayT.Top(this._sck);
@@ -855,35 +885,35 @@ module nn {
             }
             else if (tp == 'object') {
                 if (o instanceof Array) {
-                    let t:any = {'__':'Array', '--':[]};
+                    let t: any = {'__': 'Array', '--': []};
                     top.push(t);
                     this._sck.push(t['--']);
-                    o.forEach((o:any)=>{
+                    o.forEach((o: any) => {
                         this.write(o);
                     }, this);
                     this._sck.pop();
                 }
                 else if (o instanceof CMap) {
-                    let t:any = {'__':'Map', '--':[[], []]};
+                    let t: any = {'__': 'Map', '--': [[], []]};
                     top.push(t);
-                    
+
                     // Map 分为使用 foreach 的原生以及按照{}使用的 Kernel实现，所以得分别遍历
                     this._sck.push(t['--'][0]);
-                    o.forEach((v:any, k:any)=>{
+                    o.forEach((v: any, k: any) => {
                         if (this.write(k))
                             this.write(v);
                     }, this);
                     this._sck.pop();
 
                     this._sck.push(t['--'][1]);
-                    MapT.Foreach(o, (k:any, v:any)=>{
+                    MapT.Foreach(o, (k: any, v: any) => {
                         if (this.write(k))
                             this.write(v);
                     }, this);
                     this._sck.pop();
                 }
                 else if (typeof(o.serialize) == 'function') {
-                    let t:any = {'__':Classname(o), '--':[]};
+                    let t: any = {'__': Classname(o), '--': []};
                     top.push(t);
 
                     this._sck.push(t['--']);
@@ -891,11 +921,11 @@ module nn {
                     this._sck.pop();
                 }
                 else {
-                    let t:any = {'__':'Object', '--':[]};
+                    let t: any = {'__': 'Object', '--': []};
                     top.push(t);
 
                     this._sck.push(t['--']);
-                    MapT.Foreach(o, (k:any, v:any)=>{
+                    MapT.Foreach(o, (k: any, v: any) => {
                         if (this.write(k))
                             this.write(v);
                     }, this);
@@ -908,7 +938,7 @@ module nn {
             return top;
         }
 
-        read():any {
+        read(): any {
             let top = ArrayT.Top(this._sck);
 
             let o = top[0];
@@ -919,14 +949,14 @@ module nn {
 
             let objcls = o['__'];
             let objdata = o['--'];
-            
+
             let obj = eval("new " + objcls + '()');
             if (objcls == 'Array') {
-                objdata.forEach((o:any)=>{
+                objdata.forEach((o: any) => {
                     this._sck.push([o]);
                     let v = this.read();
                     this._sck.pop();
-                    
+
                     obj.push(v);
                 }, this);
             }
@@ -935,8 +965,8 @@ module nn {
                 let o1 = objdata[1];
 
                 for (let i = 0; i < o0.length; ++i) {
-                    let k:any = o0[i];
-                    let v:any = o0[++i];
+                    let k: any = o0[i];
+                    let v: any = o0[++i];
 
                     this._sck.push([k]);
                     k = this.read();
@@ -950,8 +980,8 @@ module nn {
                 }
 
                 for (let i = 0; i < o1.length; ++i) {
-                    let k:any = o1[i];
-                    let v:any = o1[++i];
+                    let k: any = o1[i];
+                    let v: any = o1[++i];
 
                     this._sck.push([k]);
                     k = this.read();
@@ -966,8 +996,8 @@ module nn {
             }
             else if (objcls == 'Object') {
                 for (let i = 0; i < objdata.length; ++i) {
-                    let k:any = objdata[i];
-                    let v:any = objdata[++i];
+                    let k: any = objdata[i];
+                    let v: any = objdata[++i];
 
                     this._sck.push([k]);
                     k = this.read();
@@ -985,14 +1015,14 @@ module nn {
                 obj.unserialize(this);
                 this._sck.pop();
             }
-            return obj;            
+            return obj;
         }
 
-        toString():string {
+        toString(): string {
             return JSON.stringify(this._d);
         }
 
-        fromString(s:string) {
+        fromString(s: string) {
             this.clear();
 
             let o = JSON.parse(s);
@@ -1011,13 +1041,12 @@ module nn {
     }
 
     /** 文本生成器 */
-    export class StringBuilder
-    {
+    export class StringBuilder {
         /** 行结尾 */
         linebreak = '\n';
-        
+
         /** 添加行 */
-        line(s?:any, color?:ColorType, size?:number):this {
+        line(s?: any, color?: ColorType, size?: number): this {
             if (s == null)
                 s = '';
             if (color != null || size != null)
@@ -1025,9 +1054,9 @@ module nn {
             this._buf += s + this.linebreak;
             return this;
         }
-        
+
         /** 添加文字 */
-        add(s:any, color?:ColorType, size?:number):this {
+        add(s: any, color?: ColorType, size?: number): this {
             if (s == null)
                 s = '';
             if (color != null || size != null)
@@ -1037,7 +1066,7 @@ module nn {
         }
 
         /** 设置一个样式 */
-        font(color:ColorType, size?:number):this {
+        font(color: ColorType, size?: number): this {
             let st = '';
             if (color != null) {
                 st += ' color=' + GetColorComponent(color)[0];
@@ -1052,7 +1081,7 @@ module nn {
         }
 
         /** 添加一个链接 */
-        href(text:string, addr?:string):this {
+        href(text: string, addr?: string): this {
             if (addr == null)
                 addr = text;
             this._buf += '<font u=true href=event:' + addr + '>' + text;
@@ -1060,97 +1089,95 @@ module nn {
         }
 
         /** 添加一个可以触摸的区域 */
-        touch(text:string):this {
+        touch(text: string): this {
             this._buf += '<font href=event:' + text + '>' + text;
             return this;
         }
 
         /** 恢复之前的样式 */
-        pop():this {
+        pop(): this {
             this._buf += '</font>';
             return this;
         }
 
-        concat(r:StringBuilder):this {
+        concat(r: StringBuilder): this {
             this._buf += r._buf;
             return this;
         }
-        
+
         /** 格式化输出 */
-        toString():string {
+        toString(): string {
             return this._buf;
         }
 
-        private _buf:string = '';
+        private _buf: string = '';
     }
 
-    export class UnsignedInt
-    {
-        constructor(d:number = 0) {
+    export class UnsignedInt {
+        constructor(d: number = 0) {
             this.obj = d;
         }
 
-        private _obj:number;
-        private _d:number;
-        
-        get obj():number {
+        private _obj: number;
+        private _d: number;
+
+        get obj(): number {
             return this._obj;
         }
-        set obj(d:number) {
+
+        set obj(d: number) {
             if (d < 0)
                 this._d = MAX_INT + d;
             else
                 this._d = d;
             this._obj = d;
         }
-        
-        valueOf():number {
+
+        valueOf(): number {
             return this._d;
         }
     }
-    
-    export class SafeSet <T>
-        {        
-            has(v:T):boolean {
-                return this._set.has(v);
-            }
 
-            delete(v:T) {
-                if (this._set.has(v))
-                    this._set.delete(v);
-            }
-            
-            add(v:T) {
-                if (this._set.has(v) == false)
-                    this._set.add(v);
-            }
-
-            forEach(p:(o:T)=>void, ctx?:any) {
-                this._set.forEach(p, ctx);
-            }
-
-            get size():number {
-                return this._set.size;
-            }
-
-            clear() {
-                this._set.clear();
-            }
-            
-            private _set = new CSet<T>();
+    export class SafeSet<T> {
+        has(v: T): boolean {
+            return this._set.has(v);
         }
 
+        delete(v: T) {
+            if (this._set.has(v))
+                this._set.delete(v);
+        }
+
+        add(v: T) {
+            if (this._set.has(v) == false)
+                this._set.add(v);
+        }
+
+        forEach(p: (o: T) => void, ctx?: any) {
+            this._set.forEach(p, ctx);
+        }
+
+        get size(): number {
+            return this._set.size;
+        }
+
+        clear() {
+            this._set.clear();
+        }
+
+        private _set = new CSet<T>();
+    }
+
     /** 提供操作基础对象的工具函数 */
-    export class ObjectT
-    {        
-        /** 比较两个实例是否相等 
-            @brief 优先使用比较函数的结果
-        */
-        static IsEqual<L, R>(l:L, r:R, eqfun?:(l:L, r:R)=>boolean, eqctx?:any):boolean {
+    export class ObjectT {
+        /** 比较两个实例是否相等
+         @brief 优先使用比较函数的结果
+         */
+        static IsEqual<L, R>(l: L, r: R, eqfun?: (l: L, r: R) => boolean, eqctx?: any): boolean {
             if (l == null || r == null)
                 return false;
             if (eqfun)
-                return eqfun.call(eqctx, l, r);            
+                return eqfun.call(eqctx, l, r);
             if (l && (<any>l).isEqual)
                 return (<any>l).isEqual(r);
             if (r && (<any>r).isEqual)
@@ -1158,16 +1185,16 @@ module nn {
             return <any>l == <any>r;
         }
 
-        /** 面向对象的深度copy 
-            @highRight 以右面的对象为主
-        */
-        static Copy<L, R>(l:L, r:R, highRight = true) {
+        /** 面向对象的深度copy
+         @highRight 以右面的对象为主
+         */
+        static Copy<L, R>(l: L, r: R, highRight = true) {
             if (this.IsEqual(l, r))
                 return;
             let b = highRight ? r : l;
             let keys = Object.keys(b);
             ArrayT.RemoveObjectsInArray(keys, OBJECT_DEFAULT_KEYS);
-            keys.forEach((key:string)=>{
+            keys.forEach((key: string) => {
                 if (key.indexOf('_') == 0)
                     return;
                 let t = typeof(b[key]);
@@ -1181,7 +1208,7 @@ module nn {
                         let tmp = l[key];
                         ArrayT.Resize(tmp, v.length);
                         // 复制对象
-                        tmp.forEach((o:L, idx:number)=>{
+                        tmp.forEach((o: L, idx: number) => {
                             if (o == null) {
                                 o = InstanceNewObject(v[idx]);
                                 tmp[idx] = o;
@@ -1199,7 +1226,7 @@ module nn {
         }
 
         /** 根据查询路径获取值 */
-        static GetValueByKeyPath(o:any, kp:string, def?:any):any {
+        static GetValueByKeyPath(o: any, kp: string, def?: any): any {
             if (o == null)
                 return def;
             let ks = kp.split('.');
@@ -1212,7 +1239,7 @@ module nn {
         }
 
         /** 根据查询路径设置值 */
-        static SetValueByKeyPath(o:any, kp:string, v:any) {
+        static SetValueByKeyPath(o: any, kp: string, v: any) {
             if (o == null) {
                 warn("不能对null进行keypath的设置操作");
                 return;
@@ -1227,50 +1254,50 @@ module nn {
                     o[k] = t;
                 }
                 o = t;
-            };
+            }
+            ;
             o[ks[l]] = v;
         }
     }
 
     /** 操作 number */
-    export class NumberT
-    {
-        /** 任一数字的科学计数读法 
-            @return 数字部分和e的部分
-        */
-        static SciNot(v:number):[number, number] {
+    export class NumberT {
+        /** 任一数字的科学计数读法
+         @return 数字部分和e的部分
+         */
+        static SciNot(v: number): [number, number] {
             let n = NumberT.log(v, 10);
             let l = v / Math.pow(10, n);
             return [l, n];
         }
 
         /** 方根 */
-        static radical(v:number, x:number, n:number) {
-            return Math.exp(1/n*Math.log(x));
+        static radical(v: number, x: number, n: number) {
+            return Math.exp(1 / n * Math.log(x));
         }
 
         /** 对数 */
-        static log(v:number, n:number):number {
+        static log(v: number, n: number): number {
             let r = Math.log(v) / Math.log(n) + 0.0000001;
             return r >> 0;
         }
 
         /** 修正为无符号 */
-        static Unsigned(v:number):number {
+        static Unsigned(v: number): number {
             if (v < 0)
                 return 0xFFFFFFFF + v + 1;
             return v;
         }
 
         /** 映射到以m为底的数 */
-        static MapToBase(v:number, base:number):number {
+        static MapToBase(v: number, base: number): number {
             if (v % base == 0)
                 return base;
             return v % base;
         }
 
         /** 运算，避免为null时候变成nan */
-        static Add(v:number, r:number):number {
+        static Add(v: number, r: number): number {
             if (v == null)
                 v = 0;
             if (r == null)
@@ -1278,7 +1305,7 @@ module nn {
             return v + r;
         }
 
-        static Sub(v:number, r:number):number {
+        static Sub(v: number, r: number): number {
             if (v == null)
                 v = 0;
             if (r == null)
@@ -1286,15 +1313,15 @@ module nn {
             return v - r;
         }
 
-        static Multiply(v:number, r:number):number {
+        static Multiply(v: number, r: number): number {
             if (v == null)
                 v = 0;
             if (r == null)
                 r = 0;
             return v * r;
         }
-        
-        static Div(v:number, r:number):number {
+
+        static Div(v: number, r: number): number {
             if (v == null)
                 v = 0;
             if (r == null || r == 0)
@@ -1303,9 +1330,9 @@ module nn {
         }
 
         static HANMAPS = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
-        
+
         /** 中文化数字 */
-        static Hanlize(v:number):string {
+        static Hanlize(v: number): string {
             let neg;
             if (v < 0) {
                 neg = true;
@@ -1320,22 +1347,21 @@ module nn {
     }
 
     /** 操作 string */
-    export class StringT
-    {
+    export class StringT {
         /** 优化显示float
-            @param v 输入的数字
-            @param dp decimalplace 小数位
-            @param term 是否去除末尾的0
-        */
-        static FormatFloat(v:number, dp:number, term:boolean = true):string {
+         @param v 输入的数字
+         @param dp decimalplace 小数位
+         @param term 是否去除末尾的0
+         */
+        static FormatFloat(v: number, dp: number, term: boolean = true): string {
             let s = formatString('%.' + dp + 'f', v);
             if (term)
                 s = this.TermFloat(s);
             return s;
         }
-        
+
         // 去除掉float后面的0
-        static TermFloat(str:string):string {
+        static TermFloat(str: string): string {
             let lr = str.split('.');
             if (lr.length != 2) {
                 warn("传入的 stirng 格式错误");
@@ -1355,7 +1381,7 @@ module nn {
             return lr[0] + '.' + rs;
         }
 
-        static Hash(str:string):number {
+        static Hash(str: string): number {
             let hash = 0;
             if (str.length == 0)
                 return hash;
@@ -1365,7 +1391,7 @@ module nn {
             return hash;
         }
 
-        static Count(str:string, substr:string):number {
+        static Count(str: string, substr: string): number {
             let pos = str.indexOf(substr);
             if (pos == -1)
                 return 0;
@@ -1375,7 +1401,7 @@ module nn {
         }
 
         /** 计算ascii的长度 */
-        static AsciiLength(str:string):number {
+        static AsciiLength(str: string): number {
             let r = 0;
             for (let i = 0; i < str.length; ++i) {
                 let c = str.charCodeAt(i);
@@ -1385,21 +1411,21 @@ module nn {
         }
 
         /** 拆分，可以选择是否去空 */
-        static Split(str:string, sep:string, skipempty:boolean = true):Array<string> {
+        static Split(str: string, sep: string, skipempty: boolean = true): Array<string> {
             let r = str.split(sep);
             let r0 = [];
-            r.forEach((e:string)=>{
+            r.forEach((e: string) => {
                 if (e.length)
                     r0.push(e);
             });
             return r0;
         }
 
-        /** 拉开，如果不足制定长度，根据mode填充 
-            @param mode 0:中间填充，1:左边填充，2:右边填充
-            @param wide 是否需要做宽字符补全，如果str为中文并且sep为单字节才需要打开
+        /** 拉开，如果不足制定长度，根据mode填充
+         @param mode 0:中间填充，1:左边填充，2:右边填充
+         @param wide 是否需要做宽字符补全，如果str为中文并且sep为单字节才需要打开
          */
-        static Stretch(str:string, len:number, mode:number = 0, sep:string = ' ', wide = true):string {
+        static Stretch(str: string, len: number, mode: number = 0, sep: string = ' ', wide = true): string {
             if (str.length >= len)
                 return str;
             if (str.length == 0) {
@@ -1411,45 +1437,48 @@ module nn {
             let n = len - str.length;
             let r = '';
             switch (mode) {
-            case 0: {
-                let c = (len - str.length) / (str.length - 1);
-                if (wide)
-                    c *= 2;
-                if (c >= 1) {
-                    // 每个字符后面加sep
-                    for (let i = 0; i < str.length - 1; ++i) {
-                        r += str[i];
-                        for (let j = 0; j < c; ++j)
+                case 0: {
+                    let c = (len - str.length) / (str.length - 1);
+                    if (wide)
+                        c *= 2;
+                    if (c >= 1) {
+                        // 每个字符后面加sep
+                        for (let i = 0; i < str.length - 1; ++i) {
+                            r += str[i];
+                            for (let j = 0; j < c; ++j)
+                                r += sep;
+                        }
+                        r += str[str.length - 1];
+                    } else {
+                        r = str;
+                    }
+                    // 如果不匹配，则补全
+                    if (r.length < len) {
+                        n = len - str.length;
+                        if (wide)
+                            n *= 2;
+                        while (n--)
                             r += sep;
                     }
-                    r += str[str.length - 1];
-                } else {
-                    r = str;
                 }
-                // 如果不匹配，则补全
-                if (r.length < len) {
-                    n = len - str.length;
-                    if (wide)
-                        n *= 2;
+                    break;
+                case 1: {
+                    while (n--)
+                        r = sep + r;
+                    r += str;
+                }
+                    break;
+                case 2: {
+                    r = str;
                     while (n--)
                         r += sep;
                 }
-            } break;
-            case 1: {
-                while (n--)
-                    r = sep + r;
-                r += str;
-            } break;
-            case 2: {
-                r = str;
-                while (n--)
-                    r += sep;
-            } break;
+                    break;
             }
             return r;
         }
 
-        static ForeachAsciiCode(s:string, f:(e:number, idx:number)=>void) {
+        static ForeachAsciiCode(s: string, f: (e: number, idx: number) => void) {
             let b = new egret.ByteArray();
             b.writeUTFBytes(s);
             b.position = 0;
@@ -1458,7 +1487,7 @@ module nn {
                 f(b.readUnsignedByte(), i);
         }
 
-        static Code(s:string):number[] {
+        static Code(s: string): number[] {
             let r = [];
             let l = s.length;
             for (let i = 0; i < l; ++i)
@@ -1466,10 +1495,10 @@ module nn {
             return r;
         }
 
-        static FromCode(c:number[]):string {
+        static FromCode(c: number[]): string {
             return String.fromCharCode.apply(null, c);
         }
-        
+
         // 小写化
         static Lowercase(str: string, def = ""): string {
             return str ? str.toLowerCase() : def;
@@ -1484,13 +1513,52 @@ module nn {
                 return "";
             return str[0].toUpperCase() + str.substr(1);
         }
+
+        static FromArrayBuffer(buf: ArrayBuffer): string {
+            let bytes = new Uint8Array(buf);
+            let out, i, len, c;
+            let char2, char3;
+            out = "";
+            len = bytes.length;
+            i = 0;
+            while (i < len) {
+                c = bytes[i++];
+                switch (c >> 4) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                        // 0xxxxxxx
+                        out += String.fromCharCode(c);
+                        break;
+                    case 12:
+                    case 13:
+                        // 110x xxxx   10xx xxxx
+                        char2 = bytes[i++];
+                        out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+                        break;
+                    case 14:
+                        // 1110 xxxx  10xx xxxx  10xx xxxx
+                        char2 = bytes[i++];
+                        char3 = bytes[i++];
+                        out += String.fromCharCode(((c & 0x0F) << 12) |
+                            ((char2 & 0x3F) << 6) |
+                            ((char3 & 0x3F) << 0));
+                        break;
+                }
+            }
+            return out;
+        }
     }
-    
+
     /** 提供了操作 array 的工具函数 */
-    export class ArrayT
-    {
+    export class ArrayT {
         /** 最大值 */
-        static Max<T>(arr:T[]):T {
+        static Max<T>(arr: T[]): T {
             let t = arr[0];
             for (let i = 1, l = arr.length; i < l; ++i) {
                 let v = arr[i];
@@ -1500,7 +1568,7 @@ module nn {
             return t;
         }
 
-        static QueryMax<T>(arr:T[], func?:(e:T)=>any):T {
+        static QueryMax<T>(arr: T[], func?: (e: T) => any): T {
             let t = func ? func(arr[0]) : arr[0];
             let o = arr[0];
             for (let i = 1, l = arr.length; i < l; ++i) {
@@ -1514,7 +1582,7 @@ module nn {
         }
 
         /** 最小值 */
-        static Min<T>(arr:T[]):T {
+        static Min<T>(arr: T[]): T {
             let t = arr[0];
             for (let i = 1, l = arr.length; i < l; ++i) {
                 let v = arr[i];
@@ -1524,7 +1592,7 @@ module nn {
             return t;
         }
 
-        static QueryMin<T>(arr:T[], func?:(e:T)=>any):T {
+        static QueryMin<T>(arr: T[], func?: (e: T) => any): T {
             let t = func ? func(arr[0]) : arr[0];
             let o = arr[0];
             for (let i = 1, l = arr.length; i < l; ++i) {
@@ -1535,10 +1603,10 @@ module nn {
                 }
             }
             return o;
-        }        
+        }
 
         /** 初始化数量 */
-        static Allocate<T>(count:number, def?:any):T[] {
+        static Allocate<T>(count: number, def?: any): T[] {
             let isfun = typeof(def) == 'function';
             let f = <any>def;
             let r = [];
@@ -1550,32 +1618,32 @@ module nn {
         }
 
         /** 转换成数组 */
-        static ToArray(o:any):any[] {
+        static ToArray(o: any): any[] {
             if (o == null)
                 return [];
             if (o instanceof Array)
                 return o;
             return [o];
         }
-        
+
         /** 合并所有的数组 */
-        static Merge<T>(...arr:Array<Array<T> >):T[] {
+        static Merge<T>(...arr: Array<Array<T>>): T[] {
             let r = [];
-            arr.forEach((arr:Array<T>)=>{
+            arr.forEach((arr: Array<T>) => {
                 r = r.concat(arr);
             });
             return r;
         }
-        
+
         /** 使用比较函数来判断是否包含元素 */
-        static Contains<L, R>(arr:L[], o:R, eqfun?:(l:L, o:R)=>boolean, eqctx?:any):boolean {
-            return arr.some((each:any):boolean=>{
+        static Contains<L, R>(arr: L[], o: R, eqfun?: (l: L, o: R) => boolean, eqctx?: any): boolean {
+            return arr.some((each: any): boolean => {
                 return ObjectT.IsEqual(each, o, eqfun, eqctx);
             }, this);
         }
 
         /** 合并 */
-        static Concat<T>(l:T[], r:T[]):T[] {
+        static Concat<T>(l: T[], r: T[]): T[] {
             if (l == null)
                 return r;
             if (r == null)
@@ -1584,19 +1652,19 @@ module nn {
         }
 
         /** 压入一组数据 */
-        static PushObjects<L>(arr:L[], p:L[]) {
-            p && p.forEach((e:L)=>{
+        static PushObjects<L>(arr: L[], p: L[]) {
+            p && p.forEach((e: L) => {
                 arr.push(e);
             });
-        }        
+        }
 
         /** 把 array 当成 stack 取得栈顶 */
-        static Top<T>(arr:T[], def?:T):T {
+        static Top<T>(arr: T[], def?: T): T {
             return at(arr, arr.length - 1, def);
         }
 
         /** 设置栈顶元素，如果 array.len == 0，则添加该元素 */
-        static SetTop<T>(arr:T[], o:T) {
+        static SetTop<T>(arr: T[], o: T) {
             if (arr.length == 0)
                 arr.push(o);
             else
@@ -1604,16 +1672,16 @@ module nn {
         }
 
         /** 弹出栈顶 */
-        static PopTop<T>(arr:T[], def?:T):T {
+        static PopTop<T>(arr: T[], def?: T): T {
             if (arr.length == 0)
                 return def;
             return arr.pop();
         }
 
         /** 查询 */
-        static QueryObject<T>(arr:T[], fun:(o:T, idx:number)=>boolean, ctx?:any, def?:any):T {
+        static QueryObject<T>(arr: T[], fun: (o: T, idx: number) => boolean, ctx?: any, def?: any): T {
             let r = def;
-            arr.some((o:T, idx:number):boolean=>{
+            arr.some((o: T, idx: number): boolean => {
                 if (fun.call(ctx, o, idx)) {
                     r = o;
                     return true;
@@ -1624,9 +1692,9 @@ module nn {
         }
 
         /** 查找所有符合条件的对象 */
-        static QueryObjects<T>(arr:T[], fun:(o:T, idx:number)=>boolean, ctx?:any):T[] {
+        static QueryObjects<T>(arr: T[], fun: (o: T, idx: number) => boolean, ctx?: any): T[] {
             let r = [];
-            arr.forEach((o:T, idx:number)=>{
+            arr.forEach((o: T, idx: number) => {
                 if (fun.call(ctx, o, idx))
                     r.push(o);
             });
@@ -1634,9 +1702,9 @@ module nn {
         }
 
         /** 查询条件对应的索引 */
-        static QueryIndex<T>(arr:T[], fun:(o:T, idx:number)=>boolean, ctx?:any, def?:number):number {
+        static QueryIndex<T>(arr: T[], fun: (o: T, idx: number) => boolean, ctx?: any, def?: number): number {
             let r = def;
-            arr.some((o:T, idx:number):boolean=>{
+            arr.some((o: T, idx: number): boolean => {
                 if (fun.call(ctx, o, idx)) {
                     r = idx;
                     return true;
@@ -1647,9 +1715,9 @@ module nn {
         }
 
         /** 不为指定数据的数组长度 */
-        static TrustLength<T>(arr:T[], tgt:T = null):number {
+        static TrustLength<T>(arr: T[], tgt: T = null): number {
             let r = 0;
-            arr.forEach((e)=>{
+            arr.forEach((e) => {
                 if (e != tgt)
                     ++r;
             });
@@ -1657,7 +1725,7 @@ module nn {
         }
 
         /** 覆盖指定数据到数组 */
-        static TrustAddObject<T>(arr:T[], src:T, tgt:T = null):boolean {
+        static TrustAddObject<T>(arr: T[], src: T, tgt: T = null): boolean {
             for (let i = 0; i < arr.length; ++i) {
                 if (arr[i] == tgt) {
                     arr[i] = src;
@@ -1668,7 +1736,7 @@ module nn {
         }
 
         /** 移除数据 */
-        static TrustRemoveObject<T>(arr:T[], src:T, tgt:T = null) {
+        static TrustRemoveObject<T>(arr: T[], src: T, tgt: T = null) {
             let idx = arr.indexOf(src);
             if (idx == -1)
                 return;
@@ -1676,7 +1744,7 @@ module nn {
         }
 
         /** 覆盖数组 */
-        static TrustSet<T>(arr:T[], tgt:T[], def = null) {
+        static TrustSet<T>(arr: T[], tgt: T[], def = null) {
             for (let i = 0; i < arr.length; ++i) {
                 let o = tgt[i];
                 arr[i] = o ? o : def;
@@ -1684,7 +1752,7 @@ module nn {
         }
 
         /** 弹出数据 */
-        static TrustPop<T>(arr:T[], tgt:T[], def = null) {
+        static TrustPop<T>(arr: T[], tgt: T[], def = null) {
             for (let i = 0; i < arr.length; ++i) {
                 let o = this.RemoveObjectAtIndex(tgt, 0);
                 arr[i] = o ? o : def;
@@ -1692,38 +1760,38 @@ module nn {
         }
 
         /** 清除 */
-        static TrustClear<T>(arr:T[], tgt:T = null) {
+        static TrustClear<T>(arr: T[], tgt: T = null) {
             for (let i = 0; i < arr.length; ++i)
                 arr[i] = tgt;
         }
 
         /** 插入元素 */
-        static InsertObjectAtIndex<T>(arr:T[], o:T, idx:number) {
+        static InsertObjectAtIndex<T>(arr: T[], o: T, idx: number) {
             arr.splice(idx, 0, o);
         }
 
         /** 清空数组，并挨个回调 */
-        static Clear<T>(arr:T[], cb?:(o:T)=>void, ctx?:any) {
+        static Clear<T>(arr: T[], cb?: (o: T) => void, ctx?: any) {
             if (cb)
                 arr.forEach(cb, ctx);
             arr.length = 0;
         }
 
         /** 安全的清空，以避免边加边删的边际效应 */
-        static SafeClear<T>(arr:T[], cb?:(o:T)=>void, ctx?:any) {
+        static SafeClear<T>(arr: T[], cb?: (o: T) => void, ctx?: any) {
             ArrayT.Clear(ArrayT.Clone(arr), cb, ctx);
             arr.length = 0;
         }
 
         /** 安全的增加，如果为null，则推入def，如果def也是null，则不推入 */
-        static SafePush<T>(arr:T[], o:T, def?:T) {
+        static SafePush<T>(arr: T[], o: T, def?: T) {
             let obj = o ? o : def;
             if (obj)
                 arr.push(obj);
         }
 
         /** 填充一个数组 */
-        static Fill<T>(arr:T[], cnt:number, instance:()=>any, ctx?:any):T[] {
+        static Fill<T>(arr: T[], cnt: number, instance: () => any, ctx?: any): T[] {
             if (arr == null)
                 arr = [];
             while (cnt--) {
@@ -1731,9 +1799,9 @@ module nn {
             }
             return arr;
         }
-        
+
         /** 使用类型来自动实例化并填充数组 */
-        static FillType<T>(arr:T[], cnt:number, cls:any):T[] {
+        static FillType<T>(arr: T[], cnt: number, cls: any): T[] {
             if (arr == null)
                 arr = [];
             while (cnt--) {
@@ -1743,7 +1811,7 @@ module nn {
         }
 
         /** 带保护的两两遍历 */
-        static ForeachWithArray(arrl:any[], arrr:any[], cb:(l:any, r:any, idx:number)=>void, ctx?:any, def?:any) {
+        static ForeachWithArray(arrl: any[], arrr: any[], cb: (l: any, r: any, idx: number) => void, ctx?: any, def?: any) {
             let cntl = arrl.length, cntr = arrr.length;
             let cnt = Math.max(cntl, cntr);
             for (let i = 0; i < cnt; ++i) {
@@ -1754,14 +1822,14 @@ module nn {
         }
 
         /** 带 break 的索引遍历 */
-        static Foreach<T>(arr:T[], cb:(o:T, idx:number)=>boolean, ctx?:any) {
-            arr.every((each:any, idx:number):boolean=>{
+        static Foreach<T>(arr: T[], cb: (o: T, idx: number) => boolean, ctx?: any) {
+            arr.every((each: any, idx: number): boolean => {
                 return cb.call(ctx, each, idx);
             }, this);
         }
 
         /** 按照行来遍历 */
-        static ForeachRow<T>(arr:T[], columns:number, cb:(o:T, row:number, col:number, idx?:number, rows?:number)=>boolean, ctx?:any) {
+        static ForeachRow<T>(arr: T[], columns: number, cb: (o: T, row: number, col: number, idx?: number, rows?: number) => boolean, ctx?: any) {
             let rows = Math.ceil(arr.length / columns);
             for (let r = 0; r < rows; ++r) {
                 for (let c = 0; c < columns; ++c) {
@@ -1773,29 +1841,29 @@ module nn {
         }
 
         /** 随机一个 */
-        static Random<T>(arr:T[]):T {
+        static Random<T>(arr: T[]): T {
             if (arr.length == 0)
                 return null;
             return arr[Random.Rangei(0, arr.length)];
         }
 
         /** 安全的遍历，以避免边删边加的边际效应 */
-        static SafeForeach(arr:any[], cb:(o:any, idx:number)=>boolean, ctx:any) {
+        static SafeForeach(arr: any[], cb: (o: any, idx: number) => boolean, ctx: any) {
             ArrayT.Foreach(ArrayT.Clone(arr), cb, ctx);
         }
 
         /** 迭代数组，提供结束的标识 */
-        static Iterate<T>(arr:T[], cb:(o:T, idx:number, end:boolean)=>boolean, ctx:any) {
+        static Iterate<T>(arr: T[], cb: (o: T, idx: number, end: boolean) => boolean, ctx: any) {
             if (arr.length == 0)
                 return;
             let len = arr.length - 1;
-            ArrayT.Foreach(arr, function(o:any, idx:number):boolean {
+            ArrayT.Foreach(arr, function (o: any, idx: number): boolean {
                 return cb.call(ctx, o, idx, idx == len);
             }, ctx);
         }
 
         /** 使用指定索引全遍历数组，包括索引外的 */
-        static FullEach<T>(arr:T[], idx:number, cbin:(o:T, idx:number)=>void, cbout:(o:T, idx:number)=>void) {
+        static FullEach<T>(arr: T[], idx: number, cbin: (o: T, idx: number) => void, cbout: (o: T, idx: number) => void) {
             let len = Math.min(arr.length, idx);
             for (let i = 0; i < len; ++i) {
                 cbin(arr[i], i);
@@ -1809,17 +1877,17 @@ module nn {
         }
 
         /** 带筛选器的统计个数 */
-        static LengthQuery(arr:any[], cb:(o:any, idx:number)=>boolean, ctx:any):number {
-            let ret:number = 0;
-            arr.forEach((each:any, idx:number)=>{
+        static LengthQuery(arr: any[], cb: (o: any, idx: number) => boolean, ctx: any): number {
+            let ret: number = 0;
+            arr.forEach((each: any, idx: number) => {
                 if (cb.call(ctx, each, idx))
                     ret += 1;
             }, this);
             return ret;
-        }        
+        }
 
         /** 删除一个对象 */
-        static RemoveObject<T>(arr:T[], obj:T):boolean {
+        static RemoveObject<T>(arr: T[], obj: T): boolean {
             if (obj == null || arr == null)
                 return false;
             let idx = arr.indexOf(obj);
@@ -1832,13 +1900,13 @@ module nn {
         }
 
         /** 删除指定索引的对象 */
-        static RemoveObjectAtIndex<T>(arr:T[], idx:number):T {
+        static RemoveObjectAtIndex<T>(arr: T[], idx: number): T {
             let r = arr.splice(idx, 1);
             return r[0];
-        }        
+        }
 
         /** 使用筛选器来删除对象 */
-        static RemoveObjectByFilter<T>(arr:T[], filter:(o:T, idx:number)=>boolean, ctx?:any):T {
+        static RemoveObjectByFilter<T>(arr: T[], filter: (o: T, idx: number) => boolean, ctx?: any): T {
             for (let i = 0; i < arr.length; ++i) {
                 let e = arr[i];
                 if (filter.call(ctx, e, i)) {
@@ -1849,9 +1917,9 @@ module nn {
             return null;
         }
 
-        static RemoveObjectsByFilter<T>(arr:T[], filter:(o:T, idx:number)=>boolean, ctx?:any):T[] {
+        static RemoveObjectsByFilter<T>(arr: T[], filter: (o: T, idx: number) => boolean, ctx?: any): T[] {
             let r = [];
-            let res = arr.filter((o, idx):boolean=>{
+            let res = arr.filter((o, idx): boolean => {
                 if (filter.call(ctx, o, idx)) {
                     r.push(o);
                     return false
@@ -1865,17 +1933,17 @@ module nn {
         }
 
         /** 移除位于另一个 array 中的所有元素 */
-        static RemoveObjectsInArray<T>(arr:T[], r:T[]) {
-            let res = arr.filter((each:any, idx:number):boolean=>{
+        static RemoveObjectsInArray<T>(arr: T[], r: T[]) {
+            let res = arr.filter((each: any, idx: number): boolean => {
                 return !ArrayT.Contains(r, each);
             }, this);
             ArrayT.Set(arr, res);
         }
 
         /** 使用位于另一个 array 中对应下标的元素 */
-        static RemoveObjectsInIndexArray<T>(arr:T[], r:number[]):T[] {
+        static RemoveObjectsInIndexArray<T>(arr: T[], r: number[]): T[] {
             let rm = [];
-            let res = arr.filter((each:T, idx:number):boolean=>{
+            let res = arr.filter((each: T, idx: number): boolean => {
                 if (ArrayT.Contains(r, idx) == true) {
                     rm.push(each);
                     return false;
@@ -1887,7 +1955,7 @@ module nn {
         }
 
         /** 调整大小 */
-        static Resize<T>(arr:T[], size:number, def?:T) {
+        static Resize<T>(arr: T[], size: number, def?: T) {
             if (arr.length < size) {
                 let cnt = size - arr.length;
                 let base = arr.length;
@@ -1900,10 +1968,10 @@ module nn {
         }
 
         /** 上浮满足需求的对象 */
-        static Rise<T>(arr:T[], q:(e:T)=>boolean) {
+        static Rise<T>(arr: T[], q: (e: T) => boolean) {
             let r = [];
             let n = [];
-            arr.forEach((e:T)=>{
+            arr.forEach((e: T) => {
                 if (q(e))
                     r.push(e);
                 else
@@ -1913,10 +1981,10 @@ module nn {
         }
 
         /** 下沉满足需求的对象 */
-        static Sink<T>(arr:T[], q:(e:T)=>boolean) {
+        static Sink<T>(arr: T[], q: (e: T) => boolean) {
             let r = [];
             let n = [];
-            arr.forEach((e:T)=>{
+            arr.forEach((e: T) => {
                 if (q(e))
                     r.push(e);
                 else
@@ -1926,31 +1994,31 @@ module nn {
         }
 
         /** 使用另一个数组来填充当前数组 */
-        static Set<T>(arr:T[], r:T[]) {
+        static Set<T>(arr: T[], r: T[]) {
             arr.length = 0;
-            r.forEach((o)=>{
+            r.forEach((o) => {
                 arr.push(o);
             }, this);
         }
 
         /** 复制 */
-        static Clone<T>(arr:T[]):T[] {
+        static Clone<T>(arr: T[]): T[] {
             return arr.concat();
         }
 
         /** 转换 */
-        static Convert<L, R>(arr:L[], convert:(o:L, idx?:number)=>R, ctx?:any):R[] {
+        static Convert<L, R>(arr: L[], convert: (o: L, idx?: number) => R, ctx?: any): R[] {
             let r = [];
-            arr.forEach((o:L, idx:number)=>{
+            arr.forEach((o: L, idx: number) => {
                 r.push(convert.call(ctx, o, idx));
             });
             return r;
         }
 
         /** 安全转换，如果结果为null，则跳过 */
-        static SafeConvert<L, R>(arr:L[], convert:(o:L, idx?:number)=>R, ctx?:any):R[] {
+        static SafeConvert<L, R>(arr: L[], convert: (o: L, idx?: number) => R, ctx?: any): R[] {
             let r = [];
-            arr.forEach((o:L, idx:number)=>{
+            arr.forEach((o: L, idx: number) => {
                 let t = convert.call(ctx, o, idx);
                 if (t)
                     r.push(t);
@@ -1959,9 +2027,9 @@ module nn {
         }
 
         /** 提取 */
-        static Filter<L, R>(arr:L[], filter:(o:L, idx?:number)=>R, ctx?:any):R[] {
+        static Filter<L, R>(arr: L[], filter: (o: L, idx?: number) => R, ctx?: any): R[] {
             let r = [];
-            arr.forEach((o:L, idx:number)=>{
+            arr.forEach((o: L, idx: number) => {
                 let r = filter.call(ctx, o, idx);
                 if (r)
                     r.push(r);
@@ -1970,48 +2038,48 @@ module nn {
         }
 
         /** 数组 l 和 r 的共有项目 */
-        static ArrayInArray<T>(l:T[], r:T[]):T[] {
-            return l.filter((o):boolean=>{
+        static ArrayInArray<T>(l: T[], r: T[]): T[] {
+            return l.filter((o): boolean => {
                 return ArrayT.Contains(r, o);
             }, this);
         }
 
         /** 合并 */
-        static Combine<T>(l:T[], sep:any):any {
+        static Combine<T>(l: T[], sep: any): any {
             let r = l[0];
-            for (let i = 1; i < l.length; i ++) {
+            for (let i = 1; i < l.length; i++) {
                 r += sep + l[i];
             }
             return r;
         }
 
         /** 检查两个是否一样 */
-        static EqualTo<L, R>(l:L[], r:R[], eqfun?:(l:L, r:R)=>boolean, eqctx?:any):boolean {
+        static EqualTo<L, R>(l: L[], r: R[], eqfun?: (l: L, r: R) => boolean, eqctx?: any): boolean {
             if (l.length != r.length)
                 return false;
-            return r.every((o:any):boolean=>{
+            return r.every((o: any): boolean => {
                 return ArrayT.Contains(l, o, eqfun, eqctx);
             }, this);
         }
 
         /** 严格(包含次序)检查两个是否一样 */
-        static StrictEqualTo<L, R>(l:L[], r:R[], eqfun?:(l:L, r:R)=>boolean, eqctx?:any):boolean {
+        static StrictEqualTo<L, R>(l: L[], r: R[], eqfun?: (l: L, r: R) => boolean, eqctx?: any): boolean {
             if (l.length != r.length)
                 return false;
-            return r.every((o:any, idx:number):boolean=>{
+            return r.every((o: any, idx: number): boolean => {
                 return ObjectT.IsEqual(o, r[idx], eqfun, eqctx);
             }, this);
         }
 
         /** 乱序 */
-        static Disorder<T>(arr:T[]) {
-            arr.sort(():number=>{
+        static Disorder<T>(arr: T[]) {
+            arr.sort((): number => {
                 return Math.random();
             });
         }
 
         /** 截取尾部的空对象 */
-        static Trim<T>(arr:T[], emp:T = null) {
+        static Trim<T>(arr: T[], emp: T = null) {
             let t = [];
             for (let i = arr.length; i != 0; --i) {
                 let o = arr[i - 1];
@@ -2023,12 +2091,11 @@ module nn {
         }
 
         /** 去重 */
-        static HashUnique<T>(arr:T[], hash:boolean = true) {            
+        static HashUnique<T>(arr: T[], hash: boolean = true) {
             let t = [];
-            if (hash)
-            {
+            if (hash) {
                 let h = {};
-                arr.forEach((o:any)=>{
+                arr.forEach((o: any) => {
                     let k = o.hashCode;
                     if (h[k])
                         return;
@@ -2036,9 +2103,8 @@ module nn {
                     h[k] = true;
                 });
             }
-            else
-            {
-                arr.forEach((o:any)=>{
+            else {
+                arr.forEach((o: any) => {
                     if (t.indexOf(o) == -1)
                         t.push(o);
                 });
@@ -2046,9 +2112,9 @@ module nn {
             this.Set(arr, t);
         }
 
-        static Unique<T>(arr:T[], eqfun?:(l:T, o:T)=>boolean, eqctx?:any) {            
+        static Unique<T>(arr: T[], eqfun?: (l: T, o: T) => boolean, eqctx?: any) {
             let t = [];
-            arr.forEach((o:any)=>{
+            arr.forEach((o: any) => {
                 if (this.Contains(t, o, eqfun, eqctx) == false)
                     t.push(o);
             });
@@ -2056,7 +2122,7 @@ module nn {
         }
 
         /** 取得一段 */
-        static RangeOf<T>(arr:Array<T>, pos:number, len?:number):Array<T> {
+        static RangeOf<T>(arr: Array<T>, pos: number, len?: number): Array<T> {
             let n = arr.length;
             if (pos < 0) {
                 pos = n + pos;
@@ -2070,7 +2136,7 @@ module nn {
         }
 
         /** 弹出一段 */
-        static PopRangeOf<T>(arr:Array<T>, pos:number, len?:number):Array<T> {
+        static PopRangeOf<T>(arr: Array<T>, pos: number, len?: number): Array<T> {
             let n = arr.length;
             if (pos < 0) {
                 pos = n + pos;
@@ -2087,17 +2153,17 @@ module nn {
         }
 
         /** 根据长度拆成几个Array */
-        static SplitByLength<T>(arr:Array<T>, len:number):Array<Array<T>> {
+        static SplitByLength<T>(arr: Array<T>, len: number): Array<Array<T>> {
             let r = [];
             let n = Math.ceil(arr.length / len);
             for (let i = 0; i < n; ++i) {
-                r.push(this.RangeOf(arr, i*len, len));
+                r.push(this.RangeOf(arr, i * len, len));
             }
             return r;
         }
 
         /** 快速返回下一个或上一个 */
-        static Next<T>(arr:Array<T>, obj:T, def?:T):T {
+        static Next<T>(arr: Array<T>, obj: T, def?: T): T {
             let idx = arr.indexOf(obj);
             if (idx == -1)
                 return def;
@@ -2106,7 +2172,7 @@ module nn {
             return arr[idx + 1];
         }
 
-        static Previous<T>(arr:Array<T>, obj:T, def?:T):T {
+        static Previous<T>(arr: Array<T>, obj: T, def?: T): T {
             let idx = arr.indexOf(obj);
             if (idx == -1)
                 return def;
@@ -2116,15 +2182,15 @@ module nn {
         }
     }
 
-    export function linq<T>(arr:Array<T>):LINQ<T> {
+    export function linq<T>(arr: Array<T>): LINQ<T> {
         return new LINQ<T>(arr);
     }
 
     /** 模拟linq的类 */
-    export class LINQ <T> {        
-        constructor(arr:Array<T>) {
+    export class LINQ<T> {
+        constructor(arr: Array<T>) {
             if (arr) {
-                this._arr = arr;                
+                this._arr = arr;
             } else {
                 this._arr = new Array<T>();
                 this._ref = false;
@@ -2133,6 +2199,7 @@ module nn {
 
         // 为了加速查询，默认的arr一开时使用引用的模式，当修改时再进行copy
         private _ref = true;
+
         private _safe() {
             if (this._ref) {
                 this._arr = this._arr.concat();
@@ -2140,38 +2207,38 @@ module nn {
             }
         }
 
-        forEach(fun:(e:T, idx?:number)=>boolean) {
+        forEach(fun: (e: T, idx?: number) => boolean) {
             for (let i = 0, n = this._arr.length; i < n; ++i) {
                 if (fun(this._arr[i], i) == false)
                     return;
             }
         }
 
-        where(sel:(e:T, idx?:number)=>boolean):this {
+        where(sel: (e: T, idx?: number) => boolean): this {
             let r = [];
-            this._arr.forEach((e:T, idx:number)=>{
+            this._arr.forEach((e: T, idx: number) => {
                 if (sel(e, idx))
                     r.push(e);
             });
             return InstanceNewObject(this, r);
         }
 
-        count(sel?:(e:T, idx?:number)=>boolean):number {
+        count(sel?: (e: T, idx?: number) => boolean): number {
             if (sel)
                 return this.where(sel).count();
             return this._arr.length;
         }
 
-        add(o:T) {
+        add(o: T) {
             this._safe();
             this._arr.push(o);
         }
 
-        exists(cond?:(e:T, idx?:number)=>boolean):boolean {
+        exists(cond?: (e: T, idx?: number) => boolean): boolean {
             return ArrayT.QueryObject(this._arr, cond) != null;
         }
-        
-        first(sel?:(e:T, idx?:number)=>boolean):T {
+
+        first(sel?: (e: T, idx?: number) => boolean): T {
             if (this._arr.length == 0)
                 return null;
             if (!sel)
@@ -2182,7 +2249,7 @@ module nn {
             return res.at(0);
         }
 
-        last(sel?:(e:T, idx?:number)=>boolean):T {
+        last(sel?: (e: T, idx?: number) => boolean): T {
             if (this._arr.length == 0)
                 return null;
             if (!sel)
@@ -2192,24 +2259,24 @@ module nn {
                 return null;
             return res.last();
         }
-        
-        at(idx:number):T {
+
+        at(idx: number): T {
             if (idx < 0 || idx > this._arr.length)
                 return null;
             return this._arr[idx];
         }
 
-        union<K>(tgt:Array<T>, getkey:(e:T)=>K):this {
+        union<K>(tgt: Array<T>, getkey: (e: T) => K): this {
             let r = [];
             let map = {};
-            this._arr.forEach((e:T)=>{
+            this._arr.forEach((e: T) => {
                 let h = Js.hashKey(getkey(e));
                 if (!map[h]) {
                     map[h] = e;
                     r.push(e);
                 }
             });
-            tgt.forEach((e:T)=>{
+            tgt.forEach((e: T) => {
                 let h = Js.hashKey(getkey(e));
                 if (!map[h]) {
                     map[h] = e;
@@ -2218,38 +2285,37 @@ module nn {
             });
             return InstanceNewObject(this, r);
         }
-        
-        private _arr:Array<T>;
+
+        private _arr: Array<T>;
     }
 
     /** set 的工具类 */
-    export class SetT
-    {
+    export class SetT {
         /** 删除对象 */
-        static RemoveObject<T>(s:SetType<T>, o:T) {
+        static RemoveObject<T>(s: SetType<T>, o: T) {
             s.delete(o);
         }
-        
+
         /** 复制 */
-        static Clone<T>(s:SetType<T>):SetType<T> {
+        static Clone<T>(s: SetType<T>): SetType<T> {
             let r = new CSet<T>();
-            (<any>s).forEach((o:T)=>{
+            (<any>s).forEach((o: T) => {
                 r.add(o);
             }, this);
             return r;
         }
 
         /** 转换到 array */
-        static ToArray<T>(s:SetType<T>):Array<T> {
+        static ToArray<T>(s: SetType<T>): Array<T> {
             let r = new Array<T>();
-            (<any>s).forEach((o:T)=>{
+            (<any>s).forEach((o: T) => {
                 r.push(o);
             }, this);
             return r;
         }
 
         /** 清空 */
-        static Clear<T>(s:SetType<T>, cb?:(o:T)=>void, ctx?:any) {
+        static Clear<T>(s: SetType<T>, cb?: (o: T) => void, ctx?: any) {
             if (s.size == 0)
                 return;
             if (cb)
@@ -2258,60 +2324,59 @@ module nn {
         }
 
         /** 带保护的清空，以避免边际效应 */
-        static SafeClear<T>(s:SetType<T>, cb:(o:T)=>void, ctx?:any) {
+        static SafeClear<T>(s: SetType<T>, cb: (o: T) => void, ctx?: any) {
             if (s.size == 0)
                 return;
-            let ns:any = SetT.Clone(s);
+            let ns: any = SetT.Clone(s);
             s.clear();
             ns.forEach(cb, ctx);
         }
     }
 
     /** map 的工具类 */
-    export class MapT
-    {
+    export class MapT {
         /** 获取 */
-        static Get<K, V>(m:MapType<K, V>, k:K):V {
+        static Get<K, V>(m: MapType<K, V>, k: K): V {
             return m[<any>k];
         }
 
         /** 获取所有的value */
-        static GetValues<K, V>(m:MapType<K, V>):Array<V> {
+        static GetValues<K, V>(m: MapType<K, V>): Array<V> {
             let r = [];
-            this.Foreach(m, (k, v)=>{
+            this.Foreach(m, (k, v) => {
                 r.push(v);
             });
             return r;
         }
 
         /** 增加 */
-        static Add<K, V>(m:MapType<K, V>, k:K, v:V) {
+        static Add<K, V>(m: MapType<K, V>, k: K, v: V) {
             m[<any>k] = v;
         }
-        
+
         /** 遍历 */
-        static Foreach<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>void, ctx?:any) {
+        static Foreach<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => void, ctx?: any) {
             let keys = Object.keys(m);
-            keys.forEach((k:any)=>{
+            keys.forEach((k: any) => {
                 fun.call(ctx, k, m[k]);
             }, this);
         }
 
         /** 转换 */
-        static ToArray<K, V, T>(m:MapType<K, V>, fun:(k:string, v:V)=>T, ctx?:any):Array<T> {
+        static ToArray<K, V, T>(m: MapType<K, V>, fun: (k: string, v: V) => T, ctx?: any): Array<T> {
             let r = [];
             let keys = Object.keys(m);
-            keys.forEach((k:any)=>{
+            keys.forEach((k: any) => {
                 let obj = fun.call(ctx, k, m[k]);
                 r.push(obj);
             }, this);
             return r;
         }
 
-        static SafeToArray<K, V, T>(m:MapType<K, V>, fun:(k:string, v:V)=>T, ctx?:any):Array<T> {
+        static SafeToArray<K, V, T>(m: MapType<K, V>, fun: (k: string, v: V) => T, ctx?: any): Array<T> {
             let r = [];
             let keys = Object.keys(m);
-            keys.forEach((k:any)=>{
+            keys.forEach((k: any) => {
                 let obj = fun.call(ctx, k, m[k]);
                 if (obj)
                     r.push(obj);
@@ -2320,7 +2385,7 @@ module nn {
         }
 
         /** 取值 */
-        static QueryObject<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):[K, V] {
+        static QueryObject<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): [K, V] {
             let keys = Object.keys(m);
             for (let i = 0; i < keys.length; ++i) {
                 let k = keys[i];
@@ -2330,10 +2395,10 @@ module nn {
             return null;
         }
 
-        static QueryObjects<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):MapType<K, V> {
+        static QueryObjects<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): MapType<K, V> {
             let keys = Object.keys(m);
-            let r:any = {};
-            keys.forEach((k)=>{
+            let r: any = {};
+            keys.forEach((k) => {
                 let v = m[k];
                 if (fun.call(ctx, k, v))
                     r[k] = v;
@@ -2342,15 +2407,15 @@ module nn {
         }
 
         /** 获取值 */
-        static QueryValue<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):V {
+        static QueryValue<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): V {
             let fnd = this.QueryObject(m, fun, ctx);
             return fnd ? fnd[1] : null;
         }
 
-        static QueryValues<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):V[] {
+        static QueryValues<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): V[] {
             let keys = Object.keys(m);
-            let r:any = [];
-            keys.forEach((k)=>{
+            let r: any = [];
+            keys.forEach((k) => {
                 let v = m[k];
                 if (fun.call(ctx, k, v))
                     r.push(v);
@@ -2358,15 +2423,15 @@ module nn {
             return r;
         }
 
-        static QueryKey<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):K {
+        static QueryKey<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): K {
             let fnd = this.QueryObject(m, fun, ctx);
             return fnd ? fnd[0] : null;
         }
 
-        static QueryKeys<K, V>(m:MapType<K, V>, fun:(k:K, v:V)=>boolean, ctx?:any):K[] {
+        static QueryKeys<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): K[] {
             let keys = Object.keys(m);
-            let r:any = [];
-            keys.forEach((k)=>{
+            let r: any = [];
+            keys.forEach((k) => {
                 let v = m[k];
                 if (fun.call(ctx, k, v))
                     r.push(k);
@@ -2375,20 +2440,20 @@ module nn {
         }
 
         /** 判断是否为空 */
-        static IsEmpty<K, V>(m:MapType<K, V>):boolean {
+        static IsEmpty<K, V>(m: MapType<K, V>): boolean {
             if (m == null)
                 return true;
             return Object.keys(m).length == 0;
         }
 
         /** 删除key的元素 */
-        static RemoveKey<K, V>(m:MapType<K, V>, k:K) {
+        static RemoveKey<K, V>(m: MapType<K, V>, k: K) {
             delete m[<any>k];
         }
 
         /** 清空 */
-        static Clear<K, V>(m:MapType<K, V>, cb?:(k:K, o:V)=>void, ctx?:any) {
-            MapT.Foreach(m, (k:K, v:V)=>{
+        static Clear<K, V>(m: MapType<K, V>, cb?: (k: K, o: V) => void, ctx?: any) {
+            MapT.Foreach(m, (k: K, v: V) => {
                 if (cb)
                     cb.call(ctx, k, v);
                 delete m[<any>k];
@@ -2396,32 +2461,32 @@ module nn {
         }
 
         /** 合并 */
-        static Concat(l:MapType<any, any>, r:MapType<any, any>) {
+        static Concat(l: MapType<any, any>, r: MapType<any, any>) {
             if (l == null)
                 return r;
             if (r == null)
                 return l;
-            MapT.Foreach(r, (k, v)=>{
+            MapT.Foreach(r, (k, v) => {
                 l[k] = v;
             }, this);
         }
 
         /** 复制 */
-        static Clone<K, V>(l:MapType<K, V>):MapType<K, V> {
+        static Clone<K, V>(l: MapType<K, V>): MapType<K, V> {
             let r = new KvObject<K, V>();
-            MapT.Foreach(l, (k:any, v)=>{
+            MapT.Foreach(l, (k: any, v) => {
                 r[k] = v;
             }, this);
             return r;
         }
 
         /** 获取长度 */
-        static Length<T>(m:T):number {
+        static Length<T>(m: T): number {
             return Object.keys(m).length;
         }
 
         /** 使用下标获取对象 */
-        static ObjectAtIndex<K, V>(m:MapType<K, V>, idx:number, def?:V):V {
+        static ObjectAtIndex<K, V>(m: MapType<K, V>, idx: number, def?: V): V {
             let keys = Object.keys(m);
             let k = at(keys, idx, null);
             if (k == null)
@@ -2430,9 +2495,9 @@ module nn {
         }
 
         /** 转换成普通Object */
-        static Simplify<K, V>(m:MapType<K, V>):Object {
+        static Simplify<K, V>(m: MapType<K, V>): Object {
             let obj = {};
-            this.Foreach(m, (k, v)=>{
+            this.Foreach(m, (k, v) => {
                 obj[<any>k] = <any>v;
             });
             return obj;
@@ -2440,48 +2505,44 @@ module nn {
     }
 
     /** 使用索引的 map，可以按照顺序来获取元素 */
-    export class IndexedMap <K, T> {
+    export class IndexedMap<K, T> {
         constructor() {
         }
-        
+
         /** 添加 */
-        add(k:K, v:T) {
-            if (<any>k in this._map)
-            {
+        add(k: K, v: T) {
+            if (<any>k in this._map) {
                 let idx = this._keys.indexOf(k);
                 this._keys[idx] = k;
                 this._vals[idx] = v;
             }
-            else
-            {                            
+            else {
                 this._keys.push(k);
                 this._vals.push(v);
             }
-            
+
             this._map[<any>k] = v;
         }
 
         /** 替换 */
-        replace(k:K, v:T) {
-            if (<any>k in this._map)
-            {
+        replace(k: K, v: T) {
+            if (<any>k in this._map) {
                 let idx = this._keys.indexOf(k);
                 this._vals[idx] = v;
             }
-            else
-            {                            
+            else {
                 this._keys.push(k);
                 this._vals.push(v);
             }
-            
+
             this._map[<any>k] = v;
         }
-        
+
         /** 删除 */
-        remove(k:K):T {
+        remove(k: K): T {
             if (!(<any>k in this._map))
                 return null;
-            
+
             // k和v是1-1，所以indexOfKey和indexOfVal一致
             let idx = this._keys.indexOf(k);
             let val = this._vals[idx];
@@ -2493,7 +2554,7 @@ module nn {
         }
 
         /** 获得大小 */
-        get length():number {
+        get length(): number {
             return this._keys.length;
         }
 
@@ -2505,14 +2566,14 @@ module nn {
         }
 
         /** 遍历 */
-        forEach(cb:(k:K, v:T)=>void, ctx?:any) {
-            this._keys.forEach((k:K, idx:number) => {
+        forEach(cb: (k: K, v: T) => void, ctx?: any) {
+            this._keys.forEach((k: K, idx: number) => {
                 let v = this._vals[idx];
                 cb.call(ctx, k, v);
             }, this);
         }
 
-        iterateEach(cb:(k:K, v:T)=>boolean, ctx?:any) {
+        iterateEach(cb: (k: K, v: T) => boolean, ctx?: any) {
             for (let i = 0, len = this._keys.length; i < len; ++i) {
                 let k = this._keys[i];
                 let v = this._vals[i];
@@ -2522,45 +2583,44 @@ module nn {
         }
 
         /** 是否存在k */
-        contains(k:K):boolean {
+        contains(k: K): boolean {
             return <any>k in this._map;
         }
-        
+
         /** 取得k的下标 */
-        indexOfKey(k:K):number {
+        indexOfKey(k: K): number {
             return this._keys.indexOf(k);
         }
 
         /** 使用下标取得数据 */
-        objectForKey(k:K):T {
+        objectForKey(k: K): T {
             return this._map[<any>k];
         }
 
-        objectForIndex(idx:number):T {
-            let k:any = this._keys[idx];
+        objectForIndex(idx: number): T {
+            let k: any = this._keys[idx];
             return this._map[k];
         }
 
-        keyForIndex(idx:number):K {
+        keyForIndex(idx: number): K {
             return this._keys[idx];
         }
 
-        get keys():Array<K> {
+        get keys(): Array<K> {
             return this._keys.concat();
         }
 
-        get values():Array<T> {
+        get values(): Array<T> {
             return this._vals;
         }
-        
+
         private _map = {};
         private _keys = new Array<K>();
         private _vals = new Array<T>();
     }
 
-    export class IndexedMapT
-    {
-        static RemoveObjectByFilter<K,T>(map:IndexedMap<K,T>, filter:(k:K, v:T)=>boolean, ctx?:any):[K,T] {
+    export class IndexedMapT {
+        static RemoveObjectByFilter<K, T>(map: IndexedMap<K, T>, filter: (k: K, v: T) => boolean, ctx?: any): [K, T] {
             let keys = map.keys;
             for (let i = 0, len = keys.length; i < len; ++i) {
                 let k = keys[i];
@@ -2573,8 +2633,8 @@ module nn {
             return null;
         }
 
-        static RemoveObjectsByFilter<K,T>(map:IndexedMap<K,T>, filter:(k:K, v:T)=>boolean, ctx?:any):Array<[K,T]> {
-            let r = new Array<[K,T]>();
+        static RemoveObjectsByFilter<K, T>(map: IndexedMap<K, T>, filter: (k: K, v: T) => boolean, ctx?: any): Array<[K, T]> {
+            let r = new Array<[K, T]>();
             let keys = map.keys;
             for (let i = 0, len = keys.length; i < len; ++i) {
                 let k = keys[i];
@@ -2587,7 +2647,7 @@ module nn {
             return r;
         }
 
-        static QueryObject<K,T>(map:IndexedMap<K,T>, query:(k:K, v:T)=>boolean, ctx?:any):T {
+        static QueryObject<K, T>(map: IndexedMap<K, T>, query: (k: K, v: T) => boolean, ctx?: any): T {
             let keys = map.keys;
             for (let i = 0, len = keys.length; i < len; ++i) {
                 let k = keys[i];
@@ -2598,9 +2658,9 @@ module nn {
             return null;
         }
 
-        static Convert<K,T,V>(arr:Array<V>, convert:(v:V)=>[K,T], ctx?:any):IndexedMap<K,T> {
-            let r = new IndexedMap<K,T>();
-            arr.forEach((e:V)=>{
+        static Convert<K, T, V>(arr: Array<V>, convert: (v: V) => [K, T], ctx?: any): IndexedMap<K, T> {
+            let r = new IndexedMap<K, T>();
+            arr.forEach((e: V) => {
                 let o = convert.call(ctx, e);
                 r.add(o[0], o[1]);
             });
@@ -2609,9 +2669,8 @@ module nn {
     }
 
     /** 多索引map */
-    export class MultiMap <K, V>
-    {
-        add(k:K, v:V):this {
+    export class MultiMap<K, V> {
+        add(k: K, v: V): this {
             let arr = this._map.objectForKey(k);
             if (arr == null) {
                 arr = new Array<V>();
@@ -2621,214 +2680,219 @@ module nn {
             return this;
         }
 
-        replace(k:K, v:Array<V>) {
+        replace(k: K, v: Array<V>) {
             this._map.replace(k, v);
         }
 
-        objectForKey(k:K):V[] {
+        objectForKey(k: K): V[] {
             return this._map.objectForKey(k);
         }
 
-        remove(k:K):V[] {
+        remove(k: K): V[] {
             return this._map.remove(k);
         }
 
-        forEach(proc:(k:K, arr:V[])=>void, ctx?:any) {
+        forEach(proc: (k: K, arr: V[]) => void, ctx?: any) {
             this._map.forEach(proc, ctx);
         }
 
-        iterateEach(proc:(k:K, arr:V[])=>boolean, ctx?:any) {
+        iterateEach(proc: (k: K, arr: V[]) => boolean, ctx?: any) {
             this._map.iterateEach(proc, ctx);
         }
 
-        get keys():Array<K> {
+        get keys(): Array<K> {
             return this._map.keys;
         }
-        
-        private _map = new IndexedMap<K, Array<V> >();
+
+        private _map = new IndexedMap<K, Array<V>>();
     }
 
-    export class Sort
-    {
-        static NumberAsc(l:number, r:number):number {
+    export class Sort {
+        static NumberAsc(l: number, r: number): number {
             return l - r;
         }
 
-        static NumberDsc(l:number, r:number):number {
+        static NumberDsc(l: number, r: number): number {
             return r - l;
         }
     }
 
-    export interface IListRecord
-    {
-        next?:IListRecord;
-        previous?:IListRecord;
-        value:any;
+    export interface IListRecord {
+        next?: IListRecord;
+        previous?: IListRecord;
+        value: any;
     }
 
     /** 链表 */
-    export class List <T>
-    {
+    export class List<T> {
         constructor() {
         }
 
-        private _top:IListRecord;
-        length:number = 0;
+        private _top: IListRecord;
+        length: number = 0;
 
-        push(o:T) {
-            this.length += 1;            
+        push(o: T) {
+            this.length += 1;
             if (!this._top) {
-                this._top = {value:o};
+                this._top = {value: o};
                 return;
             }
-            let cur = {value:o, previous:this._top};
+            let cur = {value: o, previous: this._top};
             this._top.next = cur;
             this._top = cur;
         }
     }
 
     /** 颜色类 */
-    export class Color
-    {
+    export class Color {
         static _1_255 = 0.00392156862745098;
 
-        constructor(rgb:number, alpha:number = 0xff) {
+        constructor(rgb: number, alpha: number = 0xff) {
             if (alpha > 0 && alpha < 1)
                 alpha *= 0xff;
             this.rgb = rgb & 0xffffff;
             this.alpha = alpha & 0xff;
         }
-        
-        rgb:number = 0;
-        alpha:number = 0xff;
 
-        clone():Color {
+        rgb: number = 0;
+        alpha: number = 0xff;
+
+        clone(): Color {
             return new Color(this.rgb, this.alpha);
         }
 
-        get argb():number {
+        get argb(): number {
             return this.rgb | (this.alpha << 24);
         }
-        set argb(v:number) {
+
+        set argb(v: number) {
             this.rgb = v & 0xffffff;
             this.alpha = (v >> 24) & 0xff;
         }
-        
-        get rgba():number {
+
+        get rgba(): number {
             return (this.rgb << 8) | this.alpha;
         }
-        set rgba(v:number) {
+
+        set rgba(v: number) {
             this.rgb = (v >> 8) & 0xffffff;
             this.alpha = v & 0xff;
         }
 
         /** 位于 [0, 1] 的 alpha */
-        get alphaf():number {
+        get alphaf(): number {
             return this.alpha * Color._1_255;
         }
-        set alphaf(val:number) {
+
+        set alphaf(val: number) {
             this.alpha = (val * 255) >> 0;
         }
 
         /** 16进制的颜色 */
-        set red(val:number) {
+        set red(val: number) {
             this.rgb &= 0x00ffff;
             this.rgb |= (val & 0xff) << 16;
         }
-        get red():number {
+
+        get red(): number {
             return this.rgb >> 16;
         }
 
-        set redf(val:number) {
+        set redf(val: number) {
             this.red = val * 255;
         }
-        get redf():number {
+
+        get redf(): number {
             return this.red * Color._1_255;
         }
 
         /** 16进制的颜色 */
-        set green(val:number) {
+        set green(val: number) {
             this.rgb &= 0xff00ff;
             this.rgb |= (val & 0xff) << 8;
         }
-        get green():number {
+
+        get green(): number {
             return (this.rgb >> 8) & 0xff;
         }
 
-        set greenf(val:number) {
+        set greenf(val: number) {
             this.green = val * 255;
         }
-        get greenf():number {
+
+        get greenf(): number {
             return this.green * Color._1_255;
-        }        
+        }
 
         /** 16进制的颜色 */
-        set blue(val:number) {
+        set blue(val: number) {
             this.rgb &= 0xffff00;
             this.rgb |= val & 0xff;
         }
-        get blue():number {
+
+        get blue(): number {
             return this.rgb & 0xff;
         }
 
-        set bluef(val:number) {
+        set bluef(val: number) {
             this.blue = val * 255;
         }
-        get bluef():number {
+
+        get bluef(): number {
             return this.blue * Color._1_255;
         }
 
-        setAlpha(v:number):this {
+        setAlpha(v: number): this {
             this.alpha = v;
             return this;
         }
-        
-        setAlphaf(v:number):this {
+
+        setAlphaf(v: number): this {
             this.alphaf = v;
             return this;
         }
 
-        setRed(v:number):this {
+        setRed(v: number): this {
             this.red = v;
             return this;
         }
-        
-        setRedf(v:number):this {
+
+        setRedf(v: number): this {
             this.redf = v;
             return this;
         }
 
-        setGreen(v:number):this {
+        setGreen(v: number): this {
             this.green = v;
             return this;
         }
-        
-        setGreenf(v:number):this {
+
+        setGreenf(v: number): this {
             this.greenf = v;
             return this;
         }
 
-        setBlue(v:number):this {
+        setBlue(v: number): this {
             this.blue = v;
             return this;
         }
-        
-        setBluef(v:number):this {
+
+        setBluef(v: number): this {
             this.bluef = v;
             return this;
         }
 
-        scale(s:number, alpha = false):Color {
+        scale(s: number, alpha = false): Color {
             this.red *= s;
             this.green *= s;
-            this.blue *=s;
+            this.blue *= s;
             if (alpha)
                 this.alpha *= s;
             return this;
         }
 
         /** 反色 */
-        invert():Color {
+        invert(): Color {
             this.rgb = 0xffffff - this.rgb;
             return this;
         }
@@ -2843,100 +2907,106 @@ module nn {
         static Yellow = new Color(0xffff00);
         static Transparent = new Color(0, 0);
 
-        static RGBf(r:number, g:number, b:number, a:number = 1):Color {
+        static RGBf(r: number, g: number, b: number, a: number = 1): Color {
             return new Color((r * 255) << 16 |
-                             (g * 255) << 8 |
-                             (b * 255) << 0,
-                             (a * 255) << 0);
+                (g * 255) << 8 |
+                (b * 255) << 0,
+                (a * 255) << 0);
         }
 
-        static RGB(r:number, g:number, b:number, a:number = 1):Color {
+        static RGB(r: number, g: number, b: number, a: number = 1): Color {
             return new Color((r & 255) << 16 |
-                             (g & 255) << 8 |
-                             (b & 255) << 0,
-                             (a * 255) << 0);
+                (g & 255) << 8 |
+                (b & 255) << 0,
+                (a * 255) << 0);
         }
 
-        static ARGB(v:number):Color {
+        static ARGB(v: number): Color {
             return new Color(v, v >> 24);
         }
-        
-        static RGBA(v:number):Color {
+
+        static RGBA(v: number): Color {
             return new Color(v >> 8, v);
         }
 
         /** 随机一个颜色 */
-        static Random(a:number = 0xff):Color {
+        static Random(a: number = 0xff): Color {
             return new Color(Random.Rangei(0, 0xffffff), a);
         }
 
-        isEqual(r:Color):boolean {
+        isEqual(r: Color): boolean {
             return this.rgb == r.rgb &&
                 this.alpha == r.alpha;
         }
     }
 
     // 第一位如果是0，为了兼容性，则代表alpha是1，而不是0，如果需要设定alpha，请直接使用 Color 对象
-    export type ARGBValue = number; 
+    export type ARGBValue = number;
     export type ColorType = Color | ARGBValue | string;
 
     /** 颜色数值，rgb为24位，alpha规约到0-1的float */
-    export function GetColorComponent(c:ColorType):number[] {
+    export function GetColorComponent(c: ColorType): number[] {
         switch (typeof(c)) {
-        case 'number': {
-            let rgb = (<number>c) & 0xffffff;
-            let a = (((<number>c) >> 24) & 0xff) * Color._1_255;
-            return [rgb, a>0?a:1];
-        }
-        case 'string': {
-            let s = (<string>c).toLowerCase();
-            switch (s) {
-            case 'red': return [0xff0000, 1];
-            case 'green': return [0x00ff00, 1];
-            case 'blue': return [0x0000ff, 1];
-            case 'white': return [0xffffff, 1];
-            case 'black': return [0, 1];
+            case 'number': {
+                let rgb = (<number>c) & 0xffffff;
+                let a = (((<number>c) >> 24) & 0xff) * Color._1_255;
+                return [rgb, a > 0 ? a : 1];
+            }
+            case 'string': {
+                let s = (<string>c).toLowerCase();
+                switch (s) {
+                    case 'red':
+                        return [0xff0000, 1];
+                    case 'green':
+                        return [0x00ff00, 1];
+                    case 'blue':
+                        return [0x0000ff, 1];
+                    case 'white':
+                        return [0xffffff, 1];
+                    case 'black':
+                        return [0, 1];
+                    default: {
+                        s = s.replace('#', '0x');
+                        let v = toInt(s);
+                        let rgb = v & 0xffffff;
+                        let a = ((v >> 24) & 0xff) * Color._1_255;
+                        return [rgb, a > 0 ? a : 1];
+                    }
+                }
+            }
             default: {
-                s = s.replace('#', '0x');
-                let v = toInt(s);
-                let rgb = v & 0xffffff;
-                let a = ((v >> 24) & 0xff) * Color._1_255;
-                return [rgb, a>0?a:1];
-            }}
+                return [(<Color>c).rgb, (<Color>c).alphaf];
+            }
         }
-        default: {
-            return [(<Color>c).rgb, (<Color>c).alphaf];
-        }}
     }
 
     /** 线段 */
-    export class Line
-    {
-        constructor(color:ColorType = 0, width:number = 1) {
+    export class Line {
+        constructor(color: ColorType = 0, width: number = 1) {
             this.color = color;
             this.width = width;
         }
-        
+
         /** 颜色 */
-        color:ColorType;
+        color: ColorType;
 
         /** 宽度 */
-        width:number;
+        width: number;
 
         /** 平滑 */
-        smooth:boolean = true;
+        smooth: boolean = true;
 
         /** 起点 */
-        startPoint:Point;
-        
-        /** 终点 */
-        endPoint:Point;
+        startPoint: Point;
 
-        get length():number {
+        /** 终点 */
+        endPoint: Point;
+
+        get length(): number {
             return Math.sqrt(this.lengthSq);
         }
-        
-        get lengthSq():number {
+
+        get lengthSq(): number {
             let self = this;
             let xsq = self.endPoint.x - self.startPoint.x;
             xsq *= xsq;
@@ -2945,21 +3015,21 @@ module nn {
             return xsq + ysq;
         }
 
-        get deltaX():number {
+        get deltaX(): number {
             return this.endPoint.x - this.startPoint.x;
         }
 
-        get deltaY():number {
+        get deltaY(): number {
             return this.endPoint.y - this.startPoint.y;
         }
 
-        get deltaPoint():Point {
+        get deltaPoint(): Point {
             return new Point(this.endPoint.x - this.startPoint.x,
-                             this.endPoint.y - this.startPoint.y);
+                this.endPoint.y - this.startPoint.y);
         }
 
         // 实例化线段
-        static Segment(spt:Point, ept:Point):Line {
+        static Segment(spt: Point, ept: Point): Line {
             let r = new Line();
             r.startPoint = spt;
             r.endPoint = ept;
@@ -2968,29 +3038,28 @@ module nn {
     }
 
     /** 百分比对象 */
-    export class Percentage
-    {
-        max:number;
-        value:number;
+    export class Percentage {
+        max: number;
+        value: number;
 
-        constructor(max:number=1, val:number=0) {
+        constructor(max: number = 1, val: number = 0) {
             this.max = max;
             this.value = val;
         }
 
-        reset(max:number=1, val:number=0):Percentage {
+        reset(max: number = 1, val: number = 0): Percentage {
             this.max = max;
             this.value = val;
             return this;
         }
 
-        copy(r:Percentage):Percentage {
+        copy(r: Percentage): Percentage {
             this.max = r.max;
             this.value = r.value;
             return this;
         }
-        
-        get percent():number {
+
+        get percent(): number {
             if (this.max == 0)
                 return 1;
             let r = this.value / this.max;
@@ -2998,11 +3067,12 @@ module nn {
                 return 0;
             return r;
         }
-        set percent(v:number) {
+
+        set percent(v: number) {
             this.value = this.max * v;
         }
 
-        get safepercent():number {
+        get safepercent(): number {
             let p = this.percent;
             if (p < 0)
                 return 0;
@@ -3010,41 +3080,41 @@ module nn {
                 return 1;
             return p;
         }
-        set safepercent(v:number) {
+
+        set safepercent(v: number) {
             if (v < 0)
                 v = 0;
             if (v > 1)
                 v = 1;
             this.percent = this.max * v;
         }
-        
+
         /** 剩余的比率 */
-        get left():number {
+        get left(): number {
             return 1 - this.safepercent;
         }
 
-        toString():string {
+        toString(): string {
             return formatString('%f/%f = %f%%', this.value, this.max, this.percent * 100);
         }
 
-        valueOf():number {
+        valueOf(): number {
             return this.percent;
         }
     }
 
-    export class Mask
-    {
-        static isset<T>(mask:T, value:T):boolean {
+    export class Mask {
+        static isset<T>(mask: T, value: T): boolean {
             return (<any>value & <any>mask) == <any>mask;
         }
 
-        static unset<T>(mask:T, value:T):T {
+        static unset<T>(mask: T, value: T): T {
             if (this.isset(mask, value))
                 return <any>((<any>value) & (~<any>mask));
             return value;
         }
 
-        static set<T>(mask:T, value:T):T {
+        static set<T>(mask: T, value: T): T {
             if (this.isset(mask, value))
                 return value;
             return <any>(<any>value | <any>mask);
@@ -3053,7 +3123,7 @@ module nn {
 
     export enum Direction {
         UNKNOWN = 0,
-        
+
         CENTER = 0x1, // 居中
         UP = 0x10, // 向上
         DOWN = 0x100, // 向下
@@ -3064,23 +3134,23 @@ module nn {
         VEC = 0x110, // 垂直
     };
 
-    export function DirectionIsPortrait(d:Direction) {
+    export function DirectionIsPortrait(d: Direction) {
         return d == Direction.UP || d == Direction.DOWN;
     }
 
-    export function DirectionIsLandscape(d:Direction) {
+    export function DirectionIsLandscape(d: Direction) {
         return d == Direction.LEFT || d == Direction.RIGHT;
     }
 
-    export function DirectionAngle(l:Direction, r:Direction):Angle {
+    export function DirectionAngle(l: Direction, r: Direction): Angle {
         return Angle.DIRECTION(r).sub(Angle.DIRECTION(l));
     }
 
-    export function DirectionFromSize(w:number, h:number):Direction {
+    export function DirectionFromSize(w: number, h: number): Direction {
         return w > h ? Direction.LEFT : Direction.UP;
     }
-    
-    export function DirectionToString(d:Direction):string {
+
+    export function DirectionToString(d: Direction): string {
         let c = [];
         if (nn.Mask.isset(Direction.UP, d))
             c.push('up');
@@ -3093,7 +3163,7 @@ module nn {
         return c.join(',');
     }
 
-    export function DirectionFromString(s:string):Direction {
+    export function DirectionFromString(s: string): Direction {
         if (!s)
             return 0;
         let c = s.toLowerCase().split(',');
@@ -3109,145 +3179,150 @@ module nn {
         return r;
     }
 
-    export class Range
-    {
-        location:number;
-        length:number;
+    export class Range {
+        location: number;
+        length: number;
 
-        constructor(location?:number, length?:number) {
+        constructor(location?: number, length?: number) {
             this.location = location;
             this.length = length;
         }
 
-        contains(val:number):boolean {
+        contains(val: number): boolean {
             return val >= this.location && val <= this.max();
         }
 
         /** 交叉判定 */
-        intersects(r:Range):boolean {
+        intersects(r: Range): boolean {
             return (Math.max(this.max(), r.max()) - Math.min(this.location, r.location))
                 < (this.length + r.length);
         }
 
-        max():number {
+        max(): number {
             return this.location + this.length;
         }
 
-        static Intersects(loc0:number, len0:number, loc1:number, len1:number) {
+        static Intersects(loc0: number, len0: number, loc1: number, len1: number) {
             return (Math.max(loc0 + len0, loc1 + len1) - Math.min(loc0, loc1))
                 < (len0 + len1);
         }
     }
 
     /** 边距 */
-    export class EdgeInsets
-    {
-        top:number;
-        bottom:number;
-        left:number;
-        right:number;
-        
+    export class EdgeInsets {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+
         constructor(t = 0, b = 0, l = 0, r = 0) {
-            this.top = t; this.bottom = b;
-            this.left = l; this.right = r;
+            this.top = t;
+            this.bottom = b;
+            this.left = l;
+            this.right = r;
         }
 
-        static All(v:number):EdgeInsets {
+        static All(v: number): EdgeInsets {
             return new EdgeInsets(v, v, v, v);
         }
 
-        add(t:number, b:number, l:number, r:number):EdgeInsets {
-            this.top += t; this.bottom += b;
-            this.left += l; this.right += r;
+        add(t: number, b: number, l: number, r: number): EdgeInsets {
+            this.top += t;
+            this.bottom += b;
+            this.left += l;
+            this.right += r;
             return this;
         }
 
-        scale(v:number):EdgeInsets {
-            this.top *= v; this.bottom *= v;
-            this.left *= v; this.right *= v;
+        scale(v: number): EdgeInsets {
+            this.top *= v;
+            this.bottom *= v;
+            this.left *= v;
+            this.right *= v;
             return this;
         }
 
-        addEdgeInsets(r:EdgeInsets):EdgeInsets {
+        addEdgeInsets(r: EdgeInsets): EdgeInsets {
             if (r == null)
                 return this;
-            this.top += r.top; this.bottom += r.bottom;
-            this.left += r.left; this.right += r.right;
+            this.top += r.top;
+            this.bottom += r.bottom;
+            this.left += r.left;
+            this.right += r.right;
             return this;
         }
 
-        get width():number {
+        get width(): number {
             return this.left + this.right;
         }
-        
-        get height():number {
+
+        get height(): number {
             return this.top + this.bottom;
         }
 
-        static Width(o:EdgeInsets):number {
+        static Width(o: EdgeInsets): number {
             if (o == null)
                 return 0;
             return o.width;
         }
-        
-        static Height(o:EdgeInsets):number {
+
+        static Height(o: EdgeInsets): number {
             if (o == null)
                 return 0;
             return o.height;
         }
 
-        static Top(o:EdgeInsets):number {
+        static Top(o: EdgeInsets): number {
             return o ? o.top : 0;
         }
 
-        static Left(o:EdgeInsets):number {
+        static Left(o: EdgeInsets): number {
             return o ? o.left : 0;
         }
     }
 
     /** 点 */
-    export class Point
-    {
-        constructor(x:number = 0, y:number = 0) {
+    export class Point {
+        constructor(x: number = 0, y: number = 0) {
             this.x = x;
             this.y = y;
         }
-        
-        x:number;
-        y:number;
 
-        reset(x:number = 0, y:number = 0):this {
+        x: number;
+        y: number;
+
+        reset(x: number = 0, y: number = 0): this {
             this.x = x;
             this.y = y;
             return this;
         }
 
-        clone():this {
+        clone(): this {
             let r = InstanceNewObject(this);
             r.x = this.x;
             r.y = this.y;
             return r;
         }
 
-        copy(r:Point):this {
+        copy(r: Point): this {
             this.x = r.x;
             this.y = r.y;
             return this;
         }
 
-        addPoint(r:Point):this {
+        addPoint(r: Point): this {
             this.x += r.x;
             this.y += r.y;
             return this;
         }
 
-        subPoint(r:Point):this {
+        subPoint(r: Point): this {
             this.x -= r.x;
             this.y -= r.y;
             return this;
         }
 
-        add(x?:number, y?:number):this {
+        add(x?: number, y?: number): this {
             if (x)
                 this.x += x;
             if (y)
@@ -3255,13 +3330,13 @@ module nn {
             return this;
         }
 
-        multiPoint(r:Point):this {
+        multiPoint(r: Point): this {
             this.x *= r.x;
             this.y *= r.y;
             return this;
         }
 
-        scale(v:number, vy?:number):this {
+        scale(v: number, vy?: number): this {
             if (vy == null)
                 vy = v;
             this.x *= v;
@@ -3269,12 +3344,12 @@ module nn {
             return this;
         }
 
-        isEqual(r:Point):boolean {
+        isEqual(r: Point): boolean {
             return this.x == r.x &&
                 this.y == r.y;
         }
 
-        invert():this {
+        invert(): this {
             let t = this.x;
             this.x = this.y;
             this.y = t;
@@ -3291,11 +3366,11 @@ module nn {
         static AnchorRC = new Point(1, 0.5);
         static AnchorRB = new Point(1, 1);
 
-        toString():string {
+        toString(): string {
             return this.x + ',' + this.y;
         }
 
-        fromString(s:string) {
+        fromString(s: string) {
             if (s == null) {
                 this.x = this.y = 0;
                 return;
@@ -3305,13 +3380,13 @@ module nn {
             this.y = toNumber(c[1]);
         }
 
-        applyScaleFactor():this {
+        applyScaleFactor(): this {
             this.x *= ScaleFactorX;
             this.y *= ScaleFactorY;
             return this;
         }
 
-        unapplyScaleFactor():this {
+        unapplyScaleFactor(): this {
             this.x *= ScaleFactorDeX;
             this.y *= ScaleFactorDeY;
             return this;
@@ -3321,13 +3396,12 @@ module nn {
     }
 
     /** 点云 */
-    export class PointCloud
-    {
-        protected _points = new Array<Point>();        
+    export class PointCloud {
+        protected _points = new Array<Point>();
         protected _minpt = new Point();
         protected _maxpt = new Point();
 
-        add(pt:Point) {
+        add(pt: Point) {
             if (this._points.length == 0) {
                 this._minpt.reset(MAX_INT, MAX_INT);
                 this._maxpt.reset();
@@ -3345,39 +3419,40 @@ module nn {
             this._points.push(pt);
         }
 
-        get boundingBox():Rect {
+        get boundingBox(): Rect {
             return new Rect(this._minpt.x, this._minpt.y,
-                            this._maxpt.x - this._minpt.x, this._maxpt.y - this._minpt.y);
+                this._maxpt.x - this._minpt.x, this._maxpt.y - this._minpt.y);
         }
     }
 
     /** 大小 */
     export class Size
-    extends Point
-    {
-        constructor(w:number = 0, h:number = 0) {
+        extends Point {
+        constructor(w: number = 0, h: number = 0) {
             super(w, h);
         }
 
-        get width():number {
+        get width(): number {
             return this.x;
         }
-        set width(w:number) {
+
+        set width(w: number) {
             this.x = w;
         }
 
-        get height():number {
+        get height(): number {
             return this.y;
         }
-        set height(h:number) {
+
+        set height(h: number) {
             this.y = h;
         }
 
-        toRect():Rect {
+        toRect(): Rect {
             return new Rect(0, 0, this.width, this.height);
         }
 
-        addSize(r:Size):Size {
+        addSize(r: Size): Size {
             this.x += r.x;
             this.y += r.y;
             return this;
@@ -3387,35 +3462,34 @@ module nn {
     }
 
     /** 多边形 */
-    export class Polygon
-    {
-        add(pt:Point):Polygon {
+    export class Polygon {
+        add(pt: Point): Polygon {
             this._pts.push(pt);
             return this;
         }
 
-        clear():Polygon {
+        clear(): Polygon {
             this._pts.length = 0;
             return this;
         }
-        
-        get length():number {
+
+        get length(): number {
             return this._pts.length;
         }
-        
+
         _pts = new Array<Point>();
     }
 
     export enum FillMode {
         // 几何拉伸
         STRETCH = 0x1000,
-        
+
         // 居中
         CENTER = 0x2000,
-        
+
         // 不变形拉伸(留黑边)
         ASPECTSTRETCH = 0x3000,
-        
+
         // 不变形填充(无黑边，有裁剪)
         ASPECTFILL = 0x4000,
 
@@ -3433,19 +3507,24 @@ module nn {
         MASK_MAJOR = 0xf000,
     };
 
-    export function FillModeString(fm:FillMode) {
+    export function FillModeString(fm: FillMode) {
         let v = [];
         switch (fm & FillMode.MASK_MAJOR) {
-        case FillMode.STRETCH:
-            v.push("STRETCH"); break;
-        case FillMode.CENTER:
-            v.push("CENTER"); break;
-        case FillMode.ASPECTSTRETCH:
-            v.push("ASPECTSTRETCH"); break;
-        case FillMode.NEARESTSTRETCH:
-            v.push("NEARESTSTRETCH"); break;
-        case FillMode.ASPECTFILL:
-            v.push("ASPECTFILL"); break;
+            case FillMode.STRETCH:
+                v.push("STRETCH");
+                break;
+            case FillMode.CENTER:
+                v.push("CENTER");
+                break;
+            case FillMode.ASPECTSTRETCH:
+                v.push("ASPECTSTRETCH");
+                break;
+            case FillMode.NEARESTSTRETCH:
+                v.push("NEARESTSTRETCH");
+                break;
+            case FillMode.ASPECTFILL:
+                v.push("ASPECTFILL");
+                break;
         }
         if (Mask.isset(FillMode.NOBORDER, fm))
             v.push("NOBORDER");
@@ -3460,11 +3539,9 @@ module nn {
     export type rnumber = number | string;
 
     /** 相对尺寸 */
-    export class RRect
-    {
-        constructor(p:{top?:rnumber; bottom?:rnumber; left?:rnumber; right?:rnumber;},
-                    width:rnumber, height:rnumber)
-        {
+    export class RRect {
+        constructor(p: { top?: rnumber; bottom?: rnumber; left?: rnumber; right?: rnumber; },
+                    width: rnumber, height: rnumber) {
             this.left = p.left;
             this.right = p.right;
             this.top = p.top;
@@ -3472,15 +3549,15 @@ module nn {
             this.width = width;
             this.height = height;
         }
-        
-        left:rnumber;
-        right:rnumber;
-        top:rnumber;
-        bottom:rnumber;
-        width:rnumber;
-        height:rnumber;
 
-        private rvalue(v:rnumber, p:number):number {
+        left: rnumber;
+        right: rnumber;
+        top: rnumber;
+        bottom: rnumber;
+        width: rnumber;
+        height: rnumber;
+
+        private rvalue(v: rnumber, p: number): number {
             if (v == null)
                 return null;
             return typeof(<any>v) == 'number' ?
@@ -3488,15 +3565,15 @@ module nn {
                 <any>v * p;
         }
 
-        toRect(prc:Rect):Rect {
+        toRect(prc: Rect): Rect {
             if (ISDEBUG) {
                 if ((this.top && this.bottom) ||
                     (this.left && this.right))
                     warn("不能同时设置同类属性");
             }
             let rc = new Rect(prc.x, prc.y,
-                              this.rvalue(this.width, prc.width),
-                              this.rvalue(this.height, prc.height));
+                this.rvalue(this.width, prc.width),
+                this.rvalue(this.height, prc.height));
             if (this.top != null)
                 rc.y += this.rvalue(this.top, prc.height);
             else if (this.bottom != null)
@@ -3514,12 +3591,12 @@ module nn {
         LEFT_CENTER = 1,
         LEFT_BOTTOM = 2,
         TOP_CENTER = 3,
-        CENTER = 4,        
+        CENTER = 4,
         BOTTOM_CENTER = 5,
         RIGHT_TOP = 6,
         RIGHT_CENTER = 7,
         RIGHT_BOTTOM = 8,
-    };    
+    };
 
     export enum EDGE {
         START = 1,
@@ -3528,41 +3605,43 @@ module nn {
     };
 
     /** 尺寸 */
-    export class Rect
-    {
-        constructor(x:number = 0, y:number = 0, w:number = 0, h:number = 0) {
-            this.x = x; this.y = y;
-            this.width = w; this.height = h;
+    export class Rect {
+        constructor(x: number = 0, y: number = 0, w: number = 0, h: number = 0) {
+            this.x = x;
+            this.y = y;
+            this.width = w;
+            this.height = h;
         }
-        
-        x:number;
-        y:number;
-        width:number;
-        height:number;
-        
+
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+
         static Zero = new Rect();
         static Max = new Rect(-999999, -999999, 999999, 999999);
 
-        get isnan():boolean {
+        get isnan(): boolean {
             return isNaN(this.x) || isNaN(this.y) || isNaN(this.width) || isNaN(this.height);
         }
 
-        get position():Point {
+        get position(): Point {
             return new Point(this.x, this.y);
         }
-        set position(p:Point) {
+
+        set position(p: Point) {
             this.x = p.x;
             this.y = p.y;
         }
 
-        origin(anchor?:Point):Point {
+        origin(anchor?: Point): Point {
             if (anchor)
                 return new Point(this.x + this.width * anchor.x,
-                                 this.y + this.height * anchor.y);
+                    this.y + this.height * anchor.y);
             return new Point(this.x, this.y);
         }
-        
-        setOrigin(pt:Point, anchor?:Point):this {
+
+        setOrigin(pt: Point, anchor?: Point): this {
             if (anchor) {
                 this.x = pt.x - this.width * anchor.x;
                 this.y = pt.y - this.height * anchor.y;
@@ -3573,91 +3652,122 @@ module nn {
             return this;
         }
 
-        alignTo(rc:Rect, posto:POSITION, posmy?:POSITION):this {
+        alignTo(rc: Rect, posto: POSITION, posmy?: POSITION): this {
             if (posmy == null)
                 posmy = posto;
             this.setPosition(rc.getPosition(posto), posmy);
             return this;
         }
 
-        edgeTo(rc:Rect, edge:EDGE):this {
+        edgeTo(rc: Rect, edge: EDGE): this {
             switch (edge) {
-            case EDGE.START: {
-                this.setLeftTop(rc.leftTop);
-            } break;
-            case EDGE.MIDDLE: {
-                this.setCenter(rc.center);
-            } break;
-            case EDGE.END: {
-                this.setRightBottom(rc.rightBottom);
-            } break;
+                case EDGE.START: {
+                    this.setLeftTop(rc.leftTop);
+                }
+                    break;
+                case EDGE.MIDDLE: {
+                    this.setCenter(rc.center);
+                }
+                    break;
+                case EDGE.END: {
+                    this.setRightBottom(rc.rightBottom);
+                }
+                    break;
             }
             return this;
         }
 
-        getPosition(pos:POSITION):Point {
+        getPosition(pos: POSITION): Point {
             switch (pos) {
-            case POSITION.LEFT_TOP: return this.leftTop;
-            case POSITION.LEFT_CENTER: return this.leftCenter;
-            case POSITION.LEFT_BOTTOM: return this.leftBottom;
-            case POSITION.CENTER: return this.center;
-            case POSITION.TOP_CENTER: return this.topCenter;
-            case POSITION.BOTTOM_CENTER: return this.bottomCenter;
-            case POSITION.RIGHT_TOP: return this.rightTop;
-            case POSITION.RIGHT_CENTER: return this.rightCenter;
-            case POSITION.RIGHT_BOTTOM: return this.rightBottom;
+                case POSITION.LEFT_TOP:
+                    return this.leftTop;
+                case POSITION.LEFT_CENTER:
+                    return this.leftCenter;
+                case POSITION.LEFT_BOTTOM:
+                    return this.leftBottom;
+                case POSITION.CENTER:
+                    return this.center;
+                case POSITION.TOP_CENTER:
+                    return this.topCenter;
+                case POSITION.BOTTOM_CENTER:
+                    return this.bottomCenter;
+                case POSITION.RIGHT_TOP:
+                    return this.rightTop;
+                case POSITION.RIGHT_CENTER:
+                    return this.rightCenter;
+                case POSITION.RIGHT_BOTTOM:
+                    return this.rightBottom;
             }
         }
 
-        setPosition(pt:Point, pos:POSITION) {
+        setPosition(pt: Point, pos: POSITION) {
             switch (pos) {
-            case POSITION.LEFT_TOP: this.leftTop = pt; break;
-            case POSITION.LEFT_CENTER: this.leftCenter = pt; break;
-            case POSITION.LEFT_BOTTOM: this.leftBottom = pt; break;
-            case POSITION.CENTER: this.center = pt; break;
-            case POSITION.TOP_CENTER: this.topCenter = pt; break;
-            case POSITION.BOTTOM_CENTER: this.bottomCenter = pt; break;
-            case POSITION.RIGHT_TOP: this.rightTop = pt; break;
-            case POSITION.RIGHT_CENTER: this.rightCenter = pt; break;
-            case POSITION.RIGHT_BOTTOM: this.rightBottom = pt; break;
+                case POSITION.LEFT_TOP:
+                    this.leftTop = pt;
+                    break;
+                case POSITION.LEFT_CENTER:
+                    this.leftCenter = pt;
+                    break;
+                case POSITION.LEFT_BOTTOM:
+                    this.leftBottom = pt;
+                    break;
+                case POSITION.CENTER:
+                    this.center = pt;
+                    break;
+                case POSITION.TOP_CENTER:
+                    this.topCenter = pt;
+                    break;
+                case POSITION.BOTTOM_CENTER:
+                    this.bottomCenter = pt;
+                    break;
+                case POSITION.RIGHT_TOP:
+                    this.rightTop = pt;
+                    break;
+                case POSITION.RIGHT_CENTER:
+                    this.rightCenter = pt;
+                    break;
+                case POSITION.RIGHT_BOTTOM:
+                    this.rightBottom = pt;
+                    break;
             }
         }
-        
-        get size():Size {
+
+        get size(): Size {
             return new Size(this.width, this.height);
         }
-        set size(v:Size) {
+
+        set size(v: Size) {
             this.width = v.width;
             this.height = v.height;
         }
 
-        setSize(w:number, h:number):this {
+        setSize(w: number, h: number): this {
             this.width = w;
             this.height = h;
             return this;
         }
 
-        setX(x:number):this {
+        setX(x: number): this {
             this.x = x;
             return this;
         }
 
-        setY(y:number):this {
+        setY(y: number): this {
             this.y = y;
             return this;
         }
 
-        setWidth(w:number):this {
+        setWidth(w: number): this {
             this.width = w;
             return this;
         }
 
-        setHeight(h:number):this {
+        setHeight(h: number): this {
             this.height = h;
             return this;
         }
 
-        integral():this {
+        integral(): this {
             this.x = Integral(this.x);
             this.y = Integral(this.y);
             this.width = Integral(this.width);
@@ -3665,7 +3775,7 @@ module nn {
             return this;
         }
 
-        invert():this {
+        invert(): this {
             let self = this;
             let t = self.x;
             self.x = self.y;
@@ -3676,7 +3786,7 @@ module nn {
             return self;
         }
 
-        clone():this {
+        clone(): this {
             let self = this;
             let ret = InstanceNewObject(self);
             ret.x = self.x;
@@ -3686,7 +3796,7 @@ module nn {
             return ret;
         }
 
-        copy(r:Rect):this {
+        copy(r: Rect): this {
             let self = this;
             self.x = r.x;
             self.y = r.y;
@@ -3695,7 +3805,7 @@ module nn {
             return self;
         }
 
-        applyEdgeInsets(ei:EdgeInsets):this {
+        applyEdgeInsets(ei: EdgeInsets): this {
             if (ei == null)
                 return this;
             this.x += ei.left;
@@ -3705,7 +3815,7 @@ module nn {
             return this;
         }
 
-        unapplyEdgeInsets(ei:EdgeInsets):this {
+        unapplyEdgeInsets(ei: EdgeInsets): this {
             if (ei == null)
                 return this;
             this.x -= ei.left;
@@ -3715,39 +3825,45 @@ module nn {
             return this;
         }
 
-        applyAnchor(ax:number, ay:number):this {
+        applyAnchor(ax: number, ay: number): this {
             this.x -= this.width * ax;
             this.y -= this.height * ay;
             return this;
         }
 
-        unapplyAnchor(ax:number, ay:number):this {
+        unapplyAnchor(ax: number, ay: number): this {
             this.x += this.width * ax;
             this.y += this.height * ay;
             return this;
         }
 
-        containsPoint(pt:Point):boolean {
+        containsPoint(pt: Point): boolean {
             return pt.x >= this.x && pt.x <= this.x + this.width &&
                 pt.y >= this.y && pt.y <= this.y + this.height;
         }
 
-        static ContainsPoint(x:number, y:number, rx:number, ry:number, rw:number, rh:number) {
+        static ContainsPoint(x: number, y: number, rx: number, ry: number, rw: number, rh: number) {
             return x >= rx && x <= rx + rw &&
                 y >= ry && y <= ry + rh;
         }
 
-        static Area(o:any):number {
+        static Area(o: any): number {
             return o.width * o.height;
         }
 
-        static Swap(l:any, r:any) {
+        static Swap(l: any, r: any) {
             let x = l.x, y = l.y, w = l.width, h = l.height;
-            l.x = r.x; l.y = r.y; l.width = r.width; l.height = r.height;
-            r.x = x; r.y = y; r.width = w; r.height = h;
+            l.x = r.x;
+            l.y = r.y;
+            l.width = r.width;
+            l.height = r.height;
+            r.x = x;
+            r.y = y;
+            r.width = w;
+            r.height = h;
         }
 
-        maxSize(w?:number, h?:number):this {
+        maxSize(w?: number, h?: number): this {
             if (w != undefined && this.width > w)
                 this.width = w;
             if (h != undefined && this.height > h)
@@ -3755,7 +3871,7 @@ module nn {
             return this;
         }
 
-        minSize(w?:number, h?:number):this {
+        minSize(w?: number, h?: number): this {
             if (w != undefined && this.width < w)
                 this.width = w;
             if (h != undefined && this.height < h)
@@ -3763,13 +3879,14 @@ module nn {
             return this;
         }
 
-        isEqual(r:Rect):boolean {
+        isEqual(r: Rect): boolean {
             return this.x == r.x && this.y == r.y &&
                 this.width == r.width && this.height == r.height;
         }
 
-        add(x:number, y:number, w?:number, h?:number):this {
-            this.x += x; this.y += y;
+        add(x: number, y: number, w?: number, h?: number): this {
+            this.x += x;
+            this.y += y;
             if (w)
                 this.width += w;
             if (h)
@@ -3777,13 +3894,13 @@ module nn {
             return this;
         }
 
-        union(r:Rect):this {
+        union(r: Rect): this {
             let maxX = this.maxX;
             let maxY = this.maxY;
             if (this.x > r.x)
                 this.x = r.x;
             if (this.y > r.y)
-                this.y  = r.y;
+                this.y = r.y;
             if (maxX < r.maxX)
                 this.width += r.maxX - maxX;
             if (maxY < r.maxY)
@@ -3791,33 +3908,35 @@ module nn {
             return this;
         }
 
-        deflate(w:number, h:number):this {
+        deflate(w: number, h: number): this {
             return this.add(w * 0.5, h * 0.5,
-                            -w, -h);
+                -w, -h);
         }
 
-        deflateR(rw:number, rh:number):this {
+        deflateR(rw: number, rh: number): this {
             return this.deflate(this.width * rw, this.height * rh);
         }
 
-        scale(s:number, anchor?:Point):this {
+        scale(s: number, anchor?: Point): this {
             if (anchor == undefined) {
-                this.x *= s; this.y *= s;
+                this.x *= s;
+                this.y *= s;
             } else {
                 this.x -= (this.width * s - this.width) * anchor.x;
                 this.y -= (this.height * s - this.height) * anchor.y;
             }
-            this.width *= s; this.height *= s;
+            this.width *= s;
+            this.height *= s;
             return this;
         }
 
         // 外接圆的半径
-        get outterRadius():number {
+        get outterRadius(): number {
             let len = Math.max(this.width, this.height);
-            return Math.sqrt(len*len*2)/2;
+            return Math.sqrt(len * len * 2) / 2;
         }
 
-        multiRect(x:number, y:number, w:number, h:number):this {
+        multiRect(x: number, y: number, w: number, h: number): this {
             if (x != null)
                 this.x *= x;
             if (y != null)
@@ -3829,17 +3948,17 @@ module nn {
             return this;
         }
 
-        scaleWidth(w:number):this {
+        scaleWidth(w: number): this {
             this.width *= w;
             return this;
         }
 
-        scaleHeight(h:number):this {
+        scaleHeight(h: number): this {
             this.height *= h;
             return this;
         }
 
-        clipCenter(w?:number, h?:number):this {
+        clipCenter(w?: number, h?: number): this {
             if (w) {
                 let d = this.width - w;
                 this.x += d * 0.5;
@@ -3853,49 +3972,55 @@ module nn {
             return this;
         }
 
-        reset(x:number = 0, y:number = 0, w:number = 0, h:number = 0):this {
-            this.x = x; this.y = y;
-            this.width = w; this.height = h;
+        reset(x: number = 0, y: number = 0, w: number = 0, h: number = 0): this {
+            this.x = x;
+            this.y = y;
+            this.width = w;
+            this.height = h;
             return this;
         }
 
-        get minX():number {
+        get minX(): number {
             return this.x;
         }
-        set minX(v:number) {
+
+        set minX(v: number) {
             this.x = v;
         }
-        
-        get maxX():number {
+
+        get maxX(): number {
             return this.x + this.width;
         }
-        set maxX(v:number) {
+
+        set maxX(v: number) {
             this.x = v - this.width;
         }
 
-        get minY():number {
+        get minY(): number {
             return this.y;
         }
-        set minY(v:number) {
+
+        set minY(v: number) {
             this.y = v;
         }
-        
-        get maxY():number {
+
+        get maxY(): number {
             return this.y + this.height;
         }
-        set maxY(v:number) {
+
+        set maxY(v: number) {
             this.y = v - this.height;
         }
 
-        get minL():number {
+        get minL(): number {
             return Math.min(this.width, this.height);
         }
 
-        get maxL():number {
+        get maxL(): number {
             return Math.max(this.width, this.height);
         }
 
-        toPolygon():Polygon {
+        toPolygon(): Polygon {
             return new Polygon()
                 .add(new Point(this.x, this.y))
                 .add(new Point(this.x, this.y + this.height))
@@ -3903,156 +4028,163 @@ module nn {
                 .add(new Point(this.x + this.width, this.y));
         }
 
-        offset(pt:Point):this {
+        offset(pt: Point): this {
             this.x += pt.x;
             this.y += pt.y;
             return this;
         }
 
-        get center():Point {
+        get center(): Point {
             return new Point(this.x + this.width * 0.5,
-                             this.y + this.height * 0.5);
+                this.y + this.height * 0.5);
         }
-        set center(pt:Point) {
+
+        set center(pt: Point) {
             this.x = pt.x - this.width * 0.5;
             this.y = pt.y - this.height * 0.5;
         }
 
-        setCenter(pt:Point):this {
+        setCenter(pt: Point): this {
             this.center = pt;
             return this;
         }
 
-        get leftTop():Point {
+        get leftTop(): Point {
             return new Point(this.x, this.y);
         }
-        set leftTop(pt:Point) {
+
+        set leftTop(pt: Point) {
             this.x = pt.x;
             this.y = pt.y;
         }
 
-        setLeftTop(pt:Point):this {
+        setLeftTop(pt: Point): this {
             this.leftTop = pt;
             return this;
         }
 
-        get leftBottom():Point {
+        get leftBottom(): Point {
             return new Point(this.x, this.y + this.height);
         }
-        set leftBottom(pt:Point) {
+
+        set leftBottom(pt: Point) {
             this.x = pt.x;
             this.y = pt.y - this.height;
         }
 
-        setLeftBottom(pt:Point):this {
+        setLeftBottom(pt: Point): this {
             this.leftBottom = pt;
             return this;
         }
 
-        get rightTop():Point {
+        get rightTop(): Point {
             return new Point(this.x + this.width, this.y);
         }
-        set rightTop(pt:Point) {
+
+        set rightTop(pt: Point) {
             this.x = pt.x - this.width;
             this.y = pt.y;
         }
 
-        setRightTop(pt:Point):this {
+        setRightTop(pt: Point): this {
             this.rightTop = pt;
             return this;
         }
 
-        get rightBottom():Point {
+        get rightBottom(): Point {
             return new Point(this.x + this.width, this.y + this.height);
         }
-        set rightBottom(pt:Point) {
+
+        set rightBottom(pt: Point) {
             this.x = pt.x - this.width;
             this.y = pt.y - this.height;
         }
 
-        setRightBottom(pt:Point):this {
+        setRightBottom(pt: Point): this {
             this.rightBottom = pt;
             return this;
         }
 
-        get topCenter():Point {
+        get topCenter(): Point {
             return new Point(this.x + this.width * 0.5, this.y);
         }
-        set topCenter(pt:Point) {
+
+        set topCenter(pt: Point) {
             this.x = pt.x - this.width * 0.5;
             this.y = pt.y;
         }
 
-        setTopCenter(pt:Point):this {
+        setTopCenter(pt: Point): this {
             this.topCenter = pt;
             return this;
         }
 
-        get bottomCenter():Point {
+        get bottomCenter(): Point {
             return new Point(this.x + this.width * 0.5, this.y + this.height);
         }
-        set bottomCenter(pt:Point) {
+
+        set bottomCenter(pt: Point) {
             this.x = pt.x - this.width * 0.5;
             this.y = pt.y - this.height;
         }
 
-        setBottomCenter(pt:Point):this {
+        setBottomCenter(pt: Point): this {
             this.bottomCenter = pt;
             return this;
         }
 
-        get leftCenter():Point {
+        get leftCenter(): Point {
             return new Point(this.x, this.y + this.height * 0.5);
         }
-        set leftCenter(pt:Point) {
+
+        set leftCenter(pt: Point) {
             this.x = pt.x;
             this.y = pt.y - this.height * 0.5;
         }
 
-        setLeftCenter(pt:Point):this {
+        setLeftCenter(pt: Point): this {
             this.leftCenter = pt;
             return this;
         }
 
-        get rightCenter():Point {
+        get rightCenter(): Point {
             return new Point(this.x + this.width, this.y + this.height * 0.5);
         }
-        set rightCenter(pt:Point) {
+
+        set rightCenter(pt: Point) {
             this.x = pt.x - this.width;
             this.y = pt.y - this.height * 0.5;
-        }               
+        }
 
-        setRightCenter(pt:Point):this {
+        setRightCenter(pt: Point): this {
             this.rightCenter = pt;
             return this;
         }
-        
-        toString():string {
+
+        toString(): string {
             return this.x + "," + this.y + "," + this.width + "," + this.height;
         }
 
         // 近似填充时采用的阈值
-        private _nearest:number;
-        get nearest():number {
+        private _nearest: number;
+        get nearest(): number {
             return this._nearest == null ? 0.1 : this._nearest;
         }
 
         /** 将当前的rc映射到目标rc中，默认会居中结果 */
-        fill(to:Rect, mode:FillMode):this {
+        fill(to: Rect, mode: FillMode): this {
             let self = this;
             if (self.width == 0 || self.height == 0)
                 return self;
 
             let needcenter = true;
-            
-            switch (mode & FillMode.MASK_MAJOR)
-            {
-            case FillMode.STRETCH:
-                {
+
+            switch (mode & FillMode.MASK_MAJOR) {
+                case FillMode.STRETCH: {
                     self.copy(to);
-                } break;
-            case FillMode.MAPIN:
-                {
+                }
+                    break;
+                case FillMode.MAPIN: {
                     if (this.maxX > to.maxX)
                         this.maxX = to.maxX;
                     if (this.maxY > to.maxY)
@@ -4062,9 +4194,9 @@ module nn {
                     if (this.minY < to.minY)
                         this.minY = to.minY;
                     needcenter = false;
-                } break;
-            case FillMode.NEARESTSTRETCH:
-                {
+                }
+                    break;
+                case FillMode.NEARESTSTRETCH: {
                     // 先做 as，如果接近，则拉伸
                     let rw = self.width / to.width;
                     let rh = self.height / to.height;
@@ -4074,15 +4206,15 @@ module nn {
                     } else {
                         self.height /= rw;
                         self.width = to.width;
-                    }                        
+                    }
                     rw = self.width / to.width;
-                    rh = self.height / to.height;                    
+                    rh = self.height / to.height;
                     if (Math.abs(rw - rh) < self.nearest) {
                         self.copy(to);
                     }
-                } break;
-            case FillMode.ASPECTSTRETCH:
-                {
+                }
+                    break;
+                case FillMode.ASPECTSTRETCH: {
                     let rw = self.width / to.width;
                     let rh = self.height / to.height;
                     if (rw < rh) {
@@ -4092,19 +4224,20 @@ module nn {
                         self.height /= rw;
                         self.width = to.width;
                     }
-                } break;
-            case FillMode.ASPECTFILL:
-                {
+                }
+                    break;
+                case FillMode.ASPECTFILL: {
                     let rw = self.width / to.width;
                     let rh = self.height / to.height;
-                    if (rw < rh) {                    
+                    if (rw < rh) {
                         self.height /= rw;
                         self.width = to.width;
                     } else {
                         self.width /= rh;
                         self.height = to.height;
                     }
-                } break;
+                }
+                    break;
             }
 
             if (Mask.isset(FillMode.NOBORDER, mode)) {
@@ -4113,7 +4246,7 @@ module nn {
                     self.width = self.height * r1;
                 } else {
                     self.height = self.width / r1;
-                }                
+                }
             }
 
             if (Mask.isset(FillMode.NEAREST, mode)) {
@@ -4125,15 +4258,15 @@ module nn {
                     } else {
                         self.height /= rh;
                     }
-                }                
+                }
             }
-            
+
             if (needcenter)
-                self.center = to.center;            
+                self.center = to.center;
             return self;
         }
 
-        applyScaleFactor():this {
+        applyScaleFactor(): this {
             this.x *= ScaleFactorX;
             this.y *= ScaleFactorY;
             this.width *= ScaleFactorW;
@@ -4141,7 +4274,7 @@ module nn {
             return this;
         }
 
-        unapplyScaleFactor():this {
+        unapplyScaleFactor(): this {
             this.x *= ScaleFactorDeX;
             this.y *= ScaleFactorDeY;
             this.width *= ScaleFactorDeW;
@@ -4150,14 +4283,14 @@ module nn {
         }
 
         // 转换到笛卡尔坐标系
-        applyCartesian(tfm:Rect):this {
+        applyCartesian(tfm: Rect): this {
             let self = this;
             self.y = tfm.height - self.y - self.height - tfm.y;
             self.x += tfm.x;
             return self;
         }
 
-        unapplyCartesian(tfm:Rect):this {
+        unapplyCartesian(tfm: Rect): this {
             let self = this;
             self.y = tfm.height - self.y - tfm.y;
             self.x -= tfm.x;
@@ -4166,9 +4299,8 @@ module nn {
     }
 
     export class UnionRect
-    extends Rect
-    {
-        constructor(x?:number, y?:number, w?:number, h?:number) {
+        extends Rect {
+        constructor(x?: number, y?: number, w?: number, h?: number) {
             super();
             this.x = x;
             this.y = y;
@@ -4176,7 +4308,7 @@ module nn {
             this.height = h;
         }
 
-        union(r:Rect):this {
+        union(r: Rect): this {
             let self = this;
             if (self.x == null || self.y == null || self.width == null || self.height == null) {
                 self.x = r.x;
@@ -4188,7 +4320,7 @@ module nn {
             return <any>super.union(r);
         }
     }
-    
+
     export enum WorkState {
         UNKNOWN,
         WAITING,
@@ -4198,91 +4330,100 @@ module nn {
     };
 
     /** 角度 */
-    export class Angle
-    {
+    export class Angle {
         static _PI = Math.PI;
         static _PI_2 = Math.PI / 2;
         static _2PI = Math.PI * 2;
         static _1_2PI = 1 / Math.PI / 2;
         static _DEGREE = Math.PI / 180;
         static _RAD = 180 / Math.PI;
-        
-        static ToRad(ang:number):number {
+
+        static ToRad(ang: number): number {
             return ang * Angle._DEGREE;
         }
 
-        static ToAngle(rad:number):number {
+        static ToAngle(rad: number): number {
             return rad * Angle._RAD;
         }
 
-        constructor(rad:number = 0) {
+        constructor(rad: number = 0) {
             this._rad = rad;
         }
 
-        clone():Angle {
+        clone(): Angle {
             return new Angle(this._rad);
         }
 
-        static RAD(rad:number):Angle {
+        static RAD(rad: number): Angle {
             let r = new Angle(rad);
             return r;
         }
 
-        static ANGLE(ang:number):Angle {
+        static ANGLE(ang: number): Angle {
             let r = new Angle(Angle.ToRad(ang));
             return r;
         }
 
-        static DIRECTION(d:Direction):Angle {
+        static DIRECTION(d: Direction): Angle {
             let r = new Angle();
             switch (d) {
-            case Direction.UP: r._rad = 0; break;
-            case Direction.LEFT: r._rad = Angle._PI_2; break;
-            case Direction.DOWN: r._rad = Angle._PI; break;
-            case Direction.RIGHT: r._rad = Angle._PI + Angle._PI_2; break;
+                case Direction.UP:
+                    r._rad = 0;
+                    break;
+                case Direction.LEFT:
+                    r._rad = Angle._PI_2;
+                    break;
+                case Direction.DOWN:
+                    r._rad = Angle._PI;
+                    break;
+                case Direction.RIGHT:
+                    r._rad = Angle._PI + Angle._PI_2;
+                    break;
             }
             return r;
         }
 
-        private _rad:number;
+        private _rad: number;
 
-        get angle():number {
+        get angle(): number {
             return this._rad * Angle._RAD;
         }
-        set angle(v:number) {
+
+        set angle(v: number) {
             this._rad = v * Angle._DEGREE;
         }
 
-        get rad():number {
+        get rad(): number {
             return this._rad;
         }
-        set rad(v:number) {
+
+        set rad(v: number) {
             this._rad = v;
         }
 
-        add(r:Angle):Angle {
+        add(r: Angle): Angle {
             this._rad += r._rad;
             return this;
         }
 
-        sub(r:Angle):Angle {
+        sub(r: Angle): Angle {
             this._rad -= r._rad;
             return this;
         }
 
-        multiScala(v:number):Angle {
+        multiScala(v: number): Angle {
             this._rad *= v;
             return this;
         }
 
-        normalize():Angle {
+        normalize(): Angle {
             if (this._rad < 0)
                 this._rad += Angle._2PI;
             this._rad %= Angle._2PI;
             return this;
         }
 
-        get direction():Direction {
+        get direction(): Direction {
             let ang = this.clone().normalize().angle;
             if (ang <= 45 || ang >= 315)
                 return Direction.UP;
@@ -4293,22 +4434,22 @@ module nn {
             return Direction.RIGHT;
         }
 
-        toString():string {
+        toString(): string {
             return "角度:" + this.angle + ", 弧度:" + this.rad;
         }
     }
 
     /** 射线 */
-    export class Rayline
-    {
-        constructor(pt?:Point, angle?:number) {
+    export class Rayline {
+        constructor(pt?: Point, angle?: number) {
             this.pt = pt;
             this.angle = angle;
         }
-        pt:Point;
-        angle:number;
 
-        atLength(len:number, angle?:number):Point {
+        pt: Point;
+        angle: number;
+
+        atLength(len: number, angle?: number): Point {
             if (angle == undefined)
                 angle = this.angle;
             return new Point(len * Math.cos(angle), len * Math.sin(angle))
@@ -4317,25 +4458,24 @@ module nn {
     }
 
     /** 路径
-        @note 默认h5-tag-path来实现，所以也原生支持了svg^_^
-    */
+     @note 默认h5-tag-path来实现，所以也原生支持了svg^_^
+     */
     export class Path
-    implements ISerializable
-    {
-        constructor(svg?:string) {
+        implements ISerializable {
+        constructor(svg?: string) {
             this._ph = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             if (this._ph == null)
                 fatal("当前环境不支持 H5-PATH-SVG");
             if (svg)
                 this.unserialize(svg);
         }
-        
-        serialize():string {
+
+        serialize(): string {
             return this._ph.getAttribute("d");
         }
-        
-        unserialize(stream:any):boolean {
-            let suc:boolean;
+
+        unserialize(stream: any): boolean {
+            let suc: boolean;
             try {
                 this._ph.setAttribute("d", stream);
                 this._changed = suc = true;
@@ -4348,8 +4488,8 @@ module nn {
         clear() {
             this._ph.setAttribute("d", "");
         }
-        
-        get length():number {
+
+        get length(): number {
             if (this._changed) {
                 this._len = this._ph.getTotalLength();
                 this._changed = false;
@@ -4357,24 +4497,23 @@ module nn {
             return this._len;
         }
 
-        pointAtPos(percent:number):any {
+        pointAtPos(percent: number): any {
             let len = this.length;
             return this._ph.getPointAtLength(len * percent);
         }
 
-        private _ph:any;
-        private _len:number;
-        private _changed:boolean;
+        private _ph: any;
+        private _len: number;
+        private _changed: boolean;
     }
 
-    export class URL
-    {
-        constructor(uri?:string) {
+    export class URL {
+        constructor(uri?: string) {
             if (uri)
                 this.parseString(uri);
         }
 
-        parseString(uri:string) {
+        parseString(uri: string) {
             if (isZero(uri)) {
                 warn("不能解析传入的 URI 信息");
                 return;
@@ -4386,7 +4525,7 @@ module nn {
             this.domain = s[0];
             let fs = s[1];
             if (length(fs)) {
-                fs.split('&').forEach((s)=>{
+                fs.split('&').forEach((s) => {
                     if (length(s) == 0)
                         return;
                     let fs = s.split('=');
@@ -4398,7 +4537,7 @@ module nn {
         fields = new KvObject<string, string>();
         domain = '';
 
-        toString():string {
+        toString(): string {
             let r = '';
             if (this.domain.length) {
                 if (/\:\/\//i.test(this.domain) == false)
@@ -4412,94 +4551,93 @@ module nn {
             return r;
         }
 
-        static MapToField(m:KvObject<any, any>):string {
+        static MapToField(m: KvObject<any, any>): string {
             let arr = [];
-            MapT.Foreach(m, (k, v)=>{
+            MapT.Foreach(m, (k, v) => {
                 arr.push(k + "=" + this.encode(v));
             }, this);
             return arr.join('&');
         }
 
-        static encode(str:string):string {
+        static encode(str: string): string {
             return encodeURIComponent(str);
         }
 
-        static decode(d:string):string {
+        static decode(d: string): string {
             return decodeURIComponent(d);
         }
 
         /** 字符串打包，encode测试发现在native状态下，如果使用urlloader发送，则放在参数中的例如http://之类的字符串会被恢复编码，导致500错误 */
-        static pack(str:string, uri:boolean = true):string {
+        static pack(str: string, uri: boolean = true): string {
             let r = btoa(str);
             if (uri)
                 return encodeURIComponent(r);
             return r;
         }
 
-        static unpack(str:string, uri:boolean = true):string {
+        static unpack(str: string, uri: boolean = true): string {
             let r = atob(str);
             if (uri)
                 return decodeURIComponent(r);
             return r;
         }
 
-        static htmlEncode(s:string):string {
+        static htmlEncode(s: string): string {
             if (s.length == 0)
                 return "";
-            s = s.replace(/&/g,"&amp;");
-            s = s.replace(/</g,"&lt;");
-            s = s.replace(/>/g,"&gt;");
-            s = s.replace(/ /g,"&nbsp;");
-            s = s.replace(/\'/g,"&#39;");
-            s = s.replace(/\"/g,"&quot;");
+            s = s.replace(/&/g, "&amp;");
+            s = s.replace(/</g, "&lt;");
+            s = s.replace(/>/g, "&gt;");
+            s = s.replace(/ /g, "&nbsp;");
+            s = s.replace(/\'/g, "&#39;");
+            s = s.replace(/\"/g, "&quot;");
             return s;
         }
 
-        static htmlDecode(s:string):string {
+        static htmlDecode(s: string): string {
             if (s.length == 0)
                 return "";
-            s = s.replace(/&amp;/g,"&");
-            s = s.replace(/&lt;/g,"<");
-            s = s.replace(/&gt;/g,">");
-            s = s.replace(/&nbsp;/g," ");
-            s = s.replace(/&#39;/g,"\'");
-            s = s.replace(/&quot;/g,"\"");
-            return s;  
+            s = s.replace(/&amp;/g, "&");
+            s = s.replace(/&lt;/g, "<");
+            s = s.replace(/&gt;/g, ">");
+            s = s.replace(/&nbsp;/g, " ");
+            s = s.replace(/&#39;/g, "\'");
+            s = s.replace(/&quot;/g, "\"");
+            return s;
         }
     }
 
     /** 时间日期 */
-    export class DateTime
-    {
-        constructor(ts?:number) {
+    export class DateTime {
+        constructor(ts?: number) {
             if (ts === undefined)
                 ts = DateTime.Timestamp();
             this.timestamp = ts;
         }
 
         /** 当前的时间 */
-        static Now():number {
-            return new Date().getTime()/1000;
+        static Now(): number {
+            return new Date().getTime() / 1000;
         }
 
         /** 当前的时间戳 */
-        static Timestamp():number {
-            return (new Date().getTime()/1000) >> 0;
+        static Timestamp(): number {
+            return (new Date().getTime() / 1000) >> 0;
         }
 
         /** 从开始运行时过去的时间 */
-        static Pass():number {
+        static Pass(): number {
             return IMP_TIMEPASS();
         }
 
         /** 一段时间 */
-        static Interval(ts:number):DateTime {
+        static Interval(ts: number): DateTime {
             // 偏移GMT, -2880000是 GMT8 1970/1/1 0:0:0
             return new DateTime(ts - 2880000);
-        }        
-        
+        }
+
         /** 从字符串转换 */
-        static parse(s:string):DateTime {
+        static parse(s: string): DateTime {
             let v = Date.parse(s);
             // safari下日期必须用/分割，但是chrome支持-或者/的格式，所以如果是NaN，则把所有的-转换成/
             if (isNaN(v)) {
@@ -4508,124 +4646,134 @@ module nn {
                     v = Date.parse(s);
                 }
             }
-            return new DateTime(v/1000);
+            return new DateTime(v / 1000);
         }
 
         /** 未来 */
-        future(ts:number):this {
+        future(ts: number): this {
             this.timestamp += ts;
             return this;
         }
 
         /** 过去 */
-        past(ts:number):this {
+        past(ts: number): this {
             this.timestamp -= ts;
             return this;
         }
 
         /** 计算间隔 */
-        diff(r:DateTime):DateTime {
+        diff(r: DateTime): DateTime {
             return new DateTime(r._timestamp - this._timestamp);
         }
 
         private _changed = false;
         private _date = new Date();
-        private _timestamp:number;
-        get timestamp():number {
+        private _timestamp: number;
+        get timestamp(): number {
             if (this._changed) {
-                this._timestamp = this._date.getTime()/1000;
+                this._timestamp = this._date.getTime() / 1000;
                 this._changed = false;
             }
             return this._timestamp;
         }
-        set timestamp(val:number) {
+
+        set timestamp(val: number) {
             if (this._timestamp === val)
                 return;
             this._timestamp = val;
             this._date.setTime(this._timestamp * 1000);
         }
 
-        get year():number {
+        get year(): number {
             return this._date.getFullYear();
         }
-        set year(val:number) {
+
+        set year(val: number) {
             this._changed = true;
             this._date.setFullYear(val);
         }
 
-        get month():number {
+        get month(): number {
             return this._date.getMonth();
         }
-        set month(val:number) {
+
+        set month(val: number) {
             this._changed = true;
             this._date.setMonth(val);
         }
 
-        get day():number {
+        get day(): number {
             return this._date.getDate();
         }
-        set day(val:number) {
+
+        set day(val: number) {
             this._changed = true;
             this._date.setDate(val);
         }
 
-        get hyear():number {
+        get hyear(): number {
             return this.year;
         }
-        set hyear(val:number) {
+
+        set hyear(val: number) {
             this.year = val;
         }
 
-        get hmonth():number {
+        get hmonth(): number {
             return this.month + 1;
         }
-        set hmonth(val:number) {
+
+        set hmonth(val: number) {
             this.month = val - 1;
         }
 
-        get hday():number {
+        get hday(): number {
             return this.day;
         }
-        set hday(val:number) {
+
+        set hday(val: number) {
             this.day = val;
         }
 
-        get hour():number {
+        get hour(): number {
             return this._date.getHours();
         }
-        set hour(val:number) {
+
+        set hour(val: number) {
             this._changed = true;
             this._date.setHours(val);
         }
 
-        get minute():number {
+        get minute(): number {
             return this._date.getMinutes();
         }
-        set minute(val:number) {
+
+        set minute(val: number) {
             this._changed = true;
             this._date.setMinutes(val);
         }
 
-        get second():number {
+        get second(): number {
             return this._date.getSeconds();
         }
-        set second(val:number) {
+
+        set second(val: number) {
             this._changed = true;
             this._date.setSeconds(val);
         }
 
-        /**       
-         * 对Date的扩展，将 Date 转化为指定格式的String       
-         * 月(M)、日(d)、12小时(h)、24小时(H)、分(m)、秒(s)、周(E)、季度(q) 可以用 1-2 个占位符       
-         * 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)       
-         * eg:       
-         * ("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423       
-         * ("yyyy-MM-dd E HH:mm:ss") ==> 2009-03-10 二 20:09:04       
-         * ("yyyy-MM-dd EE hh:mm:ss") ==> 2009-03-10 周二 08:09:04       
-         * ("yyyy-MM-dd EEE hh:mm:ss") ==> 2009-03-10 星期二 08:09:04       
-         * ("yyyy-M-d h:m:s.S") ==> 2006-7-2 8:9:4.18       
-         */          
-        toString(fmt?:any):string {
+        /**
+         * 对Date的扩展，将 Date 转化为指定格式的String
+         * 月(M)、日(d)、12小时(h)、24小时(H)、分(m)、秒(s)、周(E)、季度(q) 可以用 1-2 个占位符
+         * 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+         * eg:
+         * ("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423
+         * ("yyyy-MM-dd E HH:mm:ss") ==> 2009-03-10 二 20:09:04
+         * ("yyyy-MM-dd EE hh:mm:ss") ==> 2009-03-10 周二 08:09:04
+         * ("yyyy-MM-dd EEE hh:mm:ss") ==> 2009-03-10 星期二 08:09:04
+         * ("yyyy-M-d h:m:s.S") ==> 2006-7-2 8:9:4.18
+         */
+        toString(fmt?: any): string {
             if (fmt)
                 return (<any>this._date).pattern(fmt);
             return this._date.toString();
@@ -4643,11 +4791,11 @@ module nn {
         static MONTH = 2592000;
         static YEAR = 31104000;
 
-        static Dyears(ts:number, up:boolean=true) {
+        static Dyears(ts: number, up: boolean = true) {
             return Math.floor(ts / this.YEAR);
         }
 
-        static Dmonths(ts:number, up:boolean=true) {
+        static Dmonths(ts: number, up: boolean = true) {
             let v;
             if (up) {
                 v = ts % this.YEAR;
@@ -4657,8 +4805,8 @@ module nn {
             }
             return v;
         }
-        
-        static Ddays(ts:number, up:boolean=true) {
+
+        static Ddays(ts: number, up: boolean = true) {
             let v;
             if (up) {
                 v = ts % this.MONTH;
@@ -4669,7 +4817,7 @@ module nn {
             return v;
         }
 
-        static Dhours(ts:number, up:boolean=true) {
+        static Dhours(ts: number, up: boolean = true) {
             let v;
             if (up) {
                 v = ts % this.DAY;
@@ -4679,8 +4827,8 @@ module nn {
             }
             return v;
         }
-        
-        static Dminutes(ts:number, up:boolean=true) {
+
+        static Dminutes(ts: number, up: boolean = true) {
             let v;
             if (up) {
                 v = ts % this.HOUR;
@@ -4690,8 +4838,8 @@ module nn {
             }
             return v;
         }
-        
-        static Dseconds(ts:number, up:boolean=true) {
+
+        static Dseconds(ts: number, up: boolean = true) {
             let v;
             if (up) {
                 v = ts % this.MINUTE;
@@ -4700,9 +4848,9 @@ module nn {
             }
             return v;
         }
-        
+
         /** 计算diff-year，根绝suffix的类型返回对应的类型 */
-        dyears(up:boolean=true, suffix:any|string = 0):any {
+        dyears(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Dyears(this._timestamp, up);
             if (typeof(suffix) == 'string')
                 return v ? v + suffix : '';
@@ -4710,7 +4858,7 @@ module nn {
         }
 
         /** 计算diff-months */
-        dmonths(up:boolean=true, suffix:any|string = 0):any {
+        dmonths(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Dmonths(this._timestamp, up);
             if (typeof(suffix) == 'string')
                 return v ? v + suffix : '';
@@ -4718,7 +4866,7 @@ module nn {
         }
 
         /** 计算diff-days */
-        ddays(up:boolean=true, suffix:any|string = 0):any {
+        ddays(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Ddays(this._timestamp, up);
             if (typeof(suffix) == 'string')
                 return v ? v + suffix : '';
@@ -4726,7 +4874,7 @@ module nn {
         }
 
         /** 计算diff-hours */
-        dhours(up:boolean=true, suffix:any|string = 0):any {
+        dhours(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Dhours(this._timestamp, up);
             if (typeof(suffix) == 'string')
                 return v ? v + suffix : '';
@@ -4734,7 +4882,7 @@ module nn {
         }
 
         /** 计算diff-mins */
-        dminutes(up:boolean=true, suffix:any|string = 0):any {
+        dminutes(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Dminutes(this._timestamp, up);
             if (typeof(suffix) == 'string')
                 return v ? v + suffix : '';
@@ -4742,14 +4890,14 @@ module nn {
         }
 
         /** 计算diff-secs */
-        dseconds(up:boolean=true, suffix:any|string = 0):any {
+        dseconds(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Dseconds(this._timestamp, up);
             if (typeof(suffix) == 'string')
                 return v ? v + suffix : '';
             return v + suffix;
         }
 
-        isSameDay(r:DateTime):boolean {
+        isSameDay(r: DateTime): boolean {
             return this.year == r.year &&
                 this.month == r.month &&
                 this.day == r.day;
@@ -4758,8 +4906,7 @@ module nn {
 
     /** 定时器 */
     export abstract class CTimer
-    extends SObject
-    {
+        extends SObject {
         constructor(interval, count) {
             super();
             this.interval = interval;
@@ -4776,29 +4923,31 @@ module nn {
         static SAFE_TIMERS = new CSet<CTimer>();
 
         /** tick 的次数 */
-        count:number = -1;
+        count: number = -1;
 
         /** 间隔 s */
-        interval:number = 1; // 间隔 s
+        interval: number = 1; // 间隔 s
 
         /** timer 的附加数据 */
-        xdata:any = {};
+        xdata: any = {};
 
         /** 当前激发的次数 */
-        _firedCount:number = 0;
-        get firedCount():number {
+        _firedCount: number = 0;
+        get firedCount(): number {
             return this._firedCount;
         }
-        set firedCount(v:number) {
+
+        set firedCount(v: number) {
             fatal("不允许设置 firedCount");
         }
 
         /** 每一次激发的增量 */
         _deltaFired = 1;
-        get deltaFired():number {
+        get deltaFired(): number {
             return this._deltaFired;
         }
-        set deltaFired(v:number) {
+
+        set deltaFired(v: number) {
             this._deltaFired = v;
         }
 
@@ -4809,12 +4958,12 @@ module nn {
         }
 
         /** 已经过去了的时间 */
-        get pastTime():number {
+        get pastTime(): number {
             return this._firedCount / this.interval;
         }
 
         /** 当前的逻辑时间戳 */
-        currentTime:number;
+        currentTime: number;
 
         /** 启动定时器 */
         abstract start();
@@ -4823,40 +4972,37 @@ module nn {
         abstract stop();
 
         /** 是否正在运行 */
-        get isRunning():boolean {
+        get isRunning(): boolean {
             return false;
         }
 
-        oneTick(delta:number = 0) {
+        oneTick(delta: number = 0) {
             this._deltaFired = 0;
             this.signals.emit(SignalAction);
         }
     }
 
     /** 低精度的实际时间定时器
-        @brief 使用实际时间来判定每一次的 tick
-    */
+     @brief 使用实际时间来判定每一次的 tick
+     */
     export class RtTimer
-    extends CTimer
-    {
+        extends CTimer {
         constructor(interval = 1, count = -1) {
             super(interval, count);
         }
 
         /** 查询时间 */
-        private _tmr:any;
+        private _tmr: any;
 
         start() {
             this.stop();
             this._firedCount = 0;
 
             this._tmr = IMP_CREATE_TIMER(this.interval, 0);
-            if (CTimer.SAFE_TIMER_ENABLED)
-            {
+            if (CTimer.SAFE_TIMER_ENABLED) {
                 CTimer.SAFE_TIMERS.add(this);
             }
-            else
-            {
+            else {
                 IMP_START_TIMER(this._tmr, this.__tmr_tick, this);
 
                 // 记录一下启动的时间                
@@ -4872,7 +5018,7 @@ module nn {
             this._tmr = null;
         }
 
-        get isRunning():boolean {
+        get isRunning(): boolean {
             return this._tmr != null;
         }
 
@@ -4883,17 +5029,16 @@ module nn {
             this.currentTime = nowed;
 
             // 已经超过了间隔时间，可以算作一次 tick
-            if (elpased >= this.interval) {                
+            if (elpased >= this.interval) {
                 // 计算 tick 的次数
                 this.deltaFired = Math.floor(elpased / this.interval);
                 this._firedCount += this.deltaFired;
 
                 // 额外计算一下多余跑的时间
                 this.xdata.overflow = elpased - this.deltaFired * this.interval;
-                
+
                 // 判定
-                if (this.count != -1)
-                {
+                if (this.count != -1) {
                     if (this._firedCount >= this.count) {
                         this._firedCount = this.count;
                         this.signals.emit(SignalAction);
@@ -4903,14 +5048,13 @@ module nn {
                         this.signals.emit(SignalAction);
                     }
                 }
-                else
-                {
+                else {
                     this.signals.emit(SignalAction);
                 }
 
                 // 扣除已经用过的
                 this.currentTime -= this.xdata.overflow;
-                
+
                 // 恢复增量
                 this.deltaFired = 1;
             }
@@ -4919,8 +5063,7 @@ module nn {
 
     /** 系统定时器 */
     export class SysTimer
-    extends CTimer
-    {
+        extends CTimer {
         constructor(interval = 1, count = -1) {
             super(interval, count);
         }
@@ -4930,7 +5073,7 @@ module nn {
             this._tmr = undefined;
         }
 
-        private _tmr:any;
+        private _tmr: any;
 
         start() {
             // 先暂停
@@ -4938,12 +5081,10 @@ module nn {
             this._firedCount = 0;
 
             this._tmr = IMP_CREATE_TIMER(this.interval, this.count == -1 ? 0 : this.count);
-            if (CTimer.SAFE_TIMER_ENABLED)
-            {
+            if (CTimer.SAFE_TIMER_ENABLED) {
                 CTimer.SAFE_TIMERS.add(this);
             }
-            else
-            {
+            else {
                 IMP_START_TIMER(this._tmr, this.__tmr_tick, this);
             }
         }
@@ -4956,15 +5097,14 @@ module nn {
             this._tmr = null;
         }
 
-        get isRunning():boolean {
+        get isRunning(): boolean {
             return this._tmr != null;
         }
 
         private __tmr_tick() {
             this.currentTime = DateTime.Pass();
             this._firedCount += this.deltaFired;
-            if (this.count != -1)
-            {
+            if (this.count != -1) {
                 if (this._firedCount >= this.count) {
                     this._firedCount = this.count;
                     this.signals.emit(SignalAction);
@@ -4974,32 +5114,30 @@ module nn {
                     this.signals.emit(SignalAction);
                 }
             }
-            else
-            {
+            else {
                 this.signals.emit(SignalAction);
             }
         }
     }
 
     /** 定时器
-        @brief 可以选择支持不支持在后台运行 */
+     @brief 可以选择支持不支持在后台运行 */
     export class Timer
-    extends CTimer
-    {
+        extends CTimer {
         constructor(interval = 1, count = -1) {
             super(interval, count);
         }
 
-        private _rtmr:RtTimer;
-        private _systmr:SysTimer;
+        private _rtmr: RtTimer;
+        private _systmr: SysTimer;
 
         /** 是否打开后台模式 */
-        backgroundMode:boolean;
+        backgroundMode: boolean;
 
         start() {
             this.stop();
             if (this.backgroundMode) {
-                this._rtmr = new RtTimer(this.interval, this.count);                
+                this._rtmr = new RtTimer(this.interval, this.count);
                 this._rtmr.signals.connect(SignalAction, this.__act_action, this);
                 this._rtmr.signals.connect(SignalDone, this.__act_done, this);
             } else {
@@ -5014,12 +5152,12 @@ module nn {
                 this._systmr.start();
         }
 
-        private __act_action(s:Slot) {
+        private __act_action(s: Slot) {
             this.xdata = s.sender.xdata;
             this.signals.emit(SignalAction);
         }
 
-        private __act_done(s:Slot) {
+        private __act_done(s: Slot) {
             this.xdata = s.sender.xdata;
             this.signals.emit(SignalDone);
         }
@@ -5037,7 +5175,7 @@ module nn {
             }
         }
 
-        protected timer():CTimer {
+        protected timer(): CTimer {
             if (this._rtmr)
                 return this._rtmr;
             if (this._systmr)
@@ -5045,55 +5183,56 @@ module nn {
             return null;
         }
 
-        get isRunning():boolean {
+        get isRunning(): boolean {
             let tmr = this.timer();
             return tmr && tmr.isRunning;
         }
 
-        get firedCount():number {
+        get firedCount(): number {
             let tmr = this.timer();
             return tmr && tmr.firedCount;
         }
-        set firedCount(v:number) {
+
+        set firedCount(v: number) {
             warn("不允许直接设置 firedCount");
         }
 
-        get deltaFired():number {
+        get deltaFired(): number {
             let tmr = this.timer();
             return tmr && tmr.deltaFired;
         }
-        set deltaFired(v:number) {
+
+        set deltaFired(v: number) {
             warn("不允许直接设置 deltaFired");
         }
     }
 
     /** 延迟运行 */
-    export function Delay(duration:Interval, cb:()=>void, ctx:any, ...p:any[]):Timer {
+    export function Delay(duration: Interval, cb: () => void, ctx: any, ...p: any[]): Timer {
         if (duration <= 0) {
             cb.call(ctx, p);
             return null;
         }
-        
+
         let tmr = new Timer(duration, 1);
-        tmr.signals.connect(SignalDone, ()=>{
+        tmr.signals.connect(SignalDone, () => {
             cb.call(ctx, p);
             tmr.stop(); // 不能dispse，一般业务层会做这个事情或者自动就gc掉了
         }, null);
 
         // 直接开始，不能用defer避免出现外部先stop然后才到start的问题
         tmr.start();
-        
+
         return tmr;
     }
 
     /** 时间片对象 */
     export class CoTimerItem
-    extends CTimer
-    {
+        extends CTimer {
         constructor() {
             super(1, -1);
         }
-        
+
         protected _initSignals() {
             super._initSignals();
             this._signals.delegate = this;
@@ -5105,34 +5244,35 @@ module nn {
         }
 
         // 当连接新的信号时，自动激活一次信号以即时刷新数值
-        _signalConnected(sig:string) {
+        _signalConnected(sig: string) {
             if (this.radicalMode && this.isRunning && sig == SignalAction)
                 this._signals.emit(SignalAction);
         }
 
         /** 激进的模式
-            @brief 当定时器跑在后台时，前端业务需要添加一处反应定时器进度的反馈，如果 radicalMode == false，那么 UI 只能再下一次 tick 的时候得到 SignalAction 的激发，如果这个值为 true，那么当 UI connect 到 Action 时，会自动激发 SignalAction 以达到立即刷新 UI 的目的
-        */
-        radicalMode:boolean;        
-        
+         @brief 当定时器跑在后台时，前端业务需要添加一处反应定时器进度的反馈，如果 radicalMode == false，那么 UI 只能再下一次 tick 的时候得到 SignalAction 的激发，如果这个值为 true，那么当 UI connect 到 Action 时，会自动激发 SignalAction 以达到立即刷新 UI 的目的
+         */
+        radicalMode: boolean;
+
         /** tick时间数 */
-        times:number = 0;
+        times: number = 0;
 
         /** 当前的 tick */
-        now:number = 0;
+        now: number = 0;
 
         /** 正在运行 */
-        get isRunning():boolean {
+        get isRunning(): boolean {
             return this._cotimer && this._cotimer.isRunning;
         }
-        set isRunning(v:boolean) {
+
+        set isRunning(v: boolean) {
             fatal('不允许设置运行状态');
         }
 
         /** 重新设置并启动定时器 */
-        reset(inv:number, count:number = -1, of?:any):CoTimerItem {
+        reset(inv: number, count: number = -1, of?: any): CoTimerItem {
             this.interval = inv;
-            this.times = inv / this._timeinterval;            
+            this.times = inv / this._timeinterval;
             this.count = count;
 
             if (of == null) {
@@ -5153,9 +5293,9 @@ module nn {
             Defer(this.start, this);
             return this;
         }
-        
+
         /** 修改一下计时参数, 和 reset 的区别是不影响当前状态 */
-        set(inv:number, count:number = -1) {
+        set(inv: number, count: number = -1) {
             this.interval = inv;
             this.times = inv / this._timeinterval;
             this.count = count;
@@ -5166,7 +5306,7 @@ module nn {
                 warn("没有加入过 timer，不能启动");
                 return;
             }
-            
+
             this._cotimer._addTimer(this);
             if (this.radicalMode && this.isRunning)
                 this.signals.emit(SignalAction);
@@ -5177,25 +5317,24 @@ module nn {
                 warn("CoTimerItem 已经停止");
                 return;
             }
-            
+
             this._cotimer._stopTimer(this);
         }
 
-        _timeinterval:number;
-        _cotimer:CoTimer;
+        _timeinterval: number;
+        _cotimer: CoTimer;
     }
 
     /** 统一调度的计时器
-        @brief 由 CoTimer 派发出的 TimerItem 将具有统一的调度，默认精度为100ms，如果业务需要准确的计时器，最好传入业务实际的间隔
-    */
+     @brief 由 CoTimer 派发出的 TimerItem 将具有统一的调度，默认精度为100ms，如果业务需要准确的计时器，最好传入业务实际的间隔
+     */
     export class CoTimer
-    extends SObject
-    {
+        extends SObject {
         constructor(interval = 0.1) {
             super();
             this._tmr.interval = interval;
             this._tmr.signals.connect(SignalAction, this.__tmr_tick, this);
-        }        
+        }
 
         dispose() {
             super.dispose();
@@ -5207,28 +5346,31 @@ module nn {
             this.clear();
         }
 
-        get interval():number {
+        get interval(): number {
             return this._tmr.interval;
         }
-        set interval(val:number) {
+
+        set interval(val: number) {
             this._tmr.interval = val;
         }
 
-        set backgroundMode(v:boolean) {
+        set backgroundMode(v: boolean) {
             this._tmr.backgroundMode = v;
         }
-        get backgroundMode():boolean {
+
+        get backgroundMode(): boolean {
             return this._tmr.backgroundMode;
         }
 
-        get isRunning():boolean {
+        get isRunning(): boolean {
             return this._tmr.isRunning;
         }
-        set isRunning(v:boolean) {
+
+        set isRunning(v: boolean) {
             fatal("不能设置 timer 的状态");
         }
 
-        start():CoTimer {
+        start(): CoTimer {
             if (this.isRunning) {
                 warn("CoTimer 定时器已经在运行");
                 return this;
@@ -5238,74 +5380,74 @@ module nn {
             return this;
         }
 
-        stop():CoTimer {
+        stop(): CoTimer {
             if (!this.isRunning) {
                 warn("CoTimer 定时器已经停止");
                 return;
             }
-            
+
             this._tmr.stop();
             return this;
         }
 
         /** 增加一个分片定时器，时间单位为 s
-            @param idr, 重用定时器的标记，如果!=undefined，则尝试重用定时器并设置为新的定时值
-            @note 增加会直接添加到时间片列表，由CoTimer的运行情况来决定此时间片是否运行
-        */
-        add(inv:number, count:number = -1, idr?:any):CoTimerItem {
+         @param idr, 重用定时器的标记，如果!=undefined，则尝试重用定时器并设置为新的定时值
+         @note 增加会直接添加到时间片列表，由CoTimer的运行情况来决定此时间片是否运行
+         */
+        add(inv: number, count: number = -1, idr?: any): CoTimerItem {
             let r = this.acquire(idr);
-            r.reset(inv, count);            
+            r.reset(inv, count);
             return r;
         }
 
         /** 申请一个定时器，和 add 的区别是不会重置参数 */
-        acquire(idr:any):CoTimerItem {
+        acquire(idr: any): CoTimerItem {
             let r = this.findItemByIdr(idr);
             if (r)
                 return r;
-            
+
             r = new CoTimerItem();
             r._cotimer = this;
             r._timeinterval = this._tmr.interval;
             r.radicalMode = this.radicalMode;
             r.tag = idr;
-            
+
             return r;
         }
 
         /** 具体参见 CoTimerItem 里面的解释 */
-        radicalMode:boolean = false;
+        radicalMode: boolean = false;
 
         // 添加一个分片计时器
-        _addTimer(tmr:CoTimerItem) {
+        _addTimer(tmr: CoTimerItem) {
             if (ArrayT.Contains(this._splices, tmr))
-                return;           
+                return;
             this._splices.push(tmr);
         }
-        
+
         // 停止一个分片计时器
-        _stopTimer(tmr:CoTimerItem) {
+        _stopTimer(tmr: CoTimerItem) {
             ArrayT.RemoveObject(this._splices, tmr);
         }
 
         /** 根据idr查找分片计时器 */
-        findItemByIdr(idr:any):CoTimerItem {
+        findItemByIdr(idr: any): CoTimerItem {
             if (idr == null)
                 return null;
-            return ArrayT.QueryObject(this._splices, (o:CoTimerItem):boolean=>{
+            return ArrayT.QueryObject(this._splices, (o: CoTimerItem): boolean => {
                 return o.tag && o.tag == idr;
             }, this);
         }
 
         /** 清空所有的分片 */
         clear() {
-            ArrayT.Clear(this._splices, (o:CoTimerItem)=>{
+            ArrayT.Clear(this._splices, (o: CoTimerItem) => {
                 dispose(o);
             }, this);
         }
 
-        private __tmr_tick(s:Slot) {
-            this._splices.forEach((item:CoTimerItem)=>{
+        private __tmr_tick(s: Slot) {
+            this._splices.forEach((item: CoTimerItem) => {
                 let dfired = this._tmr.deltaFired;
 
                 // 判断是否一次完整的激发
@@ -5314,17 +5456,15 @@ module nn {
                     return;
                 // 如果中间间隔了很久，则需要保存余数为下一次的激发判断
                 item.now = item.now % item.times;
-                
+
                 // 遇到一次激发
                 item.deltaFired = dfired > item.times ?
                     Math.floor(dfired / item.times) : 1;
                 item._firedCount += item.deltaFired;
-                
+
                 // 遇到激发的最大数目
-                if (item.count != -1)
-                {
-                    if (item._firedCount >= item.count)
-                    {
+                if (item.count != -1) {
+                    if (item._firedCount >= item.count) {
                         item._firedCount = item.count;
 
                         // 移除
@@ -5333,17 +5473,15 @@ module nn {
                         // 抛出事件
                         item.signals.emit(SignalAction, s.sender.xdata);
                         item.signals.emit(SignalDone, s.sender.xdata);
-                        
+
                         // 恢复激发计数
                         item._firedCount = 0;
                     }
-                    else
-                    {
+                    else {
                         item.signals.emit(SignalAction, s.sender.xdata);
                     }
                 }
-                else
-                {
+                else {
                     item.signals.emit(SignalAction, s.sender.xdata);
                 }
             }, this);
@@ -5354,14 +5492,13 @@ module nn {
     }
 
     /** 延迟器 */
-    export class Delayer
-    {
-        constructor(tm:number, cb:Function, ctx?:any) {
+    export class Delayer {
+        constructor(tm: number, cb: Function, ctx?: any) {
             this._tm = tm;
             this._cb = cb;
             this._ctx = ctx;
         }
-        
+
         start() {
             if (this._tmr) {
                 warn("Delayer已经开始");
@@ -5385,14 +5522,14 @@ module nn {
             this.start();
         }
 
-        private _tm:number;
-        private _cb:Function;
-        private _ctx:any;
-        private _tmr:SysTimer;
+        private _tm: number;
+        private _cb: Function;
+        private _ctx: any;
+        private _tmr: SysTimer;
     }
 
     /** 重复调用 */
-    export function Repeat(s:number, cb:(s?:Slot)=>void, ctx?:any):CTimer {
+    export function Repeat(s: number, cb: (s?: Slot) => void, ctx?: any): CTimer {
         let tmr = new RtTimer(s);
         tmr.signals.connect(SignalAction, cb, ctx);
         tmr.start();
@@ -5401,26 +5538,25 @@ module nn {
 
     /** 进度接口 */
     export interface IProgress {
-        progressValue:Percentage;
+        progressValue: Percentage;
     }
 
     /** 随机数 */
-    export class Random
-    {
+    export class Random {
         // 半开区间 [from, to)
-        static Rangei(from:number, to:number, close = false):number {
+        static Rangei(from: number, to: number, close = false): number {
             if (close)
                 return Math.round(Random.Rangef(from, to));
             return Math.floor(Random.Rangef(from, to));
         }
-        
-        static Rangef(from:number, to:number):number {
+
+        static Rangef(from: number, to: number): number {
             return Math.random() * (to - from) + from;
-        }        
+        }
     }
-    
+
     /** 设备屏幕信息的评级
-        @note 根据评级和设置的开关决定使用哪套资源 */
+     @note 根据评级和设置的开关决定使用哪套资源 */
     export enum ScreenType {
         NORMAL = 0,
         HIGH = 1, // area >= 1.5
@@ -5429,19 +5565,18 @@ module nn {
         EXTRALOW = -2, // <= 0.3
     };
 
-    export function ScreenTypeIsLow(t:ScreenType) {
+    export function ScreenTypeIsLow(t: ScreenType) {
         return t < 0;
     }
 
-    export function ScreenTypeIsHigh(t:ScreenType) {
+    export function ScreenTypeIsHigh(t: ScreenType) {
         return t > 0;
     }
 
     /** 设备信息 */
     export class Device
-    extends SObject
-    implements IShared
-    {
+        extends SObject
+        implements IShared {
         constructor() {
             super();
             this.detectEnv();
@@ -5456,7 +5591,7 @@ module nn {
             let self = this;
             self.platform = navigator.platform;
             self.agent = navigator.userAgent;
-            
+
             self.isMac = (self.platform == "Mac68K") ||
                 (self.platform == "MacPPC") ||
                 (self.platform == "Macintosh") ||
@@ -5466,7 +5601,7 @@ module nn {
             self.isUnix = (self.platform == "X11") &&
                 !self.isMac && !self.isWin;
             self.isLinux = self.platform.indexOf("Linux") != -1;
-            
+
             self.isIOS = /(iPhone|iPad|iPod|iOS)/i.test(self.agent);
             self.isAndroid = /android/i.test(self.agent);
             self.isMobile = self.isIOS || self.isAndroid;
@@ -5476,27 +5611,27 @@ module nn {
             self.isHighPerfomance = !self.isAndroid;
         }
 
-        platform:string;
-        agent:string;
+        platform: string;
+        agent: string;
 
-        isMac:boolean;
-        isWin:boolean;
-        isUnix:boolean;
-        isLinux:boolean;
-        isIOS:boolean;
-        isAndroid:boolean;
-        isMobile:boolean;
-        isPC:boolean;
-        isPurePC:boolean;
+        isMac: boolean;
+        isWin: boolean;
+        isUnix: boolean;
+        isLinux: boolean;
+        isIOS: boolean;
+        isAndroid: boolean;
+        isMobile: boolean;
+        isPC: boolean;
+        isPurePC: boolean;
 
         /** canvas模式 */
-        isCanvas:boolean = true;
+        isCanvas: boolean = true;
 
         /** 高性能设备 */
-        isHighPerfomance:boolean;
-        
+        isHighPerfomance: boolean;
+
         /** 支持自动播放音效 */
-        supportAutoSound:boolean = true;
+        supportAutoSound: boolean = true;
 
         /** 屏幕的尺寸 */
         screenFrame = new Rect();
@@ -5508,21 +5643,21 @@ module nn {
         screenOrientation = new Angle();
 
         /** 屏幕尺寸的类型，对应于 android 的归类 */
-        screenType:ScreenType = ScreenType.NORMAL;
+        screenType: ScreenType = ScreenType.NORMAL;
 
         _updateScreen() {
             let browserSize = Js.getBrowserSize();
             let screenSize = Js.getScreenSize();
-            
+
             // 需要保护一下browser定义必须小于screen，但是有些渠道发现刚好相反
             /*
             if (Rect.Area(browserSize) > Rect.Area(screenSize))
                 Rect.Swap(browserSize, screenSize);
             */
-            
+
             this.screenBounds.reset(0, 0, browserSize.width, browserSize.height);
             this.screenFrame.reset(0, 0, screenSize.width, screenSize.height);
-            
+
             let browserOri = Js.getBrowserOrientation();
             if (this.screenOrientation.angle != browserOri) {
                 this.screenOrientation.angle = browserOri;
@@ -5540,14 +5675,13 @@ module nn {
 
     /** http连接器 */
     export class CHttpConnector
-    extends SObject
-    {
+        extends SObject {
         dispose() {
             super.dispose();
             this.data = undefined;
             this.fields = undefined;
         }
-        
+
         protected _initSignals() {
             super._initSignals();
             this._signals.register(SignalEnd);
@@ -5560,14 +5694,14 @@ module nn {
         method = HttpMethod.GET;
 
         /** 全url */
-        url:string;
-        
+        url: string;
+
         /** fields */
-        fields:KvObject<string, any>;
+        fields: KvObject<string, any>;
 
         /** 获取的数据 */
-        data:any;
-        
+        data: any;
+
         /** override 发送请求 */
         start() {
         }
@@ -5576,7 +5710,7 @@ module nn {
         useCredentials() {
         }
 
-        fullUrl():string {
+        fullUrl(): string {
             let r = this.url;
             if (this.fields) {
                 if (r.indexOf('?') == -1)
@@ -5588,13 +5722,12 @@ module nn {
             return r;
         }
     }
-    
+
     /** socket连接器 */
     export abstract class CSocketConnector
-    extends SObject
-    {
+        extends SObject {
         /** 地址 */
-        host:string;
+        host: string;
 
         protected _initSignals() {
             super._initSignals();
@@ -5604,36 +5737,38 @@ module nn {
             this._signals.register(SignalTimeout);
             this._signals.register(SignalFailed);
         }
-        
+
         /** 是否已经打开 */
-        abstract isopened():boolean;
+        abstract isopened(): boolean;
 
         /** 连接服务器 */
         abstract open();
-        
+
         /** 断开连接 */
         abstract close();
-        
-        /** 发送 */
-        abstract write(obj:any);
+
+        /** 发送对象 */
+        abstract write(obj: any);
+
+        /** 监听对象 */
+        abstract watch(obj: any, on: boolean);
     }
 
     /** 基本操作 */
-    export abstract class Operation
-    {
-        constructor(idr?:any) {
+    export abstract class Operation {
+        constructor(idr?: any) {
             this.idr = idr;
         }
-        
+
         // 依赖的qeueu
-        _queue:OperationQueue;
-        
+        _queue: OperationQueue;
+
         /** 标示号，用来查找 */
-        idr:any;
-        
+        idr: any;
+
         /** 开始动作 */
         abstract start();
-        
+
         /** 完成自己的处理 */
         done() {
             if (this._queue)
@@ -5643,34 +5778,33 @@ module nn {
 
     /** 操作队列 */
     export class OperationQueue
-    extends SObject
-    {
+        extends SObject {
         constructor() {
             super();
-        }        
-        
+        }
+
         protected _initSignals() {
             super._initSignals();
             this._signals.register(SignalDone);
         }
-        
+
         /** 自动开始队列 */
-        autoMode:boolean = true;
+        autoMode: boolean = true;
 
         /** 手动的队列 */
-        static Manual():OperationQueue {
+        static Manual(): OperationQueue {
             let r = new OperationQueue();
             r.autoMode = false;
             return r;
         }
 
         /** 队列中操作的数量 */
-        get count():number {
+        get count(): number {
             return this._opers.length;
         }
-        
+
         /** 队列中添加一个操作 */
-        add(oper:Operation) {
+        add(oper: Operation) {
             if (oper._queue != null) {
                 warn("该操作已经位于队列中");
                 return;
@@ -5679,38 +5813,38 @@ module nn {
             this._opers.push(oper);
             if (this.autoMode)
                 this.tryrun();
-        }        
+        }
 
         /** 移除 */
-        remove(oper:Operation) {
+        remove(oper: Operation) {
             if (oper._queue != this) {
                 warn("不能移除该操作");
                 return;
             }
             if (oper == this._current)
                 this._current = null;
-            
+
             oper._queue = null;
             ArrayT.RemoveObject(this._opers, oper);
         }
 
         /** 接上，如果只传一个数据，则代表附加在当前之后
-            @param l 目标的队列
-            @param r 插入的队列
-        */
-        follow(l:Operation, r:Operation) {
+         @param l 目标的队列
+         @param r 插入的队列
+         */
+        follow(l: Operation, r: Operation) {
             if (l._queue != this) {
                 fatal("期望接上一个错误的队列操作");
                 return;
             }
-            
+
             let idx = this._opers.indexOf(l);
             r._queue = this;
             ArrayT.InsertObjectAtIndex(this._opers, r, idx + 1);
         }
 
         /** 附加到当前 */
-        present(oper:Operation) {
+        present(oper: Operation) {
             if (this._current) {
                 this.follow(this._current, oper);
             } else {
@@ -5720,7 +5854,7 @@ module nn {
         }
 
         /** 交换 */
-        swap(l:Operation, r:Operation) {
+        swap(l: Operation, r: Operation) {
             let il = this._opers.indexOf(l);
             let ir = this._opers.indexOf(r);
             if (il == -1 || ir == -1) {
@@ -5730,7 +5864,7 @@ module nn {
 
             this._opers[il] = r;
             this._opers[ir] = l;
-            
+
             if (this._current == l) {
                 this._current = r;
                 r.start();
@@ -5741,17 +5875,17 @@ module nn {
         }
 
         /** 使用 r 换掉 l */
-        replace(l:Operation, r:Operation) {
+        replace(l: Operation, r: Operation) {
             if (l._queue != this) {
                 fatal("期望替换一个错误的队列操作");
                 return;
             }
-            
+
             let idx = this._opers.indexOf(l);
             // 移除老的
             l._queue = null;
             l.done();
-            
+
             // 加入新的
             r._queue = this;
             this._opers[idx] = r;
@@ -5778,22 +5912,22 @@ module nn {
         next() {
             if (this._current == null)
                 return;
-                        
+
             this._current._queue = null;
             this._current = null;
-            
+
             this._opers.shift();
             if (this._opers.length == 0) {
                 if (this._signals)
                     this._signals.emit(SignalDone);
-            } else {                            
+            } else {
                 this.tryrun();
             }
         }
 
         /** 查询一个被标记的工作 */
-        findOperation(idr:any):Operation {
-            return ArrayT.QueryObject(this._opers, (o:Operation):boolean=>{
+        findOperation(idr: any): Operation {
+            return ArrayT.QueryObject(this._opers, (o: Operation): boolean => {
                 return o.idr == idr;
             }, this);
         }
@@ -5808,7 +5942,7 @@ module nn {
         }
 
         /** 恢复工作队列 */
-        resume() {            
+        resume() {
             if (!this._paused)
                 return;
             this._paused = false;
@@ -5818,29 +5952,28 @@ module nn {
             }
         }
 
-        protected _paused:boolean;
-        protected _tryduringpaused:boolean; // 是否在暂停时请求了下一个
-        protected _current:Operation;
+        protected _paused: boolean;
+        protected _tryduringpaused: boolean; // 是否在暂停时请求了下一个
+        protected _current: Operation;
         protected _opers = new Array<Operation>();
 
-        get operations():Array<Operation> {
+        get operations(): Array<Operation> {
             return this._opers;
         }
     }
 
     /** 闭包操作，为了支持Async，所以需要注意当闭包完成时调用done */
     export class OperationClosure
-    extends Operation
-    {
-        constructor(cb:(oper:Operation)=>void, ctx?:any, idr?:any) {
-            super(idr);        
+        extends Operation {
+        constructor(cb: (oper: Operation) => void, ctx?: any, idr?: any) {
+            super(idr);
             this.cb = cb;
             this.ctx = ctx;
         }
-        
-        cb:any;
-        ctx:any;
-        
+
+        cb: any;
+        ctx: any;
+
         start() {
             this.cb.call(this.ctx, this);
         }
@@ -5848,19 +5981,18 @@ module nn {
 
     /** 简单封装一个函数，不附带 Operation，使用时需要手动调用 operationqueue.next，主要用于传统流程改造成队列流程 */
     export class OperationCall
-    extends Operation
-    {
-        constructor(cb:(...p:any[])=>void, ctx?:any, argus?:any[], idr?:any) {
+        extends Operation {
+        constructor(cb: (...p: any[]) => void, ctx?: any, argus?: any[], idr?: any) {
             super(idr);
             this.cb = cb;
             this.ctx = ctx;
             this.argus = argus;
         }
-        
-        cb:any;
-        ctx:any;
-        argus:any[];
-        
+
+        cb: any;
+        ctx: any;
+        argus: any[];
+
         start() {
             this.cb.apply(this.ctx, this.argus);
         }
@@ -5868,23 +6000,21 @@ module nn {
 
     /** 间隔时间操作 */
     export class OperationDelay
-    extends Operation
-    {
-        constructor(delay:number, idr?:any) {
+        extends Operation {
+        constructor(delay: number, idr?: any) {
             super(idr);
             this.delay = delay;
         }
-        
-        delay:number;
-        
+
+        delay: number;
+
         start() {
             egret.setTimeout(this.done, this, this.delay);
         }
     }
 
     class _OperationGroupQueue
-    extends OperationQueue
-    {
+        extends OperationQueue {
         constructor() {
             super();
             this.autoMode = false;
@@ -5897,18 +6027,17 @@ module nn {
             this._sum = this._opers.length;
             this._now = 0;
         }
-        
+
         next() {
             if (++this._now == this._sum)
                 this.signals.emit(SignalDone);
         }
     }
-    
+
     /** 操作组 */
     export class OperationGroup
-    extends Operation
-    {
-        constructor(idr?:any) {
+        extends Operation {
+        constructor(idr?: any) {
             super(idr);
             this._subqueue.signals.connect(SignalDone, this.__subqueue_end, this);
         }
@@ -5916,17 +6045,17 @@ module nn {
         dispose() {
             this._subqueue.dispose();
         }
-        
+
         private _subqueue = new _OperationGroupQueue();
-        
+
         start() {
             this._subqueue.start();
-            this._subqueue.operations.forEach((q:Operation)=>{
+            this._subqueue.operations.forEach((q: Operation) => {
                 q.start();
             });
         }
-        
-        add(q:Operation) {
+
+        add(q: Operation) {
             this._subqueue.add(q);
         }
 
@@ -5937,28 +6066,26 @@ module nn {
     }
 
     /** 顺序操作的接口 */
-    export interface IOrder
-    {
+    export interface IOrder {
         /** 完成 */
         done();
-        
+
         /** 执行下一个操作 */
         next();
     }
 
-    /** 自动重试 
-        @code
-        new Retry(....).process();
-    */
+    /** 自动重试
+     @code
+     new Retry(....).process();
+     */
     export class Retry
-    implements IOrder
-    {
+        implements IOrder {
         /* 
            @param times 重试次数
            @param interval 重试的时间间隔s，或者是每一次的间隔
         */
-        constructor(times:number, interval:number|Array<number>,
-                    cb:(retry:IOrder)=>void, ctx?:any) {
+        constructor(times: number, interval: number | Array<number>,
+                    cb: (retry: IOrder) => void, ctx?: any) {
             this._times = times;
             this._currentTime = 0;
             this._interval = interval;
@@ -5969,50 +6096,48 @@ module nn {
         /** 运行 */
         process() {
             this._cb.call(this._ctx, this);
-        }        
+        }
 
         /** 结束 */
         done() {
             this._cb = undefined;
             this._ctx = undefined;
         }
-        
+
         /** 下一个 */
         next() {
-            let delay:number;
+            let delay: number;
             if (typeof(this._interval) == 'number')
                 delay = <number>this._interval;
             else
                 delay = (<Array<number> >this._interval)[this._currentTime];
-            
+
             if (this._times > 0 &&
-                this._currentTime++ == this._times)
-            {
+                this._currentTime++ == this._times) {
                 this.done();
                 warn('重试达到指定次数，结束重试');
                 return;
             }
-            
+
             // 继续下一次
             if (delay == 0) {
                 this._cb.call(this._ctx, this);
             } else {
-                Delay(delay, ()=>{
+                Delay(delay, () => {
                     this._cb.call(this._ctx, this);
                 }, this);
             }
         }
 
-        private _times:number;
-        private _currentTime:number;
-        private _interval:number|Array<number>;
-        private _cb:(retry:IOrder)=>void;
-        private _ctx:any;
+        private _times: number;
+        private _currentTime: number;
+        private _interval: number | Array<number>;
+        private _cb: (retry: IOrder) => void;
+        private _ctx: any;
     }
 
-    export function retry(times:number, interval:number|Array<number>,
-                          cb:(retry:IOrder)=>void, ctx?:any):Retry
-    {
+    export function retry(times: number, interval: number | Array<number>,
+                          cb: (retry: IOrder) => void, ctx?: any): Retry {
         let r = new Retry(times, interval, cb, ctx);
         Defer(r.next, r);
         return r;
@@ -6020,60 +6145,60 @@ module nn {
 
     export interface IObjectsPool {
         use();
-        unuse(o:any);
+
+        unuse(o: any);
     }
 
     /** 对象池，自动初始化超过现存可用数量的对象 */
-    export class ObjectsPool <T>
-        implements IObjectsPool
-    {
+    export class ObjectsPool<T>
+        implements IObjectsPool {
         private _arr = new Array<T>();
-        
-        constructor(ins:()=>T, ctx?:any) {
+
+        constructor(ins: () => T, ctx?: any) {
             this.instance = ins;
         }
-        
+
         dispose() {
             this.clear();
         }
 
-        private instance:()=>T;
-        private ctx:any;
-        
-        use():T {
+        private instance: () => T;
+        private ctx: any;
+
+        use(): T {
             if (this._arr.length == 0)
                 return this.instance.call(this.ctx);
             return this._arr.pop();
         }
 
-        unuse(o:T) {
+        unuse(o: T) {
             if (o)
-                this._arr.push(o);            
+                this._arr.push(o);
         }
 
-        get length():number {
+        get length(): number {
             return this._arr.length;
         }
 
         clear() {
-            ArrayT.Clear(this._arr, (o:any)=>{
+            ArrayT.Clear(this._arr, (o: any) => {
                 drop(o);
             });
         }
     }
 
     export interface IReusesPool {
-        use(k:any, def:any, argus:any[]):any;
-        unuse(k:any, o:any);
+        use(k: any, def: any, argus: any[]): any;
+
+        unuse(k: any, o: any);
     }
 
-    /** 简单复用池 
-        @note 业务建议使用 ReusesPool，提供了used和unused的管理
-    */
-    export class SimpleReusesPool <T>
-        implements IReusesPool
-    {
-        constructor(ins?:(...p:any[])=>T, ctx?:any) {
+    /** 简单复用池
+     @note 业务建议使用 ReusesPool，提供了used和unused的管理
+     */
+    export class SimpleReusesPool<T>
+        implements IReusesPool {
+        constructor(ins?: (...p: any[]) => T, ctx?: any) {
             this._ins = ins;
             this._ctx = ctx;
         }
@@ -6082,7 +6207,7 @@ module nn {
             this.clear();
         }
 
-        use(k:any, def?:T, argus?:any[]):T {
+        use(k: any, def?: T, argus?: any[]): T {
             let ar = this._pl[k];
             if (ar && ar.length)
                 return ar.pop();
@@ -6091,7 +6216,7 @@ module nn {
             return def;
         }
 
-        unuse(k:any, o:T) {
+        unuse(k: any, o: T) {
             let ar = this._pl[k];
             if (ar == null) {
                 ar = new Array<T>();
@@ -6101,33 +6226,31 @@ module nn {
         }
 
         clear() {
-            MapT.Clear(this._pl, (k:any, v:Array<T>)=>{
-                ArrayT.Clear(v, (o:T)=>{
+            MapT.Clear(this._pl, (k: any, v: Array<T>) => {
+                ArrayT.Clear(v, (o: T) => {
                     drop(o);
                 });
             });
         }
-        
-        private _ins:(...p:any[])=>T;
-        private _ctx:any;
-        private _pl = new KvObject<any, Array<T> >();
+
+        private _ins: (...p: any[]) => T;
+        private _ctx: any;
+        private _pl = new KvObject<any, Array<T>>();
     }
 
-    export class ReusesPool <T>
-        implements IReusesPool
-    {
-        constructor(ins:(...p:any[])=>T,
-                    use:(k:any, o:T)=>void,
-                    unuse:(k:any, o:T)=>void,
-                    ctx?:any)
-        {
+    export class ReusesPool<T>
+        implements IReusesPool {
+        constructor(ins: (...p: any[]) => T,
+                    use: (k: any, o: T) => void,
+                    unuse: (k: any, o: T) => void,
+                    ctx?: any) {
             this._ins = ins;
             this._use = use;
             this._unuse = unuse;
             this._ctx = ctx;
         }
 
-        use(k:any, def?:T, argus?:any[]):T {
+        use(k: any, def?: T, argus?: any[]): T {
             let ar = this._pl[k];
             if (ar && ar.length) {
                 let r = ar.pop();
@@ -6147,7 +6270,7 @@ module nn {
             return def;
         }
 
-        unuse(k:any, o:T) {
+        unuse(k: any, o: T) {
             let ar = this._pl[k];
             if (ar == null) {
                 ar = new Array<T>();
@@ -6161,19 +6284,19 @@ module nn {
                 this._unuse.call(this._ctx, k, o);
         }
 
-        get useds():Array<T> {
+        get useds(): Array<T> {
             return this._useds;
         }
 
-        get unuseds():Array<T> {
+        get unuseds(): Array<T> {
             return this._unuseds;
         }
-        
-        private _ins:(...p:any[])=>T;
-        private _use:(k:any, o:T)=>void;
-        private _unuse:(k:any, o:T)=>void;
-        private _ctx:any;
-        private _pl = new KvObject<any, Array<T> >();
+
+        private _ins: (...p: any[]) => T;
+        private _use: (k: any, o: T) => void;
+        private _unuse: (k: any, o: T) => void;
+        private _ctx: any;
+        private _pl = new KvObject<any, Array<T>>();
         private _useds = new Array<T>();
         private _unuseds = new Array<T>();
     }
@@ -6181,47 +6304,49 @@ module nn {
     /** 编解码 */
     export interface ICodec {
         /** 编码 */
-        encode(s:string):string;
+        encode(s: string): string;
+
         /** 解码 */
-        decode(d:any):string;
+        decode(d: any): string;
     }
 
     /** 包文件系统 */
     export interface IArchiver {
         /** 读取包 */
-        load(d:any):boolean;
+        load(d: any): boolean;
+
         /** 获取文件内容 */
-        file(path:string, type:ResType, cb:(str:any)=>void, ctx?:any);
+        file(path: string, type: ResType, cb: (str: any) => void, ctx?: any);
     }
 
     export class Storage
-    implements IShared
-    {
+        implements IShared {
         // 编解码器
-        codec:ICodec;
+        codec: ICodec;
 
         // key的前缀
-        private _prefix:string = '::n2';
-        get prefix():string {
+        private _prefix: string = '::n2';
+        get prefix(): string {
             return this._prefix;
         }
-        set prefix(pre:string) {
+
+        set prefix(pre: string) {
             this._prefix = pre ? pre : '';
         }
 
         // domain组，业务通常设置为userId
-        domain:any;
+        domain: any;
 
-        clone():this {
+        clone(): this {
             let r = InstanceNewObject(this);
             r.codec = this.codec;
             r.prefix = this.prefix;
             r.domain = this.domain;
             return r;
         }
-        
+
         // 获取真正的key，避免同一个domain下key冲突
-        protected getKey(key:string):string {
+        protected getKey(key: string): string {
             let s = this.prefix;
             if (this.domain)
                 s += "::" + this.domain;
@@ -6230,9 +6355,9 @@ module nn {
         }
 
         // 设置数据
-        set(key:string, val:any) {
+        set(key: string, val: any) {
             if (key == null)
-                return;            
+                return;
             let ks = this.getKey(key);
             if (this.codec)
                 ks = this.codec.encode(ks);
@@ -6247,7 +6372,7 @@ module nn {
         }
 
         // 读取数据
-        value(key:string, def?:string|Closure):string {
+        value(key: string, def?: string | Closure): string {
             let ks = this.getKey(key);
             if (this.codec)
                 ks = this.codec.encode(ks);
@@ -6264,28 +6389,29 @@ module nn {
         }
 
         // 快速设置一些数值
-        setBool(key:any, val:boolean) {
+        setBool(key: any, val: boolean) {
             this.set(key, val ? '1' : '0');
         }
 
-        getBool(key:any, def?:boolean):boolean {
+        getBool(key: any, def?: boolean): boolean {
             let r = this.value(key, def ? '1' : '0');
             return r != '0';
         }
 
-        setNumber(key:any, val:number) {
+        setNumber(key: any, val: number) {
             this.set(key, val);
         }
 
-        getNumber(key:any, def?:number):number {
+        getNumber(key: any, def?: number): number {
             let r = this.value(key, def ? def.toString() : '0');
             return parseFloat(r);
         }
 
-        setObject(key:any, val:Object) {
+        setObject(key: any, val: Object) {
             this.set(key, JSON.stringify(val));
         }
-        getObject(key:any):any {
+
+        getObject(key: any): any {
             let s = this.value(key);
             return JSON.parse(s);
         }
@@ -6297,9 +6423,8 @@ module nn {
         static shared = new Storage();
     }
 
-    export class CryptoStorages
-    {
-        get(idr:string):Storage {
+    export class CryptoStorages {
+        get(idr: string): Storage {
             let st = this._storages[idr];
             if (st == null) {
                 st = Storage.shared.clone();
@@ -6314,27 +6439,27 @@ module nn {
             return st;
         }
 
-        set(idr:string, key:string, val:any) {
+        set(idr: string, key: string, val: any) {
             this.get(idr).set(idr + "::" + key, val);
         }
 
-        value(idr:string, key:string, def?:string|Closure):string {
+        value(idr: string, key: string, def?: string | Closure): string {
             return this.get(idr).value(idr + "::" + key, def);
         }
 
-        setBool(idr:string, key:any, val:boolean) {
+        setBool(idr: string, key: any, val: boolean) {
             this.get(idr).setBool(idr + "::" + key, val);
         }
 
-        getBool(idr:string, key:any, def?:boolean):boolean {
+        getBool(idr: string, key: any, def?: boolean): boolean {
             return this.get(idr).getBool(idr + "::" + key, def);
         }
 
-        setNumber(idr:string, key:any, val:number) {
+        setNumber(idr: string, key: any, val: number) {
             this.get(idr).setNumber(idr + "::" + key, val);
         }
 
-        getNumber(idr:string, key:any, def?:number):number {
+        getNumber(idr: string, key: any, def?: number): number {
             return this.get(idr).getNumber(idr + "::" + key, def);
         }
 
@@ -6343,29 +6468,29 @@ module nn {
     }
 
     // 类似于C++的traittype，用来解决ts模版不支持特化的问题
-    export let number_t = {type:'number', def:0};
-    export let boolean_t = {type:'boolean', def:false};
-    export let string_t = {type:'string', def:''};
+    export let number_t = {type: 'number', def: 0};
+    export let boolean_t = {type: 'boolean', def: false};
+    export let string_t = {type: 'string', def: ''};
 
     /** 可以用来直接在声明时绑定位于storage中带类型的变量 */
-    export class StorageVariable <T> {
-        constructor(key:string, type = string_t) {
+    export class StorageVariable<T> {
+        constructor(key: string, type = string_t) {
             this.key = key;
             this.type = type;
         }
-        
-        key:string;
-        private type:any;
-        
-        get value():T {            
+
+        key: string;
+        private type: any;
+
+        get value(): T {
             if (this.type.type == 'number')
                 return <any>Storage.shared.getNumber(this.key);
             else if (this.type.type == 'boolean')
                 return <any>Storage.shared.getBool(this.key);
             return <any>Storage.shared.value(this.key);
         }
-        
-        set value(v:T) {
+
+        set value(v: T) {
             if (this.type.type == 'number')
                 Storage.shared.setNumber(this.key, <any>v);
             else if (this.type.type == 'boolean')
@@ -6374,105 +6499,102 @@ module nn {
                 Storage.shared.set(this.key, <any>v);
         }
     }
-    
+
     /** 缓存策略控制接口 */
     export interface ICacheObject {
         // 是否强制刷新
-        cacheFlush:boolean;
-        
+        cacheFlush: boolean;
+
         // 是否已经更新
-        cacheUpdated:boolean;
+        cacheUpdated: boolean;
 
         // 过期的时间段
-        cacheTime:number;
-        
+        cacheTime: number;
+
         // 获得唯一标记
-        keyForCache():string;
-        
+        keyForCache(): string;
+
         // 值
-        valueForCache():any; 
+        valueForCache(): any;
     }
-    
+
     export interface ICacheRecord
-    extends IReference
-    {
+        extends IReference {
         /** 使用缓存的实际数据对象 */
-        use():any;
+        use(): any;
 
         /** 设置缓存的实际数据对象的属性，如果isnull跳过 */
-        prop(k:any, v:any);
+        prop(k: any, v: any);
 
         /** 是否为空 */
-        isnull:boolean;
+        isnull: boolean;
     }
-    
-    export class CacheRecord
-    implements ICacheRecord
-    {
-        key:string; // 键
-        val:any; // 数据对象
-        ts:number; // 时间戳
-        
-        count:number = 0; // 计数器
-        fifo:boolean; // 位于fifo中
-        mulo:boolean; // 位于mulo中
 
-        get isnull():boolean {
+    export class CacheRecord
+        implements ICacheRecord {
+        key: string; // 键
+        val: any; // 数据对象
+        ts: number; // 时间戳
+
+        count: number = 0; // 计数器
+        fifo: boolean; // 位于fifo中
+        mulo: boolean; // 位于mulo中
+
+        get isnull(): boolean {
             return this.val == null;
         }
 
-        use():any {
+        use(): any {
             this.count += 1;
             return this.val;
         }
-        
-        prop(k:any, v:any) {
+
+        prop(k: any, v: any) {
             if (this.val)
                 this.val[k] = v;
         }
-        
+
         grab() {
             this.count += 1;
         }
 
         drop() {
             this.count -= 1;
-        }        
+        }
     }
-    
+
     /** 基础缓存实现 */
     export class Memcache
-    implements IShared
-    {
+        implements IShared {
         // 存储所有的对象，用来做带key的查找
         protected _maps = new KvObject<any, CacheRecord>();
         protected _records = new Array<CacheRecord>();
-        
+
         // 是否启用
-        enable:boolean = true;
+        enable: boolean = true;
 
         /** 添加一个待缓存的对象 */
-        cache<T extends ICacheObject>(obj:T):CacheRecord {
+        cache<T extends ICacheObject>(obj: T): CacheRecord {
             if (!this.enable) {
                 let t = new CacheRecord();
                 t.val = obj.valueForCache();
                 return t;
             }
-            
+
             let ks = obj.keyForCache();
             if (ks == null) {
                 warn("放到缓存中的对象没有提供 mcKey");
                 return null;
             }
-            
+
             // 查找老的
-            let rcd:CacheRecord = this._maps[ks];
+            let rcd: CacheRecord = this._maps[ks];
             if (rcd) {
                 rcd.val = obj.valueForCache();
                 rcd.ts = obj.cacheTime > 0 ? obj.cacheTime + DateTime.Now() : 0;
                 return rcd;
             }
-            
+
             // 初始化一个新的缓存记录
             rcd = new CacheRecord();
             rcd.key = ks;
@@ -6481,7 +6603,7 @@ module nn {
 
             this._records.push(rcd);
             this._maps[ks] = rcd;
-            
+
             // 池的改动需要引发gc的操作
             FramesManager.needsGC(this);
             return rcd;
@@ -6489,17 +6611,17 @@ module nn {
 
         // 执行一次淘汰验证
         gc() {
-            let rms = ArrayT.RemoveObjectsByFilter(this._records, (rcd:CacheRecord):boolean=>{
+            let rms = ArrayT.RemoveObjectsByFilter(this._records, (rcd: CacheRecord): boolean => {
                 return rcd.count <= 0;
             });
-            rms.forEach((rcd:CacheRecord)=>{
+            rms.forEach((rcd: CacheRecord) => {
                 this.doRemoveObject(rcd);
             });
         }
-        
+
         /** 获得缓存对象 */
-        query(ks:string):ICacheRecord {
-            let rcd:CacheRecord = this._maps[ks];
+        query(ks: string): ICacheRecord {
+            let rcd: CacheRecord = this._maps[ks];
             if (rcd == null)
                 return null;
             if (rcd.ts > 0 && rcd.ts <= DateTime.Now()) {
@@ -6509,22 +6631,22 @@ module nn {
             }
             return rcd;
         }
-        
+
         /** override 回调处理移除一个元素 */
-        protected doRemoveObject(rcd:CacheRecord) {
+        protected doRemoveObject(rcd: CacheRecord) {
             MapT.RemoveKey(this._maps, rcd.key);
         }
-        
+
         static shared = new Memcache();
     }
 
     declare var require;
-    export class _Scripts
-    {
-        require(p:string|Array<string>, cb?:()=>void, ctx?:any) {
+
+    export class _Scripts {
+        require(p: string | Array<string>, cb?: () => void, ctx?: any) {
             if (ISHTML5) {
                 if (<any>p instanceof Array) {
-                    let srcs = <string[]>p;                    
+                    let srcs = <string[]>p;
                     Js.loadScripts(srcs, cb, ctx);
                 } else {
                     let src = <string>p;
@@ -6550,6 +6672,6 @@ module nn {
 }
 
 /** 当native时，直接用set会出现key为ui时第二次加入时崩溃，所以需要转成安全的set */
-function NewSet<T>():nn.SetType<T> {
+function NewSet<T>(): nn.SetType<T> {
     return <any> (nn.ISHTML5 ? new nn.CSet<T>() : new nn.SafeSet<T>());
 }

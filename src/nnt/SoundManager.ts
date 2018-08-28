@@ -4,8 +4,7 @@ module nn {
 
     /** 音频播放 */
     export abstract class CSoundPlayer
-    extends SObject
-    {
+        extends SObject {
         constructor() {
             super();
         }
@@ -22,22 +21,22 @@ module nn {
         count = 1;
 
         /** 音频的组名 */
-        resourceGroups:string[];
+        resourceGroups: string[];
 
         /** 是否可用 */
-        enable:boolean;
+        enable: boolean;
 
         /** 自动恢复播放状态 */
-        autoRecovery:boolean;
-        
+        autoRecovery: boolean;
+
         /** 音频文件的名称, 一个player只能对应一个声音，如过已经设置，则报错 */
-        abstract setMediaSource(ms:string);
+        abstract setMediaSource(ms: string);
 
         /** 暂停或者播放到的位置 */
-        position:number;
+        position: number;
 
         // 音乐的播放状态
-        playingState:WorkState;
+        playingState: WorkState;
 
         /** 开始播放 */
         abstract play();
@@ -57,18 +56,17 @@ module nn {
         /** 打断播放 */
         abstract breakee();
 
-        get isPlaying():boolean {
+        get isPlaying(): boolean {
             return this.playingState == WorkState.DOING;
         }
 
-        get isPaused():boolean {
+        get isPaused(): boolean {
             return this.playingState == WorkState.PAUSED;
         }
     }
 
     export class SoundTrack
-    extends SObject
-    {
+        extends SObject {
         constructor() {
             super();
         }
@@ -77,44 +75,46 @@ module nn {
         count = 1;
 
         /** 同时只能有一个在播放 */
-        solo:boolean;
+        solo: boolean;
 
         /** 用以实现player的类对象 */
         classForPlayer = SoundPlayer;
 
         /** 自动恢复 */
-        _autoRecovery:boolean;
-        get autoRecovery():boolean {
+        _autoRecovery: boolean;
+        get autoRecovery(): boolean {
             return this._autoRecovery;
         }
-        set autoRecovery(b:boolean) {
+
+        set autoRecovery(b: boolean) {
             if (b == this._autoRecovery)
                 return;
             this._autoRecovery = b;
-            nn.MapT.Foreach(this._sounds, (k:string, v:SoundPlayer)=>{
+            nn.MapT.Foreach(this._sounds, (k: string, v: SoundPlayer) => {
                 v.autoRecovery = b;
             }, this);
         }
 
         /** 资源组 */
-        resourceGroups:string[];
+        resourceGroups: string[];
 
         /** 可用状态 */
-        _enable:boolean = true;
-        get enable():boolean {
+        _enable: boolean = true;
+        get enable(): boolean {
             return this._enable;
         }
-        set enable(b:boolean) {
+
+        set enable(b: boolean) {
             if (b == this._enable)
                 return;
             this._enable = b;
-            nn.MapT.Foreach(this._sounds, (k:string, v:SoundPlayer)=>{
+            nn.MapT.Foreach(this._sounds, (k: string, v: SoundPlayer) => {
                 v.enable = b;
             }, this);
         }
 
         /** 获取一个播放器 */
-        player(name:string, ...groups:string[]):SoundPlayer {
+        player(name: string, ...groups: string[]): SoundPlayer {
             var ply = this._sounds[name];
             if (ply == null) {
                 ply = new this.classForPlayer();
@@ -125,14 +125,14 @@ module nn {
                 ply.setMediaSource(name);
                 ply.count = this.count;
                 ply.signals.connect(SignalStart, this.__cb_play, this);
-                
+
                 this._sounds[name] = ply;
             }
             return ply;
         }
 
         /** 实例化一个播放器，播放完成后会自动清掉 */
-        acquire(name:string, ...groups:string[]):SoundPlayer {
+        acquire(name: string, ...groups: string[]): SoundPlayer {
             var ply = new this.classForPlayer();
 
             ply.enable = this.enable;
@@ -141,13 +141,11 @@ module nn {
             ply.setMediaSource(name);
             ply.count = this.count;
 
-            if (!ply.enable)
-            {
+            if (!ply.enable) {
                 Defer(ply.drop, ply);
             }
-            else
-            {
-                ply.signals.connect(SignalEnd, (s:nn.Slot)=>{
+            else {
+                ply.signals.connect(SignalEnd, (s: nn.Slot) => {
                     drop(s.sender);
                 }, null);
             }
@@ -159,9 +157,9 @@ module nn {
         protected _sounds = new KvObject<string, SoundPlayer>();
 
         // 当前正在独奏的播放器
-        private _soloplayer:SoundPlayer;
-        
-        private __cb_play(s:Slot) {
+        private _soloplayer: SoundPlayer;
+
+        private __cb_play(s: Slot) {
             if (this.solo && this._soloplayer != s.sender) {
                 if (this._soloplayer)
                     this._soloplayer.breakee();
@@ -170,25 +168,27 @@ module nn {
         }
 
         /** 播放全部 */
-        play() {            
-            nn.MapT.Foreach(this._sounds, (k:string, v:SoundPlayer)=>{
+        play() {
+            nn.MapT.Foreach(this._sounds, (k: string, v: SoundPlayer) => {
                 v.play();
             }, this);
         }
 
         /** 停止全部 */
         stop() {
-            nn.MapT.Foreach(this._sounds, (k:string, v:SoundPlayer)=>{
+            nn.MapT.Foreach(this._sounds, (k: string, v: SoundPlayer) => {
                 v.stop();
             }, this);
         }
 
         // 配置application，业务不需要关心
-        private __app_activate_enable:boolean;
+        private __app_activate_enable: boolean;
+
         _app_actived() {
             if (this.__app_activate_enable)
                 this.enable = true;
         }
+
         _app_deactived() {
             this.__app_activate_enable = this.enable;
             this.enable = false;
@@ -196,8 +196,7 @@ module nn {
     }
 
     export abstract class CSoundManager
-    extends SObject
-    {
+        extends SObject {
         constructor() {
             super();
         }
@@ -205,10 +204,10 @@ module nn {
         protected _tracks = new KvObject<any, SoundTrack>();
 
         /** 默认资源组 */
-        resourceGroups:string[];
-        
+        resourceGroups: string[];
+
         /** 获取到指定音轨 */
-        track(idr:string):SoundTrack {
+        track(idr: string): SoundTrack {
             var tk = this._tracks[idr];
             if (tk == null) {
                 tk = new SoundTrack();
@@ -218,15 +217,15 @@ module nn {
         }
 
         /** 背景音轨　*/
-        background:SoundTrack;
+        background: SoundTrack;
 
         /** 效果音轨 */
-        effect:SoundTrack;
+        effect: SoundTrack;
 
         /** 可用 */
-        enable:boolean;
+        enable: boolean;
     }
 
-    export let SoundManager:CSoundManager;
-    
+    export let SoundManager: CSoundManager;
+
 }

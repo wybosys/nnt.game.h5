@@ -1,20 +1,20 @@
 module nn {
 
     export class _CrossLoader {
-        private static _regID:number = 0;
-        static completeCall:any = {};
+        private static _regID: number = 0;
+        static completeCall: any = {};
 
-        static process(m:Model) {
-            _CrossLoader.completeCall["call_" + _CrossLoader._regID] = (data)=>{
+        static process(m: Model) {
+            _CrossLoader.completeCall["call_" + _CrossLoader._regID] = (data) => {
                 let id = _CrossLoader._regID;
                 m.__mdl_completed(data);
-                delete _CrossLoader.completeCall["call_"+id];
+                delete _CrossLoader.completeCall["call_" + id];
             };
 
             _CrossLoader.start(m, _CrossLoader._regID++);
         }
 
-        private static start(m:Model, id:number):void {
+        private static start(m: Model, id: number): void {
             let script = document.createElement('script');
             m.modelcallback = "nn._CrossLoader.completeCall.call_" + id + "";
             script.src = m.url();
@@ -23,18 +23,20 @@ module nn {
     }
 
     export interface IRestSession extends ISObject {
-        SID:string;
-        post(m:Model, cb?:(s?:Slot)=>void, cbctx?:any);
-        fetch(m:Model,
-              cbsuc?:(s?:Slot)=>void, cbctx?:any,
-              cbfail?:(s?:Slot)=>void, cbend?:()=>void);
-        fetchs(ms:Array<Model>,
-               cbsuc?:(ss?:Array<Slot>)=>void, cbctx?:any);
+        SID: string;
+
+        post(m: Model, cb?: (s?: Slot) => void, cbctx?: any);
+
+        fetch(m: Model,
+              cbsuc?: (s?: Slot) => void, cbctx?: any,
+              cbfail?: (s?: Slot) => void, cbend?: () => void);
+
+        fetchs(ms: Array<Model>,
+               cbsuc?: (ss?: Array<Slot>) => void, cbctx?: any);
     }
 
     class _RestSession
-    extends SObject
-    {
+        extends SObject {
         protected _initSignals() {
             super._initSignals();
             this._signals.register(SignalStart);
@@ -45,26 +47,25 @@ module nn {
         }
 
         /** 可选的SESSIONID，将附带到URL的尾端 */
-        SID:string;
+        SID: string;
 
         // 请求API的序列号
         static __sequenceId = 0;
 
-        post(m:Model, cb?:(s?:Slot)=>void, cbctx?:any) {
+        post(m: Model, cb?: (s?: Slot) => void, cbctx?: any) {
             m.showWaiting = false;
             m.showError = false;
             this.fetch(m, cb, cbctx);
         }
 
         /** 获取一个数据
-            @param cb, 成功后的回调
-            @param cbfail, 失败后的回调
-            @param cbend, 结束的回调（不区分成功、失败）
-        */
-        fetch(m:Model,
-              cbsuc?:(s?:Slot)=>void, cbctx?:any,
-              cbfail?:(s?:Slot)=>void, cbend?:()=>void)
-        {
+         @param cb, 成功后的回调
+         @param cbfail, 失败后的回调
+         @param cbend, 结束的回调（不区分成功、失败）
+         */
+        fetch(m: Model,
+              cbsuc?: (s?: Slot) => void, cbctx?: any,
+              cbfail?: (s?: Slot) => void, cbend?: () => void) {
             m.ts = DateTime.Now();
 
             // 为了防止正在调用 api 时，接受信号的对象析构，保护一下
@@ -79,21 +80,20 @@ module nn {
                 m.signals.connect(SignalEnd, cbend, cbctx);
 
             // 判断是否支持缓存
-            if (m.cacheTime && !m.cacheFlush)
-            {
+            if (m.cacheTime && !m.cacheFlush) {
                 // 先去查找一下原来的数据
                 let respn = Memcache.shared.query(m.keyForCache());
                 if (respn) {
                     if (VERBOSE)
                         log("成功获取到缓存数据");
-                    
+
                     // 手动激活一下请求开始
                     m.__mdl_start();
-                    
+
                     // 存在可用的缓存，则直接 parse
                     m.response = respn;
                     m.processResponse();
-                    
+
                     // 处理结束
                     m.__mdl_end();
                     return;
@@ -111,12 +111,10 @@ module nn {
             m._urlreq.signals.connect(SignalFailed, m.__mdl_failed, m);
             m.__mdl_start();
 
-            if (m.iscross())
-            {
+            if (m.iscross()) {
                 _CrossLoader.process(m);
             }
-            else
-            {
+            else {
                 let url = m.url();
 
                 if (url.indexOf('?') == -1)
@@ -138,16 +136,15 @@ module nn {
         }
 
         /** 批量调用一堆接口，返回和调用的顺序保持一致 */
-        fetchs(ms:Array<Model>,
-               cbsuc?:(ss?:Array<Slot>)=>void, cbctx?:any)
-        {
+        fetchs(ms: Array<Model>,
+               cbsuc?: (ss?: Array<Slot>) => void, cbctx?: any) {
             let ss = [];
-            let work = (ms:Array<Model>, idx:number)=>{
+            let work = (ms: Array<Model>, idx: number) => {
                 if (idx == ms.length) {
                     cbsuc.call(cbctx, ss);
                     return;
                 }
-                this.fetch(ms[idx++], (s)=>{
+                this.fetch(ms[idx++], (s) => {
                     ss.push(s);
                     // 下一个
                     work(ms, idx);
@@ -158,16 +155,15 @@ module nn {
 
     }
 
-    export var RestSession:IRestSession = new _RestSession();
+    export var RestSession: IRestSession = new _RestSession();
 
     /** 基本的通过URL来访问数据的模型对象 */
     export class UrlModel
-    extends Model
-    {
+        extends Model {
         /** 请求的地址 */
-        request:string;
+        request: string;
 
-        url():string {
+        url(): string {
             if (this.useproxy()) {
                 var ret = 'http://gameapi.wyb.u1.hgame.com/web/index.php?r=redirect/redirect';
                 var p = {};
@@ -181,7 +177,7 @@ module nn {
             return this.request;
         }
 
-        urlForLog():string {
+        urlForLog(): string {
             return this.request;
         }
     }
