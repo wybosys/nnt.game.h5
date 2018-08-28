@@ -2,23 +2,20 @@ module nn {
 
     // 支持手势的对象需要实现
     export interface IGesturable {
-        gestures:Gesture[];    
-        signals:Signals;
+        gestures: Gesture[];
+        signals: Signals;
     }
 
-    export class Gesture
-    extends SObject
-    implements IGesture
-    {
+    export class Gesture extends SObject implements IGesture {
         constructor() {
             super();
         }
-        
-        dispose() {            
+
+        dispose() {
             super.dispose();
             this.detach();
         }
-        
+
         protected _initSignals() {
             super._initSignals();
             this._signals.register(SignalStart);
@@ -28,18 +25,19 @@ module nn {
             this._signals.register(SignalDone);
         }
 
-        attach(spr:IGesturable) {
+        attach(spr: IGesturable) {
             if (spr == null) {
                 this.detach();
                 return;
             }
-            
+
             this._spr = spr;
             this._spr.gestures.push(this);
             this.doAttach();
         }
 
-        protected doAttach() {}
+        protected doAttach() {
+        }
 
         detach() {
             if (this._spr == null)
@@ -49,14 +47,13 @@ module nn {
             this._spr = null;
         }
 
-        protected doDetach() {}
+        protected doDetach() {
+        }
 
-        protected _spr:IGesturable;
+        protected _spr: IGesturable;
     }
 
-    export class GestureTap
-    extends Gesture
-    {
+    export class GestureTap extends Gesture {
         constructor() {
             super();
         }
@@ -75,8 +72,8 @@ module nn {
                 this.count = 0;
                 this._tms = tms;
             }
-            
-            this.count++;            
+
+            this.count++;
             this.signals.emit(SignalDone);
         }
 
@@ -84,13 +81,12 @@ module nn {
         count = 0;
 
         /** 多少时间清空一次 */
-        interval:number;
-        private _tms:number = 0;
+        interval: number;
+        private _tms: number = 0;
     }
 
     export class GestureLongTap
-    extends Gesture
-    {
+        extends Gesture {
         constructor(duration = 1.3) {
             super();
             this.duration = duration;
@@ -100,8 +96,8 @@ module nn {
             super.dispose();
             drop(this._tmr);
         }
-        
-        duration:number;
+
+        duration: number;
 
         protected doAttach() {
             this._spr.signals.connect(SignalTouchBegin, this.__cb_touchbegin, this);
@@ -113,7 +109,7 @@ module nn {
             this._spr.signals.disconnectOfTarget(this);
         }
 
-        _tmr:SysTimer;
+        _tmr: SysTimer;
 
         private __cb_touchbegin() {
             // 启动计时器
@@ -126,7 +122,7 @@ module nn {
             this._tmr.start();
         }
 
-        private __cb_touchend(s:Slot) {
+        private __cb_touchend(s: Slot) {
             if (this._tmr) {
                 this._tmr = drop(this._tmr);
                 this.signals.emit(SignalCancel);
@@ -134,7 +130,7 @@ module nn {
             else {
                 // 如果 tmr 已经为 null，然而该函数仍然进了，则代表是系统原先的事件，需要终止，否则仍然会激活 SignalClicked
                 this._spr.signals.block(SignalClicked);
-                Defer(()=>{
+                Defer(() => {
                     this._spr.signals.unblock(SignalClicked);
                 }, this);
                 //s.data.veto();
@@ -155,9 +151,7 @@ module nn {
         }
     }
 
-    export class GestureRecognizer
-    extends SObject
-    {
+    export class GestureRecognizer extends SObject {
         constructor() {
             super();
         }
@@ -166,27 +160,27 @@ module nn {
             super._initSignals();
             this._signals.register(SignalDone);
         }
-        
+
         /** 上次位置、当前位置 */
         lastPosition = new Point();
         currentPosition = new Point();
 
         /** 上次时间、当前时间 */
-        lastTime:number;
-        currentTime:number;
+        lastTime: number;
+        currentTime: number;
 
         /** 增量 */
         deltaPosition = new Point();
-        deltaTime:number;
+        deltaTime: number;
 
         /** 变动次数 */
-        stat:number = 0;
+        stat: number = 0;
 
         /** 加速度 */
         velocity = new Point();
 
         /** 最小间隔时间 */
-        thresholdInterval:number = 0.3;
+        thresholdInterval: number = 0.3;
 
         /** 重置 */
         reset() {
@@ -195,7 +189,7 @@ module nn {
         }
 
         /** 移动一次位置 */
-        addPosition(x:number, y:number) {
+        addPosition(x: number, y: number) {
             // 第一次移动，直接设置
             if (this.stat == 0) {
                 this.lastPosition.reset(x, y);
@@ -213,12 +207,12 @@ module nn {
             this.lastPosition.copy(this.currentPosition);
             this.currentPosition.reset(x, y);
             this.deltaPosition.reset(this.currentPosition.x - this.lastPosition.x,
-                                     this.currentPosition.y - this.lastPosition.y);
+                this.currentPosition.y - this.lastPosition.y);
 
             this.velocity.reset(0, 0);
             if (this.deltaTime) {
                 this.velocity.reset(this.deltaPosition.x / this.deltaTime,
-                                    this.deltaPosition.y / this.deltaTime);
+                    this.deltaPosition.y / this.deltaTime);
             }
 
             if (this.deltaTime <= this.thresholdInterval)
@@ -227,10 +221,11 @@ module nn {
             ++this.stat;
         }
 
-        protected doPosition() {}
+        protected doPosition() {
+        }
 
         /** 主方向 */
-        majorDirection(threshold = new Point(30, 30)):Direction {
+        majorDirection(threshold = new Point(30, 30)): Direction {
             let r = Direction.UNKNOWN;
             let d = this.deltaPosition;
             if (d.x > threshold.x)
@@ -245,11 +240,9 @@ module nn {
         }
     }
 
-    export class GestureSwipe
-    extends Gesture
-    {
+    export class GestureSwipe extends Gesture {
         constructor() {
-            super();            
+            super();
         }
 
         protected doAttach() {
@@ -261,14 +254,14 @@ module nn {
             this._spr.signals.disconnectOfTarget(this);
         }
 
-        private __cb_touchbegin(s:Slot) {
+        private __cb_touchbegin(s: Slot) {
             this._recognizer.reset();
-            let th:CTouch = s.data;
+            let th: CTouch = s.data;
             this._recognizer.addPosition(th.currentPosition.x, th.currentPosition.y);
         }
-        
-        private __cb_touchend(s:Slot) {
-            let th:CTouch = s.data;
+
+        private __cb_touchend(s: Slot) {
+            let th: CTouch = s.data;
             this._recognizer.addPosition(th.currentPosition.x, th.currentPosition.y);
             if (this._recognizer.deltaTime <= 0.3) {
                 this.direction = this._recognizer.majorDirection();
@@ -277,7 +270,7 @@ module nn {
         }
 
         _recognizer = new GestureRecognizer();
-        direction:Direction;
-    }    
-    
+        direction: Direction;
+    }
+
 }

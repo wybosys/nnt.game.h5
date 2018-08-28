@@ -1,66 +1,70 @@
 module nn {
 
     export class Button
-    extends CButton
-    {
-        constructor(state?:State) {
+        extends CButton {
+        constructor(state?: State) {
             super();
             this.touchEnabled = true;
             if (state)
                 this.onChangeState(state);
         }
-        
+
         dispose() {
             super.dispose();
             if (this._slavestates)
                 this._slavestates.dispose();
         }
-        
-        set fontSize(val:number) {            
+
+        set fontSize(val: number) {
             this._getLabel().fontSize = val;
         }
-        get fontSize():number {
+
+        get fontSize(): number {
             if (this._label)
                 return this._label.fontSize;
             return 0;
         }
 
-        set textColor(val:ColorType) {
+        set textColor(val: ColorType) {
             this._getLabel().textColor = GetColorComponent(val)[0];
         }
-        get textColor():ColorType {
+
+        get textColor(): ColorType {
             if (this._label)
                 return this._label.textColor;
             return 0;
         }
 
-        set text(val:string) {
+        set text(val: string) {
             this._getLabel().text = val;
         }
-        get text():string {
+
+        get text(): string {
             if (this._label)
                 return this._label.text;
             return "";
         }
 
-        set textAlign(val:string) {
+        set textAlign(val: string) {
             this._getLabel().textAlign = val;
         }
-        get textAlign():string {
-            if (this._label)                           
+
+        get textAlign(): string {
+            if (this._label)
                 return this._label.textAlign;
             return "center";
         }
 
-        private _label:Label;
-        get label():Label {
+        private _label: Label;
+        get label(): Label {
             return this._label;
         }
-        set label(lbl:Label) {
+
+        set label(lbl: Label) {
             warn("不能直接设置button的title类");
         }
-        
-        protected _getLabel():Label {
+
+        protected _getLabel(): Label {
             if (this._label == null) {
                 this._label = new Label();
                 this._label.textAlign = "center";
@@ -69,15 +73,16 @@ module nn {
             return this._label;
         }
 
-        private _imageView:Bitmap;
-        get imageView():Bitmap {
+        private _imageView: Bitmap;
+        get imageView(): Bitmap {
             return this._imageView;
         }
-        set imageView(bmp:Bitmap) {
+
+        set imageView(bmp: Bitmap) {
             warn("不能直接设置button的image");
         }
 
-        private _getImageView():Bitmap {
+        private _getImageView(): Bitmap {
             if (this._imageView == null) {
                 this._imageView = new Bitmap();
                 this._imageView.fillMode = FillMode.ASPECTSTRETCH;
@@ -86,30 +91,32 @@ module nn {
             return this._imageView;
         }
 
-        set imageSource(tex:TextureSource) {
+        set imageSource(tex: TextureSource) {
             this._getImageView().imageSource = tex;
         }
-        get imageSource():TextureSource {
+
+        get imageSource(): TextureSource {
             if (this._imageView)
                 return this._imageView.imageSource;
             return null;
         }
 
-        set imageFillMode(mode:FillMode) {
-            this._getImageView().fillMode = mode;            
+        set imageFillMode(mode: FillMode) {
+            this._getImageView().fillMode = mode;
         }
-        get imageFillMode():FillMode {
+
+        get imageFillMode(): FillMode {
             if (this._imageView)
                 return this._imageView.fillMode;
             return FillMode.ASPECTSTRETCH;
         }
 
-        bestFrame(inrc?:Rect):Rect {
+        bestFrame(inrc?: Rect): Rect {
             var brc = new Rect();
             if (this._label)
                 brc.union(this._label.bestFrame());
             return brc.unapplyEdgeInsets(this.edgeInsets);
-        }        
+        }
 
         updateLayout() {
             super.updateLayout();
@@ -118,9 +125,9 @@ module nn {
                 this._label.frame = rc;
             if (this._imageView)
                 this._imageView.frame = rc;
-        }        
+        }
 
-        set stateNormal(st:State) {
+        set stateNormal(st: State) {
             this.slavestates.bind(Button.STATE_NORMAL, st);
             if (!this.disabled) {
                 if (this._slavestates.state == undefined)
@@ -128,13 +135,14 @@ module nn {
                 this.states.updateData(false);
             }
         }
-        get stateNormal():State {
+
+        get stateNormal(): State {
             if (this._slavestates)
                 return this._slavestates.get(Button.STATE_NORMAL);
             return null;
         }
 
-        set stateDisabled(st:State) {
+        set stateDisabled(st: State) {
             this.slavestates.bind(Button.STATE_DISABLED, st);
             if (this.disabled) {
                 if (this._slavestates.state == undefined)
@@ -142,34 +150,37 @@ module nn {
                 this.states.updateData(false);
             }
         }
-        get stateDisabled():State {
+
+        get stateDisabled(): State {
             if (this._slavestates)
                 return this._slavestates.get(Button.STATE_DISABLED);
             return null;
         }
 
-        set stateHighlight(st:State) {
+        set stateHighlight(st: State) {
             this.slavestates.bind(Button.STATE_HIGHLIGHT, st);
             this.states.updateData(false);
         }
-        get stateHighlight():State {
+
+        get stateHighlight(): State {
             if (this._slavestates)
                 return this._slavestates.get(Button.STATE_HIGHLIGHT);
             return null;
         }
 
-        set stateSelected(st:State) {
+        set stateSelected(st: State) {
             this.slavestates.bind(Button.STATE_SELECTED, st);
             this.states.updateData(false);
         }
-        get stateSelected():State {
+
+        get stateSelected(): State {
             if (this._slavestates)
                 return this._slavestates.get(Button.STATE_SELECTED);
             return null;
         }
 
-        protected _slavestates:States;
-        protected get slavestates():States {
+        protected _slavestates: States;
+        protected get slavestates(): States {
             if (this._slavestates == null) {
                 this._slavestates = new States();
                 this.signals.connect(SignalTouchBegin, this.__btn_touchdown, this);
@@ -178,7 +189,7 @@ module nn {
             return this._slavestates;
         }
 
-        protected onChangeState(obj:any) {
+        protected onChangeState(obj: any) {
             var state = State.As(obj);
             if (this._slavestates) {
                 var slvst = this._slavestates.state;
@@ -202,11 +213,12 @@ module nn {
             state.setIn(this);
         }
 
-        private _disabled:boolean;
-        get disabled():boolean {
+        private _disabled: boolean;
+        get disabled(): boolean {
             return this._disabled == true;
         }
-        set disabled(b:boolean) {
+
+        set disabled(b: boolean) {
             if (b == this._disabled)
                 return;
             this._disabled = b;
@@ -215,20 +227,21 @@ module nn {
             this.touchEnabled = !b;
         }
 
-        get touchEnabled():boolean {
+        get touchEnabled(): boolean {
             return this._imp.touchEnabled;
         }
-        set touchEnabled(b:boolean) {
+
+        set touchEnabled(b: boolean) {
             this._imp.touchEnabled = !this._disabled && b;
         }
-        
+
         private __btn_touchdown() {
             if (this._slavestates == null)
                 return;
             if (this._slavestates.changeState(Button.STATE_HIGHLIGHT))
                 this.states.updateData(false);
         }
-        
+
         private __btn_touchup() {
             if (this._slavestates == null)
                 return;
@@ -240,45 +253,45 @@ module nn {
                     this.states.updateData(false);
             }
         }
-        
-        setSelection(sel:boolean) {
+
+        setSelection(sel: boolean) {
             if (sel == this._isSelected)
                 return;
             this._isSelected = sel;
-            
+
             if (this._isSelected && this._slavestates.get(Button.STATE_SELECTED))
                 this._slavestates.state = Button.STATE_SELECTED;
             else
                 this._slavestates.state = this.disabled ? Button.STATE_DISABLED : Button.STATE_NORMAL;
             this.states.updateData(false);
-            
+
             // 抛出状态变化
             this.states.signals.emit(SignalStateChanged);
         }
     }
 
     export class RadioButton
-    extends Button
-    implements IState
-    {
+        extends Button
+        implements IState {
         constructor() {
             super();
             this.signals.connect(SignalClicked, this.__radio_clicked, this);
         }
-        
-        private _selectedState:State;
-        set selectedState(val:State) {
+
+        private _selectedState: State;
+        set selectedState(val: State) {
             if (this._selectedState == val)
                 return;
             this._selectedState = val;
             this.states.bind("selected", val);
         }
-        get selectedState():State {
+
+        get selectedState(): State {
             return this._selectedState;
         }
 
-        private _unselectedState:State;
-        set unselectedState(val:State) {
+        private _unselectedState: State;
+        set unselectedState(val: State) {
             if (this._unselectedState == val)
                 return;
             this._unselectedState = val;
@@ -287,19 +300,21 @@ module nn {
                 this.states.state = "unselected";
             }
         }
-        get unselectedState():State {
+
+        get unselectedState(): State {
             return this._unselectedState;
         }
 
-        _selection:boolean;
-        setSelection(val:boolean) {
+        _selection: boolean;
+
+        setSelection(val: boolean) {
             if (this._selection == val)
                 return;
             this._selection = val;
             this.states.state = val ? "selected" : "unselected";
         }
 
-        isSelection():boolean {
+        isSelection(): boolean {
             return this._selection;
         }
 

@@ -1,14 +1,12 @@
 module nn {
 
-    export class Bitmap
-    extends CBitmap
-    {
-        constructor(res?:TextureSource) {
-            super();           
-            
+    export class Bitmap extends CBitmap {
+        constructor(res?: TextureSource) {
+            super();
+
             this._bmp.width = this._bmp.height = 0;
-            this._imp.addChild(this._bmp);            
-            
+            this._imp.addChild(this._bmp);
+
             if (res) {
                 this.imageSource = res;
                 this.setFrame(this.bestFrame());
@@ -17,15 +15,15 @@ module nn {
 
         protected _bmp = new ExtBitmap();
 
-        protected onChangeState(obj:any) {
+        protected onChangeState(obj: any) {
             if (obj == null) {
                 this.imageSource = null;
                 return;
             }
             super.onChangeState(obj);
         }
-        
-        bestFrame(inrc?:Rect):Rect {
+
+        bestFrame(inrc?: Rect): Rect {
             if (this.preferredFrame)
                 return this.preferredFrame.clone();
             var tex = this._getTexture();
@@ -34,35 +32,36 @@ module nn {
             return new Rect(0, 0, tex.textureWidth, tex.textureHeight);
         }
 
-        protected _getTexture():egret.Texture {
+        protected _getTexture(): egret.Texture {
             if (<any>this._bmp.texture instanceof egret.Texture)
                 return <any>this._bmp.texture;
             return null;
         }
 
         /** 按照材质的大小设置显示的大小 */
-        autoFit:boolean;
+        autoFit: boolean;
 
-        private _imageSource:TextureSource = null;
-        get imageSource():TextureSource {
+        private _imageSource: TextureSource = null;
+        get imageSource(): TextureSource {
             var tex = this._getTexture();
             if (tex == null)
                 return this._imageSource;
             COriginType.shared.imp = tex;
             return COriginType.shared;
         }
-        set imageSource(ds:TextureSource) {
+
+        set imageSource(ds: TextureSource) {
             if (this._imageSource == ds)
                 return;
             this._imageSource = ds;
-            ResManager.getTexture(ds, ResPriority.NORMAL, (tex:ICacheTexture)=>{
+            ResManager.getTexture(ds, ResPriority.NORMAL, (tex: ICacheTexture) => {
                 if (ds != this._imageSource)
                     return;
                 this._setTexture(tex.use());
             }, this);
         }
-        
-        protected _setTexture(tex:egret.Texture) {            
+
+        protected _setTexture(tex: egret.Texture) {
             this._bmp.scale9Grid = tex ? tex['scale9Grid'] : null;
             this._bmp.texture = tex;
 
@@ -83,7 +82,7 @@ module nn {
                 self.updateCache();
                 return;
             }
-            
+
             let bst = self.bestFrame();
             if (bst.width == 0 || bst.height == 0) {
                 self.impSetFrame(rc, self._bmp);
@@ -98,16 +97,14 @@ module nn {
                 pt.y += self.preferredFrame.y;
             }
             bst.center = pt;
-            
+
             self.impSetFrame(bst, self._bmp);
             self.updateCache();
         }
     }
 
-    export class Picture
-    extends Bitmap
-    {
-        constructor(res?:TextureSource) {
+    export class Picture extends Bitmap {
+        constructor(res?: TextureSource) {
             super(res);
             this.fillMode = FillMode.CENTER;
         }

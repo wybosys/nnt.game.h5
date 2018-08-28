@@ -1,15 +1,13 @@
 module nn {
 
-    class ExtScrollView
-    extends egret.ScrollView
-    {
-        constructor(ui:Component) {
+    class ExtScrollView extends egret.ScrollView {
+        constructor(ui: Component) {
             super();
             this.setContent(ui.handle());
         }
-        
-        _fmui:any;
-        
+
+        _fmui: any;
+
         dispose() {
             this._fmui = undefined;
         }
@@ -21,24 +19,24 @@ module nn {
                 this._fmui.onPositionChanged();
         }
 
-        setScrollPosition(top:number, left:number, isOffset:boolean) {
+        setScrollPosition(top: number, left: number, isOffset: boolean) {
             super.setScrollPosition(top, left, isOffset);
         }
 
         // 直接覆盖基类的函数
-        _onTouchBegin(e:egret.TouchEvent) {
+        _onTouchBegin(e: egret.TouchEvent) {
             super._onTouchBegin(e);
             if (this._fmui)
                 this._fmui._onTouchBegin(e);
         }
 
-        _onTouchMove(e:egret.TouchEvent) {
+        _onTouchMove(e: egret.TouchEvent) {
             super._onTouchMove(e);
             if (this._fmui)
                 this._fmui.onPositionChanged();
         }
-        
-        _onTouchEnd(e:egret.TouchEvent) {
+
+        _onTouchEnd(e: egret.TouchEvent) {
             super._onTouchEnd(e);
             if (this._fmui)
                 this._fmui._onTouchEnd(e);
@@ -49,7 +47,7 @@ module nn {
             if (this._fmui)
                 this._fmui._onScrollStarted();
         }
-        
+
         _onScrollFinished() {
             super._onScrollFinished();
             if (this._fmui)
@@ -57,34 +55,33 @@ module nn {
         }
     }
 
-    export class ScrollView
-    extends CScrollView
-    {
-        constructor(cnt?:Component) {
+    export class ScrollView extends CScrollView {
+        constructor(cnt?: Component) {
             super(null);
 
             this._scrollContent = new SpriteWrapper();
-            
+
             this._scrollView = new ExtScrollView(this._scrollContent);
             this._scrollView._fmui = this;
             this._imp.addChild(this._scrollView);
-            
+
             if (cnt)
                 this.contentView = cnt;
         }
 
         dispose() {
             this._scrollView.dispose();
-            super.dispose();            
+            super.dispose();
         }
 
-        private _scrollView:ExtScrollView;
+        private _scrollView: ExtScrollView;
 
-        private _contentEdgeInsets:EdgeInsets;
-        get contentEdgeInsets():EdgeInsets {
+        private _contentEdgeInsets: EdgeInsets;
+        get contentEdgeInsets(): EdgeInsets {
             return this._scrollContent.edgeInsets;
         }
-        set contentEdgeInsets(v:EdgeInsets) {
+
+        set contentEdgeInsets(v: EdgeInsets) {
             this._scrollContent.edgeInsets = v;
         }
 
@@ -94,7 +91,7 @@ module nn {
         }
 
         stopDecelerating() {
-            let scl:any = this._scrollView;
+            let scl: any = this._scrollView;
             if (scl._ScrV_Props_._isHTweenPlaying) {
                 egret.ScrollTween.removeTweens(scl);
                 scl._ScrV_Props_._isHTweenPlaying = false;
@@ -104,17 +101,17 @@ module nn {
                 egret.ScrollTween.removeTweens(scl);
                 scl._ScrV_Props_._isVTweenPlaying = false;
                 scl._ScrV_Props_._vScrollTween = null;
-            }            
+            }
         }
 
         updateLayout() {
             super.updateLayout();
             var rc = this.bounds();
-            
+
             if (this.floatingIdentifier == false) {
                 if (this._verticalIdentifier) {
                     var bst = this._verticalIdentifier.bestFrame();
-                    rc.width -= Math.abs(bst.x) + bst.width;                    
+                    rc.width -= Math.abs(bst.x) + bst.width;
                 }
                 if (this._horizonIdentifier) {
                     var bst = this._horizonIdentifier.bestFrame();
@@ -123,12 +120,12 @@ module nn {
             }
 
             var box = new HBox(this).setRect(this.bounds());
-            box.addFlexVBox(1, (box:VBox)=>{
+            box.addFlexVBox(1, (box: VBox) => {
                 if (this._horizonIdentifier) {
                     var bst = this._horizonIdentifier.bestFrame();
                     box.addFlex(1);
                     box.addPixel(bst.height, this._horizonIdentifier);
-                }                
+                }
             });
             if (this._verticalIdentifier) {
                 var bst = this._verticalIdentifier.bestFrame();
@@ -147,23 +144,24 @@ module nn {
             this._scrollView.mask = new egret.Rectangle(0, 0, 200, 200);
         }
 
-        boundsForContent():Rect {
+        boundsForContent(): Rect {
             return this.bounds().applyEdgeInsets(this.contentEdgeInsets);
         }
 
-        addChild(c:Component) {
+        addChild(c: Component) {
             return this.contentView.addChild(c);
         }
 
-        removeChild(c:Component) {
+        removeChild(c: Component) {
             this.contentView.removeChild(c);
         }
 
-        private _verticalIdentifier:Component;
-        get verticalIdentifier():Component {
+        private _verticalIdentifier: Component;
+        get verticalIdentifier(): Component {
             return this._verticalIdentifier;
         }
-        set verticalIdentifier(v:Component) {
+
+        set verticalIdentifier(v: Component) {
             if (v == this._verticalIdentifier)
                 return;
             if (this._verticalIdentifier)
@@ -174,12 +172,13 @@ module nn {
                 super.addChild(v);
             }
         }
-        
-        private _horizonIdentifier:Component;
-        get horizonIdentifier():Component {
+
+        private _horizonIdentifier: Component;
+        get horizonIdentifier(): Component {
             return this._horizonIdentifier;
         }
-        set horizonIdentifier(v:Component) {
+
+        set horizonIdentifier(v: Component) {
             if (v == this._horizonIdentifier)
                 return;
             if (this._horizonIdentifier)
@@ -192,17 +191,18 @@ module nn {
         }
 
         private _contentSize = new Size();
-        get contentSize():Size {
+        get contentSize(): Size {
             return this._contentSize.clone();
         }
-        set contentSize(sz:Size) {
+
+        set contentSize(sz: Size) {
             // 保存
             this._contentSize.copy(sz);
 
             // 增加边缘
             sz.add(EdgeInsets.Width(this.contentEdgeInsets),
-                   EdgeInsets.Height(this.contentEdgeInsets));
-            
+                EdgeInsets.Height(this.contentEdgeInsets));
+
             // 刷新后需要设置回之前的位置
             var pos = this.contentOffset;
             var d = sz.width - this._contentSize.width;
@@ -218,22 +218,24 @@ module nn {
             this.contentOffset = pos;
 
             // 刷新指示的位置
-            this._scrollContent.setSize(new Size(sz.width, sz.height));            
+            this._scrollContent.setSize(new Size(sz.width, sz.height));
             this._updateIdentifier();
 
             if (this._signals)
                 this._signals.emit(SignalConstriantChanged);
         }
 
-        protected _scrollContent:SpriteWrapper;
-        set contentView(ui:Component) {
+        protected _scrollContent: SpriteWrapper;
+
+        set contentView(ui: Component) {
             if (this._scrollContent.contentView)
                 this._scrollContent.contentView.belong = null;
             this._scrollContent.contentView = ui;
             if (ui)
                 ui.belong = <any>this;
         }
-        get contentView():Component {
+
+        get contentView(): Component {
             var r = this._scrollContent.contentView;
             if (r == null) {
                 r = new Sprite();
@@ -259,7 +261,7 @@ module nn {
             }
         }
 
-        onPositionChanged() {            
+        onPositionChanged() {
             // 更新偏移
             this._contentOffset.x = this._scrollView.scrollLeft * ScaleFactorDeX;
             this._contentOffset.y = this._scrollView.scrollTop * ScaleFactorDeY;
@@ -270,32 +272,33 @@ module nn {
 
             // 更新指示器的位置
             this._updateIdentifier();
-            
+
             super.onPositionChanged();
         }
 
-        private _scrollTouching:boolean = false;
-        _onTouchBegin(e:egret.TouchEvent) {
+        private _scrollTouching: boolean = false;
+
+        _onTouchBegin(e: egret.TouchEvent) {
             this._scrollTouching = true;
             this._signals && this._signals.emit(SignalScrollBegin);
         }
 
-        _onTouchEnd(e:egret.TouchEvent) {
+        _onTouchEnd(e: egret.TouchEvent) {
         }
 
         _onScrollStarted() {
         }
-        
+
         _onScrollFinished() {
             if (this._scrollTouching == false)
                 return;
             this._scrollTouching = false;
             this._signals && this._signals.emit(SignalScrollEnd);
         }
-        
+
         regionBounds = new Rect();
 
-        setContentOffset(pt:Point, duration:number) {
+        setContentOffset(pt: Point, duration: number) {
             super.setContentOffset(pt, duration);
             if (duration == 0) {
                 this._scrollView.scrollLeft = pt.x * ScaleFactorX;
@@ -306,5 +309,5 @@ module nn {
             }
         }
     }
-    
+
 }

@@ -1,11 +1,10 @@
 module nn {
 
     export class Hud
-    extends Sprite
-    {
+        extends Sprite {
         static BackgroundColor = new Color(0xffffff, 0xf0);
-        static BackgroundImage:TextureSource;
-        
+        static BackgroundImage: TextureSource;
+
         constructor() {
             super();
 
@@ -13,7 +12,7 @@ module nn {
                 this.backgroundColor = ObjectClass(this).BackgroundColor;
             if (ObjectClass(this).BackgroundImage)
                 this.backgroundImage = ObjectClass(this).BackgroundImage;
-            
+
             this.edgeInsets = new EdgeInsets(30, 30, 30, 30);
             this.visible = false;
         }
@@ -24,9 +23,9 @@ module nn {
         }
 
         // 提供业务层用来绑定数据
-        mode:any;
+        mode: any;
 
-        protected instanceDesktop():Desktop {
+        protected instanceDesktop(): Desktop {
             let desk = new Desktop(this);
             desk.desktopLayer = CApplication.shared.desktopLayer;
             desk.backgroundColor = null;
@@ -34,7 +33,8 @@ module nn {
             return desk;
         }
 
-        protected _desk:Desktop;
+        protected _desk: Desktop;
+
         open() {
             if (this._desk)
                 return;
@@ -48,35 +48,35 @@ module nn {
             this._desk.close();
             this._desk = null;
         }
-        
-        static Text(str:any, delay:number = 2):Hud {
-            let hud:HudText = <any>CApplication.shared.clazzHudText.instance();
+
+        static Text(str: any, delay: number = 2): Hud {
+            let hud: HudText = <any>CApplication.shared.clazzHudText.instance();
             hud.message = str;
             hud.open();
-            Delay(delay, function() {
-                hud.close();
-            }, this);
-            return hud;
-        }
-        
-        static Error(str:any, delay:number = 2):Hud {
-            let hud:HudText = <any>CApplication.shared.clazzHudText.instance();
-            hud.message = str;
-            hud.mode = false;
-            hud.open();
-            Delay(delay, function() {
+            Delay(delay, function () {
                 hud.close();
             }, this);
             return hud;
         }
 
-        static ShowProgress():Hud {
+        static Error(str: any, delay: number = 2): Hud {
+            let hud: HudText = <any>CApplication.shared.clazzHudText.instance();
+            hud.message = str;
+            hud.mode = false;
+            hud.open();
+            Delay(delay, function () {
+                hud.close();
+            }, this);
+            return hud;
+        }
+
+        static ShowProgress(): Hud {
             HudProgress.__hud_progress_counter += 1;
             if (HudProgress.__hud_progress) {
                 HudProgress.__hud_progress.open();
                 return;
             }
-            let hud:HudProgress = <any>CApplication.shared.clazzHudProgress.instance();
+            let hud: HudProgress = <any>CApplication.shared.clazzHudProgress.instance();
             hud.open();
             return hud;
         }
@@ -93,8 +93,7 @@ module nn {
     }
 
     export class HudText
-    extends Hud
-    {
+        extends Hud {
         static BackgroundColor = null;
         static BackgroundImage = null;
 
@@ -105,7 +104,7 @@ module nn {
             this.addChild(this.labelMessage);
         }
 
-        protected instanceDesktop():Desktop {
+        protected instanceDesktop(): Desktop {
             let desk = super.instanceDesktop();
             desk._addIntoOpening = false;
             return desk;
@@ -113,17 +112,18 @@ module nn {
 
         labelMessage = new Label();
 
-        get message():string {
+        get message(): string {
             return this.labelMessage.text;
         }
-        set message(s:string) {
+
+        set message(s: string) {
             this._setMessage(s);
         }
-        
-        protected _setMessage(s:any) {
+
+        protected _setMessage(s: any) {
             this.labelMessage.text = s;
         }
-        
+
         open() {
             super.open();
             this._desk.touchEnabled = false;
@@ -134,7 +134,7 @@ module nn {
             this.labelMessage.frame = this.boundsForLayout();
         }
 
-        bestFrame(inrc?:Rect):Rect {
+        bestFrame(inrc?: Rect): Rect {
             let w = StageBounds.width * 0.9; //业务中还是希望文字可用区域宽一些
             //let w = StageBounds.width * 0.617;
             //let h = StageBounds.height * 0.617;
@@ -152,64 +152,65 @@ module nn {
     /** 用来显示活动状态的接口 */
     export interface IActivity {
         /** 开始动画 */
-        startAnimation():void;
-        
+        startAnimation(): void;
+
         /** 停止动画 */
-        stopAnimation():void;
-        
+        stopAnimation(): void;
+
         /** 动画状态 */
-        animating:boolean;
-    }   
+        animating: boolean;
+    }
 
     export class HudProgress
-    extends Hud
-    implements IProgress
-    {
+        extends Hud
+        implements IProgress {
         static BackgroundColor = null;
         static BackgroundImage = null;
-        
+
         constructor() {
             super();
         }
 
         // 动画指示，必须实现 IActivity
-        private _activity:CComponent;
-        get activity():CComponent {
+        private _activity: CComponent;
+        get activity(): CComponent {
             return this._activity;
         }
-        set activity(val:CComponent) {
+
+        set activity(val: CComponent) {
             if (this._activity == val)
                 return;
             if (this._activity)
                 this.removeChild(this._activity);
             this._activity = val;
-            if (this._activity)                
+            if (this._activity)
                 this.addChild(val);
         }
 
-        static Current():HudProgress {
+        static Current(): HudProgress {
             return HudProgress.__hud_progress;
         }
 
         private _progressValue = new Percentage(1, 0);
-        get progressValue():Percentage {
+        get progressValue(): Percentage {
             return this._progressValue;
         }
-        set progressValue(v:Percentage) {
+
+        set progressValue(v: Percentage) {
             this._progressValue = v;
             this.updateData();
         }
-        
+
         open() {
             if (this.__tmrdc) {
                 egret.clearTimeout(this.__tmrdc);
                 this.__tmrdc = 0;
             }
-            
+
             if (HudProgress.__hud_progress)
                 return;
-            
-            HudProgress.__hud_progress = this;            
+
+            HudProgress.__hud_progress = this;
             super.open();
             this.__tmropen = egret.getTimer();
 
@@ -226,17 +227,18 @@ module nn {
                 (<IActivity><any>this._activity).stopAnimation();
         }
 
-        private __tmropen:number;
-        private __tmrdc:number;
-        delayClose(timeout:number = 0.3) {
+        private __tmropen: number;
+        private __tmrdc: number;
+
+        delayClose(timeout: number = 0.3) {
             if (this.__tmrdc)
                 egret.clearTimeout(this.__tmrdc);
-            
+
             if ((egret.getTimer() - this.__tmropen) * 0.001 > timeout) {
                 this.close();
                 return;
             }
-            
+
             this.__tmrdc = egret.setTimeout(this.doDelayClose, this, timeout * 1000);
         }
 
@@ -251,15 +253,15 @@ module nn {
             if (this._activity)
                 this._activity.frame = this.boundsForLayout();
         }
-        
-        bestFrame(inrc?:Rect):Rect {
+
+        bestFrame(inrc?: Rect): Rect {
             if (this._activity)
                 return this._activity.bestFrame();
             return new Rect();
         }
 
-        static __hud_progress:HudProgress = null;
+        static __hud_progress: HudProgress = null;
         static __hud_progress_counter = 0;
     }
-    
+
 }
