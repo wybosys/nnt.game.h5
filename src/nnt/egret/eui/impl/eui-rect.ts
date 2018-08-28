@@ -1,7 +1,6 @@
 module eui {
 
-    export class RectU
-        extends eui.Rect {
+    export class RectU extends eui.Rect {
         onPartBinded(name: string, target: any) {
             _EUIExt.onPartBinded(this, name, target);
         }
@@ -29,8 +28,7 @@ module eui {
         }
     }
 
-    export class RoundU
-        extends RectU {
+    export class RoundU extends RectU {
         updateDisplayList(unscaledWidth: number, unscaledHeight: number) {
             let gra = this.graphics;
             gra.clear();

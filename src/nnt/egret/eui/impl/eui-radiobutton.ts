@@ -1,9 +1,7 @@
 module eui {
 
-    export class RadioButtonU
-    extends eui.RadioButton
-    {
-        onPartBinded(name:string, target:any) {
+    export class RadioButtonU extends eui.RadioButton {
+        onPartBinded(name: string, target: any) {
             _EUIExt.onPartBinded(this, name, target);
         }
 
@@ -19,5 +17,5 @@ module eui {
             this.drop();
         }
     }
-    
+
 }

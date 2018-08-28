@@ -1,17 +1,12 @@
 module eui {
 
-    class _NaviViewStack
-    extends nn.ViewStack
-    {
-        getViews():Array<nn.StackPageType> {
+    class _NaviViewStack extends nn.ViewStack {
+        getViews(): Array<nn.StackPageType> {
             return this._views;
         }
     }
-    
-    export class NavigationU
-    extends eui.ComponentU
-    implements eui.IViewStack
-    {
+
+    export class NavigationU extends eui.ComponentU implements eui.IViewStack {
         constructor() {
             super();
             this.createImp();
@@ -21,16 +16,18 @@ module eui {
         get signals() {
             return this._imp.signals;
         }
-        
-        private _imp:_NaviViewStack;
+
+        private _imp: _NaviViewStack;
+
         protected createImp() {
             this._imp = new _NaviViewStack();
         }
 
-        public get rootPopable():boolean {
+        public get rootPopable(): boolean {
             return this._imp.rootPopable;
         }
-        public set rootPopable(b:boolean) {
+
+        public set rootPopable(b: boolean) {
             this._imp.rootPopable = b;
         }
 
@@ -41,15 +38,15 @@ module eui {
             }
         }
 
-        topView():ComponentU {
+        topView(): ComponentU {
             return this._imp.topView.obj.handle();
         }
 
-        topIndex():number {
+        topIndex(): number {
             return this._imp.getViews().indexOf(this._imp.topView);
         }
 
-        push(ui:ComponentU) {
+        push(ui: ComponentU) {
             let bc = new nn.BridgedComponent(ui);
             _EUIExt.setViewStack(ui, this);
             this._imp.push(bc);
@@ -64,11 +61,11 @@ module eui {
             this._imp.setNeedsLayout();
         }
 
-        pages():ComponentU[] {
-            return nn.ArrayT.Convert(this._imp.getViews(), (page:nn.StackPageType):ComponentU=>{
+        pages(): ComponentU[] {
+            return nn.ArrayT.Convert(this._imp.getViews(), (page: nn.StackPageType): ComponentU => {
                 return page.obj.handle();
             });
         }
     }
-    
+
 }

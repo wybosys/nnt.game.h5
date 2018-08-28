@@ -1,12 +1,10 @@
 module eui {
 
-    export class CheckBoxU
-    extends eui.CheckBox
-    {
-        public slots:string = null;
-        public tag:any = null;
+    export class CheckBoxU extends eui.CheckBox {
+        public slots: string = null;
+        public tag: any = null;
 
-        onPartBinded(name:string, target:any) {
+        onPartBinded(name: string, target: any) {
             _EUIExt.onPartBinded(this, name, target);
         }
 
@@ -14,15 +12,15 @@ module eui {
             _EUIExt.goBack(this);
         }
 
-        playAnimate(ani:Animate, idr?:any):Animate {
+        playAnimate(ani: Animate, idr?: any): Animate {
             return _EUIExt.playAnimate(this, ani, idr);
         }
 
-        findAnimate(idr:any):Animate {
+        findAnimate(idr: any): Animate {
             return _EUIExt.findAnimate(this, idr);
         }
 
-        stopAnimate(idr:any) {
+        stopAnimate(idr: any) {
             _EUIExt.stopAnimate(this, idr);
         }
 
@@ -30,11 +28,11 @@ module eui {
             _EUIExt.stopAllAnimates(this);
         }
 
-        set exhibition(b:boolean) {
+        set exhibition(b: boolean) {
             _EUIExt.setExhibition(this, b);
         }
-        
-        get exhibition():boolean {
+
+        get exhibition(): boolean {
             return _EUIExt.getExhibition(this);
         }
 
@@ -53,14 +51,14 @@ module eui {
             super.$onRemoveFromStage();
             this.drop();
         }
-        
+
         protected _initSignals() {
             this._signals.delegate = this;
             this._signals.register(nn.SignalChanged);
         }
 
-        protected _signals:nn.Signals;
-        get signals():nn.Signals {
+        protected _signals: nn.Signals;
+        get signals(): nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -68,32 +66,34 @@ module eui {
         }
 
         protected _instanceSignals() {
-            this._signals = new nn.Signals(this);            
+            this._signals = new nn.Signals(this);
             this._initSignals();
         }
-        
-        _signalConnected(sig:string, s?:nn.Slot) {
+
+        _signalConnected(sig: string, s?: nn.Slot) {
             if (sig == nn.SignalChanged) {
                 nn.EventHook(this, eui.UIEvent.CHANGE, this.__cb_changed, this);
             }
         }
-        
+
         private __cb_changed() {
             this.signals.emit(nn.SignalChanged);
         }
-        
-        get text():string {
+
+        get text(): string {
             return this.label;
         }
-        set text(str:string) {
+
+        set text(str: string) {
             this.label = str;
         }
-        
-        private _value:any;
-        get value():any {
+
+        private _value: any;
+        get value(): any {
             return this._value;
         }
-        set value(v:any) {
+
+        set value(v: any) {
             this._value = v;
             if (v == null) {
                 this.text = '';
@@ -106,14 +106,15 @@ module eui {
                 this.text = nn.asString(v);
             }
         }
-        
-        private _format:string = null;
-        public get format():string {
+
+        private _format: string = null;
+        public get format(): string {
             return this._format;
         }
-        public set format(fmt:string) {
+
+        public set format(fmt: string) {
             this._format = fmt;
         }
     }
-    
+
 }

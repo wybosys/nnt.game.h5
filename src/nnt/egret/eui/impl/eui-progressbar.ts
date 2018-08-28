@@ -1,21 +1,20 @@
 module eui {
 
-    export class ProgressBarU
-    extends eui.ProgressBar
-    {
-        onPartBinded(name:string, target:any) {
+    export class ProgressBarU extends eui.ProgressBar {
+        onPartBinded(name: string, target: any) {
             _EUIExt.onPartBinded(this, name, target);
         }
 
-        private _percent:nn.Percentage;
-        get percent():nn.Percentage {
+        private _percent: nn.Percentage;
+        get percent(): nn.Percentage {
             if (this._percent == null)
                 this._percent = new nn.Percentage();
             this._percent.max = this.maximum;
             this._percent.value = this.value;
             return this._percent;
         }
-        set percent(p:nn.Percentage) {
+
+        set percent(p: nn.Percentage) {
             if (this._percent == null)
                 this._percent = new nn.Percentage();
             this._percent.max = p.max;
@@ -25,11 +24,12 @@ module eui {
         }
 
         /** 通过设置一个格式化脚本来设置显示的文字格式 */
-        private _format:string = null;
-        public get format():string {
+        private _format: string = null;
+        public get format(): string {
             return this._format;
         }
-        public set format(fmt:string) {
+
+        public set format(fmt: string) {
             let name = tmp.rtname() + '_euiprogressbarlabelfunc';
             let exp = `
             tmp.${name} = function (value, max) {
@@ -52,11 +52,12 @@ module eui {
             this.drop();
         }
 
-        protected _data:any;
-        get data():any {
+        protected _data: any;
+        get data(): any {
             return this._data;
         }
-        set data(d:any) {
+
+        set data(d: any) {
             this._data = d;
             this.updateData();
         }

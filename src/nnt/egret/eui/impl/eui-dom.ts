@@ -1,12 +1,10 @@
 module eui {
 
-    export class DivU
-    extends eui.Group
-    {
-        public slots:string = null;
-        public tag:any = null;
+    export class DivU extends eui.Component {
+        public slots: string = null;
+        public tag: any = null;
 
-        onPartBinded(name:string, target:any) {
+        onPartBinded(name: string, target: any) {
             _EUIExt.onPartBinded(this, name, target);
         }
 
@@ -23,7 +21,7 @@ module eui {
             if (this._signals) {
                 this._signals.dispose();
                 this._signals = undefined;
-            }            
+            }
         }
 
         drop() {
@@ -34,14 +32,14 @@ module eui {
             super.$onRemoveFromStage();
             this.drop();
         }
-        
+
         protected _initSignals() {
             // 基础相关
             this._signals.delegate = this;
         }
 
-        protected _signals:nn.Signals;
-        get signals():nn.Signals {
+        protected _signals: nn.Signals;
+        get signals(): nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -49,11 +47,11 @@ module eui {
         }
 
         protected _instanceSignals() {
-            this._signals = new nn.Signals(this);            
+            this._signals = new nn.Signals(this);
             this._initSignals();
         }
-        
-        _signalConnected(sig:string, s?:nn.Slot) {
+
+        _signalConnected(sig: string, s?: nn.Slot) {
         }
 
         private _div = new nn.Div();
@@ -68,17 +66,18 @@ module eui {
             this._div.text = this._text;
         }
 
-        protected updateDisplayList(unscaledWidth:number, unscaledHeight:number) {
+        protected updateDisplayList(unscaledWidth: number, unscaledHeight: number) {
             super.updateDisplayList(unscaledWidth, unscaledHeight);
             this._div.frame = new nn.Rect(0, 0, unscaledWidth, unscaledHeight);
             this._div.flushLayout();
         }
 
-        private _text:string = null;
-        public get text():string {
+        private _text: string = null;
+        public get text(): string {
             return this._text;
         }
-        public set text(s:string) {
+
+        public set text(s: string) {
             this._text = s;
             this.invalidateProperties();
         }

@@ -1,11 +1,9 @@
 module eui {
 
-    export class TabBarU
-    extends eui.TabBar
-    {        
-        public slots:string = null;
-        
-        onPartBinded(name:string, target:any) {
+    export class TabBarU extends eui.TabBar {
+        public slots: string = null;
+
+        onPartBinded(name: string, target: any) {
             _EUIDataGroupExt.onPartBinded(this, name, target);
         }
 
@@ -29,43 +27,44 @@ module eui {
             super.$onRemoveFromStage();
             this.drop();
         }
-        
+
         protected _initSignals() {
             this._signals.delegate = this;
             this._signals.register(nn.SignalSelectionChanged);
             this._signals.register(nn.SignalSelectionChanging);
         }
-        
-        protected _signals:nn.Signals;
-        get signals():nn.Signals {
+
+        protected _signals: nn.Signals;
+        get signals(): nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
             return this._signals;
         }
-        
+
         protected _instanceSignals() {
-            this._signals = new nn.Signals(this);            
+            this._signals = new nn.Signals(this);
             this._initSignals();
         }
-        
-        _signalConnected(sig:string, s?:nn.Slot) {
+
+        _signalConnected(sig: string, s?: nn.Slot) {
             if (sig == nn.SignalSelectionChanged) {
             } else if (sig == nn.SignalSelectionChanging) {
                 nn.EventHook(this, egret.Event.CHANGING, this.__lst_selchanging, this);
             }
         }
 
-        get selectedIndex():number {
+        get selectedIndex(): number {
             return egret.superGetter(TabBarU, this, 'selectedIndex');
         }
-        set selectedIndex(v:number) {
+
+        set selectedIndex(v: number) {
             egret.superSetter(TabBarU, this, 'selectedIndex', v);
             if (this.pageStack) {
                 this.pageStack.selectedIndex = this.selectedIndex;
             }
         }
-        
+
         private __lst_selchanged() {
             if (this._signals) // 修改为构造函数的时候绑定，所以signals会还没有初始化
                 this._signals.emit(nn.SignalSelectionChanged);
@@ -75,40 +74,41 @@ module eui {
             }
         }
 
-        private __lst_selchanging(e:egret.Event) {
+        private __lst_selchanging(e: egret.Event) {
             // egret的一个bug
             e.$cancelable = true;
-            
+
             // 传透
             let tun = new nn.SlotTunnel();
-            
+
             // 封装changing的对象
             let info = _EUIDataGroupExt.GetChanging(this);
             this._signals.emit(nn.SignalSelectionChanging, info, tun);
-            
+
             if (tun.veto)
                 e.preventDefault();
         }
 
-        private _data:any;
-        set data(data:any) {
+        private _data: any;
+        set data(data: any) {
             if (data == null)
                 this.dataProvider = null;
             else
                 this.dataProvider = new eui.ArrayCollection(data);
             this._data = data;
         }
-        get data():any {
+
+        get data(): any {
             return this._data;
-        }        
+        }
 
         reload() {
             this.dataProviderRefreshed();
         }
 
-        private __imp_updateitem:any;
+        private __imp_updateitem: any;
 
-        updateRenderer(renderer:eui.IItemRenderer, itemIndex:number, data:any):eui.IItemRenderer {
+        updateRenderer(renderer: eui.IItemRenderer, itemIndex: number, data: any): eui.IItemRenderer {
             let r = super.updateRenderer(renderer, itemIndex, data);
             if (this.__imp_updateitem)
                 this.__imp_updateitem(r, itemIndex, data);
@@ -116,7 +116,7 @@ module eui {
         }
 
         // 绑定到对应的pagestack简化动作
-        pageStack:PageStackU;
+        pageStack: PageStackU;
     }
-    
+
 }

@@ -1,13 +1,12 @@
 module eui {
 
-    export class WrapperU
-    extends eui.ComponentU
-    {
-        private _content:ComponentU;
-        get content():ComponentU {
+    export class WrapperU extends eui.ComponentU {
+        private _content: ComponentU;
+        get content(): ComponentU {
             return this._content;
         }
-        set content(c:ComponentU) {
+
+        set content(c: ComponentU) {
             if (this._content == c)
                 return;
             if (this._content)
@@ -19,6 +18,6 @@ module eui {
                 this.addChild(c);
             }
         }
-    }    
-    
+    }
+
 }

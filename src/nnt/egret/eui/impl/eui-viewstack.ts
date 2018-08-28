@@ -1,12 +1,10 @@
 module eui {
 
-    export class PageStackU
-    extends eui.ViewStack
-    {
-        onPartBinded(name:string, target:any) {
+    export class PageStackU extends eui.ViewStack {
+        onPartBinded(name: string, target: any) {
             _EUIExt.onPartBinded(this, name, target);
         }
-        
+
         dispose() {
         }
 
@@ -22,7 +20,7 @@ module eui {
 
     let _PROTO = PageStackU.prototype;
     let _FUN = _PROTO['showOrHide'];
-    _PROTO['showOrHide'] = function (child:egret.DisplayObject, visible:boolean) {
+    _PROTO['showOrHide'] = function (child: egret.DisplayObject, visible: boolean) {
         let self = <any>this;
         _FUN.call(self, child, visible);
         if (visible)
@@ -30,5 +28,5 @@ module eui {
         else
             ComponentU._ProcessDisppeared(child);
     };
- 
+
 }

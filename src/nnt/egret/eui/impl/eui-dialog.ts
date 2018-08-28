@@ -1,34 +1,31 @@
 module eui {
 
     /** 用来提供设置参数 */
-    export class DesktopU
-    extends eui.ComponentU
-    {
+    export class DesktopU extends eui.ComponentU {
         static IDRKEY = "::nneui::idrkey::desktop";
-        
+
         constructor() {
             super();
             this.name = DesktopU.IDRKEY;
         }
-        
+
         /** 弹出的形式 */
-        public popupMode:boolean = true;
-        
+        public popupMode: boolean = true;
+
         /** 点击即关闭 */
-        public clickedToClose:boolean = false;
+        public clickedToClose: boolean = false;
 
         /** 满屏幕显示 */
-        public fullSize:boolean = false;
+        public fullSize: boolean = false;
 
         /** 转换 */
-        static FromView(e:egret.DisplayObject):nn.Desktop {
+        static FromView(e: egret.DisplayObject): nn.Desktop {
             return nn.Desktop.FromView(nn.BridgedComponent.FromImp(e));
         }
     }
 
     class _ExtDesktop
-    extends nn.Desktop
-    {
+        extends nn.Desktop {
         protected doOpen() {
             //super.doOpen();
             //this.flushLayout();
@@ -43,23 +40,22 @@ module eui {
     }
 
     export class DialogU
-    extends eui.SpriteU
-    {
+        extends eui.SpriteU {
         constructor() {
             super();
             this._anchorPointX = 0.5;
             this._anchorPointY = 0.5;
         }
-        
+
         dispose() {
             super.dispose();
         }
 
         /** 桌面的颜色 */
         desktopBackgroundColor = nn.Desktop.BackgroundColor;
-        
+
         /** 获得视图隶属的dialog对象 */
-        static FromView(cv:egret.DisplayObject):DialogU {
+        static FromView(cv: egret.DisplayObject): DialogU {
             return <any>nn.findParentByType(cv, DialogU);
         }
 
@@ -95,54 +91,56 @@ module eui {
                 ani.clone().bind(this).play();
             }
         }
-        
+
         /** 全局设置所有的弹出特效 */
-        static AnimateOpen:Animate;
-        static AnimateClose:Animate;
+        static AnimateOpen: Animate;
+        static AnimateClose: Animate;
 
         /** 对象相关的弹出特效, 默认为 undefine，如果设置成null，则为不使用全局特效 */
-        private _animateOpen:Animate;
-        get animateOpen():Animate {
+        private _animateOpen: Animate;
+        get animateOpen(): Animate {
             if (this._animateOpen === undefined)
                 return DialogU.AnimateOpen;
             return this._animateOpen;
         }
-        set animateOpen(ani:Animate) {
+
+        set animateOpen(ani: Animate) {
             if (ani === this._animateOpen)
                 return;
             this._animateOpen = ani;
         }
-        
-        private _animateClose:Animate;
-        get animateClose():Animate {
+
+        private _animateClose: Animate;
+        get animateClose(): Animate {
             if (this._animateClose === undefined)
                 return DialogU.AnimateClose;
             return this._animateClose;
         }
-        set animateClose(ani:Animate) {
+
+        set animateClose(ani: Animate) {
             if (ani === this._animateOpen)
                 return;
             this._animateClose = ani;
         }
-        
-        /** 弹出的模式 
-            @note true为弹出对话框，不会隐藏后面的内容；false则push到对应的viewstack中，隐藏之前的页面
-        */
-        popupMode:boolean = true;
-        
+
+        /** 弹出的模式
+         @note true为弹出对话框，不会隐藏后面的内容；false则push到对应的viewstack中，隐藏之前的页面
+         */
+        popupMode: boolean = true;
+
         /** 点击关闭 */
-        clickedToClose:boolean = false;
+        clickedToClose: boolean = false;
 
         /** 满屏幕 */
-        fullSize:boolean = false;
+        fullSize: boolean = false;
 
         /** 依赖的队列 */
-        queue:nn.OperationQueue;
+        queue: nn.OperationQueue;
 
         /** 是否可以穿透触摸 */
-        onlyFiltersTouchEnabled:boolean;
-        
-        protected instanceDesktop():nn.Desktop {
+        onlyFiltersTouchEnabled: boolean;
+
+        protected instanceDesktop(): nn.Desktop {
             var dsk = new _ExtDesktop(new nn.BridgedComponent(this));
             dsk.onlyFiltersTouchEnabled = this.onlyFiltersTouchEnabled;
             dsk.popupMode = this.popupMode;
@@ -151,7 +149,7 @@ module eui {
             if (this.queue)
                 dsk.queue = this.queue;
             this.signals.connect(nn.SignalRequestClose, dsk.close, dsk);
-            this._filters.forEach((o:any)=> {
+            this._filters.forEach((o: any) => {
                 dsk.addFilter(o);
             });
             return dsk;
@@ -159,7 +157,8 @@ module eui {
 
         // 参照core-dialog
         _filters = new nn.CSet<nn.CComponent>();
-        addFilter(ui:UiType) {
+
+        addFilter(ui: UiType) {
             let c = nn.BridgedComponent.Wrapper(ui);
             this._filters.add(c);
             let dsk = <_ExtDesktop>nn.Desktop.FromView(nn.CComponent.FromImp(this));
@@ -172,20 +171,20 @@ module eui {
             if (dsk)
                 dsk.updateFilters();
         }
-                
-        replace(link:Component):nn.Desktop {
+
+        replace(link: Component): nn.Desktop {
             var dsk = this.instanceDesktop();
             dsk.replace(nn.CComponent.FromImp(link));
             return dsk;
         }
-        
-        open(queue:boolean = true):nn.Desktop {
+
+        open(queue: boolean = true): nn.Desktop {
             var dsk = this.instanceDesktop();
             dsk.open(queue);
             return dsk;
         }
 
-        follow(link:Component):nn.Desktop {
+        follow(link: Component): nn.Desktop {
             var dsk = this.instanceDesktop();
             dsk.follow(nn.CComponent.FromImp(link));
             return dsk;
@@ -199,7 +198,7 @@ module eui {
             this.signals.emit(nn.SignalRequestClose);
         }
 
-        bestFrame():nn.Rect {
+        bestFrame(): nn.Rect {
             if (this.fullSize) {
                 let rc = nn.StageBounds.clone();
                 rc.x = rc.width * this._anchorPointX;
@@ -207,14 +206,12 @@ module eui {
                 return rc;
             }
             let rc = new nn.Rect(0, 0, this.width, this.height);
-            if (rc.width && rc.height)
-            {
+            if (rc.width && rc.height) {
                 rc.x = rc.width * this._anchorPointX;
                 rc.y = rc.height * this._anchorPointY;
                 return rc;
             }
-            if (this.skin)
-            {                
+            if (this.skin) {
                 rc.width = this.skin.width;
                 rc.height = this.skin.height;
                 rc.x = rc.width * this._anchorPointX;
@@ -224,9 +221,9 @@ module eui {
             return null;
         }
 
-        bestPosition():nn.Point {
+        bestPosition(): nn.Point {
             return null;
         }
     }
-    
+
 }

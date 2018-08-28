@@ -1,9 +1,7 @@
 module eui {
 
-    export class ToggleSwitchU
-    extends eui.ToggleSwitch
-    {
-        onPartBinded(name:string, target:any) {
+    export class ToggleSwitchU extends eui.ToggleSwitch {
+        onPartBinded(name: string, target: any) {
             _EUIExt.onPartBinded(this, name, target);
         }
 
@@ -19,5 +17,5 @@ module eui {
             this.drop();
         }
     }
-    
+
 }

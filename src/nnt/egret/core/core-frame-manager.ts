@@ -1,9 +1,7 @@
 module nn {
-    
-    export class _FramesManager
-    extends CFramesManager
-    {
-        launch(c:egret.DisplayObject) {
+
+    export class _FramesManager extends CFramesManager {
+        launch(c: egret.DisplayObject) {
             EventHook(c, egret.Event.ENTER_FRAME, this.onRendering, this);
             EventHook(c, egret.Event.RENDER, this.onPrepare, this);
         }
@@ -16,14 +14,15 @@ module nn {
                 egret.callLater(this.invalidate, this);
         }
 
-        private __invalidating:boolean;
-        invalidate() {            
+        private __invalidating: boolean;
+
+        invalidate() {
             this.__invalidating = true;
-            egret.MainContext.instance.stage.invalidate();            
+            egret.MainContext.instance.stage.invalidate();
         }
     }
 
-    loader.InBoot(()=>{
+    loader.InBoot(() => {
         FramesManager = new _FramesManager();
     });
 

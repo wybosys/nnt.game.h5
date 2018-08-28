@@ -1,10 +1,8 @@
 module eui {
 
-    export class TextAreaU
-    extends eui.EditableText
-    {
-        public slots:string = null;
-        public tag:any = null;
+    export class TextAreaU extends eui.EditableText {
+        public slots: string = null;
+        public tag: any = null;
 
         constructor() {
             super();
@@ -12,21 +10,23 @@ module eui {
             nn.EventHook(this, egret.FocusEvent.FOCUS_OUT, this.__txt_focusout, this);
         }
 
-        onPartBinded(name:string, target:any) {
+        onPartBinded(name: string, target: any) {
             _EUIExt.onPartBinded(this, name, target);
         }
 
-        get value():string {
+        get value(): string {
             return this.text;
-        }        
-        set value(v:string) {
+        }
+
+        set value(v: string) {
             this.text = v;
         }
 
-        set exhibition(b:boolean) {
+        set exhibition(b: boolean) {
             _EUIExt.setExhibition(this, b);
         }
-        get exhibition():boolean {
+
+        get exhibition(): boolean {
             return _EUIExt.getExhibition(this);
         }
 
@@ -52,9 +52,9 @@ module eui {
             this._signals.register(nn.SignalFocusGot);
             this._signals.register(nn.SignalFocusLost);
         }
-        
-        protected _signals:nn.Signals;
-        get signals():nn.Signals {
+
+        protected _signals: nn.Signals;
+        get signals(): nn.Signals {
             if (this._signals)
                 return this._signals;
             this._instanceSignals();
@@ -62,21 +62,22 @@ module eui {
         }
 
         protected _instanceSignals() {
-            this._signals = new nn.Signals(this);            
+            this._signals = new nn.Signals(this);
             this._initSignals();
         }
-        
-        _signalConnected(sig:string, s?:nn.Slot) {
+
+        _signalConnected(sig: string, s?: nn.Slot) {
             switch (sig) {
-            case nn.SignalChanged:
-                nn.EventHook(this, egret.Event.CHANGE, this.__txt_changed, this); break;
+                case nn.SignalChanged:
+                    nn.EventHook(this, egret.Event.CHANGE, this.__txt_changed, this);
+                    break;
             }
         }
-        
+
         private __txt_changed() {
             this._signals.emit(nn.SignalChanged);
         }
-        
+
         private __txt_focusin() {
             nn.Keyboard.visible = true;
             if (this._signals)
@@ -88,13 +89,14 @@ module eui {
             if (this._signals)
                 this._signals.emit(nn.SignalFocusLost);
         }
-        
-        get readonly():boolean {
+
+        get readonly(): boolean {
             return !this.touchEnabled;
         }
-        set readonly(b:boolean) {
+
+        set readonly(b: boolean) {
             this.touchEnabled = !b;
         }
     }
-    
+
 }
