@@ -2,35 +2,34 @@ module nn {
 
     /** 按键数据 */
     export class CKeyboard {
-        key:string;
-        code:number;
+        key: string;
+        code: number;
     }
 
     export interface IKeyboard extends ISObject {
-        visible:boolean;
+        visible: boolean;
     }
 
-    class _Keyboard
-    extends SObject
-    {
+    class _Keyboard extends SObject {
         protected _initSignals() {
             super._initSignals();
             this._signals.register(SignalActivated);
             this._signals.register(SignalDeactivated);
         }
-        
-        _visible:boolean = false;
-        get visible():boolean {
+
+        _visible: boolean = false;
+        get visible(): boolean {
             return this._visible;
         }
-        set visible(b:boolean) {
+
+        set visible(b: boolean) {
             if (this._visible == b)
                 return;
             this._visible = b;
             this.signals.emit(b ? SignalActivated : SignalDeactivated);
         }
     }
-    
-    export let Keyboard:IKeyboard = new _Keyboard();
-    
+
+    export let Keyboard: IKeyboard = new _Keyboard();
+
 }

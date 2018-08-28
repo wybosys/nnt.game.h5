@@ -1,15 +1,14 @@
 module nn {
 
-    export abstract class CParticle
-    extends Widget
-    {
+    export abstract class CParticle extends Widget {
         constructor() {
             super();
         }
 
-        name:string;
+        name: string;
 
         abstract start();
+
         abstract stop();
     }
 

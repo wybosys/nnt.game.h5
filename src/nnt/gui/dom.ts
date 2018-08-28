@@ -1,10 +1,8 @@
 module nn {
 
-    export abstract class CDom
-    extends Component
-    {
+    export abstract class CDom extends Component {
         /** html源代码 */
-        text:string;
+        text: string;
     }
 
 }

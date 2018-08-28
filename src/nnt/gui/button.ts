@@ -1,12 +1,9 @@
 module nn {
 
     /** 按钮类
-        @note 定义为具有点按状态、文字、图片的元素，可以通过子类化来调整文字、图片的布局方式
+     @note 定义为具有点按状态、文字、图片的元素，可以通过子类化来调整文字、图片的布局方式
      */
-    export abstract class CButton
-    extends Widget
-    implements IState
-    {
+    export abstract class CButton extends Widget implements IState {
         constructor() {
             super();
             this.touchEnabled = true;
@@ -19,39 +16,39 @@ module nn {
         static STATE_SELECTED = "::button::state::selected";
 
         /** 是否可用 */
-        disabled:boolean;
+        disabled: boolean;
 
         /** 字体大小 */
-        fontSize:number;
+        fontSize: number;
 
         /** 文字颜色 */
-        textColor:ColorType;
+        textColor: ColorType;
 
         /** 内容 */
-        text:string;
+        text: string;
 
         /** 对齐方式 */
-        textAlign:string;
+        textAlign: string;
 
         /** 图片 */
-        imageSource:TextureSource;
+        imageSource: TextureSource;
 
         /** 普通的状态 */
-        stateNormal:State;
+        stateNormal: State;
 
         /** 禁用的状态 */
-        stateDisabled:State;
+        stateDisabled: State;
 
         /** 高亮的状态 */
-        stateHighlight:State;
+        stateHighlight: State;
 
         /** 选中的状态 */
-        stateSelected:State;
-        
-        /** 点击频度限制 */
-        eps:number = 3;
+        stateSelected: State;
 
-        _signalConnected(sig:string, s?:Slot) {
+        /** 点击频度限制 */
+        eps: number = 3;
+
+        _signalConnected(sig: string, s?: Slot) {
             super._signalConnected(sig, s);
             if (sig == SignalClicked)
                 s.eps = this.eps;
@@ -62,11 +59,11 @@ module nn {
             this._signals.register(SignalClicked);
         }
 
-        isSelection():boolean {
+        isSelection(): boolean {
             return this._isSelected;
         }
 
-        protected _isSelected:boolean;
+        protected _isSelected: boolean;
     }
 
 }

@@ -1,21 +1,20 @@
 module nn {
 
-    export interface CTextField
-    {
+    export interface CTextField {
         /** 只读 */
-        readonly:boolean;
-        
+        readonly: boolean;
+
         /** 占位文字 */
-        placeholder:string;
-        
+        placeholder: string;
+
         /** 占位字体颜色 */
-        placeholderTextColor:ColorType;
+        placeholderTextColor: ColorType;
 
         /** 多行编辑 */
-        multilines:boolean;
+        multilines: boolean;
 
         /** 安全编辑 */
-        securityInput:boolean;
+        securityInput: boolean;
     }
 
 }

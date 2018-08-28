@@ -1,9 +1,6 @@
 module nn {
-    
-    export class LoadingScreen
-    extends Sprite
-    implements IProgress
-    {        
+
+    export class LoadingScreen extends Sprite implements IProgress {
         constructor() {
             super();
 
@@ -28,10 +25,10 @@ module nn {
             // 进度条整体资源已经加载完成，可以进行下一步（通常加载主界面）
             this._signals.register(SignalDone);
         }
-        
+
         labelProgress = new Label();
         labelVersion = new Label();
-        
+
         updateLayout() {
             super.updateLayout();
             new VBox(this).setRect(this.bounds())
@@ -41,12 +38,13 @@ module nn {
                 .addPixel(30, this.labelVersion)
                 .apply();
         }
-        
+
         _progressValue = new Percentage();
-        get progressValue():Percentage {
+        get progressValue(): Percentage {
             return this._progressValue;
         }
-        set progressValue(v:Percentage) {
+
+        set progressValue(v: Percentage) {
             this._progressValue = v;
             this.updateData();
         }
@@ -55,7 +53,7 @@ module nn {
             super.updateData();
             this.labelProgress.bringFront();
             this.labelVersion.bringFront();
-            
+
             this.labelProgress.text = "正在加载" +
                 this._progressValue.value + "/" +
                 this._progressValue.max;

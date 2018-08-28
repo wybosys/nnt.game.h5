@@ -1,8 +1,6 @@
 module nn {
 
-    export class SelectionsGroup
-    extends SObject
-    {
+    export class SelectionsGroup extends SObject {
         constructor() {
             super();
         }
@@ -16,8 +14,8 @@ module nn {
             this.clear();
             super.dispose();
         }
-        
-        add(ui:CComponent & IState) {
+
+        add(ui: CComponent & IState) {
             if (ui.states == undefined) {
                 fatal("push a non state object");
                 return;
@@ -25,41 +23,42 @@ module nn {
 
             ui.states.signals.connect(SignalStateChanged, this._cbStateChanged, this);
             this._store.push(ui);
-        }        
+        }
 
         clear() {
             this._old = undefined;
-            nn.ArrayT.Clear(this._store, (e:SObject)=>{
+            nn.ArrayT.Clear(this._store, (e: SObject) => {
                 e.signals.disconnectOfTarget(this);
             }, this);
         }
 
-        elements():any[] {
+        elements(): any[] {
             return this._store;
         }
 
-        private _cbStateChanged(e:Slot) {
+        private _cbStateChanged(e: Slot) {
             let ui = e.sender.cbctx;
             // 如过是自身在变化，则跳过
             if (ui == this._old)
                 return;
 
-            this._store.forEach((o)=>{
+            this._store.forEach((o) => {
                 if (o == ui)
-                    return;                
+                    return;
                 o.states.next(e.data, true, false);
             }, this);
 
-            this.signals.emit(SignalSelectionChanged, {now:ui, old:this._old});
+            this.signals.emit(SignalSelectionChanged, {now: ui, old: this._old});
             this._old = ui;
         }
 
-        get selection():number {
-            return nn.ArrayT.QueryIndex(this._store, (o):boolean=>{
+        get selection(): number {
+            return nn.ArrayT.QueryIndex(this._store, (o): boolean => {
                 return o.isSelection && o.isSelection();
             }, this, -1);
         }
-        set selection(idx:number) {
+
+        set selection(idx: number) {
             let o = this._store[idx];
             if (o.setSelection)
                 o.setSelection(true);
@@ -67,31 +66,32 @@ module nn {
                 warn("该对象不支持 setSelection 操作");
         }
 
-        get selectionItem():any {
-            return nn.ArrayT.QueryObject(this._store, (o):boolean=>{
+        get selectionItem(): any {
+            return nn.ArrayT.QueryObject(this._store, (o): boolean => {
                 return o.isSelection && o.isSelection();
             }, this);
         }
-        set selectionItem(o:any) {
+
+        set selectionItem(o: any) {
             if (o.setSelection)
                 o.setSelection(true);
             else
                 warn("该对象不支持 setSelection 操作");
         }
 
-        indexOf(o:any):number {
+        indexOf(o: any): number {
             return this._store.indexOf(o);
         }
 
-        get previousSelectionItem():any {
+        get previousSelectionItem(): any {
             return this._old;
         }
 
-        get length():number {
+        get length(): number {
             return this._store.length;
         }
 
-        private _old:any;
+        private _old: any;
         private _store = new Array<any>();
     }
 
