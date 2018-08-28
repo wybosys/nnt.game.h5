@@ -25,8 +25,7 @@ module nn {
         launchEntry(cls: any, data?: any);
     }
 
-    export abstract class Manager
-        extends SObject {
+    export abstract class Manager extends SObject {
         /** 初始化自己和其它manager或者其它对象之间的关系 */
         abstract onLoaded();
 
@@ -35,8 +34,7 @@ module nn {
         }
     }
 
-    export abstract class Managers
-        extends SObject {
+    export abstract class Managers extends SObject {
         register<T>(obj: T): T {
             this._managers.push(<any>obj);
             return obj;
@@ -164,8 +162,7 @@ module nn {
     // 应用实例管理器
     export let EntriesManager = new _EntriesManager();
 
-    export class _LaunchersManager
-        extends nn.SObject {
+    export class _LaunchersManager extends nn.SObject {
         constructor() {
             super();
         }

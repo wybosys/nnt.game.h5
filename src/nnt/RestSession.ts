@@ -35,8 +35,7 @@ module nn {
                cbsuc?: (ss?: Array<Slot>) => void, cbctx?: any);
     }
 
-    class _RestSession
-        extends SObject {
+    class _RestSession extends SObject {
         protected _initSignals() {
             super._initSignals();
             this._signals.register(SignalStart);
@@ -158,8 +157,7 @@ module nn {
     export var RestSession: IRestSession = new _RestSession();
 
     /** 基本的通过URL来访问数据的模型对象 */
-    export class UrlModel
-        extends Model {
+    export class UrlModel extends Model {
         /** 请求的地址 */
         request: string;
 

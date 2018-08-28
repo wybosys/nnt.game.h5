@@ -121,8 +121,7 @@ module nn {
     }
 
     /** 默认的Object接口 */
-    export interface IRefObject
-        extends IObject, IReference {
+    export interface IRefObject extends IObject, IReference {
     }
 
     /** 序列化的接口 */
@@ -160,8 +159,7 @@ module nn {
 
     /** 带有信号的基类
      @brief 如果不能直接基类，需要实现信号的相关函数 */
-    export class SObject
-        implements IRefObject, ISObject {
+    export class SObject implements IRefObject, ISObject {
         /** 构造函数 */
         constructor() {
         }
@@ -836,8 +834,7 @@ module nn {
     }
 
     /** 编解码器 */
-    export class Codec
-        extends SObject {
+    export class Codec extends SObject {
         constructor() {
             super();
         }
@@ -868,8 +865,7 @@ module nn {
     /** JSON 编解码器
      @brief 区分于标准的 JSON 格式化，编解码器会附带额外的类型信息，并且解码时会自动重建对象，所以速度不如格式化快，但是支持自定义对象
      */
-    export class JsonCodec
-        extends Codec {
+    export class JsonCodec extends Codec {
         constructor() {
             super();
             this._sck.push(this._d);
@@ -3426,8 +3422,7 @@ module nn {
     }
 
     /** 大小 */
-    export class Size
-        extends Point {
+    export class Size extends Point {
         constructor(w: number = 0, h: number = 0) {
             super(w, h);
         }
@@ -4298,8 +4293,7 @@ module nn {
         }
     }
 
-    export class UnionRect
-        extends Rect {
+    export class UnionRect extends Rect {
         constructor(x?: number, y?: number, w?: number, h?: number) {
             super();
             this.x = x;
@@ -4460,8 +4454,7 @@ module nn {
     /** 路径
      @note 默认h5-tag-path来实现，所以也原生支持了svg^_^
      */
-    export class Path
-        implements ISerializable {
+    export class Path implements ISerializable {
         constructor(svg?: string) {
             this._ph = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             if (this._ph == null)
@@ -4905,8 +4898,7 @@ module nn {
     }
 
     /** 定时器 */
-    export abstract class CTimer
-        extends SObject {
+    export abstract class CTimer extends SObject {
         constructor(interval, count) {
             super();
             this.interval = interval;
@@ -4985,8 +4977,7 @@ module nn {
     /** 低精度的实际时间定时器
      @brief 使用实际时间来判定每一次的 tick
      */
-    export class RtTimer
-        extends CTimer {
+    export class RtTimer extends CTimer {
         constructor(interval = 1, count = -1) {
             super(interval, count);
         }
@@ -5062,8 +5053,7 @@ module nn {
     }
 
     /** 系统定时器 */
-    export class SysTimer
-        extends CTimer {
+    export class SysTimer extends CTimer {
         constructor(interval = 1, count = -1) {
             super(interval, count);
         }
@@ -5122,8 +5112,7 @@ module nn {
 
     /** 定时器
      @brief 可以选择支持不支持在后台运行 */
-    export class Timer
-        extends CTimer {
+    export class Timer extends CTimer {
         constructor(interval = 1, count = -1) {
             super(interval, count);
         }
@@ -5227,8 +5216,7 @@ module nn {
     }
 
     /** 时间片对象 */
-    export class CoTimerItem
-        extends CTimer {
+    export class CoTimerItem extends CTimer {
         constructor() {
             super(1, -1);
         }
@@ -5328,8 +5316,7 @@ module nn {
     /** 统一调度的计时器
      @brief 由 CoTimer 派发出的 TimerItem 将具有统一的调度，默认精度为100ms，如果业务需要准确的计时器，最好传入业务实际的间隔
      */
-    export class CoTimer
-        extends SObject {
+    export class CoTimer extends SObject {
         constructor(interval = 0.1) {
             super();
             this._tmr.interval = interval;
@@ -5574,9 +5561,7 @@ module nn {
     }
 
     /** 设备信息 */
-    export class Device
-        extends SObject
-        implements IShared {
+    export class Device extends SObject implements IShared {
         constructor() {
             super();
             this.detectEnv();
@@ -5674,8 +5659,7 @@ module nn {
     };
 
     /** http连接器 */
-    export class CHttpConnector
-        extends SObject {
+    export class CHttpConnector extends SObject {
         dispose() {
             super.dispose();
             this.data = undefined;
@@ -5724,8 +5708,7 @@ module nn {
     }
 
     /** socket连接器 */
-    export abstract class CSocketConnector
-        extends SObject {
+    export abstract class CSocketConnector extends SObject {
         /** 地址 */
         host: string;
 
@@ -5777,8 +5760,7 @@ module nn {
     }
 
     /** 操作队列 */
-    export class OperationQueue
-        extends SObject {
+    export class OperationQueue extends SObject {
         constructor() {
             super();
         }
@@ -5963,8 +5945,7 @@ module nn {
     }
 
     /** 闭包操作，为了支持Async，所以需要注意当闭包完成时调用done */
-    export class OperationClosure
-        extends Operation {
+    export class OperationClosure extends Operation {
         constructor(cb: (oper: Operation) => void, ctx?: any, idr?: any) {
             super(idr);
             this.cb = cb;
@@ -5980,8 +5961,7 @@ module nn {
     }
 
     /** 简单封装一个函数，不附带 Operation，使用时需要手动调用 operationqueue.next，主要用于传统流程改造成队列流程 */
-    export class OperationCall
-        extends Operation {
+    export class OperationCall extends Operation {
         constructor(cb: (...p: any[]) => void, ctx?: any, argus?: any[], idr?: any) {
             super(idr);
             this.cb = cb;
@@ -5999,8 +5979,7 @@ module nn {
     }
 
     /** 间隔时间操作 */
-    export class OperationDelay
-        extends Operation {
+    export class OperationDelay extends Operation {
         constructor(delay: number, idr?: any) {
             super(idr);
             this.delay = delay;
@@ -6013,8 +5992,7 @@ module nn {
         }
     }
 
-    class _OperationGroupQueue
-        extends OperationQueue {
+    class _OperationGroupQueue extends OperationQueue {
         constructor() {
             super();
             this.autoMode = false;
@@ -6035,8 +6013,7 @@ module nn {
     }
 
     /** 操作组 */
-    export class OperationGroup
-        extends Operation {
+    export class OperationGroup extends Operation {
         constructor(idr?: any) {
             super(idr);
             this._subqueue.signals.connect(SignalDone, this.__subqueue_end, this);
@@ -6078,8 +6055,7 @@ module nn {
      @code
      new Retry(....).process();
      */
-    export class Retry
-        implements IOrder {
+    export class Retry implements IOrder {
         /* 
            @param times 重试次数
            @param interval 重试的时间间隔s，或者是每一次的间隔
@@ -6150,8 +6126,7 @@ module nn {
     }
 
     /** 对象池，自动初始化超过现存可用数量的对象 */
-    export class ObjectsPool<T>
-        implements IObjectsPool {
+    export class ObjectsPool<T> implements IObjectsPool {
         private _arr = new Array<T>();
 
         constructor(ins: () => T, ctx?: any) {
@@ -6196,8 +6171,7 @@ module nn {
     /** 简单复用池
      @note 业务建议使用 ReusesPool，提供了used和unused的管理
      */
-    export class SimpleReusesPool<T>
-        implements IReusesPool {
+    export class SimpleReusesPool<T> implements IReusesPool {
         constructor(ins?: (...p: any[]) => T, ctx?: any) {
             this._ins = ins;
             this._ctx = ctx;
@@ -6238,8 +6212,7 @@ module nn {
         private _pl = new KvObject<any, Array<T>>();
     }
 
-    export class ReusesPool<T>
-        implements IReusesPool {
+    export class ReusesPool<T> implements IReusesPool {
         constructor(ins: (...p: any[]) => T,
                     use: (k: any, o: T) => void,
                     unuse: (k: any, o: T) => void,
@@ -6319,8 +6292,7 @@ module nn {
         file(path: string, type: ResType, cb: (str: any) => void, ctx?: any);
     }
 
-    export class Storage
-        implements IShared {
+    export class Storage implements IShared {
         // 编解码器
         codec: ICodec;
 
@@ -6518,8 +6490,7 @@ module nn {
         valueForCache(): any;
     }
 
-    export interface ICacheRecord
-        extends IReference {
+    export interface ICacheRecord extends IReference {
         /** 使用缓存的实际数据对象 */
         use(): any;
 
@@ -6530,8 +6501,7 @@ module nn {
         isnull: boolean;
     }
 
-    export class CacheRecord
-        implements ICacheRecord {
+    export class CacheRecord implements ICacheRecord {
         key: string; // 键
         val: any; // 数据对象
         ts: number; // 时间戳
@@ -6564,8 +6534,7 @@ module nn {
     }
 
     /** 基础缓存实现 */
-    export class Memcache
-        implements IShared {
+    export class Memcache implements IShared {
         // 存储所有的对象，用来做带key的查找
         protected _maps = new KvObject<any, CacheRecord>();
         protected _records = new Array<CacheRecord>();

@@ -3,7 +3,6 @@
 class KvObject<K, V> {
 }
 
-
 module nn {
 
     declare let Map;

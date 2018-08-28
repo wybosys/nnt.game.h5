@@ -1,7 +1,6 @@
 module nn {
 
-    export class ServiceMock
-        extends svc.Service {
+    export class ServiceMock extends svc.Service {
         constructor() {
             super();
         }
@@ -169,8 +168,7 @@ module nn {
     // 不注册模拟服务
     //ServicesManager.register(ServiceMock);
 
-    export class MockServices
-        extends ServicesManager {
+    export class MockServices extends ServicesManager {
         detectService(): any {
             return ServiceMock;
         }

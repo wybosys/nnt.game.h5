@@ -3,8 +3,7 @@ module nn {
     export type SoundSource = UriSource | COriginType;
 
     /** 音频播放 */
-    export abstract class CSoundPlayer
-        extends SObject {
+    export abstract class CSoundPlayer extends SObject {
         constructor() {
             super();
         }
@@ -65,8 +64,7 @@ module nn {
         }
     }
 
-    export class SoundTrack
-        extends SObject {
+    export class SoundTrack extends SObject {
         constructor() {
             super();
         }
@@ -195,8 +193,7 @@ module nn {
         }
     }
 
-    export abstract class CSoundManager
-        extends SObject {
+    export abstract class CSoundManager extends SObject {
         constructor() {
             super();
         }

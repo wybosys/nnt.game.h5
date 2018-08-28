@@ -55,8 +55,7 @@ module nn {
     let WebUriCheckPattern = /^([\w]+):\/\/(.+)$/i;
 
     // 资源包
-    export abstract class CResCapsule
-        extends SObject {
+    export abstract class CResCapsule extends SObject {
         constructor(reqres: ReqResource[]) {
             super();
             this._reqRes = reqres;
@@ -147,8 +146,7 @@ module nn {
         protected _reqRes: Array<ReqResource>;
     }
 
-    export abstract class CResManager
-        extends SObject {
+    export abstract class CResManager extends SObject {
         constructor() {
             super();
         }

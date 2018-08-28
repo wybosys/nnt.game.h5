@@ -7,8 +7,7 @@ module nn {
         _cmid: number;
     }
 
-    export class WebSocketConnector
-        extends CSocketConnector {
+    export class WebSocketConnector extends CSocketConnector {
         open() {
             if (this._hdl)
                 return;
@@ -82,8 +81,7 @@ module nn {
         }
     }
 
-    export interface ISocketSession
-        extends ISObject {
+    export interface ISocketSession extends ISObject {
         // 连接器
         connector: CSocketConnector;
 
@@ -109,9 +107,7 @@ module nn {
     /**
      * WebSocket的服务，和Rest不同，ws不能根据model的url来切换连接，所以不同的url需要实例不同的session
      */
-    export class SocketSession
-        extends SObject
-        implements ISocketSession {
+    export class SocketSession extends SObject implements ISocketSession {
         constructor(host?: string) {
             super();
             this.host = host;
@@ -294,8 +290,7 @@ module nn {
 // 实现和nnt.logic服务器配合的socket连接器
 namespace nn.logic {
 
-    export class SocketConnector
-        extends WebSocketConnector {
+    export class SocketConnector extends WebSocketConnector {
 
         protected onOpen(e: Event) {
             super.onOpen(e);

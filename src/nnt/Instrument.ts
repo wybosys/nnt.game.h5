@@ -22,8 +22,7 @@ module nn {
         }
     }
 
-    export class ProfilerPanel
-        extends dom.Sprite {
+    export class ProfilerPanel extends dom.Sprite {
         constructor() {
             super();
 
@@ -55,8 +54,7 @@ module nn {
         }
     }
 
-    export class SystemInfoPanel
-        extends dom.Sprite {
+    export class SystemInfoPanel extends dom.Sprite {
         constructor() {
             super();
 
@@ -87,8 +85,7 @@ module nn {
         }
     }
 
-    export class InstrumentPanel
-        extends dom.Sprite {
+    export class InstrumentPanel extends dom.Sprite {
         constructor() {
             super();
             this.css = "position:absolute;bottom:0px;height:90%;width:100%;z-position:999;opacity:0.95;background:white;";
@@ -157,8 +154,7 @@ module nn {
         }
     }
 
-    export class DebugPanel
-        extends dom.Sprite {
+    export class DebugPanel extends dom.Sprite {
         constructor() {
             super();
         }
@@ -171,8 +167,7 @@ module nn {
         }
     }
 
-    export class Instrument
-        extends SObject {
+    export class Instrument extends SObject {
         constructor() {
             super();
 

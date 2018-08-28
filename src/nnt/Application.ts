@@ -1,7 +1,6 @@
 module nn {
 
-    export class _GameLayer
-        extends Navigation {
+    export class _GameLayer extends Navigation {
         set root(spr: CComponent) {
             this.push(spr);
         }
@@ -11,16 +10,13 @@ module nn {
         }
     }
 
-    export class _DesktopLayer
-        extends Sprite {
+    export class _DesktopLayer extends Sprite {
     }
 
     /** 资源加载进度和弹出的进度是同一个类 */
     export let RESOURCELOADINGISHUD: boolean;
 
-    export abstract class CApplication
-        extends Sprite
-        implements IReqResources {
+    export abstract class CApplication extends Sprite implements IReqResources {
         /** 用来重新定义弹出文字框 */
         clazzHudText = new Class<Hud>(HudText);
 

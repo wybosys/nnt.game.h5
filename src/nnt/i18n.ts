@@ -10,9 +10,6 @@ module nn {
 
     class _i18n implements I18N {
 
-        constructor() {
-        }
-
         // 默认的数据来自data/i18n.xls的配置
         data: any;
 

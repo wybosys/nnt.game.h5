@@ -143,8 +143,7 @@ module nn {
         }
     }
 
-    export abstract class LinearLayout
-        extends Layout {
+    export abstract class LinearLayout extends Layout {
         /** 获得总长 */
         abstract length(): number;
 
@@ -379,8 +378,7 @@ module nn {
         }
     }
 
-    export class VBox
-        extends LinearLayout {
+    export class VBox extends LinearLayout {
         constructor(ctx?: any) {
             super(ctx);
         }
@@ -441,8 +439,7 @@ module nn {
         }
     }
 
-    export class HFlow
-        extends Layout {
+    export class HFlow extends Layout {
         constructor(ctx?: any) {
             super(ctx);
         }

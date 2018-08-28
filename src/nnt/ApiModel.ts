@@ -12,9 +12,7 @@ module nn {
        nn.RestSession.fetch(m);
     */
 
-    export class Model
-        extends SObject
-        implements ISerializable, ICacheObject {
+    export class Model extends SObject implements ISerializable, ICacheObject {
         constructor() {
             super();
         }

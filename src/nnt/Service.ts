@@ -32,8 +32,7 @@ module nn.svc {
         MOCK, // 测试用的平台
     };
 
-    export abstract class Content
-        implements ISObjectWrapper {
+    export abstract class Content implements ISObjectWrapper {
         signals: Signals;
         attach: (obj: any) => void;
         dispose: () => void;
@@ -46,8 +45,7 @@ module nn.svc {
     }
 
     /** 支付的数据 */
-    export class PayContent
-        extends Content {
+    export class PayContent extends Content {
         /** 支付的项目 */
         product: any;
 
@@ -55,8 +53,7 @@ module nn.svc {
     }
 
     /** 分享的数据 */
-    export class ShareContent
-        extends Content {
+    export class ShareContent extends Content {
         /** 分享出去的链接 */
         url: string = '';
 
@@ -73,8 +70,7 @@ module nn.svc {
     }
 
     /** 登陆到sdk, 一些SDK的特殊要求也放在这里面处理 */
-    export class LoginContent
-        extends Content {
+    export class LoginContent extends Content {
         /** S2S 拿到用户id */
         pid: numstr;
 
@@ -88,8 +84,7 @@ module nn.svc {
     }
 
     /** 第三方平台上的用户信息 */
-    export class ProfileContent
-        extends Content {
+    export class ProfileContent extends Content {
         /** 是否已经登录 */
         islogin: boolean;
 
@@ -103,8 +98,7 @@ module nn.svc {
     }
 
     /** 状态 */
-    export class StatusContent
-        extends Content {
+    export class StatusContent extends Content {
         /** 是否运行在微端中 */
         appmode: boolean;
 
@@ -136,20 +130,17 @@ module nn.svc {
     }
 
     /** 登出 */
-    export class LogoutContent
-        extends Content {
+    export class LogoutContent extends Content {
         proc = 'logout';
     }
 
     /** 切换账号 */
-    export class SwitchUserContent
-        extends Content {
+    export class SwitchUserContent extends Content {
         proc = 'switchuser';
     }
 
     /** 加载进度 */
-    export class LoadingContent
-        extends Content {
+    export class LoadingContent extends Content {
         constructor(t: number, c: number) {
             super();
             this.total = t;
@@ -163,8 +154,7 @@ module nn.svc {
     }
 
     /** 授权信息 */
-    export class AuthContent
-        extends Content {
+    export class AuthContent extends Content {
         /** 游戏在渠道的标志 */
         app: string = '';
 
@@ -213,8 +203,7 @@ module nn.svc {
     }
 
     /** 提交信息 */
-    export class ReportContent
-        extends Content {
+    export class ReportContent extends Content {
         // 类型
         type: ReportType;
 
@@ -235,8 +224,7 @@ module nn.svc {
     }
 
     /** 绑定手机 */
-    export class BindContent
-        extends Content {
+    export class BindContent extends Content {
         /** 请求绑定了手机 */
         phone: boolean;
 
@@ -244,14 +232,12 @@ module nn.svc {
     }
 
     /** 打开论坛 */
-    export class BBSContent
-        extends Content {
+    export class BBSContent extends Content {
         proc = 'bbs';
     }
 
     /** 添加关注 */
-    export class SubscribeContent
-        extends Content {
+    export class SubscribeContent extends Content {
         /** 请求关注 */
         subscribe: boolean;
 
@@ -259,24 +245,20 @@ module nn.svc {
     }
 
     /** 下载微端 */
-    export class GetAppContent
-        extends Content {
+    export class GetAppContent extends Content {
         proc = 'getapp';
     }
 
     /** 保存到桌面 */
-    export class SendToDesktopContent
-        extends Content {
+    export class SendToDesktopContent extends Content {
         proc = 'sendtodesktop';
     }
 
-    export class LanZuanContent
-        extends Content {
+    export class LanZuanContent extends Content {
         proc = 'lanzuan';
     }
 
-    export class LanZuanXuFeiContent
-        extends Content {
+    export class LanZuanXuFeiContent extends Content {
         /* 续费成功后的通知地址 */
         notifyUrl: string;
 
@@ -300,8 +282,7 @@ module nn.svc {
     }
 
     /** 打开客服系统 */
-    export class CustomerContent
-        extends Content {
+    export class CustomerContent extends Content {
         /** 拉取所有的 */
         all: boolean;
 
@@ -311,8 +292,7 @@ module nn.svc {
     /** 发送客服聊天
      @note 基类的参数就不需要传了
      */
-    export class SendCustomerContent
-        extends CustomerContent {
+    export class SendCustomerContent extends CustomerContent {
         /** 发送的消息 */
         message: string;
 
@@ -321,8 +301,7 @@ module nn.svc {
         viplevel: number;
     }
 
-    export abstract class Service
-        extends SObject {
+    export abstract class Service extends SObject {
         constructor() {
             super();
         }
@@ -446,8 +425,7 @@ module nn.svc {
 
 module nn {
 
-    class _ContentWrapper
-        extends SObjectWrapper {
+    class _ContentWrapper extends SObjectWrapper {
         constructor(cnt: svc.Content) {
             super(cnt);
             this.signals.register(SignalSucceed);
@@ -455,8 +433,7 @@ module nn {
         }
     }
 
-    export abstract class ServicesManager
-        extends SObject {
+    export abstract class ServicesManager extends SObject {
         constructor() {
             super();
         }
@@ -597,8 +574,7 @@ module nn {
         }
     }
 
-    export class AnyServices
-        extends ServicesManager {
+    export class AnyServices extends ServicesManager {
         detectService(): any {
             let cls = ArrayT.QueryObject(ServicesManager._SERVICES, (e: any): boolean => {
                 return e.IsCurrent();
