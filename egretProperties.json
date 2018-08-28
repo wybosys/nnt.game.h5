@@ -1,62 +1,40 @@
 {
-	"engineVersion": "5.1.8",
-	"compilerVersion": "5.1.8",
-	"template": {},
-	"target": {
-		"current": "web"
-	},
-	"modules": [
-		{
-			"name": "egret"
-		},
-		{
-			"name": "game"
-		},
-		{
-			"name": "tween"
-		},
+    "engineVersion": "5.1.8",
+    "compilerVersion": "5.1.8",
+    "template": {},
+    "target": {
+        "current": "web"
+    },
+    "eui": {
+        "exmlRoot": [
+            "resource/eui_skins"
+        ],
+        "themes": [
+            "resource/default.thm.json"
+        ],
+        "exmlPublishPolicy": "commonjs"
+    },
+    "modules": [
+        {
+            "name": "egret"
+        },
+        {
+            "name": "game"
+        },
+        {
+            "name": "tween"
+        },
         {
             "name": "eui"
         },
         {
-			"name": "res"
-		},
-		{
-			"name": "tween"
-		},
-		{
-			"name": "dragonbones"
-		},
-		{
-			"name": "promise"
-		},
-        {
-            "name": "jszip",
-            "path": "frameworks/jszip"
+            "name": "dragonbones"
         },
         {
-            "name": "lzma",
-            "path": "frameworks/lzma"
+            "name": "res"
         },
-		{
-			"name": "particle",
-			"path": "frameworks/particle"
-		},
-		{
-			"name": "physics",
-			"path": "frameworks/physics"
-		},
-		{
-			"name": "tiled",
-			"path": "frameworks/tiled"
-		},
-		{
-			"name": "greensock",
-			"path": "frameworks/greensock"
-		},
-		{
-			"name": "nnt",
-			"path": "frameworks/nnt"
-		}
-	]
+        {
+            "name": "promise"
+        }
+    ]
 }

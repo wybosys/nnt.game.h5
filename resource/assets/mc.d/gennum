@@ -1,2 +1,0 @@
-../../../tools/genmc --pat="(\d+)" --fps=5 --dfps=20 --scale=1 --width=1024 --height=4096 --out=num --name=main num
-../../../tools/demc ./ num ./output

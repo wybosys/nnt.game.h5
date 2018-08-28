@@ -1,7 +1,0 @@
-
-message MessageReq {
-    required string text = 1;
-}
-message MessageRsp {
-	required string text = 1;
-}
