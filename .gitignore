@@ -10,3 +10,4 @@ default\.*
 ^~
 ~*
 .idea
+node_modules
