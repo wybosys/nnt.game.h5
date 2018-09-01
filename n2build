@@ -54,7 +54,7 @@ if not os.path.isdir('.n2~'):
 
 def usage():
     print("""
-    n2build <-ht> <debug|publish|config|dpack|api file> \n
+    n2build <-ht> <debug|publish|config|api file> \n
     -h 帮助
     -t 不启动service
     debug \t 调试模式，默认
@@ -62,7 +62,6 @@ def usage():
     dist <debug> \t 打包模式，除了publish的功能，额外会把publish/resource的目录压缩一遍
     clean \t 清空
     config \t 使用引导来配置当前项目
-    dpack \t diff-package 增量打包项目版本    
     service <list|stop> \t 控制n2build的服务
     genres \t 生成res.json文件
     pubres \t 发布resource到publish中
@@ -576,7 +575,7 @@ def buildrelease():
         elif file.startswith('js/default.thm_'):
             # 修正编译皮肤编译错的属性
             content = readfile('bin-release/web/' + dir + '/' + file)
-            content = PATTERN_IMAGESOURCE.sub('imageSource = "\g<1>";', content)
+            content = PATTERN_IMAGESOURCE.sub(r'imageSource = "\g<1>";', content)
             gamejs.append(content)
         else:
             gamejs.append(readfile('bin-release/web/' + dir + '/' + file))
@@ -670,7 +669,7 @@ def explorer(path):
     subprocess.getstatusoutput("terminal-notifier -title N2BUILD -sound default -message 发布成功 " + "-execute \"open " + path + "\"")
 
 def egret_cmd(cmd):
-    s, ot = subprocess.getstatusoutput('egret ' + cmd)
+    _, ot = subprocess.getstatusoutput('egret ' + cmd)
     return ot
 
 # 运行守护进程
@@ -772,7 +771,7 @@ RESMAKER_BLACKS = [
     re.compile(r'\.swf$'),
     re.compile(r'\.fla$'),
     re.compile(r'^\.')
-];
+]
 
 def resmaker_buildmod(dir):
     files = listfiles(dir, blacklist=RESMAKER_BLACKS)
@@ -834,8 +833,8 @@ def egretfileinfo(file):
     if '_automerged_' in name:
         if sp[1] == 'png':
             return None
-        name = sp[0] + '_json';
-        type = 'sheet';
+        name = sp[0] + '_json'
+        type = 'sheet'
         # 读取subkeys
         jsobj = json.loads(readfile(file))
         frmobjs = jsobj['frames']
@@ -1157,9 +1156,6 @@ def main():
     if 'config' in args:
         makeconfig(True)
         return
-    if 'dpack' in args:
-        dpack()
-        return
     if 'clean' in args:
         clean()
         return
@@ -1449,56 +1445,6 @@ def clean():
         os.unlink('.n2~/dist.db')
     if os.path.isdir('.n2~/dist'):
         shutil.rmtree('.n2~/dist')
-
-def pack(file, srcs, sumdb):
-    fdiff = open('.n2~/packdiff', 'w')
-    fdiff.write('Ver:\nComments:\n#\n')
-    with zipfile.ZipFile(file, 'w', zipfile.ZIP_DEFLATED) as f:
-        for each in srcs:
-            # 计算并比较sum
-            tsum = hashfile(each)
-            if each in sumdb:
-                dsum = sumdb[each]
-            else:
-                dsum = -1
-            # 如果sum不一样，则代表是diff，需要提取出来
-            if tsum != dsum:
-                sumdb[each] = tsum
-                fn = each.replace('publish/', '')
-                fdiff.write(fn + ' ' + str(tsum) + '\n')
-                f.write(each, 'game/' + fn)
-        sumdb.close()
-        fdiff.close()
-        f.write('.n2~/packsums', 'package.sum')
-        f.write('.n2~/packdiff', 'game/readme.txt')
-        os.unlink('.n2~/packdiff')
-            
-# 增量打包
-def dpack():
-    # 每次打包均以当前日期为准(规约到日)，YYMMdd{id}.zip，id为今天打包的自增id，以当前文件夹中存在的文件为准
-    # 该文件的内容为和上次打包的做比较，上次打包的文件会生成一个 package.sum 插入到zip包中，比较时均通过比较sum来判断是否改变
-    fn = datetime.date.today().strftime('%y%m%d')
-    srcfiles = ['publish/index.html', 'publish/main.min.js'] #全文件列表
-    listfiles('publish/libs', srcfiles)
-    listfiles('publish/resource', srcfiles)
-    # 查找最近一次打包的信息
-    zips = filter(lambda f:re.compile(r'\d+.zip').match(f), os.listdir('publish'))
-    if len(zips) > 0:
-        zips.sort()
-        zf = zips[len(zips) - 1]
-        with zipfile.ZipFile('publish/' + zf, 'r') as f:
-            open('.n2~/packsums', 'w').write(f.read('package.sum'))
-        if zf.startswith(fn):
-            id = int(zf[-6:-4]) + 1
-            fn += '{0:2}'.format(id).replace(' ', '0')
-        else:
-            fn += '00'
-    else:
-        fn += '00'
-    sumdb = shelve.open('.n2~/packsums')
-    pack('publish/' + fn + '.zip', srcfiles, sumdb)
-    os.unlink('.n2~/packsums')
-    print('生成 ' + 'publish/' + fn + '.zip')
 
 # ------------------------------- 自动合并图片 ---------------------------------
 PATTERN_FILENAME_EXT = re.compile(r'(.+)\.(.+)')
