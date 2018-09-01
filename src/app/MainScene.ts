@@ -11,10 +11,10 @@ module app {
     interface IMainScene
     {
         //slot {
-        _actEcho(s?:nn.Slot);
-        _actTouchMoved(s?:nn.Slot);
         _actOpenLink(s?:nn.Slot);
         _actEnter(s?:nn.Slot);
+        _actTouchMoved(s?:nn.Slot);
+        _actEcho(s?:nn.Slot);
         //slot }
     }
 

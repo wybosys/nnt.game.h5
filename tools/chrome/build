@@ -1,4 +1,0 @@
-tsc -t ES6 service.ts
-tsc -t ES6 injected.ts
-tsc -t ES6 content.ts
-tsc -t ES6 background.ts
