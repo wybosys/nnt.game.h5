@@ -320,6 +320,9 @@ namespace nn.logic {
                     case -858:
                         log("服务器关闭");
                         break;
+                    case -4:
+                        log("多端登录");
+                        break;
                 }
                 return;
             }
