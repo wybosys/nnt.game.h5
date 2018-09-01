@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "watch": "^1.0.2"
+    "commander": "^2.17.1",
+    "sharpkit": "^10.20.2",
+    "watch": "^1.0.2",
+    "xlsx": "^0.13.5"
   }
 }
