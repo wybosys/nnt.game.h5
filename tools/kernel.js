@@ -6,6 +6,7 @@ const fs = require("fs");
 const crypto = require("crypto");
 const ini = require("ini");
 const inquirer = require("inquirer");
+const nodedir = require("node-dir");
 class EmbededKv {
     constructor(file) {
         let adapter = new lowdbFileSync(file);
@@ -70,6 +71,89 @@ function MD5(str) {
     return hdl.digest().toString("base64");
 }
 exports.MD5 = MD5;
-class IpcLocker {
+// 列出文件夹下所有文件，黑名单为rex
+function ListFiles(dir, rets = null, blacklist = null, whitelist = null, depth = 1) {
+    if (rets == null)
+        rets = new Array();
+    if (depth == 0)
+        return rets;
+    else if (depth != -1)
+        depth -= 1;
+    if (!fs.statSync(dir).isDirectory())
+        return rets;
+    nodedir.files(dir, (err, files) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        files.forEach(file => {
+            let full = dir + '/' + file;
+            // 黑名单过滤
+            let fnd = blacklist && blacklist.some(e => {
+                return full.match(e) != null;
+            });
+            if (fnd)
+                return;
+            // 白名单匹配
+            if (whitelist) {
+                fnd = whitelist.some(e => {
+                    return full.match(e) != null;
+                });
+                if (!fnd)
+                    return;
+            }
+            // 找到一个符合规则的
+            rets.push(full);
+        });
+    });
+    // 处理子目录
+    nodedir.subdirs(dir, (err, subdirs) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        subdirs.forEach(subdir => {
+            ListFiles(dir + '/' + subdir, rets, blacklist, whitelist, depth);
+        });
+    });
+    return rets;
 }
-exports.IpcLocker = IpcLocker;
+exports.ListFiles = ListFiles;
+function ListDirs(dir, rets = null, blacklist = null, whitelist = null, depth = 1) {
+    if (rets == null)
+        rets = new Array();
+    if (depth == 0)
+        return rets;
+    else if (depth != -1)
+        depth -= 1;
+    if (!fs.statSync(dir).isDirectory())
+        return rets;
+    nodedir.subdirs(dir, (err, subdirs) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        subdirs.forEach(subdir => {
+            let full = dir + '/' + subdir;
+            // 黑名单过滤
+            let fnd = blacklist && blacklist.some(e => {
+                return full.match(e) != null;
+            });
+            if (fnd)
+                return;
+            // 白名单匹配
+            if (whitelist) {
+                fnd = whitelist.some(e => {
+                    return full.match(e) != null;
+                });
+                if (!fnd)
+                    return;
+            }
+            // 找到一个符合规则的
+            rets.push(full);
+            ListDirs(full, rets, blacklist, whitelist, depth);
+        });
+    });
+    return rets;
+}
+exports.ListDirs = ListDirs;
