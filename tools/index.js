@@ -1,5 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
-const commander = require("commander");
+const program = require("commander");
 const fs = require("fs");
 const kernel_1 = require("./kernel");
 function main() {
@@ -8,9 +8,8 @@ function main() {
     // 建立代码执行目录
     if (!fs.existsSync(kernel_1.Env.CWD + "/.n2~"))
         fs.mkdirSync(kernel_1.Env.CWD + "/.n2~");
-    commander
+    program
         .version("1.0.0")
         .parse(process.argv);
-    commander.command('xxx', 'fdafdasf');
 }
 main();
