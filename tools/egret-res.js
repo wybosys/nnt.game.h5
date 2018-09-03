@@ -63,6 +63,7 @@ class EgretResource extends resource_1.Resource {
         fs.copySync("resource", "publish/resource");
         if (game_1.Game.shared.config.get('dev', 'automerge') == 'y') {
             console.log("自动合并");
+            this.refreshIn('publish/');
         }
         return true;
     }
