@@ -15,29 +15,31 @@ const GENRES_BLACKS = RESMAKER_BLACKS.concat(/\.d\/|\.d$/);
 const AUTOMERGE_BLACKS = GENRES_BLACKS.concat(/\.g\/|\.g$/);
 
 export class EgretResource extends Resource {
-    static ASSETS = "resource/assets/";
-    static FILE = "resource/default.res.json";
 
     async refresh(): Promise<boolean> {
+        return this.refreshIn('');
+    }
+
+    protected async refreshIn(dir: string): Promise<boolean> {
         // 遍历所有的子文件，找出png\jpg\json，生成default.res.json文件并生成对应的group
         let jsobj = {
             'groups': new Array<{ name: string, keys: string }>(),
             'resources': new Array<{ url: string, name: string, type: string, subkeys: string }>()
         };
         // 第一级的资源为不加入group中的
-        ListFiles(EgretResource.ASSETS, null, GENRES_BLACKS, null, 1).forEach(file => {
+        ListFiles(dir + 'resource/assets', null, GENRES_BLACKS, null, 1).forEach(file => {
             let info = new EgretFileInfo();
             if (!info.parse(file))
                 return;
             jsobj.resources.push({
-                url: file.replace('resource/', ''),
+                url: file.replace(dir + 'resource/', ''),
                 name: info.name,
                 type: info.type,
                 subkeys: info.subkeys
             });
         });
         // 处理其他2级资源
-        ListDirs(EgretResource.ASSETS, null, GENRES_BLACKS, null, 2).forEach(subdir => {
+        ListDirs(dir + 'resource/assets', null, GENRES_BLACKS, null, 2).forEach(subdir => {
             let keys = new Array<string>();
             ListFiles(subdir, null, GENRES_BLACKS, null, 1).forEach(file => {
                 let info = new EgretFileInfo();
@@ -45,18 +47,18 @@ export class EgretResource extends Resource {
                     return;
                 keys.push(info.name);
                 jsobj.resources.push({
-                    url: file.replace('resource/', ''),
+                    url: file.replace(dir + 'resource/', ''),
                     name: info.name,
                     type: info.type,
                     subkeys: info.subkeys
                 });
             });
             jsobj.groups.push({
-                name: subdir.replace('resource/', ''),
+                name: subdir.replace(dir + 'resource/', ''),
                 keys: keys.join(',')
             });
         });
-        fs.writeJSONSync(EgretResource.FILE, jsobj);
+        fs.writeJSONSync(dir + 'resource/default.res.json', jsobj);
         return true;
     }
 
