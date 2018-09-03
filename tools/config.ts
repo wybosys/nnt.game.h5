@@ -17,7 +17,7 @@ export class Config {
     }
 
     // 通过引导建立配置信息
-    protected async make() {
+    async make() {
         let arr = [['app', 'name', '游戏名称'],
             ['app', 'icon', 'ICON的路径'],
             ['app', 'background', '背景'],

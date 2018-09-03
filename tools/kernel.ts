@@ -56,7 +56,7 @@ export class Ini {
     }
 
     save() {
-        fs.writeFileSync(ini.stringify(this._config), "utf-8");
+        fs.writeFileSync(this._file, ini.stringify(this._config), "utf-8");
     }
 
     private _config: any;
@@ -68,7 +68,9 @@ export function UUID(): string {
 }
 
 export async function CliInput(msg: string): Promise<string> {
-    return inquirer.prompt<string>({message: msg, default: null});
+    let r: any = await inquirer.prompt<string>({name: "wait", message: msg});
+    let v = r["wait"];
+    return v == '' ? null : v;
 }
 
 // 通过文件修改记录来快速生成文件的hash

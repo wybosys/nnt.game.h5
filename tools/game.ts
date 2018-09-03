@@ -1,6 +1,7 @@
 import {Config} from "./config";
 import {Gendata} from "./gendata";
 import {Service} from "./service";
+import program = require("commander");
 
 export abstract class Game {
 
@@ -8,6 +9,11 @@ export abstract class Game {
     clean() {
         this.config.clean();
         this.gendata.clean();
+    }
+
+    // 添加命令
+    commands(program: program.Command) {
+        // pass
     }
 
     // 游戏配置

@@ -44,7 +44,7 @@ class Ini {
         this._config[section][key] = value;
     }
     save() {
-        fs.writeFileSync(ini.stringify(this._config), "utf-8");
+        fs.writeFileSync(this._file, ini.stringify(this._config), "utf-8");
     }
 }
 exports.Ini = Ini;
@@ -53,7 +53,9 @@ function UUID() {
 }
 exports.UUID = UUID;
 async function CliInput(msg) {
-    return inquirer.prompt({ message: msg, default: null });
+    let r = await inquirer.prompt({ name: "wait", message: msg });
+    let v = r["wait"];
+    return v == '' ? null : v;
 }
 exports.CliInput = CliInput;
 // 通过文件修改记录来快速生成文件的hash

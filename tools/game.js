@@ -5,5 +5,9 @@ class Game {
         this.config.clean();
         this.gendata.clean();
     }
+    // 添加命令
+    commands(program) {
+        // pass
+    }
 }
 exports.Game = Game;

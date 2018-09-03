@@ -37,6 +37,13 @@ function main() {
         });
 
     program
+        .command("config")
+        .description("更新配置文件")
+        .action(() => {
+            game.config.make();
+        });
+
+    program
         .command("service [stop|list]")
         .description("控制编译环境启动的服务")
         .action((act) => {
@@ -45,6 +52,9 @@ function main() {
             else if (act == "list")
                 console.log(game.service.all());
         });
+
+    // 添加程序命令
+    game.commands(program);
 
     program
         .version("1.0.0")
