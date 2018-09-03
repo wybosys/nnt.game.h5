@@ -53,6 +53,18 @@ function main() {
                 console.log(game.service.all());
         });
 
+    program
+        .command("res <up|pub|dist>")
+        .description("项目资源控制")
+        .action((act) => {
+            if (act == "pub")
+                game.resource.publish();
+            else if (act == "dist")
+                game.resource.dist();
+            else
+                game.resource.refresh();
+        });
+
     // 添加程序命令
     game.commands(program);
 
