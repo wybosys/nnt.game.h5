@@ -9,6 +9,6 @@ export class EgretGame extends Game {
 
         // 清除egret的中间文件
         if (fs.existsSync("bin-debug"))
-            del.sync("bin-debug/**");
+            del.sync("bin-debug");
     }
 }
