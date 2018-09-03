@@ -18,12 +18,11 @@ class EgretGame extends game_1.Game {
     clean() {
         super.clean();
         // 清除egret的中间文件
-        if (fs.existsSync("bin-debug"))
-            fs.removeSync("bin-debug");
-        if (fs.existsSync("libs"))
-            fs.removeSync("libs");
-        if (fs.existsSync(".n2~/dist"))
-            fs.removeSync(".n2~/dist");
+        fs.removeSync("bin-debug");
+        fs.removeSync("libs");
+        fs.removeSync(".n2~/dist");
+        fs.removeSync("dist");
+        fs.removeSync("publish");
     }
 }
 exports.EgretGame = EgretGame;
