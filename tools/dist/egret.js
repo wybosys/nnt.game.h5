@@ -41,6 +41,11 @@ class EgretConfig extends config_1.Config {
     }
 }
 class EgretResource extends resource_1.Resource {
+    constructor() {
+        super(...arguments);
+        this.assets = "resource/assets/";
+        this.file = "resource/default.res.json";
+    }
     async refresh() {
         return true;
     }

@@ -46,6 +46,9 @@ class EgretConfig extends Config {
 }
 
 class EgretResource extends Resource {
+    assets = "resource/assets/";
+    file = "resource/default.res.json";
+
     async refresh(): Promise<boolean> {
         return true;
     }
