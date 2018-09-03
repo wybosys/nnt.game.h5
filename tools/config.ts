@@ -16,6 +16,10 @@ export class Config {
             fs.unlinkSync(".n2~/build");
     }
 
+    get(sec: string, key: string): any {
+        return this._cfg.get(sec, key, null);
+    }
+
     // 通过引导建立配置信息
     async make() {
         let arr = [['app', 'name', '游戏名称'],
