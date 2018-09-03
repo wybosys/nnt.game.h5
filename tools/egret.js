@@ -90,6 +90,9 @@ class EgretResource extends resource_1.Resource {
         return true;
     }
     async publish() {
+        fs.removeSync("publish");
+        console.log("拷贝资源");
+        fs.copySync("resource", "publish/resource");
         return true;
     }
     async dist() {
