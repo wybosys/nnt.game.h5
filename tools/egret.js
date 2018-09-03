@@ -3,6 +3,7 @@ const game_1 = require("./game");
 const config_1 = require("./config");
 const gendata_1 = require("./gendata");
 const kernel_1 = require("./kernel");
+const service_1 = require("./service");
 const fs = require("fs");
 const del = require("del");
 class EgretConfig extends config_1.Config {
@@ -23,6 +24,7 @@ class EgretGame extends game_1.Game {
         super();
         this.config = new EgretConfig();
         this.gendata = new gendata_1.Gendata();
+        this.service = new service_1.Service();
     }
     clean() {
         super.clean();

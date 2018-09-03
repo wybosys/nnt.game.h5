@@ -2,6 +2,7 @@ import {Game} from "./game";
 import {Config} from "./config";
 import {Gendata} from "./gendata";
 import {SimpleHashFile} from "./kernel";
+import {Service} from "./service";
 import fs = require("fs");
 import del = require("del");
 
@@ -26,6 +27,7 @@ export class EgretGame extends Game {
         super();
         this.config = new EgretConfig();
         this.gendata = new Gendata();
+        this.service = new Service();
     }
 
     clean() {

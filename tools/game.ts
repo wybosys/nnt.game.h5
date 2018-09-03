@@ -1,5 +1,6 @@
 import {Config} from "./config";
 import {Gendata} from "./gendata";
+import {Service} from "./service";
 
 export abstract class Game {
 
@@ -14,4 +15,7 @@ export abstract class Game {
 
     // 配表生成器
     gendata: Gendata;
+
+    // 服务管理
+    service: Service;
 }

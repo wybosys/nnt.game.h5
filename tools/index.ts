@@ -20,10 +20,30 @@ function main() {
         game = new EgretGame();
 
     program
+        .option("-t, --test", "不开服务运行");
+
+    program
         .command("clean")
         .description("清理项目")
         .action(() => {
             game.clean();
+        });
+
+    program
+        .command("build")
+        .description("编译项目")
+        .action(() => {
+
+        });
+
+    program
+        .command("service [stop|list]")
+        .description("控制编译环境启动的服务")
+        .action((act) => {
+            if (act == "stop")
+                game.service.stop();
+            else if (act == "list")
+                console.log(game.service.all());
         });
 
     program
