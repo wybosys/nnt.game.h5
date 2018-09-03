@@ -86,7 +86,7 @@ class EgretResource extends resource_1.Resource {
                 keys: keys.join(',')
             });
         });
-        console.log(jsobj);
+        fs.writeJSONSync(EgretResource.FILE, jsobj);
         return true;
     }
     async publish() {
