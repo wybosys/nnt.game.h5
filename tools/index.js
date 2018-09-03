@@ -60,3 +60,4 @@ function main() {
         .parse(process.argv);
 }
 main();
+//# sourceMappingURL=index.js.map

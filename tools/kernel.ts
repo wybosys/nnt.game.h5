@@ -1,7 +1,7 @@
 import lowdb = require("lowdb");
 import lowdbFileSync = require("lowdb/adapters/FileSync");
 import uuidv4 = require('uuid/v4');
-import fs = require("fs");
+import fs = require("fs-extra");
 import crypto = require("crypto");
 import ini = require("ini");
 import inquirer = require("inquirer");
@@ -83,6 +83,28 @@ export function SimpleHashFile(file: string): string {
 export function MD5(str: string): string {
     let hdl = crypto.createHash('md5').update(str);
     return hdl.digest().toString("base64");
+}
+
+export function IsFile(path: string): boolean {
+    let r = false;
+    try {
+        let st = fs.statSync(path);
+        r = st.isFile();
+    } catch (e) {
+        // pass
+    }
+    return r;
+}
+
+export function IsDirectory(path: string): boolean {
+    let r = false;
+    try {
+        let st = fs.statSync(path);
+        r = st.isDirectory();
+    } catch (e) {
+        // pass
+    }
+    return r;
 }
 
 // 列出文件夹下所有文件，黑名单为rex

@@ -7,7 +7,8 @@
         "experimentalDecorators": true,
         "noImplicitAny": true,
         "noImplicitUseStrict": true,
-        "noImplicitReturns": true
+        "noImplicitReturns": true,
+        "sourceMap": true
     },
     "include": [
         "*.ts"

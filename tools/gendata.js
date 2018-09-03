@@ -7,3 +7,4 @@ class Gendata {
     }
 }
 exports.Gendata = Gendata;
+//# sourceMappingURL=gendata.js.map

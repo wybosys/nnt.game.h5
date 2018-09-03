@@ -2,7 +2,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const lowdb = require("lowdb");
 const lowdbFileSync = require("lowdb/adapters/FileSync");
 const uuidv4 = require("uuid/v4");
-const fs = require("fs");
+const fs = require("fs-extra");
 const crypto = require("crypto");
 const ini = require("ini");
 const inquirer = require("inquirer");
@@ -70,6 +70,30 @@ function MD5(str) {
     return hdl.digest().toString("base64");
 }
 exports.MD5 = MD5;
+function IsFile(path) {
+    let r = false;
+    try {
+        let st = fs.statSync(path);
+        r = st.isFile();
+    }
+    catch (e) {
+        // pass
+    }
+    return r;
+}
+exports.IsFile = IsFile;
+function IsDirectory(path) {
+    let r = false;
+    try {
+        let st = fs.statSync(path);
+        r = st.isDirectory();
+    }
+    catch (e) {
+        // pass
+    }
+    return r;
+}
+exports.IsDirectory = IsDirectory;
 // 列出文件夹下所有文件，黑名单为rex
 function ListFiles(dir, rets = null, blacklist = null, whitelist = null, depth = 1) {
     if (rets == null)
@@ -147,3 +171,4 @@ function ListDirs(dir, rets = null, blacklist = null, whitelist = null, depth = 
     return rets;
 }
 exports.ListDirs = ListDirs;
+//# sourceMappingURL=kernel.js.map
