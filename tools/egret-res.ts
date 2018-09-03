@@ -13,6 +13,7 @@ const RESMAKER_BLACKS = [
 
 const GENRES_BLACKS = RESMAKER_BLACKS.concat(/\.d\/|\.d$/);
 const AUTOMERGE_BLACKS = GENRES_BLACKS.concat(/\.g\/|\.g$/);
+const IMAGE_EXTS = ['jpeg', 'jpg', 'png']
 
 export class EgretResource extends Resource {
 
