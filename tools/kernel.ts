@@ -3,6 +3,10 @@ import lowdbFileSync = require("lowdb/adapters/FileSync");
 import uuidv4 = require('uuid/v4');
 import fs = require("fs");
 import crypto = require("crypto");
+import ini = require("ini");
+import inquirer = require("inquirer");
+
+export type IndexedObject = { [key: string]: any };
 
 export class EmbededKv {
 
@@ -23,11 +27,48 @@ export class EmbededKv {
         this._db.set(key, value).write();
     }
 
-    protected _db: any;
+    private _db: any;
+}
+
+export class Ini {
+
+    constructor(file: string) {
+        this._file = file;
+        if (fs.existsSync(file))
+            this._config = ini.parse(fs.readFileSync(file, "utf-8"));
+        else
+            this._config = Object.create(null);
+    }
+
+    get(section: string, key: string, def: any = undefined): any {
+        if (section in this._config) {
+            let obj = this._config[section];
+            return obj[key];
+        }
+        return def;
+    }
+
+    set(section: string, key: string, value: any) {
+        if (!(section in this._config)) {
+            this._config[section] = Object.create(null);
+        }
+        this._config[section][key] = value;
+    }
+
+    save() {
+        fs.writeFileSync(ini.stringify(this._config), "utf-8");
+    }
+
+    private _config: any;
+    private _file: string;
 }
 
 export function UUID(): string {
     return uuidv4().replace(/-/g, "");
+}
+
+export async function CliInput(msg: string): Promise<string> {
+    return inquirer.prompt<string>({message: msg, default: null});
 }
 
 // 通过文件修改记录来快速生成文件的hash
