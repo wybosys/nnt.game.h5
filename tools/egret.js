@@ -39,13 +39,25 @@ class EgretConfig extends config_1.Config {
         return r;
     }
 }
+const RESMAKER_BLACKS = [
+    /module\.res\.json$/,
+    /\.swf$/,
+    /\.fla$/,
+    /^\./
+];
+const GENRES_BLACKS = RESMAKER_BLACKS.concat(/\.d\/|\.d$/);
 class EgretResource extends resource_1.Resource {
-    constructor() {
-        super(...arguments);
-        this.assets = "resource/assets/";
-        this.file = "resource/default.res.json";
-    }
     async refresh() {
+        // 遍历所有的子文件，找出png\jpg\json，生成default.res.json文件并生成对应的group
+        let jsobj = { 'groups': [], 'resources': [] };
+        // 第一级的资源为不加入group中的
+        kernel_1.ListFiles(EgretResource.ASSETS, null, GENRES_BLACKS, null, 1).forEach(file => {
+            console.log(file);
+        });
+        // 处理其他级别的资源
+        kernel_1.ListDirs(EgretResource.ASSETS, null, GENRES_BLACKS, null, 2).forEach(subdir => {
+            console.log(subdir);
+        });
         return true;
     }
     async publish() {
@@ -55,3 +67,5 @@ class EgretResource extends resource_1.Resource {
         return true;
     }
 }
+EgretResource.ASSETS = "resource/assets/";
+EgretResource.FILE = "resource/default.res.json";

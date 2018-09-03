@@ -1,7 +1,7 @@
 import {Game} from "./game";
 import {Config} from "./config";
 import {Gendata} from "./gendata";
-import {SimpleHashFile} from "./kernel";
+import {IndexedObject, ListDirs, ListFiles, SimpleHashFile} from "./kernel";
 import {Service} from "./service";
 import {Resource} from "./resource";
 import fs = require("fs-extra");
@@ -44,11 +44,30 @@ class EgretConfig extends Config {
     }
 }
 
+const RESMAKER_BLACKS = [
+    /module\.res\.json$/,
+    /\.swf$/,
+    /\.fla$/,
+    /^\./
+];
+
+const GENRES_BLACKS = RESMAKER_BLACKS.concat(/\.d\/|\.d$/);
+
 class EgretResource extends Resource {
-    assets = "resource/assets/";
-    file = "resource/default.res.json";
+    static ASSETS = "resource/assets/";
+    static FILE = "resource/default.res.json";
 
     async refresh(): Promise<boolean> {
+        // 遍历所有的子文件，找出png\jpg\json，生成default.res.json文件并生成对应的group
+        let jsobj: IndexedObject = {'groups': [], 'resources': []};
+        // 第一级的资源为不加入group中的
+        ListFiles(EgretResource.ASSETS, null, GENRES_BLACKS, null, 1).forEach(file => {
+            console.log(file);
+        });
+        // 处理其他级别的资源
+        ListDirs(EgretResource.ASSETS, null, GENRES_BLACKS, null, 2).forEach(subdir => {
+            console.log(subdir);
+        });
         return true;
     }
 

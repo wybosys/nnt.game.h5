@@ -5,7 +5,6 @@ import fs = require("fs");
 import crypto = require("crypto");
 import ini = require("ini");
 import inquirer = require("inquirer");
-import nodedir = require("node-dir");
 
 export type IndexedObject = { [key: string]: any };
 
@@ -96,40 +95,32 @@ export function ListFiles(dir: string, rets: string[] = null, blacklist: RegExp[
         depth -= 1;
     if (!fs.statSync(dir).isDirectory())
         return rets;
-    nodedir.files(dir, (err, files) => {
-        if (err) {
-            console.log(err);
-            return;
+    if (!dir.endsWith('/'))
+        dir += '/';
+    fs.readdirSync(dir).forEach(entry => {
+        let full = dir + entry;
+        let stat = fs.statSync(full);
+        if (stat.isDirectory()) {
+            ListFiles(full, rets, blacklist, whitelist, depth);
         }
-        files.forEach(file => {
-            let full = dir + '/' + file;
+        else if (stat.isFile()) {
             // 黑名单过滤
             let fnd = blacklist && blacklist.some(e => {
-                return full.match(e) != null;
+                return entry.match(e) != null;
             });
             if (fnd)
                 return;
             // 白名单匹配
             if (whitelist) {
                 fnd = whitelist.some(e => {
-                    return full.match(e) != null;
+                    return entry.match(e) != null;
                 });
                 if (!fnd)
                     return;
             }
             // 找到一个符合规则的
             rets.push(full);
-        })
-    });
-    // 处理子目录
-    nodedir.subdirs(dir, (err, subdirs) => {
-        if (err) {
-            console.log(err);
-            return;
         }
-        subdirs.forEach(subdir => {
-            ListFiles(dir + '/' + subdir, rets, blacklist, whitelist, depth);
-        });
     });
     return rets;
 }
@@ -143,23 +134,22 @@ export function ListDirs(dir: string, rets: string[] = null, blacklist: RegExp[]
         depth -= 1;
     if (!fs.statSync(dir).isDirectory())
         return rets;
-    nodedir.subdirs(dir, (err, subdirs) => {
-        if (err) {
-            console.log(err);
-            return;
-        }
-        subdirs.forEach(subdir => {
-            let full = dir + '/' + subdir;
+    if (!dir.endsWith('/'))
+        dir += '/';
+    fs.readdirSync(dir).forEach(entry => {
+        let full = dir + entry;
+        let stat = fs.statSync(full);
+        if (stat.isDirectory()) {
             // 黑名单过滤
             let fnd = blacklist && blacklist.some(e => {
-                return full.match(e) != null;
+                return entry.match(e) != null;
             });
             if (fnd)
                 return;
             // 白名单匹配
             if (whitelist) {
                 fnd = whitelist.some(e => {
-                    return full.match(e) != null;
+                    return entry.match(e) != null;
                 });
                 if (!fnd)
                     return;
@@ -167,7 +157,7 @@ export function ListDirs(dir: string, rets: string[] = null, blacklist: RegExp[]
             // 找到一个符合规则的
             rets.push(full);
             ListDirs(full, rets, blacklist, whitelist, depth);
-        })
+        }
     });
     return rets;
 }
