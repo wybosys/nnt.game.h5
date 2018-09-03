@@ -13,6 +13,9 @@ class Config {
         if (fs.existsSync(".n2~/build"))
             fs.unlinkSync(".n2~/build");
     }
+    get(sec, key) {
+        return this._cfg.get(sec, key, null);
+    }
     // 通过引导建立配置信息
     async make() {
         let arr = [['app', 'name', '游戏名称'],
