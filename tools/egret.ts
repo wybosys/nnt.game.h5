@@ -7,10 +7,8 @@ export class EgretGame extends Game {
     clean() {
         super.clean();
 
-        /*
         // 清除egret的中间文件
         if (fs.existsSync("bin-debug"))
             del.sync("bin-debug/**");
-            */
     }
 }
