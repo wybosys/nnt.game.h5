@@ -1,5 +1,7 @@
-let CWD = process.cwd();
+export class Env {
+    static CWD = process.cwd();
+}
 
-class IpcLocker {
+export class IpcLocker {
 
 }
