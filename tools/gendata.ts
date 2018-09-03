@@ -1,9 +1,8 @@
-import fs = require("fs");
-import del = require("del");
+import fs = require("fs-extra");
 
 export class Gendata {
     clean() {
         if (fs.existsSync("src/app/~tsc"))
-            del.sync("src/app/~tsc");
+            fs.removeSync("src/app/~tsc");
     }
 }

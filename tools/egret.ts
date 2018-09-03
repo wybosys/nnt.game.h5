@@ -4,8 +4,7 @@ import {Gendata} from "./gendata";
 import {SimpleHashFile} from "./kernel";
 import {Service} from "./service";
 import {Resource} from "./resource";
-import fs = require("fs");
-import del = require("del");
+import fs = require("fs-extra");
 
 export class EgretGame extends Game {
 
@@ -22,11 +21,11 @@ export class EgretGame extends Game {
 
         // 清除egret的中间文件
         if (fs.existsSync("bin-debug"))
-            del.sync("bin-debug");
+            fs.removeSync("bin-debug");
         if (fs.existsSync("libs"))
-            del.sync("libs");
+            fs.removeSync("libs");
         if (fs.existsSync(".n2~/dist"))
-            del.sync(".n2~/dist");
+            fs.removeSync(".n2~/dist");
     }
 }
 
