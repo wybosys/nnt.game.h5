@@ -6,6 +6,18 @@ import {Service} from "./service";
 import {EgretResource} from "./egret-res";
 import fs = require("fs-extra");
 
+export const RESMAKER_BLACKS = [
+    /module\.res\.json$/,
+    /\.swf$/,
+    /\.fla$/,
+    /^\./
+];
+
+export const GENRES_BLACKS = RESMAKER_BLACKS.concat(/\.d\/|\.d$/);
+
+export const AUTOMERGE_BLACKS = GENRES_BLACKS.concat(/\.g\/|\.g$/);
+export const IMAGE_EXTS = ['.jpeg', '.jpg', '.png'];
+
 export class EgretGame extends Game {
 
     constructor() {

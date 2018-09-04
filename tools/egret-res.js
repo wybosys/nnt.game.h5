@@ -2,17 +2,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const game_1 = require("./game");
 const kernel_1 = require("./kernel");
 const resource_1 = require("./resource");
+const egret_1 = require("./egret");
 const fs = require("fs-extra");
 const path = require("path");
-const RESMAKER_BLACKS = [
-    /module\.res\.json$/,
-    /\.swf$/,
-    /\.fla$/,
-    /^\./
-];
-const GENRES_BLACKS = RESMAKER_BLACKS.concat(/\.d\/|\.d$/);
-const AUTOMERGE_BLACKS = GENRES_BLACKS.concat(/\.g\/|\.g$/);
-const IMAGE_EXTS = ['jpeg', 'jpg', 'png'];
 class EgretResource extends resource_1.Resource {
     async refresh() {
         return this.refreshIn('');
@@ -24,7 +16,7 @@ class EgretResource extends resource_1.Resource {
             'resources': new Array()
         };
         // 第一级的资源为不加入group中的
-        kernel_1.ListFiles(dir + 'resource/assets', null, GENRES_BLACKS, null, 1).forEach(file => {
+        kernel_1.ListFiles(dir + 'resource/assets', null, egret_1.GENRES_BLACKS, null, 1).forEach(file => {
             let info = new EgretFileInfo();
             if (!info.parse(file))
                 return;
@@ -36,9 +28,9 @@ class EgretResource extends resource_1.Resource {
             });
         });
         // 处理其他2级资源
-        kernel_1.ListDirs(dir + 'resource/assets', null, GENRES_BLACKS, null, 2).forEach(subdir => {
+        kernel_1.ListDirs(dir + 'resource/assets', null, egret_1.GENRES_BLACKS, null, 2).forEach(subdir => {
             let keys = new Array();
-            kernel_1.ListFiles(subdir, null, GENRES_BLACKS, null, 1).forEach(file => {
+            kernel_1.ListFiles(subdir, null, egret_1.GENRES_BLACKS, null, 1).forEach(file => {
                 let info = new EgretFileInfo();
                 if (!info.parse(file))
                     return;
@@ -64,7 +56,10 @@ class EgretResource extends resource_1.Resource {
         fs.copySync("resource", "publish/resource");
         if (game_1.Game.shared.config.get('dev', 'automerge') == 'y') {
             console.log("自动合并");
-            this.refreshIn('publish/');
+            kernel_1.ListDirs("publish/resource/assets", null, egret_1.AUTOMERGE_BLACKS, null, 2).forEach(subdir => {
+                console.log(subdir);
+            });
+            //this.refreshIn('publish/');
         }
         return true;
     }

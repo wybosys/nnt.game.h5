@@ -171,4 +171,53 @@ function ListDirs(dir, rets = null, blacklist = null, whitelist = null, depth = 
     return rets;
 }
 exports.ListDirs = ListDirs;
+class ArrayT {
+    /** 使用筛选器来删除对象 */
+    static RemoveObjectByFilter(arr, filter, ctx) {
+        if (arr) {
+            for (let i = 0; i < arr.length; ++i) {
+                let e = arr[i];
+                if (filter.call(ctx, e, i)) {
+                    arr.splice(i, 1);
+                    return e;
+                }
+            }
+        }
+        return null;
+    }
+    static RemoveObjectsByFilter(arr, filter, ctx) {
+        let r = new Array();
+        if (!arr)
+            return r;
+        let res = arr.filter((o, idx) => {
+            if (filter.call(ctx, o, idx)) {
+                r.push(o);
+                return false;
+            }
+            return true;
+        }, this);
+        if (arr.length == res.length)
+            return r;
+        ArrayT.Set(arr, res);
+        return r;
+    }
+    /** 使用另一个数组来填充当前数组 */
+    static Set(arr, r) {
+        arr.length = 0;
+        r.forEach((o) => {
+            arr.push(o);
+        }, this);
+    }
+    /** 删除一个对象 */
+    static RemoveObject(arr, obj) {
+        if (obj == null || arr == null)
+            return false;
+        let idx = arr.indexOf(obj);
+        if (idx == -1)
+            return false;
+        arr.splice(idx, 1);
+        return true;
+    }
+}
+exports.ArrayT = ArrayT;
 //# sourceMappingURL=kernel.js.map

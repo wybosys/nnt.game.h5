@@ -6,6 +6,15 @@ const kernel_1 = require("./kernel");
 const service_1 = require("./service");
 const egret_res_1 = require("./egret-res");
 const fs = require("fs-extra");
+exports.RESMAKER_BLACKS = [
+    /module\.res\.json$/,
+    /\.swf$/,
+    /\.fla$/,
+    /^\./
+];
+exports.GENRES_BLACKS = exports.RESMAKER_BLACKS.concat(/\.d\/|\.d$/);
+exports.AUTOMERGE_BLACKS = exports.GENRES_BLACKS.concat(/\.g\/|\.g$/);
+exports.IMAGE_EXTS = ['.jpeg', '.jpg', '.png'];
 class EgretGame extends game_1.Game {
     constructor() {
         super();
