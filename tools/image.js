@@ -32,7 +32,6 @@ class ImageMerge {
             let file = files[i];
             let img = sharp(file);
             let info = await img.metadata();
-            console.log(info.width);
         }
     }
 }
