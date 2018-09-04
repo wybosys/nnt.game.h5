@@ -5,6 +5,7 @@ const resource_1 = require("./resource");
 const egret_1 = require("./egret");
 const fs = require("fs-extra");
 const path = require("path");
+const image_1 = require("./image");
 class EgretResource extends resource_1.Resource {
     async refresh() {
         return this.refreshIn('');
@@ -56,8 +57,11 @@ class EgretResource extends resource_1.Resource {
         fs.copySync("resource", "publish/resource");
         if (game_1.Game.shared.config.get('dev', 'automerge') == 'y') {
             console.log("自动合并");
-            kernel_1.ListDirs("publish/resource/assets", null, egret_1.AUTOMERGE_BLACKS, null, 2).forEach(subdir => {
-                console.log(subdir);
+            kernel_1.ListDirs("publish/resource/assets", null, egret_1.AUTOMERGE_BLACKS, null, 2, false).forEach(subdir => {
+                let full = "publish/resource/assets" + subdir;
+                let name = kernel_1.StringT.SubStr(subdir, 1);
+                let merge = new image_1.ImageMerge(full, name);
+                merge.process();
             });
             //this.refreshIn('publish/');
         }

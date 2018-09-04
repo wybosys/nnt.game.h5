@@ -14,7 +14,6 @@ export const RESMAKER_BLACKS = [
 ];
 
 export const GENRES_BLACKS = RESMAKER_BLACKS.concat(/\.d\/|\.d$/);
-
 export const AUTOMERGE_BLACKS = GENRES_BLACKS.concat(/\.g\/|\.g$/);
 export const IMAGE_EXTS = ['.jpeg', '.jpg', '.png'];
 

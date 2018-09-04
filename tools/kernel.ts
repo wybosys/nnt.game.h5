@@ -108,7 +108,7 @@ export function IsDirectory(path: string): boolean {
 }
 
 // 列出文件夹下所有文件，黑名单为rex
-export function ListFiles(dir: string, rets: string[] = null, blacklist: RegExp[] = null, whitelist: RegExp[] = null, depth = 1): string[] {
+export function ListFiles(dir: string, rets: string[] = null, blacklist: RegExp[] = null, whitelist: RegExp[] = null, depth = 1, fullpath = true, curdir = ''): string[] {
     if (rets == null)
         rets = new Array<string>();
     if (depth == 0)
@@ -123,7 +123,7 @@ export function ListFiles(dir: string, rets: string[] = null, blacklist: RegExp[
         let full = dir + entry;
         let stat = fs.statSync(full);
         if (stat.isDirectory()) {
-            ListFiles(full, rets, blacklist, whitelist, depth);
+            ListFiles(full, rets, blacklist, whitelist, depth, fullpath, curdir + '/' + entry);
         }
         else if (stat.isFile()) {
             // 黑名单过滤
@@ -141,13 +141,13 @@ export function ListFiles(dir: string, rets: string[] = null, blacklist: RegExp[
                     return;
             }
             // 找到一个符合规则的
-            rets.push(full);
+            rets.push(fullpath ? full : curdir + '/' + entry);
         }
     });
     return rets;
 }
 
-export function ListDirs(dir: string, rets: string[] = null, blacklist: RegExp[] = null, whitelist: RegExp[] = null, depth = 1): string[] {
+export function ListDirs(dir: string, rets: string[] = null, blacklist: RegExp[] = null, whitelist: RegExp[] = null, depth = 1, fullpath = true, curdir = ''): string[] {
     if (rets == null)
         rets = new Array<string>();
     if (depth == 0)
@@ -177,8 +177,8 @@ export function ListDirs(dir: string, rets: string[] = null, blacklist: RegExp[]
                     return;
             }
             // 找到一个符合规则的
-            rets.push(full);
-            ListDirs(full, rets, blacklist, whitelist, depth);
+            rets.push(fullpath ? full : curdir + '/' + entry);
+            ListDirs(full, rets, blacklist, whitelist, depth, fullpath, curdir + '/' + entry);
         }
     });
     return rets;
@@ -233,5 +233,22 @@ export class ArrayT {
             return false;
         arr.splice(idx, 1);
         return true;
+    }
+}
+
+export class StringT {
+    // 标准的substr只支持正向，这里实现的支持两个方向比如，substr(1, -2)
+    static SubStr(str: string, pos: number, len?: number): string {
+        if (len == null || len >= 0)
+            return str.substr(pos, len);
+        if (pos < 0)
+            pos = str.length + pos;
+        pos += len;
+        let of = 0;
+        if (pos < 0) {
+            of = pos;
+            pos = 0;
+        }
+        return str.substr(pos, -len + of);
     }
 }

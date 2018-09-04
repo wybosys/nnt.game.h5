@@ -95,7 +95,7 @@ function IsDirectory(path) {
 }
 exports.IsDirectory = IsDirectory;
 // 列出文件夹下所有文件，黑名单为rex
-function ListFiles(dir, rets = null, blacklist = null, whitelist = null, depth = 1) {
+function ListFiles(dir, rets = null, blacklist = null, whitelist = null, depth = 1, fullpath = true, curdir = '') {
     if (rets == null)
         rets = new Array();
     if (depth == 0)
@@ -110,7 +110,7 @@ function ListFiles(dir, rets = null, blacklist = null, whitelist = null, depth =
         let full = dir + entry;
         let stat = fs.statSync(full);
         if (stat.isDirectory()) {
-            ListFiles(full, rets, blacklist, whitelist, depth);
+            ListFiles(full, rets, blacklist, whitelist, depth, fullpath, curdir + '/' + entry);
         }
         else if (stat.isFile()) {
             // 黑名单过滤
@@ -128,13 +128,13 @@ function ListFiles(dir, rets = null, blacklist = null, whitelist = null, depth =
                     return;
             }
             // 找到一个符合规则的
-            rets.push(full);
+            rets.push(fullpath ? full : curdir + '/' + entry);
         }
     });
     return rets;
 }
 exports.ListFiles = ListFiles;
-function ListDirs(dir, rets = null, blacklist = null, whitelist = null, depth = 1) {
+function ListDirs(dir, rets = null, blacklist = null, whitelist = null, depth = 1, fullpath = true, curdir = '') {
     if (rets == null)
         rets = new Array();
     if (depth == 0)
@@ -164,8 +164,8 @@ function ListDirs(dir, rets = null, blacklist = null, whitelist = null, depth = 
                     return;
             }
             // 找到一个符合规则的
-            rets.push(full);
-            ListDirs(full, rets, blacklist, whitelist, depth);
+            rets.push(fullpath ? full : curdir + '/' + entry);
+            ListDirs(full, rets, blacklist, whitelist, depth, fullpath, curdir + '/' + entry);
         }
     });
     return rets;
@@ -220,4 +220,21 @@ class ArrayT {
     }
 }
 exports.ArrayT = ArrayT;
+class StringT {
+    // 标准的substr只支持正向，这里实现的支持两个方向比如，substr(1, -2)
+    static SubStr(str, pos, len) {
+        if (len == null || len >= 0)
+            return str.substr(pos, len);
+        if (pos < 0)
+            pos = str.length + pos;
+        pos += len;
+        let of = 0;
+        if (pos < 0) {
+            of = pos;
+            pos = 0;
+        }
+        return str.substr(pos, -len + of);
+    }
+}
+exports.StringT = StringT;
 //# sourceMappingURL=kernel.js.map

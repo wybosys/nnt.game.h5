@@ -1,9 +1,10 @@
 import {Game} from "./game";
-import {IsFile, ListDirs, ListFiles} from "./kernel";
+import {IsFile, ListDirs, ListFiles, StringT} from "./kernel";
 import {Resource} from "./resource";
 import {AUTOMERGE_BLACKS, GENRES_BLACKS} from "./egret";
 import fs = require("fs-extra");
 import path = require("path");
+import {ImageMerge} from "./image";
 
 export class EgretResource extends Resource {
 
@@ -59,8 +60,11 @@ export class EgretResource extends Resource {
         fs.copySync("resource", "publish/resource");
         if (Game.shared.config.get('dev', 'automerge') == 'y') {
             console.log("自动合并");
-            ListDirs("publish/resource/assets", null, AUTOMERGE_BLACKS, null, 2).forEach(subdir => {
-                console.log(subdir);
+            ListDirs("publish/resource/assets", null, AUTOMERGE_BLACKS, null, 2, false).forEach(subdir => {
+                let full = "publish/resource/assets" + subdir;
+                let name = StringT.SubStr(subdir, 1);
+                let merge = new ImageMerge(full, name);
+                merge.process();
             });
             //this.refreshIn('publish/');
         }
