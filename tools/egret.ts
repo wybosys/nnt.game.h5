@@ -44,7 +44,7 @@ class EgretConfig extends Config {
     async refresh(): Promise<boolean> {
         let r = await super.refresh();
         // 比对egretProp是否修改过
-        let hash = SimpleHashFile("egretProperties.json");
+        let hash = SimpleHashFile("project/egretProperties.json");
         if (this._cfgdb.get("egret-prop-hash") != hash) {
             this._cfgdb.set("egret-prop-hash", hash);
             console.log("egret的配置更新");

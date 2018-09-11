@@ -12,7 +12,7 @@ function main() {
         fs.mkdirSync(".n2~");
     // 根据项目特征选用游戏模板
     let game;
-    if (fs.existsSync("egretProperties.json"))
+    if (fs.existsSync("project/egretProperties.json"))
         game = new egret_1.EgretGame();
     program
         .option("-t, --test", "不开服务运行");
