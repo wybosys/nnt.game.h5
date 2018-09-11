@@ -1,7 +1,7 @@
 \.+
 bin-*
 libs
-index.html
+./index\.html
 manifest\.json
 default\.*
 .idea
