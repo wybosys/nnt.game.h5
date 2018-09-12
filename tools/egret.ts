@@ -50,6 +50,7 @@ export class EgretGame extends Game {
 
     // 生成测试版的index.html
     makeDebugIndex() {
+        console.log("生成debug版index.html");
         let bkg: string = this.config.get('app', 'background');
         let bkgcolor: string = this.config.get('app', 'background-color');
         if (bkg.indexOf("assets://"))
@@ -60,7 +61,7 @@ export class EgretGame extends Game {
         ArrayT.Merge(manifest.initial, manifest.game).forEach(e => {
             files.push('<script src="' + e + '"></script>');
         });
-        let index = dot.template(TPL_INDEX_DEBUG)({
+        const index = dot.template(TPL_INDEX_DEBUG)({
             APPNAME: this.config.get('app', 'name'),
             APPORI: this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait',
             APPANGLE: this.config.get('app', 'orientation') == 'h' ? '90' : '0',
@@ -74,7 +75,7 @@ export class EgretGame extends Game {
         });
         fs.outputFileSync('index.html', index);
         // 为了支持插件调试模式，需要描述一下当前项目的信息
-        let debug = dot.template(TPL_DEBUG)({
+        const debug = dot.template(TPL_DEBUG)({
             PATH: process.cwd(),
             UUID: this.config.uuid,
             CONFIG: fs.pathExistsSync('~debug.json'),
@@ -85,7 +86,35 @@ export class EgretGame extends Game {
 
     // 生成正式版的index.html
     makeReleaseIndex() {
-
+        console.log("生成release版index.html");
+        fs.ensureDirSync('publish');
+        let bkg: string = this.config.get('app', 'background');
+        let bkgcolor: string = this.config.get('app', 'background-color');
+        if (bkg.indexOf("assets://")) {
+            if (this.config.get('app', 'resource') == 'p') {
+                bkg = bkg.replace('assets://', 'resource_' + this.config.get('app', 'version') + '/assets/');
+            } else {
+                bkg = bkg.replace('assets://', 'resource/assets');
+            }
+        }
+        const index = dot.template(TPL_INDEX_RELEASE)({
+            APPNAME: this.config.get('app', 'name'),
+            APPORI: this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait',
+            APPANGLE: this.config.get('app', 'orientation') == 'h' ? '90' : '0',
+            APPCONTENT: 'version=' + this.config.get('app', 'version') + this.config.get('app', 'resource') == 'p' ? 'publish' : '',
+            APPVERSION: this.config.get('app', 'version'),
+            APPICON: this.config.get('app', 'icon'),
+            BACKGROUND: bkg,
+            BACKGROUNDCOLOR: bkgcolor,
+            APPSTYLE: '',
+            APPLAUNCH: '',
+            APPSCRIPT: '',
+            FILESLIST: [
+                '<script src="engine.min.js?v=' + this.config.get('app', 'version') + '"></script>',
+                '<script src="main.min.js?v=' + this.config.get('app', 'version') + '"></script>'
+            ].join('\n\t')
+        });
+        fs.writeFileSync('publish/index.html', index);
     }
 }
 

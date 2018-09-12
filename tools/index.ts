@@ -30,7 +30,7 @@ function main() {
         });
 
     program
-        .command("debug")
+        .command("build")
         .description("生成调试项目")
         .action(() => {
             game.build({
@@ -39,7 +39,7 @@ function main() {
         });
 
     program
-        .command("release")
+        .command("publish")
         .description("生成正式项目")
         .option("-c, --compress", "启用图片压缩")
         .action(() => {
