@@ -5,6 +5,7 @@ import fs = require("fs-extra");
 import crypto = require("crypto");
 import ini = require("ini");
 import inquirer = require("inquirer");
+import async = require("async");
 
 export type IndexedObject = { [key: string]: any };
 
@@ -251,6 +252,16 @@ export class ArrayT {
         });
         return r;
     }
+
+    static QueryObject<T>(arr: Array<T>, filter: (e: T, idx?: number) => boolean): T {
+        if (arr)
+            for (let i = 0, l = arr.length; i < l; ++i) {
+                let e = arr[i];
+                if (filter(e, i))
+                    return e;
+            }
+        return null;
+    }
 }
 
 export class StringT {
@@ -268,10 +279,72 @@ export class StringT {
         }
         return str.substr(pos, -len + of);
     }
+
+    static UpcaseFirst(str: string): string {
+        if (!str || !str.length)
+            return "";
+        return str[0].toUpperCase() + str.substr(1);
+    }
 }
 
 export class DateTime {
     static Current(): number {
         return (new Date().getTime() / 1000) >> 0;
     }
+}
+
+/** 转换到字符串 */
+export function asString(o: any, def = ''): string {
+    if (o == null)
+        return def;
+    let tp = typeof(o);
+    if (tp == 'string')
+        return <string>o;
+    if (tp == 'number')
+        return SafeNumber(o).toString();
+    if (o.toString) {
+        let t = o.toString();
+        if (t != "[object Object]")
+            return t;
+    }
+    // 转换成json
+    let r: string;
+    try {
+        r = JSON.stringify(o);
+    } catch (err) {
+        r = def;
+    }
+    return r;
+}
+
+function SafeNumber(o: any, def = 0): number {
+    return isNaN(o) ? def : o;
+}
+
+export type QueueCallback = (next: () => void) => void;
+
+export class AsyncQueue {
+
+    add(func: QueueCallback): AsyncQueue {
+        this._store.push(func);
+        return this;
+    }
+
+    done(cb: QueueCallback): AsyncQueue {
+        this._done = cb;
+        return this;
+    }
+
+    run() {
+        async.forEach(this._store, (cb, err) => {
+            cb(err);
+        }, this._done);
+    }
+
+    private _store = new Array<QueueCallback>();
+    private _done: QueueCallback;
+}
+
+export function static_cast<T>(l: any): T {
+    return <T>l;
 }
