@@ -234,6 +234,15 @@ export class ArrayT {
         arr.splice(idx, 1);
         return true;
     }
+
+    static Merge<T>(...arr: Array<Array<T>>): T[] {
+        let r = new Array<T>();
+        arr && arr.forEach(e => {
+            if (e)
+                r = r.concat(e);
+        });
+        return r;
+    }
 }
 
 export class StringT {
@@ -252,3 +261,4 @@ export class StringT {
         return str.substr(pos, -len + of);
     }
 }
+

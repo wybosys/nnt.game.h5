@@ -1,11 +1,12 @@
 import {Game, GameBuildOptions, ProgramHandleType} from "./game";
 import {Config} from "./config";
 import {Gendata} from "./gendata";
-import {SimpleHashFile} from "./kernel";
+import {ArrayT, SimpleHashFile} from "./kernel";
 import {Service} from "./service";
 import {EgretResource} from "./egret-res";
 import fs = require("fs-extra");
 import multiline = require("multiline");
+import dot = require("dot");
 
 export const RESMAKER_BLACKS = [
     /module\.res\.json$/,
@@ -49,7 +50,30 @@ export class EgretGame extends Game {
 
     // 生成测试版的index.html
     makeDebugIndex() {
-
+        let bkg: string = this.config.get('app', 'background');
+        let bkgcolor: string = this.config.get('app', 'background-color');
+        if (bkg.indexOf("assets://"))
+            bkg = bkg.replace('assets://', 'resource/assets');
+        // 读取游戏的js文件列表
+        const manifest = fs.readJsonSync('manifest.json');
+        let files:string[] = [];
+        ArrayT.Merge(manifest.initial, manifest.game).forEach(e=>{
+            files.push('<script src="' + e + '"></script>');
+        });
+        let index = dot.template(TPL_INDEX_DEBUG)({
+            APPNAME: this.config.get('app', 'name'),
+            APPORI: this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait',
+            APPANGLE: this.config.get('app', 'orientation') == 'h' ? '90' : '0',
+            APPCONTENT: 'version=0.0.1, debug, verbose' + this.config.get('app', 'resource') == 'p' ? 'publish' : '',
+            BACKGROUND: bkg,
+            BACKGROUNDCOLOR: bkgcolor,
+            APPSTYLE: '',
+            APPLAUNCH: '',
+            APPSCRIPT: '',
+            FILESLIST: files.join('\n\t')
+        });
+        fs.outputFileSync('index.html', index);
+        
     }
 
     // 生成正式版的index.html
