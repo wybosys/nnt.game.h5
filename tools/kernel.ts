@@ -262,3 +262,8 @@ export class StringT {
     }
 }
 
+export class DateTime {
+    static Current(): number {
+        return (new Date().getTime() / 1000) >> 0;
+    }
+}

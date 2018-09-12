@@ -1,7 +1,7 @@
 import {Game, GameBuildOptions, ProgramHandleType} from "./game";
 import {Config} from "./config";
 import {Gendata} from "./gendata";
-import {ArrayT, SimpleHashFile} from "./kernel";
+import {ArrayT, DateTime, SimpleHashFile} from "./kernel";
 import {Service} from "./service";
 import {EgretResource} from "./egret-res";
 import fs = require("fs-extra");
@@ -56,8 +56,8 @@ export class EgretGame extends Game {
             bkg = bkg.replace('assets://', 'resource/assets');
         // 读取游戏的js文件列表
         const manifest = fs.readJsonSync('manifest.json');
-        let files:string[] = [];
-        ArrayT.Merge(manifest.initial, manifest.game).forEach(e=>{
+        let files: string[] = [];
+        ArrayT.Merge(manifest.initial, manifest.game).forEach(e => {
             files.push('<script src="' + e + '"></script>');
         });
         let index = dot.template(TPL_INDEX_DEBUG)({
@@ -73,7 +73,14 @@ export class EgretGame extends Game {
             FILESLIST: files.join('\n\t')
         });
         fs.outputFileSync('index.html', index);
-        
+        // 为了支持插件调试模式，需要描述一下当前项目的信息
+        let debug = dot.template(TPL_DEBUG)({
+            PATH: process.cwd(),
+            UUID: this.config.uuid,
+            CONFIG: fs.pathExistsSync('~debug.json'),
+            BUILDDATE: DateTime.Current()
+        });
+        fs.outputFileSync('project/src/app/~debug.js', debug);
     }
 
     // 生成正式版的index.html
@@ -231,5 +238,16 @@ nn.loader.webstart();
 </script>
 </body>
 </html>
+*/
+});
+
+const TPL_DEBUG = multiline.stripIndent(() => {/*
+var app = {};
+app.debug = {
+    PATH:"{{=it.PATH}}",
+    UUID:"{{=it.UUID}}",
+    CONFIG:{{=it.CONFIG}},
+    BUILDDATE:{{=it.BUILDDATE}}
+};
 */
 });

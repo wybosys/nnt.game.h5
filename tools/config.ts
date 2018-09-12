@@ -20,6 +20,10 @@ export class Config {
         return this._cfg.get(sec, key, null);
     }
 
+    get uuid(): string {
+        return this._cfgdb.get('uuid');
+    }
+
     // 通过引导建立配置信息
     async make() {
         let arr = [['app', 'name', '游戏名称'],
