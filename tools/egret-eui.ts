@@ -1,6 +1,7 @@
 import fs = require("fs-extra");
 import dot = require("dot");
-import {ListFiles} from "./kernel";
+import xml2js = require("xml2js");
+import {AsyncQueue, ListFiles} from "./kernel";
 
 const PAT_EXML = [/\.exml$/];
 
@@ -26,19 +27,37 @@ export class EgretEui {
             '"eui.HScrollBar":"resource/eui_skins/wgt/HScrollBarSkin.exml"',
             '"eui.ProgressBarU":"resource/eui_skins/wgt/ProgressBarSkin.exml"'
         ];
+        let q = new AsyncQueue();
         skins.forEach(skin => {
-            let cls = this.buildOneSkin(skin);
-            if (cls)
-                thms.push('"' + cls + '":"' + skin.replace('project/', '') + '"');
+            q.add(next => {
+                this.buildOneSkin(skin).then(cls => {
+                    if (cls)
+                        thms.push('"' + cls + '":"' + skin.replace('project/', '') + '"');
+                    next();
+                });
+            });
         });
-        // 重新生成default.thm.json
-        const content = dot.template(TPL_THM)({SKINS: thms.join('\n')});
-        fs.writeJsonSync('project/resource/default.thm.json', content);
+        q.done(() => {
+            // 重新生成default.thm.json
+            const content = dot.template(TPL_THM)({SKINS: thms.join('\n')});
+            fs.writeJsonSync('project/resource/default.thm.json', content);
+        });
+        q.run();
     }
 
     // 构建制定文件，返回对应的类名
-    protected buildOneSkin(exml: string): string {
-        return '';
+    protected async buildOneSkin(exml: string): Promise<string> {
+        return new Promise<string>(resolve => {
+            xml2js.parseString(fs.readFileSync(exml, {encoding: 'utf-8'}), (err, res) => {
+                if (err) {
+                    console.error(err);
+                    resolve(null);
+                    return;
+                }
+
+                console.log(res);
+            });
+        });
     }
 }
 
@@ -47,4 +66,21 @@ const TPL_THM = `
     "autoGenerateExmlsList": true,
     "exmls": [],
     "skins": {{=it.SKINS}}
+}`;
+
+const TPL_SKINCLASS = `
+module {{=it.MODULE}} {
+    interface I{{=it.CLASS}}
+    {
+        //slot {
+        //slot }
+    }
+
+    export class {{=it.CLASS}}
+    extends eui.SpriteU
+    implements I{{=it.CLASS}}
+    {
+        //skin {
+        //skin }
+    }
 }`;
