@@ -35,9 +35,9 @@ export class EgretGame extends Game {
         super.clean();
 
         // 清除egret的中间文件
-        fs.removeSync("bin-debug");
-        fs.removeSync("bin-release");
-        fs.removeSync("libs");
+        fs.removeSync("project/bin-debug");
+        fs.removeSync("project/bin-release");
+        fs.removeSync("project/libs");
         fs.removeSync(".n2~/dist");
         fs.removeSync("dist");
         fs.removeSync("publish");
@@ -49,6 +49,8 @@ export class EgretGame extends Game {
             fs.removeSync('publish');
             // 判断使用何种编译
             this.egret('build');
+            // 生成测试入口
+            this.makeDebugIndex();
             return;
         }
     }
@@ -79,7 +81,7 @@ export class EgretGame extends Game {
         if (bkg.indexOf("assets://"))
             bkg = bkg.replace('assets://', 'resource/assets');
         // 读取游戏的js文件列表
-        const manifest = fs.readJsonSync('manifest.json');
+        const manifest = fs.readJsonSync('project/manifest.json');
         let files: string[] = [];
         ArrayT.Merge(manifest.initial, manifest.game).forEach(e => {
             files.push('<script src="' + e + '"></script>');
@@ -160,8 +162,9 @@ const TPL_INDEX_DEBUG = `
 <!DOCTYPE HTML>
 <html>
     <head>
-        <meta charset="utf-8">
-    <title>{{=it.APPNAME}}</title>
+    <meta charset="utf-8">
+    <base href="project">
+    <title>{{=it.APPNAME}}</title>    
     <meta name="viewport"
 content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>

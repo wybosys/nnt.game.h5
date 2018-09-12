@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "outDir": "../bin-debug",
+        "outDir": "bin-debug",
         "experimentalDecorators": true,
         "lib": [
             "es6",
