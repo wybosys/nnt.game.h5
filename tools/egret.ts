@@ -6,6 +6,8 @@ import {Service} from "./service";
 import {EgretResource} from "./egret-res";
 import fs = require("fs-extra");
 import dot = require("dot");
+import os = require("os");
+import execa = require("execa");
 
 export const RESMAKER_BLACKS = [
     /module\.res\.json$/,
@@ -17,6 +19,7 @@ export const RESMAKER_BLACKS = [
 export const GENRES_BLACKS = RESMAKER_BLACKS.concat(/\.d\/|\.d$/);
 export const AUTOMERGE_BLACKS = GENRES_BLACKS.concat(/\.g\/|\.g$/);
 export const IMAGE_EXTS = ['.jpeg', '.jpg', '.png'];
+const EGRET_CMD = os.type() == 'Windows_NT' ? 'egret.cmd' : 'egret';
 
 export class EgretGame extends Game {
 
@@ -41,7 +44,27 @@ export class EgretGame extends Game {
     }
 
     build(opts: GameBuildOptions) {
+        if (opts.debug) {
+            // 去除publish引起的egret混乱
+            fs.removeSync('publish');
+            // 判断使用何种编译
+            this.egret('build');
+            return;
+        }
+    }
 
+    protected egret(cmd: string): string {
+        let old = process.cwd();
+        let ret = '';
+        process.chdir('project');
+        try {
+            let res = execa.shellSync(EGRET_CMD + " " + cmd);
+            ret = res.stdout;
+        } catch (err) {
+            console.warn(err.toString());
+        }
+        process.chdir(old);
+        return '';
     }
 
     commands(program: ProgramHandleType) {
