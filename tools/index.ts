@@ -30,10 +30,22 @@ function main() {
         });
 
     program
-        .command("build")
-        .description("编译项目")
+        .command("debug")
+        .description("生成调试项目")
         .action(() => {
+            game.build({
+                debug: true
+            });
+        });
 
+    program
+        .command("release")
+        .description("生成正式项目")
+        .option("-c, --compress", "启用图片压缩")
+        .action(() => {
+            game.build({
+                release: true
+            });
         });
 
     program
