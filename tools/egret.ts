@@ -35,12 +35,16 @@ export class EgretGame extends Game {
         super.clean();
 
         // 清除egret的中间文件
+        fs.removeSync("index.html");
         fs.removeSync("project/bin-debug");
         fs.removeSync("project/bin-release");
         fs.removeSync("project/libs");
         fs.removeSync(".n2~/dist");
         fs.removeSync("dist");
         fs.removeSync("publish");
+        fs.unlinkSync("bin-debug");
+        fs.unlinkSync("libs");
+        fs.unlinkSync("resource");
     }
 
     build(opts: GameBuildOptions) {
@@ -51,6 +55,10 @@ export class EgretGame extends Game {
             this.egret('build');
             // 生成测试入口
             this.makeDebugIndex();
+            // 创建引用
+            fs.ensureSymlinkSync("project/bin-debug", "bin-debug");
+            fs.ensureSymlinkSync("project/libs", "libs");
+            fs.ensureSymlinkSync("project/resource", "resource");
             return;
         }
     }
@@ -106,7 +114,7 @@ export class EgretGame extends Game {
             CONFIG: fs.pathExistsSync('~debug.json'),
             BUILDDATE: DateTime.Current()
         });
-        fs.outputFileSync('project/src/app/~debug.js', debug);
+        fs.outputFileSync('project/bin-debug/app/~debug.js', debug);
     }
 
     // 生成正式版的index.html
