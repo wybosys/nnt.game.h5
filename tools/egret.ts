@@ -34,6 +34,7 @@ export class EgretGame extends Game {
 
         // 清除egret的中间文件
         fs.removeSync("bin-debug");
+        fs.removeSync("bin-release");
         fs.removeSync("libs");
         fs.removeSync(".n2~/dist");
         fs.removeSync("dist");

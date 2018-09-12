@@ -1,9 +1,10 @@
-import fs = require("fs");
+import fs = require("fs-extra");
 import {CliInput, EmbededKv, Ini, SimpleHashFile, UUID} from "./kernel";
 
 const VERSION = "0.0.1";
 
 export class Config {
+
     constructor() {
         this._cfgdb = new EmbededKv(".n2~/build");
         if (!this._cfgdb.contains('uuid'))
@@ -12,8 +13,7 @@ export class Config {
     }
 
     clean() {
-        if (fs.existsSync(".n2~/build"))
-            fs.unlinkSync(".n2~/build");
+        fs.removeSync(".n2~/build");
     }
 
     get(sec: string, key: string): any {

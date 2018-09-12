@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import program = require("commander");
-import fs = require("fs");
+import fs = require("fs-extra");
 import path = require("path");
 import {Game} from "./game";
 import {EgretGame} from "./egret";
@@ -11,8 +11,8 @@ function main() {
     process.chdir(path.dirname(__dirname));
 
     // 建立代码执行目录
-    if (!fs.existsSync(".n2~"))
-        fs.mkdirSync(".n2~");
+    fs.ensureDirSync('.n2~');
+    fs.ensureDirSync('.n2~/src');
 
     // 根据项目特征选用游戏模板
     let game: Game;
@@ -46,6 +46,13 @@ function main() {
             game.build({
                 release: true
             });
+        });
+
+    program
+        .command("gendata")
+        .description("生成数据文件")
+        .action(() => {
+            game.gendata.build();
         });
 
     program

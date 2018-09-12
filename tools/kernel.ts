@@ -184,6 +184,14 @@ export function ListDirs(dir: string, rets: string[] = null, blacklist: RegExp[]
     return rets;
 }
 
+export function CombineFile(paths: string[], output: string) {
+    let buf = '';
+    paths.forEach(e => {
+        buf += fs.readFileSync(e);
+    });
+    fs.writeFileSync(output, buf);
+}
+
 export class ArrayT {
     /** 使用筛选器来删除对象 */
     static RemoveObjectByFilter<T>(arr: T[], filter: (o: T, idx: number) => boolean, ctx?: any): T {
