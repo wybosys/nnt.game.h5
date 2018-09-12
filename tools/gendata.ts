@@ -44,8 +44,8 @@ export class Gendata {
                 });
             })
             .done(() => {
-                execa.shellSync('tsc tsc -d -t es5 .n2~/src/gendata/data.ts');
-                fs.moveSync('.n2~/src/gendata/data.js', 'resource/default.data.js');
+                execa.shellSync('tsc -d -t es5 .n2~/src/gendata/data.ts');
+                fs.moveSync('.n2~/src/gendata/data.js', 'project/resource/default.data.js');
                 fs.removeSync('.n2~/src/gendata/data.ts');
             })
             .run();

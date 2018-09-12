@@ -5,7 +5,6 @@ import {ArrayT, DateTime, SimpleHashFile} from "./kernel";
 import {Service} from "./service";
 import {EgretResource} from "./egret-res";
 import fs = require("fs-extra");
-import multiline = require("multiline");
 import dot = require("dot");
 
 export const RESMAKER_BLACKS = [
@@ -134,7 +133,7 @@ class EgretConfig extends Config {
     }
 }
 
-const TPL_INDEX_DEBUG = multiline.stripIndent(() => {/*
+const TPL_INDEX_DEBUG = `
 <!DOCTYPE HTML>
 <html>
     <head>
@@ -200,11 +199,9 @@ var document_orientation = {{=it.APPANGLE}};
 nn.loader.webstart();
 </script>
 </body>
-</html>
-*/
-});
+</html>`;
 
-const TPL_INDEX_RELEASE = multiline.stripIndent(() => {/*
+const TPL_INDEX_RELEASE = `
 <!DOCTYPE HTML>
 <html>
     <head>
@@ -267,17 +264,13 @@ var document_orientation = {{=it.APPANGLE}};
 nn.loader.webstart();
 </script>
 </body>
-</html>
-*/
-});
+</html>`;
 
-const TPL_DEBUG = multiline.stripIndent(() => {/*
+const TPL_DEBUG = `
 var app = {};
 app.debug = {
     PATH:"{{=it.PATH}}",
     UUID:"{{=it.UUID}}",
     CONFIG:{{=it.CONFIG}},
     BUILDDATE:{{=it.BUILDDATE}}
-};
-*/
-});
+};`;
