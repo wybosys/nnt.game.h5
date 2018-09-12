@@ -3,6 +3,7 @@ import tpl = require("dustjs-linkedin");
 import xlsx = require("xlsx");
 import execa = require("execa");
 import {ArrayT, asString, AsyncQueue, ListFiles, static_cast, StringT} from "./kernel";
+import minjs = require("uglify-js");
 
 const PAT_EXCEL = [/\.xlsx$/];
 const PAT_EXCEL_IGNORE = [/^~/, /^#/]; // office文件打开会产生临时文件
@@ -11,12 +12,14 @@ const PAT_JS = [/\.js$/];
 export class Gendata {
 
     clean() {
-        fs.removeSync(".n2/src/gendata");
+        fs.removeSync(".n2/gendata");
+        fs.removeSync("project/resource/default.data.js");
+        fs.removeSync("project/resource/default.data.d.ts");
     }
 
     // 处理项目中的excel文件
     async build() {
-        fs.ensureDirSync(".n2/src/gendata");
+        fs.ensureDirSync(".n2/gendata");
 
         // 所有的excel文件
         const paths = ListFiles('project/src/app', null, PAT_EXCEL_IGNORE, PAT_EXCEL, 999);
@@ -39,14 +42,15 @@ export class Gendata {
                 tpl.render("configs-generator", {files: files}, (err, out) => {
                     if (err)
                         out = err.toString();
-                    fs.writeFileSync('.n2/src/gendata/data.ts', out);
+                    fs.writeFileSync('.n2/gendata/data.ts', out);
                     next();
                 });
             })
             .add(next => {
-                execa.shellSync('tsc -d -t es5 .n2/src/gendata/data.ts');
-                fs.moveSync('.n2/src/gendata/data.js', 'project/resource/default.data.js', {overwrite: true});
-                fs.removeSync('.n2/src/gendata/data.ts');
+                execa.shellSync('tsc -d -t es5 .n2/gendata/data.ts');
+                fs.moveSync('.n2/gendata/data.js', 'project/resource/default.data.js', {overwrite: true});
+                fs.moveSync('.n2/gendata/data.d.ts', 'project/resource/default.data.d.ts', {overwrite: true});
+                fs.removeSync('.n2/gendata/data.ts');
             })
             .run();
     }
@@ -61,7 +65,7 @@ export class Gendata {
     private _registered: boolean;
 }
 
-export let TPL_CONFIGS = "export module configs {~lb}\n" +
+export let TPL_CONFIGS = "export module Data {~lb}\n" +
     "\n" +
     "type undecl = string;\n" +
     "type rowindex = number;\n" +
