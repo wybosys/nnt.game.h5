@@ -4,6 +4,7 @@ import {Gendata} from "./gendata";
 import {ArrayT, DateTime, SimpleHashFile} from "./kernel";
 import {Service} from "./service";
 import {EgretResource} from "./egret-res";
+import {EgretEui} from "./egret-eui";
 import fs = require("fs-extra");
 import dot = require("dot");
 import os = require("os");
@@ -45,6 +46,9 @@ export class EgretGame extends Game {
         fs.unlinkSync("bin-debug");
         fs.unlinkSync("libs");
         fs.unlinkSync("resource");
+
+        // 清理其他
+        this._eui.clean();
     }
 
     build(opts: GameBuildOptions) {
@@ -78,7 +82,12 @@ export class EgretGame extends Game {
     }
 
     commands(program: ProgramHandleType) {
-        // pass
+        program
+            .command('genskin')
+            .description('刷新皮肤')
+            .action(() => {
+                this._eui.build();
+            });
     }
 
     // 生成测试版的index.html
@@ -149,6 +158,8 @@ export class EgretGame extends Game {
         });
         fs.writeFileSync('publish/index.html', index);
     }
+
+    protected _eui = new EgretEui();
 }
 
 class EgretConfig extends Config {
