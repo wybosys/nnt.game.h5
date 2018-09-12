@@ -11,12 +11,12 @@ const PAT_JS = [/\.js$/];
 export class Gendata {
 
     clean() {
-        fs.removeSync(".n2~/src/gendata");
+        fs.removeSync(".n2/src/gendata");
     }
 
     // 处理项目中的excel文件
     async build() {
-        fs.ensureDirSync(".n2~/src/gendata");
+        fs.ensureDirSync(".n2/src/gendata");
 
         // 所有的excel文件
         const paths = ListFiles('project/src/app', null, PAT_EXCEL_IGNORE, PAT_EXCEL, 999);
@@ -39,14 +39,14 @@ export class Gendata {
                 tpl.render("configs-generator", {files: files}, (err, out) => {
                     if (err)
                         out = err.toString();
-                    fs.writeFileSync('.n2~/src/gendata/data.ts', out);
+                    fs.writeFileSync('.n2/src/gendata/data.ts', out);
                     next();
                 });
             })
             .add(next => {
-                execa.shellSync('tsc -d -t es5 .n2~/src/gendata/data.ts');
-                fs.moveSync('.n2~/src/gendata/data.js', 'project/resource/default.data.js', {overwrite: true});
-                fs.removeSync('.n2~/src/gendata/data.ts');
+                execa.shellSync('tsc -d -t es5 .n2/src/gendata/data.ts');
+                fs.moveSync('.n2/src/gendata/data.js', 'project/resource/default.data.js', {overwrite: true});
+                fs.removeSync('.n2/src/gendata/data.ts');
             })
             .run();
     }

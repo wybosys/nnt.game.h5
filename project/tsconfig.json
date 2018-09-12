@@ -11,7 +11,7 @@
         "types": []
     },
     "include": [
-        "../.n2~/src",
+        "../.n2/src",
         "src",
         "libs"
     ]

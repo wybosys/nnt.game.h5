@@ -39,7 +39,7 @@ export class EgretGame extends Game {
         fs.removeSync("project/bin-debug");
         fs.removeSync("project/bin-release");
         fs.removeSync("project/libs");
-        fs.removeSync(".n2~/dist");
+        fs.removeSync(".n2/dist");
         fs.removeSync("dist");
         fs.removeSync("publish");
         fs.unlinkSync("bin-debug");
@@ -223,7 +223,7 @@ data-frame-rate="60"
     >
     </div>
     <!-- debug信息 -->
-    <script src="src/app/~debug.js"></script>
+    <script src="bin-debug/app/~debug.js"></script>
     <!-- dev工具 -->
     <script src="tools/devtools/devtools.js" type="text/javascript"></script>
     <!-- 加载的文件列表 -->

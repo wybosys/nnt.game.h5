@@ -11,8 +11,8 @@ function main() {
     process.chdir(path.dirname(__dirname));
 
     // 建立代码执行目录
-    fs.ensureDirSync('.n2~');
-    fs.ensureDirSync('.n2~/src');
+    fs.ensureDirSync('.n2');
+    fs.ensureDirSync('.n2/src');
 
     // 根据项目特征选用游戏模板
     let game: Game;

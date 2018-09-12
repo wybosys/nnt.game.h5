@@ -6,14 +6,14 @@ const VERSION = "0.0.1";
 export class Config {
 
     constructor() {
-        this._cfgdb = new EmbededKv(".n2~/build");
+        this._cfgdb = new EmbededKv(".n2/build");
         if (!this._cfgdb.contains('uuid'))
             this._cfgdb.set('uuid', UUID());
         this.refresh();
     }
 
     clean() {
-        fs.removeSync(".n2~/build");
+        fs.removeSync(".n2/build");
     }
 
     get(sec: string, key: string): any {

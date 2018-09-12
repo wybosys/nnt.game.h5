@@ -5,7 +5,7 @@ libs
 manifest\.json
 default\.*
 .idea
-.n2~
+.n2
 .wing
 ^~
 ~*
