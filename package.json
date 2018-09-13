@@ -14,7 +14,7 @@
     "@types/node": "^10.9.4",
     "@types/uglify-js": "^3.0.3",
     "@types/uuid": "^3.4.4",
-    "@types/xml2js": "^0.4.3",
+    "@types/xmldom": "^0.1.29",
     "async": "^2.6.1",
     "dot": "^1.1.2",
     "dustjs-linkedin": "^2.7.5",
@@ -31,7 +31,6 @@
     "walk": "^2.3.14",
     "watch": "^1.0.2",
     "xlsx": "^0.13.5",
-    "xml2js": "^0.4.19",
-    "xmlbuilder": "^10.0.0"
+    "xmldom": "^0.1.27"
   }
 }

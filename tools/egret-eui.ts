@@ -1,7 +1,7 @@
 import fs = require("fs-extra");
 import dot = require("dot");
-import xml2js = require("xml2js");
 import {AsyncQueue, ListFiles} from "./kernel";
+import xmldom = require("xmldom");
 
 const PAT_EXML = [/\.exml$/];
 
@@ -46,18 +46,11 @@ export class EgretEui {
     }
 
     // 构建制定文件，返回对应的类名
-    protected async buildOneSkin(exml: string): Promise<string> {
-        return new Promise<string>(resolve => {
-            xml2js.parseString(fs.readFileSync(exml, {encoding: 'utf-8'}), (err, res) => {
-                if (err) {
-                    console.error(err);
-                    resolve(null);
-                    return;
-                }
-
-                console.log(res);
-            });
-        });
+    protected async buildOneSkin(exml: string): string {
+        let parser = new xmldom.DOMParser();
+        const doc = parser.parseFromString(fs.readFileSync(exml, {encoding: 'utf-8'}));
+        const root = doc.documentElement;
+        return '';
     }
 }
 
