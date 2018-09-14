@@ -73,7 +73,7 @@ export class EgretEui {
         // 处理对应的实现文件
         // 提取名称
         let tscls = StringT.SubStr(exml, exml.indexOf('resource/'))
-            .replace('resource/eui_skin/', '')
+            .replace('resource/eui_skins/', '')
             .replace('Skin.exml', '');
         let tsfile = 'src/' + tscls + '.ts';
         // 如果不存在，则需要根据模版生成新的文件
