@@ -1,7 +1,17 @@
 import fs = require("fs-extra");
 import dot = require("dot");
-import {AsyncQueue, ListFiles} from "./kernel";
-import xmldom = require("xmldom");
+import {
+    AsyncQueue,
+    LinesReplace,
+    ListFiles,
+    LoadXmlFile,
+    ReadFileLines,
+    SetT,
+    static_cast,
+    StringT,
+    XmlNode
+} from "./kernel";
+import path = require("path");
 
 const PAT_EXML = [/\.exml$/];
 
@@ -27,31 +37,108 @@ export class EgretEui {
             '"eui.HScrollBar":"resource/eui_skins/wgt/HScrollBarSkin.exml"',
             '"eui.ProgressBarU":"resource/eui_skins/wgt/ProgressBarSkin.exml"'
         ];
-        let q = new AsyncQueue();
         skins.forEach(skin => {
-            q.add(next => {
-                this.buildOneSkin(skin).then(cls => {
-                    if (cls)
-                        thms.push('"' + cls + '":"' + skin.replace('project/', '') + '"');
-                    next();
-                });
-            });
+            let cls = this.buildOneSkin(skin);
+            if (cls)
+                thms.push('"' + cls + '":"' + skin.replace('project/', '') + '"');
         });
-        q.done(() => {
-            // 重新生成default.thm.json
-            const content = dot.template(TPL_THM)({SKINS: thms.join('\n')});
-            fs.writeJsonSync('project/resource/default.thm.json', content);
-        });
-        q.run();
+        // 重新生成default.thm.json
+        const content = dot.template(TPL_THM)({SKINS: thms.join('\n')});
+        fs.writeJsonSync('project/resource/default.thm.json', content);
     }
 
     // 构建制定文件，返回对应的类名
-    protected async buildOneSkin(exml: string): string {
-        let parser = new xmldom.DOMParser();
-        const doc = parser.parseFromString(fs.readFileSync(exml, {encoding: 'utf-8'}));
-        const root = doc.documentElement;
-        return '';
+    protected buildOneSkin(exml: string): string {
+        let doc = LoadXmlFile(exml);
+        const nodes = xml_getElementsByAttributeName(doc.documentElement, 'id');
+        let slots = xml_getAttributesByName(doc.documentElement, 'slots');
+        // 提交变量
+        let props: string[] = [];
+        nodes.forEach(node => {
+            const id = node.getAttribute('id');
+            const ns = node.namespaceURI;
+            const nm = node.className;
+            let cls = StringT.SubStr(nm, nm.indexOf(':') + 1);
+            const e = StringT.SubStr(nm, 0, nm.indexOf(':'));
+            if (e != 'e') {
+                cls = ns.replace('*', cls);
+            } else {
+                cls = 'eui.' + cls;
+            }
+            props.push('        ' + id + ':' + cls + ';\n');
+        });
+        // 排序
+        slots.sort();
+        props.sort();
+        // 处理对应的实现文件
+        // 提取名称
+        let tscls = StringT.SubStr(exml, exml.indexOf('resource/'))
+            .replace('resource/eui_skin/', '')
+            .replace('Skin.exml', '');
+        let tsfile = 'src/' + tscls + '.ts';
+        // 如果不存在，则需要根据模版生成新的文件
+        if (!fs.pathExists(tsfile)) {
+            let mdnm = path.dirname(tscls).replace('/', '.');
+            let dir = path.dirname(tsfile);
+            fs.ensureDirSync(dir);
+            let content = dot.template(TPL_SKINCLASS)({
+                MODULE: mdnm,
+                CLASS: path.basename(tscls)
+            });
+            fs.writeFileSync(tsfile, content, {encoding: 'utf-8'});
+        }
+        else {
+            // 生成interface需要的函数
+            let funs = new Set<string>();
+            slots.forEach(slot => {
+                slot.name.split(';').forEach(each => {
+                    each = each.trim();
+                    if (!each.length)
+                        return;
+                    let a = each.split('=>');
+                    if (a.length != 2)
+                        return;
+                    funs.add('        _' + a[1] + '(s?:nn.Slot);\n');
+                });
+            });
+            // 读取文件，插入对应的变量
+            let lines = ReadFileLines(tsfile);
+            lines = LinesReplace(lines, /\/\/skin {/, /\/\/skin }/, props);
+            lines = LinesReplace(lines, /\/\/slot {/, /\/\/slot }/, SetT.ToArray(funs));
+            fs.writeFileSync(tsfile, lines.join('\n'), {encoding: 'utf-8'});
+        }
+        return tscls.replace('/', '.');
     }
+}
+
+function xml_getElementsByAttributeName(node: HTMLElement, name: string, arr?: HTMLElement[]): HTMLElement[] {
+    if (arr == null)
+        arr = [];
+    for (let iter = node.firstChild; iter != null; iter = iter.nextSibling) {
+        if (iter.nodeType != XmlNode.ELEMENT_NODE)
+            continue;
+        let element = static_cast<HTMLElement>(iter);
+        if (element.hasAttribute(name))
+            arr.push(element);
+        xml_getElementsByAttributeName(element, name, arr);
+    }
+    return arr;
+}
+
+function xml_getAttributesByName(node: HTMLElement, name: string, arr?: Attr[]): Attr[] {
+    if (arr == null)
+        arr = [];
+    if (node.nodeType != XmlNode.ELEMENT_NODE)
+        return arr;
+    if (node.hasAttribute(name))
+        arr.push(node.getAttributeNode(name));
+    for (let iter = node.firstChild; iter != null; iter = iter.nextSibling) {
+        if (node.nodeType != XmlNode.ELEMENT_NODE)
+            continue;
+        let element = static_cast<HTMLElement>(iter);
+        xml_getAttributesByName(element, name, arr);
+    }
+    return arr;
 }
 
 const TPL_THM = `

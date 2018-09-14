@@ -6,6 +6,8 @@ import crypto = require("crypto");
 import ini = require("ini");
 import inquirer = require("inquirer");
 import async = require("async");
+import xmldom = require("xmldom");
+import defineProperty = Reflect.defineProperty;
 
 export type IndexedObject = { [key: string]: any };
 
@@ -193,6 +195,31 @@ export function CombineFile(paths: string[], output: string) {
     fs.writeFileSync(output, buf);
 }
 
+export function ReadFileLines(file: string): string[] {
+    let content = fs.readFileSync(file, {encoding: 'utf-8'});
+    return content.split('\n');
+}
+
+export function LinesReplace(lines: string[], begin: RegExp, end: RegExp, rep: string[]): string[] {
+    let idxbeg = -1, idxend = -1;
+    for (let i = 0, l = lines.length; i < l; ++i) {
+        const line = lines[i];
+        if (idxbeg == -1 && line.match(begin)) {
+            idxbeg = i;
+            continue;
+        }
+        if (idxend == -1 && line.match(end)) {
+            idxend = i;
+            break;
+        }
+    }
+    if (idxbeg == -1 || idxend == -1)
+        return lines;
+    let l = ArrayT.RangeOf(lines, 0, idxbeg);
+    let r = ArrayT.RangeOf(lines, idxend);
+    return ArrayT.Merge(l, rep, r);
+}
+
 export class ArrayT {
     /** 使用筛选器来删除对象 */
     static RemoveObjectByFilter<T>(arr: T[], filter: (o: T, idx: number) => boolean, ctx?: any): T {
@@ -261,6 +288,31 @@ export class ArrayT {
                     return e;
             }
         return null;
+    }
+
+    /** 取得一段 */
+    static RangeOf<T>(arr: Array<T>, pos: number, len?: number): Array<T> {
+        let n = arr.length;
+        if (pos < 0) {
+            pos = n + pos;
+            if (pos < 0)
+                return arr;
+        }
+        if (pos >= n)
+            return [];
+        let c = len == null ? n : pos + len;
+        return arr.slice(pos, c);
+    }
+}
+
+export class SetT {
+
+    static ToArray<T>(s: Set<T>): T[] {
+        let r: T[] = [];
+        s.forEach(e => {
+            r.push(e);
+        });
+        return r;
     }
 }
 
@@ -347,4 +399,22 @@ export class AsyncQueue {
 
 export function static_cast<T>(l: any): T {
     return <T>l;
+}
+
+export function LoadXmlFile(file: string): Document {
+    let content = fs.readFileSync(file, {encoding: 'utf-8'});
+    let parser = new xmldom.DOMParser();
+    let doc = parser.parseFromString(content);
+    return doc;
+}
+
+export enum XmlNode {
+    ELEMENT_NODE = 1,
+    TEXT_NODE = 3,
+    CDATA_SECTION_NODE = 4,
+    PROCESSING_INSTRUCTION_NODE = 7,
+    COMMENT_NODE = 8,
+    DOCUMENT_NODE = 9,
+    DOCUMENT_TYPE_NODE = 10,
+    DOCUMENT_FRAGMENT_NODE = 11
 }
