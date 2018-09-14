@@ -1,4 +1,3 @@
-
 module app {
     interface IDlg
     {

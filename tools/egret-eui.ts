@@ -43,8 +43,10 @@ export class EgretEui {
                 thms.push('"' + cls + '":"' + skin.replace('project/', '') + '"');
         });
         // 重新生成default.thm.json
-        const content = mustache.render(TPL_THM, {SKINS: thms.join('\n')});
-        fs.writeJsonSync('project/resource/default.thm.json', content);
+        const content = mustache.render(TPL_THM, {
+            SKINS: thms.join(',\n')
+        });
+        fs.writeFileSync('project/resource/default.thm.json', content);
     }
 
     // 构建制定文件，返回对应的类名
@@ -57,15 +59,14 @@ export class EgretEui {
         nodes.forEach(node => {
             const id = node.getAttribute('id');
             const ns = node.namespaceURI;
-            const nm = node.className;
-            let cls = StringT.SubStr(nm, nm.indexOf(':') + 1);
-            const e = StringT.SubStr(nm, 0, nm.indexOf(':'));
+            let cls = node.localName;
+            const e = node.prefix;
             if (e != 'e') {
                 cls = ns.replace('*', cls);
             } else {
                 cls = 'eui.' + cls;
             }
-            props.push('        ' + id + ':' + cls + ';\n');
+            props.push('        ' + id + ':' + cls + ';');
         });
         // 排序
         slots.sort();
@@ -78,36 +79,36 @@ export class EgretEui {
         let tsfile = 'project/src/' + tscls + '.ts';
         // 如果不存在，则需要根据模版生成新的文件
         if (!fs.pathExistsSync(tsfile)) {
-            let mdnm = path.dirname(tscls).replace('/', '.');
+            let mdnm = path.dirname(tscls).replace(/\//g, '.');
             let dir = path.dirname(tsfile);
             fs.ensureDirSync(dir);
             let content = mustache.render(TPL_SKINCLASS, {
                 MODULE: mdnm,
                 CLASS: path.basename(tscls)
             });
-            fs.writeFileSync(tsfile, content, {encoding: 'utf-8'});
+            fs.writeFileSync(tsfile, content);
         }
         else {
             // 生成interface需要的函数
             let funs = new Set<string>();
             slots.forEach(slot => {
-                slot.name.split(';').forEach(each => {
+                slot.value.split(';').forEach(each => {
                     each = each.trim();
                     if (!each.length)
                         return;
                     let a = each.split('=>');
                     if (a.length != 2)
                         return;
-                    funs.add('        _' + a[1] + '(s?:nn.Slot);\n');
+                    funs.add('        _' + a[1] + '(s?:nn.Slot);');
                 });
             });
             // 读取文件，插入对应的变量
             let lines = ReadFileLines(tsfile);
             lines = LinesReplace(lines, /\/\/skin {/, /\/\/skin }/, props);
-            lines = LinesReplace(lines, /\/\/slot {/, /\/\/slot }/, SetT.ToArray(funs));
-            fs.writeFileSync(tsfile, lines.join('\n'), {encoding: 'utf-8'});
+            lines = LinesReplace(lines, /\/\/slot {/, /\/\/slot }/, SetT.ToArray(funs).sort());
+            fs.writeFileSync(tsfile, lines.join('\n'));
         }
-        return tscls.replace('/', '.');
+        return tscls.replace(/\//g, '.');
     }
 }
 
@@ -141,15 +142,15 @@ function xml_getAttributesByName(node: HTMLElement, name: string, arr?: Attr[]):
     return arr;
 }
 
-const TPL_THM = `
-{
+const TPL_THM = `{
     "autoGenerateExmlsList": true,
     "exmls": [],
-    "skins": {{SKINS}}
+    "skins": {
+{{&SKINS}}
+    }
 }`;
 
-const TPL_SKINCLASS = `
-module {{MODULE}} {
+const TPL_SKINCLASS = `module {{MODULE}} {
     interface I{{CLASS}}
     {
         //slot {
