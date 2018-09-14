@@ -215,7 +215,7 @@ export function LinesReplace(lines: string[], begin: RegExp, end: RegExp, rep: s
     }
     if (idxbeg == -1 || idxend == -1)
         return lines;
-    let l = ArrayT.RangeOf(lines, 0, idxbeg);
+    let l = ArrayT.RangeOf(lines, 0, idxbeg + 1);
     let r = ArrayT.RangeOf(lines, idxend);
     return ArrayT.Merge(l, rep, r);
 }

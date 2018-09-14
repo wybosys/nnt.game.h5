@@ -1,5 +1,5 @@
 import fs = require("fs-extra");
-import dot = require("dot");
+import mustache = require("mustache");
 import {
     AsyncQueue,
     LinesReplace,
@@ -43,7 +43,7 @@ export class EgretEui {
                 thms.push('"' + cls + '":"' + skin.replace('project/', '') + '"');
         });
         // 重新生成default.thm.json
-        const content = dot.template(TPL_THM)({SKINS: thms.join('\n')});
+        const content = mustache.render(TPL_THM, {SKINS: thms.join('\n')});
         fs.writeJsonSync('project/resource/default.thm.json', content);
     }
 
@@ -75,13 +75,13 @@ export class EgretEui {
         let tscls = StringT.SubStr(exml, exml.indexOf('resource/'))
             .replace('resource/eui_skins/', '')
             .replace('Skin.exml', '');
-        let tsfile = 'src/' + tscls + '.ts';
+        let tsfile = 'project/src/' + tscls + '.ts';
         // 如果不存在，则需要根据模版生成新的文件
-        if (!fs.pathExists(tsfile)) {
+        if (!fs.pathExistsSync(tsfile)) {
             let mdnm = path.dirname(tscls).replace('/', '.');
             let dir = path.dirname(tsfile);
             fs.ensureDirSync(dir);
-            let content = dot.template(TPL_SKINCLASS)({
+            let content = mustache.render(TPL_SKINCLASS, {
                 MODULE: mdnm,
                 CLASS: path.basename(tscls)
             });
@@ -145,20 +145,20 @@ const TPL_THM = `
 {
     "autoGenerateExmlsList": true,
     "exmls": [],
-    "skins": {{=it.SKINS}}
+    "skins": {{SKINS}}
 }`;
 
 const TPL_SKINCLASS = `
-module {{=it.MODULE}} {
-    interface I{{=it.CLASS}}
+module {{MODULE}} {
+    interface I{{CLASS}}
     {
         //slot {
         //slot }
     }
 
-    export class {{=it.CLASS}}
+    export class {{CLASS}}
     extends eui.SpriteU
-    implements I{{=it.CLASS}}
+    implements I{{CLASS}}
     {
         //skin {
         //skin }
