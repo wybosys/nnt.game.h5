@@ -23,6 +23,9 @@ export interface GameBuildOptions {
 
     // 合并小图
     merge_images?: boolean;
+
+    // 不打开服务
+    noservice?: boolean;
 }
 
 export type ProgramHandleType = program.Command;

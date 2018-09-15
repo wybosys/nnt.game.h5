@@ -12,6 +12,9 @@ import {
     XmlNode
 } from "./kernel";
 import path = require("path");
+import {Service} from "./service";
+import spawn = require("cross-spawn");
+import program = require("commander");
 
 const PAT_EXML = [/\.exml$/];
 
@@ -110,6 +113,10 @@ export class EgretEui {
         }
         return tscls.replace(/\//g, '.');
     }
+
+    startWatch(svc: Service) {
+        //const child = spawn();
+    }
 }
 
 function xml_getElementsByAttributeName(node: HTMLElement, name: string, arr?: HTMLElement[]): HTMLElement[] {
@@ -165,3 +172,10 @@ const TPL_SKINCLASS = `module {{MODULE}} {
         //skin }
     }
 }`;
+
+if (path.basename(process.argv[1]) == 'egret-eui.js') {
+    // 是通过spwan直接运行起来
+    program
+        .version("1.0.0")
+        .parse(process.argv);
+}

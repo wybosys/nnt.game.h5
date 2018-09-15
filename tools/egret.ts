@@ -32,6 +32,8 @@ export class EgretGame extends Game {
         this.resource = new EgretResource();
     }
 
+    resource: EgretResource;
+
     clean() {
         super.clean();
 
@@ -56,13 +58,20 @@ export class EgretGame extends Game {
             // 去除publish引起的egret混乱
             fs.removeSync('publish');
             // 判断使用何种编译
-            this.egret('build');
+            //this.egret('build');
             // 生成测试入口
-            this.makeDebugIndex();
+            //this.makeDebugIndex();
             // 创建引用
             fs.ensureSymlinkSync("project/bin-debug", "bin-debug");
             fs.ensureSymlinkSync("project/libs", "libs");
             fs.ensureSymlinkSync("project/resource", "resource");
+            // 启动服务
+            if (!opts.noservice) {
+                // 监听eui的改变，刷新代码
+                this._eui.startWatch(this.service);
+                // 监听资源的改变，刷新资源数据表
+                this.resource.startWatch(this.service);
+            }
             return;
         }
     }

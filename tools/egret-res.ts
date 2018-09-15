@@ -5,11 +5,14 @@ import {AUTOMERGE_BLACKS, GENRES_BLACKS} from "./egret";
 import fs = require("fs-extra");
 import path = require("path");
 import {ImageMerge} from "./image";
+import {Service} from "./service";
+import spawn = require("cross-spawn");
+import chokidar = require("chokidar");
 
 export class EgretResource extends Resource {
 
     async refresh(): Promise<boolean> {
-        return this.refreshIn('');
+        return this.refreshIn('project/');
     }
 
     protected async refreshIn(dir: string): Promise<boolean> {
@@ -66,13 +69,18 @@ export class EgretResource extends Resource {
                 let merge = new ImageMerge(full, name);
                 merge.process();
             });
-            //this.refreshIn('publish/');
+            this.refreshIn('publish/');
         }
         return true;
     }
 
     async dist(): Promise<boolean> {
         return true;
+    }
+
+    startWatch(svc: Service) {
+        const child = spawn('node', ['tools/egret-res.js'], {stdio: 'inherit'});
+        svc.add(child);
     }
 }
 
@@ -124,4 +132,14 @@ class EgretFileInfo {
         }
         return true;
     }
+}
+
+if (path.basename(process.argv[1]) == 'egret-res.js') {
+    // 是通过spwan直接运行起来
+    console.log('启动egret-res服务');
+    let watcher = chokidar.watch('project/resource/assets');
+    let res = new EgretResource();
+    watcher.on('all', () => {
+        res.refresh();
+    });
 }

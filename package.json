@@ -4,6 +4,8 @@
   },
   "dependencies": {
     "@types/async": "^2.0.49",
+    "@types/chokidar": "^1.7.5",
+    "@types/cross-spawn": "^6.0.0",
     "@types/dot": "^1.1.2",
     "@types/dustjs-linkedin": "^1.2.31",
     "@types/execa": "^0.9.0",
@@ -17,6 +19,9 @@
     "@types/uuid": "^3.4.4",
     "@types/xmldom": "^0.1.29",
     "async": "^2.6.1",
+    "chokidar": "^2.0.4",
+    "commander": "^2.18.0",
+    "cross-spawn": "^6.0.5",
     "dot": "^1.1.2",
     "dustjs-linkedin": "^2.7.5",
     "execa": "^1.0.0",
