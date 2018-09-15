@@ -58,9 +58,9 @@ export class EgretGame extends Game {
             // 去除publish引起的egret混乱
             fs.removeSync('publish');
             // 判断使用何种编译
-            //this.egret('build');
+            this.egret('build');
             // 生成测试入口
-            //this.makeDebugIndex();
+            this.makeDebugIndex();
             // 创建引用
             fs.ensureSymlinkSync("project/bin-debug", "bin-debug");
             fs.ensureSymlinkSync("project/libs", "libs");

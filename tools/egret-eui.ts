@@ -13,8 +13,8 @@ import {
 } from "./kernel";
 import path = require("path");
 import {Service} from "./service";
-import spawn = require("cross-spawn");
-import program = require("commander");
+import execa = require("execa");
+import watch = require("watch");
 
 const PAT_EXML = [/\.exml$/];
 
@@ -53,7 +53,7 @@ export class EgretEui {
     }
 
     // 构建制定文件，返回对应的类名
-    protected buildOneSkin(exml: string): string {
+    buildOneSkin(exml: string): string {
         let doc = LoadXmlFile(exml);
         const nodes = xml_getElementsByAttributeName(doc.documentElement, 'id');
         let slots = xml_getAttributesByName(doc.documentElement, 'slots');
@@ -115,7 +115,12 @@ export class EgretEui {
     }
 
     startWatch(svc: Service) {
-        //const child = spawn();
+        let res = execa('node', ['tools/egret-eui.js'], {
+            detached: true,
+            stdio: 'ignore'
+        });
+        res.unref();
+        svc.add(res, 'egret-eui');
     }
 }
 
@@ -174,8 +179,18 @@ const TPL_SKINCLASS = `module {{MODULE}} {
 }`;
 
 if (path.basename(process.argv[1]) == 'egret-eui.js') {
-    // 是通过spwan直接运行起来
-    program
-        .version("1.0.0")
-        .parse(process.argv);
+    watch.createMonitor('project/resource/assets', moniter => {
+        let eui = new EgretEui();
+        moniter.on('created', (f, stat) => {
+            console.log('created:' + f);
+            eui.build();
+        });
+        moniter.on('changed', (f, stat) => {
+            //console.log('changed:' + f);
+        });
+        moniter.on('removed', (f, stat) => {
+            console.log('removed:' + f);
+            eui.build();
+        });
+    });
 }

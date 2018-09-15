@@ -8,7 +8,6 @@ import {ImageMerge} from "./image";
 import {Service} from "./service";
 import watch = require("watch");
 import execa = require("execa");
-import cluster = require("cluster");
 
 export class EgretResource extends Resource {
 
@@ -140,7 +139,6 @@ class EgretFileInfo {
 }
 
 if (path.basename(process.argv[1]) == 'egret-res.js') {
-    // 是通过spwan直接运行起来
     console.log('启动egret-res服务');
     watch.createMonitor('project/resource/assets', moniter => {
         let res = new EgretResource();
