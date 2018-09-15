@@ -6,8 +6,9 @@ import fs = require("fs-extra");
 import path = require("path");
 import {ImageMerge} from "./image";
 import {Service} from "./service";
-import spawn = require("cross-spawn");
-import chokidar = require("chokidar");
+import watch = require("watch");
+import execa = require("execa");
+import cluster = require("cluster");
 
 export class EgretResource extends Resource {
 
@@ -79,8 +80,12 @@ export class EgretResource extends Resource {
     }
 
     startWatch(svc: Service) {
-        const child = spawn('node', ['tools/egret-res.js'], {stdio: 'inherit'});
-        svc.add(child);
+        let res = execa('node', ['tools/egret-res.js'], {
+            detached: true,
+            stdio: 'ignore'
+        });
+        res.unref();
+        svc.add(res, 'egret-res');
     }
 }
 
@@ -137,9 +142,19 @@ class EgretFileInfo {
 if (path.basename(process.argv[1]) == 'egret-res.js') {
     // 是通过spwan直接运行起来
     console.log('启动egret-res服务');
-    let watcher = chokidar.watch('project/resource/assets');
-    let res = new EgretResource();
-    watcher.on('all', () => {
-        res.refresh();
+    watch.createMonitor('project/resource/assets', moniter => {
+        let res = new EgretResource();
+        moniter.on('created', (f, stat) => {
+            console.log('created:' + f);
+            res.refresh();
+        });
+        moniter.on('changed', (f, stat) => {
+            console.log('changed:' + f);
+            res.refresh();
+        });
+        moniter.on('removed', (f, stat) => {
+            console.log('removed:' + f);
+            res.refresh();
+        });
     });
 }

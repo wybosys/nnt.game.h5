@@ -7,7 +7,6 @@ import ini = require("ini");
 import inquirer = require("inquirer");
 import async = require("async");
 import xmldom = require("xmldom");
-import defineProperty = Reflect.defineProperty;
 
 export type IndexedObject = { [key: string]: any };
 
@@ -16,20 +15,38 @@ export class EmbededKv {
     constructor(file: string) {
         let adapter = new lowdbFileSync(file);
         this._db = lowdb(adapter);
+        if (this._db.has('data').value()) {
+            this._obj = this._db.get('data').value();
+        } else {
+            this._obj = Object.create(null);
+            this._db.set('data', this._obj).write();
+        }
     }
 
     contains(key: string): boolean {
-        return this._db.get(key).value() != undefined;
+        return key in this._obj;
     }
 
     get(key: string) {
-        return this._db.get(key).value();
+        return this._obj[key];
     }
 
     set(key: string, value: any) {
-        this._db.set(key, value).write();
+        this._obj[key] = value;
+        this._db.set('data', this._obj).write();
     }
 
+    clear() {
+        this._obj = Object.create(null);
+        this._db.set('data', this._obj).write();
+    }
+
+    forEach(proc: (val: any, key: string) => void) {
+        for (let k in this._obj)
+            proc(this._obj[k], k);
+    }
+
+    private _obj: IndexedObject;
     private _db: any;
 }
 
