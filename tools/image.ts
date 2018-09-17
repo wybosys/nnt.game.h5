@@ -117,8 +117,8 @@ export class ImageMerge {
             top: rc.y
         });
         // 保存到buf，并用buf重新构造work
-        let buf = await work.image.png().toBuffer();
-        work.image = sharp(buf);
+        let buf = await work.image.toBuffer();
+        work.image = sharp(buf).png();
         // 添加下一张
         let res = await this.doMergeImages(work, infos, new Rect(rc.x + fnd.bbx.width, rc.y, rc.width - fnd.bbx.width, rc.height));
         if (res)
@@ -136,7 +136,7 @@ export class ImageMergeResult {
                 channels: 4,
                 background: {r: 0, g: 0, b: 0, alpha: 0}
             }
-        });
+        }).png();
     }
 
     image: Image;
