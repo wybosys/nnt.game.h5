@@ -90,7 +90,7 @@ export class ImageMerge {
         for (let workid = 0; ; ++workid) {
             // 新建画布
             let work = new ImageMergeResult();
-            const res = this.doMergeImages(work, infos, new Rect(0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT));
+            const res = await this.doMergeImages(work, infos, new Rect(0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT));
             // 保存合并后的图
             let file = this._dir + '/' + MD5(this._dir, "hex") + '_automerged_' + workid + '.png';
             work.image.png().toBuffer((err, buf) => {
@@ -101,7 +101,7 @@ export class ImageMerge {
         }
     }
 
-    protected doMergeImages(work: ImageMergeResult, infos: MergingFileInfo[], rc: Rect): boolean {
+    protected async doMergeImages(work: ImageMergeResult, infos: MergingFileInfo[], rc: Rect): Promise<boolean> {
         if (infos.length == 0)
             return true;
         // 查找可以填充的
@@ -116,7 +116,12 @@ export class ImageMerge {
             left: rc.x,
             top: rc.y
         });
-        if (this.doMergeImages(work, infos, new Rect(rc.x + fnd.bbx.width, rc.y, rc.width - fnd.bbx.width, rc.height)))
+        // 保存到buf，并用buf重新构造work
+        let buf = await work.image.png().toBuffer();
+        work.image = sharp(buf);
+        // 添加下一张
+        let res = await this.doMergeImages(work, infos, new Rect(rc.x + fnd.bbx.width, rc.y, rc.width - fnd.bbx.width, rc.height));
+        if (res)
             return true;
         return this.doMergeImages(work, infos, new Rect(rc.x, rc.y + fnd.bbx.height, rc.width, rc.height - fnd.bbx.height));
     }
