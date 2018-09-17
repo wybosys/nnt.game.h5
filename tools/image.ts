@@ -61,14 +61,14 @@ export class ImageMerge {
             let img = sharp(info.src);
 
             // 获得原始图片数据
+            const meta = await img.metadata();
             const bbx = await img.bbx(10);
-            if (bbx.width && bbx.height) {
+            if (bbx.width && bbx.height && (bbx.width != meta.width || bbx.height != meta.height)) {
                 info.bbx = new Rect(bbx.left, bbx.top, bbx.width, bbx.height);
                 info.dest = MergingFileInfo.Dest(info.src);
                 // trim后保存起来
                 await img.trim(10).toFile(info.dest);
             } else {
-                const meta = await img.metadata();
                 info.bbx = new Rect(0, 0, meta.width, meta.height);
                 info.dest = info.src;
             }
