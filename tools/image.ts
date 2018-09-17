@@ -93,8 +93,8 @@ export class ImageMerge {
             const res = await this.doMergeImages(work, infos, new Rect(0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT));
             // 保存合并后的图
             let file = this._dir + '/' + MD5(this._dir, "hex") + '_automerged_' + workid + '.png';
-            work.image.png().toBuffer((err, buf) => {
-                sharp(buf).trim().toFile(file);
+            work.image.toBuffer((err, buf) => {
+                sharp(buf).png().trim().toFile(file);
             });
             if (res)
                 break;
