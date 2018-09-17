@@ -1,6 +1,6 @@
 import sharp = require("sharpkit");
 import path = require("path");
-import {ArrayT, ListFiles, MD5, Rect, Size} from "./kernel";
+import {ArrayT, ListFiles, MD5, Point, Rect, Size} from "./kernel";
 
 export type Image = sharp.SharpInstance;
 
@@ -14,11 +14,17 @@ class MergingFileInfo {
     // 源图片包围
     bbx = new Rect();
 
+    // 合图后的位置
+    postion: Point;
+
     // 计算文件位置
     static Dest(src: string): string {
         return ".n2/resmerger/" + MD5(src, "hex") + ".png";
     }
 }
+
+const TEXTURE_WIDTH = 2048;
+const TEXTURE_HEIGHT = 2048;
 
 export class ImageMerge {
 
@@ -72,6 +78,7 @@ export class ImageMerge {
                 info.bbx = new Rect(0, 0, meta.width, meta.height);
                 info.dest = info.src;
             }
+            infos.push(info);
         }
 
         // 根据有效面积先排序(从大到小)
@@ -80,5 +87,53 @@ export class ImageMerge {
         });
 
         // 处理合并
+        for (let workid = 0; ; ++workid) {
+            // 新建画布
+            let work = new ImageMergeResult();
+            const res = this.doMergeImages(work, infos, new Rect(0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT));
+            // 保存合并后的图
+            let file = this._dir + '/' + MD5(this._dir, "hex") + '_automerged_' + workid + '.png';
+            work.image.png().toBuffer((err, buf) => {
+                sharp(buf).trim().toFile(file);
+            });
+            if (res)
+                break;
+        }
     }
+
+    protected doMergeImages(work: ImageMergeResult, infos: MergingFileInfo[], rc: Rect): boolean {
+        if (infos.length == 0)
+            return true;
+        // 查找可以填充的
+        let fnd = ArrayT.RemoveObjectByFilter(infos, e => {
+            return e.bbx.width <= rc.width && e.bbx.height <= rc.height;
+        });
+        if (!fnd)
+            return false;
+        work.result.push(fnd);
+        fnd.postion = new Point(rc.x, rc.y);
+        work.image.overlayWith(fnd.dest, {
+            left: rc.x,
+            top: rc.y
+        });
+        if (this.doMergeImages(work, infos, new Rect(rc.x + fnd.bbx.width, rc.y, rc.width - fnd.bbx.width, rc.height)))
+            return true;
+        return this.doMergeImages(work, infos, new Rect(rc.x, rc.y + fnd.bbx.height, rc.width, rc.height - fnd.bbx.height));
+    }
+}
+
+export class ImageMergeResult {
+    constructor() {
+        this.image = sharp(<any> {
+            create: {
+                width: TEXTURE_WIDTH,
+                height: TEXTURE_HEIGHT,
+                channels: 4,
+                background: {r: 0, g: 0, b: 0, alpha: 0}
+            }
+        });
+    }
+
+    image: Image;
+    result: MergingFileInfo[] = [];
 }

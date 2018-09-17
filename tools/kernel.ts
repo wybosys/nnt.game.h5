@@ -10,6 +10,21 @@ import xmldom = require("xmldom");
 
 export type IndexedObject = { [key: string]: any };
 
+export class Point {
+    constructor(x = 0, y = 0) {
+        this.x = x;
+        this.y = y;
+    }
+
+    move(x = 0, y = 0) {
+        this.x = x;
+        this.y = y;
+    }
+
+    x: number;
+    y: number;
+}
+
 export class Size {
     constructor(w = 0, h = 0) {
         this.width = w;
