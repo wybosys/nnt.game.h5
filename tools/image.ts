@@ -16,7 +16,7 @@ class MergingFileInfo {
 
     // 计算文件位置
     static Dest(src: string): string {
-        return ".n2/resmerger/" + MD5(src) + ".png";
+        return ".n2/resmerger/" + MD5(src, "hex") + ".png";
     }
 }
 
@@ -58,15 +58,26 @@ export class ImageMerge {
         for (let i = 0, l = files.length; i < l; ++i) {
             let info = new MergingFileInfo();
             info.src = files[i];
-            info.dest = MergingFileInfo.Dest(info.src);
             let img = sharp(info.src);
 
             // 获得原始图片数据
-            const bbx = await img.bbx();
-            info.bbx = new Rect(bbx.left, bbx.top, bbx.width, bbx.height);
-            // trim后保存起来
-            await img.trim(10).toFile(info.dest);
+            const bbx = await img.bbx(10);
+            if (bbx.width && bbx.height) {
+                info.bbx = new Rect(bbx.left, bbx.top, bbx.width, bbx.height);
+                info.dest = MergingFileInfo.Dest(info.src);
+                // trim后保存起来
+                await img.trim(10).toFile(info.dest);
+            } else {
+                const meta = await img.metadata();
+                info.bbx = new Rect(0, 0, meta.width, meta.height);
+                info.dest = info.src;
+            }
         }
+
+        // 根据有效面积先排序(从大到小)
+        infos.sort((l, r) => {
+            return r.bbx.aera() - l.bbx.aera();
+        });
 
         // 处理合并
     }

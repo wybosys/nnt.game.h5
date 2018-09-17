@@ -23,6 +23,10 @@ export class Size {
 
     width: number;
     height: number;
+
+    aera(): number {
+        return this.width * this.height;
+    }
 }
 
 export class Rect extends Size {
@@ -131,9 +135,9 @@ export function SimpleHashFile(file: string): string {
     return MD5(str);
 }
 
-export function MD5(str: string): string {
+export function MD5(str: string, method = "base64"): string {
     let hdl = crypto.createHash('md5').update(str);
-    return hdl.digest().toString("base64");
+    return hdl.digest().toString(method);
 }
 
 export function IsFile(path: string): boolean {
