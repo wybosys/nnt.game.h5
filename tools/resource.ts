@@ -8,4 +8,7 @@ export abstract class Resource {
 
     // 打包资源
     abstract async dist(): Promise<boolean>;
+
+    // 清理
+    abstract clean(): void;
 }

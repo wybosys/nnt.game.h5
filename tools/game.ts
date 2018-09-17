@@ -42,6 +42,8 @@ export abstract class Game {
     clean() {
         this.config.clean();
         this.gendata.clean();
+        this.service.stop();
+        this.resource.clean();
     }
 
     // 编译

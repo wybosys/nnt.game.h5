@@ -1,7 +1,6 @@
 import fs = require("fs-extra");
 import mustache = require("mustache");
 import {
-    AsyncQueue,
     LinesReplace,
     ListFiles,
     LoadXmlFile,

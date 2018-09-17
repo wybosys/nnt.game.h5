@@ -26,7 +26,6 @@ function main() {
         .description("清理项目")
         .action(() => {
             game.clean();
-            game.service.stop();
         });
 
     program

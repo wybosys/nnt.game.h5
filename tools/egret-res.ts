@@ -15,6 +15,11 @@ export class EgretResource extends Resource {
         return this.refreshIn('project/');
     }
 
+    clean() {
+        fs.removeSync("publish/resource");
+        fs.removeSync(".n2/res/resmerger");
+    }
+
     protected async refreshIn(dir: string): Promise<boolean> {
         // 遍历所有的子文件，找出png\jpg\json，生成default.res.json文件并生成对应的group
         let jsobj = {
@@ -58,17 +63,22 @@ export class EgretResource extends Resource {
     }
 
     async publish(): Promise<boolean> {
+        // 用来存放临时资源
+        fs.ensureDirSync(".n2/resmerger");
+        // 移除之前的老资源
         fs.removeSync("publish");
         console.log("拷贝资源");
-        fs.copySync("resource", "publish/resource");
+        fs.copySync("project/resource", "publish/resource");
         if (Game.shared.config.get('dev', 'automerge') == 'y') {
             console.log("自动合并");
-            ListDirs("publish/resource/assets", null, AUTOMERGE_BLACKS, null, 2, false).forEach(subdir => {
+            const dirs = ListDirs("publish/resource/assets", null, AUTOMERGE_BLACKS, null, 2, false);
+            for (let i = 0, l = dirs.length; i < l; ++i) {
+                const subdir = dirs[i];
                 let full = "publish/resource/assets" + subdir;
                 let name = StringT.SubStr(subdir, 1);
                 let merge = new ImageMerge(full, name);
-                merge.process();
-            });
+                await merge.process();
+            }
             this.refreshIn('publish/');
         }
         return true;
@@ -138,6 +148,7 @@ class EgretFileInfo {
     }
 }
 
+// 建立服务时会被独立调用，所以无法下端点进行调试，只能通过单独增加调试配置来调试服务
 if (path.basename(process.argv[1]) == 'egret-res.js') {
     console.log('启动egret-res服务');
     watch.createMonitor('project/resource/assets', moniter => {

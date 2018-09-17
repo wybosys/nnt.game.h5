@@ -29,7 +29,7 @@
     "lowdb": "^1.0.0",
     "mustache": "^2.3.2",
     "proper-lockfile": "^3.0.2",
-    "sharpkit": "^10.20.2",
+    "sharpkit": "^10.30.1",
     "uglify-js": "^3.4.9",
     "uuid": "^3.3.2",
     "walk": "^2.3.14",

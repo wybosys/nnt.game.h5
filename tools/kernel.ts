@@ -10,6 +10,37 @@ import xmldom = require("xmldom");
 
 export type IndexedObject = { [key: string]: any };
 
+export class Size {
+    constructor(w = 0, h = 0) {
+        this.width = w;
+        this.height = h;
+    }
+
+    resize(w = 0, h = 0) {
+        this.width = w;
+        this.height = h;
+    }
+
+    width: number;
+    height: number;
+}
+
+export class Rect extends Size {
+    constructor(x = 0, y = 0, w = 0, h = 0) {
+        super(w, h);
+        this.x = x;
+        this.y = y;
+    }
+
+    moveto(x = 0, y = 0) {
+        this.x = x;
+        this.y = y;
+    }
+
+    x: number;
+    y: number;
+}
+
 export class EmbededKv {
 
     constructor(file: string) {

@@ -1,8 +1,24 @@
 import sharp = require("sharpkit");
 import path = require("path");
-import {ArrayT, ListFiles} from "./kernel";
+import {ArrayT, ListFiles, MD5, Rect, Size} from "./kernel";
 
 export type Image = sharp.SharpInstance;
+
+class MergingFileInfo {
+    // 源文件地址
+    src: string;
+
+    // 临时存放地址
+    dest: string;
+
+    // 源图片包围
+    bbx = new Rect();
+
+    // 计算文件位置
+    static Dest(src: string): string {
+        return ".n2/resmerger/" + MD5(src) + ".png";
+    }
+}
 
 export class ImageMerge {
 
@@ -16,7 +32,7 @@ export class ImageMerge {
 
     async process() {
         console.log("自动合并 " + this._dir);
-        // 只合并独立的png
+        // 只合并独立的png，其他的比如序列帧、字体也会用到png，需要被跳过
         let files = ListFiles(this._dir, null, null, null, 1);
         files.concat().forEach(file => {
             let info = path.parse(file);
@@ -34,16 +50,24 @@ export class ImageMerge {
         this.doMerge(files);
     }
 
+    // 由于sharp库的功能，裁剪图片采用先trim到本地文件，再load，获取目标大小以及绘制到指定位置
     protected async doMerge(files: string[]) {
+        // 源文件对应输出文件的对照
+        let infos: MergingFileInfo[] = [];
         // 获得图片的信息
         for (let i = 0, l = files.length; i < l; ++i) {
-            let file = files[i];
-            let img = sharp(file);
-            let info = await img.metadata();
+            let info = new MergingFileInfo();
+            info.src = files[i];
+            info.dest = MergingFileInfo.Dest(info.src);
+            let img = sharp(info.src);
+
+            // 获得原始图片数据
+            const bbx = await img.bbx();
+            info.bbx = new Rect(bbx.left, bbx.top, bbx.width, bbx.height);
+            // trim后保存起来
+            await img.trim(10).toFile(info.dest);
         }
+
+        // 处理合并
     }
-}
-
-export class ImageCompress {
-
 }
