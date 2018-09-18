@@ -7,7 +7,7 @@ export class ServiceItem {
     desc: string;
 
     toString(): string {
-        return this.desc + '(' + this.pid + ')';
+        return this.desc + ':' + this.pid;
     }
 }
 
@@ -45,6 +45,14 @@ export class Service {
             ret.push(t);
         });
         return ret;
+    }
+
+    toString(): string {
+        let strs: string[] = [];
+        this.all().forEach(e => {
+            strs.push(e.toString());
+        });
+        return strs.join('\n');
     }
 
     // pids 数据

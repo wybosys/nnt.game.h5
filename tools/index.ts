@@ -77,7 +77,7 @@ function main() {
             if (act == "stop")
                 game.service.stop();
             else if (act == "list")
-                console.log(game.service.all());
+                console.log(game.service.toString());
         });
 
     program
