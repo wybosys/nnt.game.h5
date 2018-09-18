@@ -44,6 +44,7 @@ export class EgretGame extends Game {
 
     build(opts: GameBuildOptions) {
         if (opts.debug) {
+            console.log("普通编译")；
             // 去除publish引起的egret混乱
             fs.removeSync('publish');
             // 判断使用何种编译
