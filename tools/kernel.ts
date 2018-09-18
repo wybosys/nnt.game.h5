@@ -7,6 +7,8 @@ import ini = require("ini");
 import inquirer = require("inquirer");
 import async = require("async");
 import xmldom = require("xmldom");
+import fsext = require("fs-ext");
+import tmp = require("tmp");
 
 export type IndexedObject = { [key: string]: any };
 
@@ -484,4 +486,30 @@ export enum XmlNode {
     DOCUMENT_NODE = 9,
     DOCUMENT_TYPE_NODE = 10,
     DOCUMENT_FRAGMENT_NODE = 11
+}
+
+export class FileLocker {
+
+    constructor(file: string) {
+        this._fd = fsext.openSync(file, 'w');
+    }
+
+    acquire(): boolean {
+        let r = true;
+        try {
+            fsext.flockSync(this._fd, "exnb");
+        } catch (ex) {
+            r = false;
+        }
+        return r;
+    }
+
+    release() {
+        try {
+            fsext.flockSync(this._fd, "un");
+        } catch (ex) {
+        }
+    }
+
+    private _fd: number;
 }

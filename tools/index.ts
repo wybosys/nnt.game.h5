@@ -19,9 +19,6 @@ function main() {
         game = new EgretGame();
 
     program
-        .option("--noservice", "不开服务运行");
-
-    program
         .command("clean")
         .description("清理项目")
         .action(() => {
@@ -45,6 +42,17 @@ function main() {
         .action(() => {
             game.build({
                 release: true,
+                noservice: true
+            });
+        });
+
+    program
+        .command("dist")
+        .description("发布项目")
+        .option("-c, --compress", "启用图片压缩")
+        .action(() => {
+            game.build({
+                distribution: true,
                 noservice: true
             });
         });

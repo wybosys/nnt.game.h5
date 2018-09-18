@@ -89,6 +89,8 @@ export class EgretResource extends Resource {
     }
 
     startWatch(svc: Service) {
+        if (Service.Locker('egret-res').acquire() == false)
+            return;
         let res = execa('node', ['tools/egret-res.js'], {
             detached: true,
             stdio: 'ignore'
@@ -151,6 +153,7 @@ class EgretFileInfo {
 // 建立服务时会被独立调用，所以无法下端点进行调试，只能通过单独增加调试配置来调试服务
 if (path.basename(process.argv[1]) == 'egret-res.js') {
     console.log('启动egret-res服务');
+    Service.Locker('egret-res').acquire();
     watch.createMonitor('project/resource/assets', moniter => {
         let res = new EgretResource();
         moniter.on('created', (f, stat) => {

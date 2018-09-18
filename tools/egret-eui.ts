@@ -114,6 +114,8 @@ export class EgretEui {
     }
 
     startWatch(svc: Service) {
+        if (Service.Locker('egret-eui').acquire() == false)
+            return;
         let res = execa('node', ['tools/egret-eui.js'], {
             detached: true,
             stdio: 'ignore'
@@ -178,6 +180,7 @@ const TPL_SKINCLASS = `module {{MODULE}} {
 }`;
 
 if (path.basename(process.argv[1]) == 'egret-eui.js') {
+    Service.Locker('egret-eui').acquire();
     watch.createMonitor('project/resource/assets', moniter => {
         let eui = new EgretEui();
         moniter.on('created', (f, stat) => {

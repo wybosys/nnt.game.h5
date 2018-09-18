@@ -1,5 +1,6 @@
 import child_process = require("child_process");
-import {EmbededKv} from "./kernel";
+import {EmbededKv, FileLocker} from "./kernel";
+import fs = require("fs-extra");
 
 export class ServiceItem {
     pid: number;
@@ -11,6 +12,12 @@ export class ServiceItem {
 }
 
 export class Service {
+
+    // 生成锁
+    static Locker(name: string): FileLocker {
+        fs.ensureDirSync(".n2/lockers.fd");
+        return new FileLocker(".n2/lockers.fd/" + name);
+    }
 
     add(child: child_process.ChildProcess, desc?: string) {
         // 保存pid到数据库
@@ -26,6 +33,7 @@ export class Service {
             }
         });
         this._pids.clear();
+        fs.removeSync(".n2/lockers.fd");
     }
 
     all(): ServiceItem[] {
