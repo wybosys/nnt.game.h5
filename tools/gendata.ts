@@ -65,7 +65,7 @@ export class Gendata {
     private _registered: boolean;
 }
 
-export let TPL_CONFIGS = "export module Data {~lb}\n" +
+export let TPL_CONFIGS = "module Data {~lb}\n" +
     "\n" +
     "type undecl = string;\n" +
     "type rowindex = number;\n" +

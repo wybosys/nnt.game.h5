@@ -12,6 +12,4 @@ default\.*
 ~*
 node_modules
 *.js.map
-/publish
-/dist
-/resource
+
