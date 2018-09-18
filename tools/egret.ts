@@ -43,10 +43,11 @@ export class EgretGame extends Game {
     }
 
     build(opts: GameBuildOptions) {
+        // 去除publish引起的egret混乱
+        fs.removeSync('publish');
+
         if (opts.debug) {
-            console.log("普通编译");
-            // 去除publish引起的egret混乱
-            fs.removeSync('publish');
+            console.log("构建debug版本");
             // 判断使用何种编译
             this.egret('build');
             // 生成测试入口
@@ -60,6 +61,16 @@ export class EgretGame extends Game {
             }
             return;
         }
+
+        console.log("构建release版本");
+        // 先编译下基础debug版本
+        this.egret('build');
+
+        // 清理老的文件
+        fs.removeSync('project/bin-release');
+
+        // 编译release
+        this.egret('publish --compressjson');
     }
 
     protected egret(cmd: string): string {

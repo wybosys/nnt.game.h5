@@ -4,7 +4,6 @@ libs
 /index\.html
 /project/index\.html
 manifest\.json
-default\.*
 \.idea
 \.n2
 \.wing
@@ -12,4 +11,3 @@ default\.*
 ~*
 node_modules
 *.js.map
-
