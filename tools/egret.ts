@@ -64,11 +64,11 @@ export class EgretGame extends Game {
 
         console.log("构建release版本");
         // 先编译下基础debug版本
-        //this.egret('build');
+        this.egret('build');
 
         // 清理老的并编译
-        //fs.removeSync('project/bin-release');
-        //this.egret('publish --compressjson');
+        fs.removeSync('project/bin-release');
+        this.egret('publish --compressjson');
 
         // 整理release出的文件，放到publish下面
         fs.ensureDirSync('publish');
