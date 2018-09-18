@@ -11,6 +11,7 @@ import os = require("os");
 import execa = require("execa");
 
 export const IMAGE_EXTS = ['.jpeg', '.jpg', '.png'];
+const PUBLISH_FIX_IMAGESOURCE = new RegExp("imageSource = ([a-zA-Z0-9:/_.\\- ]+);", "g");
 
 const EGRET_CMD = os.type() == 'Windows_NT' ? 'egret.cmd' : 'egret';
 
@@ -42,7 +43,7 @@ export class EgretGame extends Game {
         this._eui.clean();
     }
 
-    build(opts: GameBuildOptions) {
+    async build(opts: GameBuildOptions) {
         // 去除publish引起的egret混乱
         fs.removeSync('publish');
 
@@ -74,14 +75,47 @@ export class EgretGame extends Game {
         fs.ensureDirSync('publish');
 
         const binweb = DirAtChild('project/bin-release/web', 0, true);
+
+        // 处理资源
+        fs.moveSync(binweb + '/resource', 'publish/resource');
+        await this.resource.publishIn('publish/', {
+            merge: opts.merge_images,
+            compress: opts.compress_images
+        });
+
         // 读取生成的manifest，将属于引擎的代码打包
         const jsobj = fs.readJSONSync(binweb + '/manifest.json');
-        // 合并基础类库
+
+        // 打包基础类
         let libjss: string[] = [];
         jsobj.initial.forEach((file: string) => {
             libjss.push(fs.readFileSync(binweb + '/' + file, {encoding: 'utf8'}));
         });
         fs.writeFileSync('publish/engine.min.js', libjss.join('\n'));
+
+        // 打包游戏类
+        let gamejss: string[] = [];
+        jsobj.game.forEach((file: string) => {
+            if (file.indexOf('js/default.data') == 0) {
+                fs.moveSync(binweb + '/' + file, 'publish/resource/default.data.js');
+            }
+            else if (file.indexOf('js/default.thm') == 0) {
+                // 修正编译皮肤编译错的属性
+                let content = fs.readFileSync(binweb + '/' + file, {encoding: 'utf8'});
+                content = content.replace(PUBLISH_FIX_IMAGESOURCE, 'imageSource = "$1";');
+                gamejss.push(content);
+            }
+            else {
+                gamejss.push(fs.readFileSync(binweb + '/' + file, {encoding: 'utf8'}));
+            }
+        });
+        fs.writeFileSync('publish/main.min.js', gamejss.join('\n'));
+
+        // 兼容老版本的theme打包机制
+        fs.writeJsonSync('publish/resource/default.thm.json', '{}');
+
+        // 复制配置
+        fs.copyFileSync('app.json', 'publish/app.json');
     }
 
     protected egret(cmd: string): string {

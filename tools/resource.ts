@@ -12,7 +12,7 @@ export abstract class Resource {
     abstract async refresh(): Promise<boolean>;
 
     // 发布资源
-    abstract async publish(opts: ResourceOptions): Promise<boolean>;
+    abstract async publish(opts: ResourceOptions): Promise<void>;
 
     // 清理
     abstract clean(): void;

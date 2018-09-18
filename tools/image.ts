@@ -61,13 +61,19 @@ export class ImageMerge {
     async process() {
         console.log("自动合并 " + this._dir);
         // 只合并独立的png，其他的比如序列帧、字体也会用到png，需要被跳过
-        let files = ListFiles(this._dir, null, null, WHITES_IMAGEMERGE, 1);
+        let files = ListFiles(this._dir, null, null, null, 1);
         files.concat().forEach(file => {
             let info = path.parse(file);
             if (info.ext == ".json" || info.ext == ".fnt") {
                 // 移除对应的png
                 let tgt = file.replace(info.ext, '.png');
                 ArrayT.RemoveObject(files, tgt);
+                ArrayT.RemoveObject(files, file);
+            }
+            else if (info.ext == ".png") {
+                // 最终只允许剩下png文件
+            }
+            else {
                 ArrayT.RemoveObject(files, file);
             }
         });
@@ -83,7 +89,7 @@ export class ImageMerge {
             infos.push(info);
         });
         // 打包找到的文件
-        this.doMerge(infos);
+        await this.doMerge(infos);
     }
 
     // 由于sharp库的功能，裁剪图片采用先trim到本地文件，再load，获取目标大小以及绘制到指定位置

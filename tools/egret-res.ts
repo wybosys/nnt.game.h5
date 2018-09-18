@@ -27,7 +27,7 @@ export class EgretResource extends Resource {
         fs.removeSync(".n2/res/dist");
     }
 
-    protected async refreshIn(dir: string): Promise<boolean> {
+    async refreshIn(dir: string): Promise<boolean> {
         // 遍历所有的子文件，找出png\jpg\json，生成default.res.json文件并生成对应的group
         let jsobj = {
             'groups': new Array<{ name: string, keys: string }>(),
@@ -69,27 +69,21 @@ export class EgretResource extends Resource {
         return true;
     }
 
-    // 发布图片
-    async publish(opts: ResourceOptions): Promise<boolean> {
-        // 移除之前的老资源
-        fs.removeSync("publish");
-        console.log("拷贝资源");
-        fs.copySync("project/resource", "publish/resource");
-
+    async publishIn(dir: string, opts:ResourceOptions) {
         // 合并图片
         if (opts.merge) {
             fs.ensureDirSync(".n2/resmerger");
             console.log("合并图片");
 
-            const dirs = ListDirs("publish/resource/assets", null, BLACKS_IMAGEMERGE, null, 2, false);
+            const dirs = ListDirs(dir + "resource/assets", null, BLACKS_IMAGEMERGE, null, 2, false);
             for (let i = 0, l = dirs.length; i < l; ++i) {
                 const subdir = dirs[i];
-                let full = "publish/resource/assets" + subdir;
+                let full = dir + "resource/assets" + subdir;
                 let name = StringT.SubStr(subdir, 1);
                 let merge = new ImageMerge(full, name);
                 await merge.process();
             }
-            await this.refreshIn('publish/');
+            await this.refreshIn(dir);
         }
 
         // 压缩图片
@@ -97,14 +91,23 @@ export class EgretResource extends Resource {
             fs.ensureDirSync(".n2/res/dist");
             console.log("压缩图片");
 
-            const files = ListFiles("publish/resource/assets", null, BLACKS_IMAGECOMPRESS, WHITES_IMAGECOMPRESS, -1);
+            const files = ListFiles(dir + "resource/assets", null, BLACKS_IMAGECOMPRESS, WHITES_IMAGECOMPRESS, -1);
             // 挨个压缩
             for (let i = 0, l = files.length; i < l; ++i) {
                 let comp = new ImageCompress(files[i]);
                 comp.process();
             }
         }
-        return true;
+    }
+
+    // 发布图片
+    async publish(opts: ResourceOptions) {
+        // 移除之前的老资源
+        fs.removeSync("publish");
+        console.log("拷贝资源");
+        fs.copySync("project/resource", "publish/resource");
+
+        return this.publishIn('publish/', opts);
     }
 
     startWatch(svc: Service) {
@@ -129,14 +132,14 @@ class EgretFileInfo {
         let info = path.parse(file);
         this.name = info.name;
         if (info.name.indexOf('_automerged_') != -1) {
-            if (info.ext == 'png')
+            if (info.ext == '.png')
                 return false;
             this.name = info.name + '_json';
             this.type = 'json';
             // 读取subkeys
             let jsobj = fs.readJSONSync(file);
             let frmobjs = jsobj["frames"];
-            this.subkeys = frmobjs.keys.join(',');
+            this.subkeys = Object.keys(frmobjs).join(',');
         }
         else if (info.ext == '.png') {
             if (IsFile(info.dir + '/' + info.name + ".json") || IsFile(info.dir + '/' + info.name + ".fnt")) {

@@ -47,7 +47,7 @@ export abstract class Game {
     }
 
     // 编译
-    abstract build(opts: GameBuildOptions): void;
+    abstract async build(opts: GameBuildOptions): Promise<void>;
 
     // 添加命令
     abstract commands(program: ProgramHandleType): void;
