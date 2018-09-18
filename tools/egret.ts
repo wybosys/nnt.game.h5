@@ -49,6 +49,7 @@ export class EgretGame extends Game {
 
         if (opts.debug) {
             console.log("构建debug版本");
+            fs.copySync('app.json', 'project/app.json');
             // 判断使用何种编译
             this.egret('build');
             // 生成测试入口

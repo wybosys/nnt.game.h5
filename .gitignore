@@ -1,8 +1,9 @@
 \.+
 bin-*
 libs
-/project/index\.html
-manifest\.json
+/project/index.html
+/project/app.json
+manifest.json
 \.idea
 \.n2
 \.wing
@@ -11,4 +12,3 @@ manifest\.json
 node_modules
 *.js.map
 /publish
-
