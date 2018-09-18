@@ -7,7 +7,7 @@ import {
     ReadFileLines,
     SetT,
     static_cast,
-    StringT,
+    StringT, toJson, toJsonObject,
     XmlNode
 } from "./kernel";
 import path = require("path");
@@ -45,9 +45,11 @@ export class EgretEui {
                 thms.push('"' + cls + '":"' + skin.replace('project/', '') + '"');
         });
         // 重新生成default.thm.json
-        const content = mustache.render(TPL_THM, {
+        let content = mustache.render(TPL_THM, {
             SKINS: thms.join(',\n')
         });
+        // json格式化
+        content = toJson(toJsonObject(content), null, 8);
         fs.writeFileSync('project/resource/default.thm.json', content);
     }
 

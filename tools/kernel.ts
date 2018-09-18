@@ -530,10 +530,13 @@ export class FileLocker {
     private _fd: number;
 }
 
-export function toJson(o: IndexedObject, def: string = null) {
+export function toJson(o: IndexedObject, def: string = null, space?: number) {
     let r: string;
     try {
-        r = JSON.stringify(o);
+        if (space)
+            r = JSON.stringify(o, null, space);
+        else
+            r = JSON.stringify(o);
     }
     catch (err) {
         r = def;
