@@ -89,7 +89,7 @@ export class EgretResource extends Resource {
     }
 
     startWatch(svc: Service) {
-        if (Service.Locker('egret-res').acquire() == false)
+        if (!Service.Locker('egret-res').trylock())
             return;
         let res = execa('node', ['tools/egret-res.js'], {
             detached: true,

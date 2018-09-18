@@ -114,7 +114,7 @@ export class EgretEui {
     }
 
     startWatch(svc: Service) {
-        if (Service.Locker('egret-eui').acquire() == false)
+        if (!Service.Locker('egret-eui').trylock())
             return;
         let res = execa('node', ['tools/egret-eui.js'], {
             detached: true,

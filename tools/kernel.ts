@@ -511,5 +511,13 @@ export class FileLocker {
         }
     }
 
+    trylock(): boolean {
+        if (this.acquire()) {
+            this.release();
+            return true;
+        }
+        return false;
+    }
+
     private _fd: number;
 }
