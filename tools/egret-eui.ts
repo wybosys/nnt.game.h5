@@ -183,8 +183,11 @@ const TPL_SKINCLASS = `module {{MODULE}} {
 
 if (path.basename(process.argv[1]) == 'egret-eui.js') {
     Service.Locker('egret-eui').acquire();
+
+    let eui = new EgretEui();
+    eui.build();
+
     watch.createMonitor('project/resource/assets', moniter => {
-        let eui = new EgretEui();
         moniter.on('created', (f, stat) => {
             console.log('created:' + f);
             eui.build();

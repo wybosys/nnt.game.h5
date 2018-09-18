@@ -176,8 +176,11 @@ class EgretFileInfo {
 if (path.basename(process.argv[1]) == 'egret-res.js') {
     console.log('启动egret-res服务');
     Service.Locker('egret-res').acquire();
+
+    let res = new EgretResource();
+    res.refresh();
+
     watch.createMonitor('project/resource/assets', moniter => {
-        let res = new EgretResource();
         moniter.on('created', (f, stat) => {
             console.log('created:' + f);
             res.refresh();

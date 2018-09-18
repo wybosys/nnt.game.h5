@@ -56,6 +56,8 @@ export class EgretGame extends Game {
             this.makeDebugIndex();
             // 启动服务
             if (!opts.noservice) {
+                // 监听添加了新的配表
+                this.gendata.startWatch(this.service);
                 // 监听eui的改变，刷新代码
                 this._eui.startWatch(this.service);
                 // 监听资源的改变，刷新资源数据表

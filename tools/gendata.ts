@@ -3,7 +3,9 @@ import tpl = require("dustjs-linkedin");
 import xlsx = require("xlsx");
 import execa = require("execa");
 import {ArrayT, asString, AsyncQueue, ListFiles, static_cast, StringT, toJson, toJsonObject} from "./kernel";
-import minjs = require("uglify-js");
+import {Service} from "./service";
+import path = require("path");
+import watch = require("watch");
 
 const PAT_EXCEL = [/\.xlsx$/];
 const PAT_EXCEL_IGNORE = [/^~/, /^#/]; // office文件打开会产生临时文件
@@ -22,7 +24,7 @@ export class Gendata {
         fs.ensureDirSync(".n2/gendata");
 
         // 所有的excel文件
-        const paths = ListFiles('project/src/app', null, PAT_EXCEL_IGNORE, PAT_EXCEL, -1);
+        const paths = ListFiles('project/src/app/data', null, PAT_EXCEL_IGNORE, PAT_EXCEL, -1);
 
         // 提取有效的
         const files = ReadFiles(paths, {client: true});
@@ -55,14 +57,16 @@ export class Gendata {
             .run();
     }
 
-    protected getTpl() {
-        if (!this._registered) {
-            this._registered = true;
-        }
-        return tpl;
+    startWatch(svc: Service) {
+        if (!Service.Locker('gendata').trylock())
+            return;
+        let res = execa('node', ['tools/gendata.js'], {
+            detached: true,
+            stdio: 'ignore'
+        });
+        res.unref();
+        svc.add(res, 'gendata');
     }
-
-    private _registered: boolean;
 }
 
 export let TPL_CONFIGS = "module Data {~lb}\n" +
@@ -513,6 +517,26 @@ function FieldOfColumn(s: xlsx.WorkSheet, aoa: any[], idx: number): Field {
         break;
     }
     return r;
+}
+
+// 服务
+if (path.basename(process.argv[1]) == 'gendata.js') {
+    Service.Locker('egret-eui').acquire();
+
+    let gd = new Gendata();
+    gd.build();
+
+    watch.createMonitor('project/src/app/data', moniter => {
+        moniter.on('created', (f, stat) => {
+            gd.build();
+        });
+        moniter.on('changed', (f, stat) => {
+            gd.build();
+        });
+        moniter.on('removed', (f, stat) => {
+            gd.build();
+        });
+    });
 }
 
 // 注册自定义的配置项生成器
