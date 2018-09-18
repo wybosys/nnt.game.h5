@@ -12,3 +12,4 @@ manifest.json
 node_modules
 *.js.map
 /publish
+default.*
