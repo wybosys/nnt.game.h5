@@ -1,6 +1,7 @@
 import sharp = require("sharpkit");
 import path = require("path");
-import {ArrayT, ListFiles, MD5, Point, Rect, Size} from "./kernel";
+import {ArrayT, IndexedObject, ListFiles, MD5, Point, Rect, Size} from "./kernel";
+import fs = require("fs-extra");
 
 export type Image = sharp.SharpInstance;
 
@@ -8,11 +9,17 @@ class MergingFileInfo {
     // 源文件地址
     src: string;
 
+    // 源文件名
+    filename: string;
+
     // 临时存放地址
     dest: string;
 
     // 源图片包围
-    bbx = new Rect();
+    bbx: Rect;
+
+    // 原图的大小
+    size: Size;
 
     // 合图后的位置
     postion: Point;
@@ -52,22 +59,29 @@ export class ImageMerge {
         console.log("找到了 " + files.length + " 个图片");
         if (!files.length)
             return;
+        let infos: MergingFileInfo[] = [];
+        files.forEach(file => {
+            let t = path.parse(file);
+            let info = new MergingFileInfo();
+            info.src = file;
+            info.filename = t.name;
+            infos.push(info);
+        });
         // 打包找到的文件
-        this.doMerge(files);
+        this.doMerge(infos);
     }
 
     // 由于sharp库的功能，裁剪图片采用先trim到本地文件，再load，获取目标大小以及绘制到指定位置
-    protected async doMerge(files: string[]) {
+    protected async doMerge(infos: MergingFileInfo[]) {
         // 源文件对应输出文件的对照
-        let infos: MergingFileInfo[] = [];
         // 获得图片的信息
-        for (let i = 0, l = files.length; i < l; ++i) {
-            let info = new MergingFileInfo();
-            info.src = files[i];
+        for (let i = 0, l = infos.length; i < l; ++i) {
+            let info = infos[i];
             let img = sharp(info.src);
 
             // 获得原始图片数据
             const meta = await img.metadata();
+            info.size = new Size(meta.width, meta.height);
             const bbx = await img.bbx(10);
             if (bbx.width && bbx.height && (bbx.width != meta.width || bbx.height != meta.height)) {
                 info.bbx = new Rect(bbx.left, bbx.top, bbx.width, bbx.height);
@@ -78,7 +92,6 @@ export class ImageMerge {
                 info.bbx = new Rect(0, 0, meta.width, meta.height);
                 info.dest = info.src;
             }
-            infos.push(info);
         }
 
         // 根据有效面积先排序(从大到小)
@@ -91,11 +104,35 @@ export class ImageMerge {
             // 新建画布
             let work = new ImageMergeResult();
             const res = await this.doMergeImages(work, infos, new Rect(0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT));
+
             // 保存合并后的图
-            let file = this._dir + '/' + MD5(this._dir, "hex") + '_automerged_' + workid + '.png';
+            let file = this._dir + '/' + this._name + '_automerged_' + workid + '.png';
             work.image.toBuffer((err, buf) => {
+                // 保存合并的图片
                 sharp(buf).png().trim().toFile(file);
             });
+            // 保存合并的索引数据文件
+            let jsframes: IndexedObject = Object.create(null);
+            work.result.forEach(e => {
+                jsframes[e.filename] = {
+                    x: e.postion.x,
+                    y: e.postion.y,
+                    w: e.bbx.width,
+                    h: e.bbx.height,
+                    offX: e.bbx.x,
+                    offY: e.bbx.y,
+                    sourceW: e.size.width,
+                    sourceH: e.size.height
+                };
+            });
+            let jsobj: IndexedObject = {
+                file: this._name + '_automerged_' + workid + '.png',
+                frames: jsframes
+            };
+            fs.writeJsonSync(this._dir + '/' + this._name + '_automerged_' + workid + '.json', jsobj);
+
+            // 合并成功代表所有图片都已经完成
+            // false代表存在还没有合并的，进入下一轮
             if (res)
                 break;
         }
@@ -119,6 +156,8 @@ export class ImageMerge {
         // 保存到buf，并用buf重新构造work
         let buf = await work.image.toBuffer();
         work.image = sharp(buf).png();
+        // 删除合并过了的
+        fs.removeSync(fnd.dest);
         // 添加下一张
         let res = await this.doMergeImages(work, infos, new Rect(rc.x + fnd.bbx.width, rc.y, rc.width - fnd.bbx.width, rc.height));
         if (res)
