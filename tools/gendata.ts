@@ -611,7 +611,6 @@ class FormulaProcessor implements Processor {
 
 RegisterConfigProcessor("Formula", new FormulaProcessor());
 
-
 class JsonProcessor implements Processor {
     type = "any";
 
