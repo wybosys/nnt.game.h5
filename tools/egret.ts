@@ -1,7 +1,7 @@
 import {Game, GameBuildOptions, ProgramHandleType} from "./game";
 import {Config} from "./config";
 import {Gendata} from "./gendata";
-import {ArrayT, DateTime, SimpleHashFile} from "./kernel";
+import {ArrayT, DateTime, DirAtChild, SimpleHashFile} from "./kernel";
 import {Service} from "./service";
 import {EgretResource} from "./egret-res";
 import {EgretEui} from "./egret-eui";
@@ -64,13 +64,24 @@ export class EgretGame extends Game {
 
         console.log("构建release版本");
         // 先编译下基础debug版本
-        this.egret('build');
+        //this.egret('build');
 
-        // 清理老的文件
-        fs.removeSync('project/bin-release');
+        // 清理老的并编译
+        //fs.removeSync('project/bin-release');
+        //this.egret('publish --compressjson');
 
-        // 编译release
-        this.egret('publish --compressjson');
+        // 整理release出的文件，放到publish下面
+        fs.ensureDirSync('publish');
+
+        const binweb = DirAtChild('project/bin-release/web', 0, true);
+        // 读取生成的manifest，将属于引擎的代码打包
+        const jsobj = fs.readJSONSync(binweb + '/manifest.json');
+        // 合并基础类库
+        let libjss: string[] = [];
+        jsobj.initial.forEach((file: string) => {
+            libjss.push(fs.readFileSync(binweb + '/' + file, {encoding: 'utf8'}));
+        });
+        fs.writeFileSync('publish/engine.min.js', libjss.join('\n'));
     }
 
     protected egret(cmd: string): string {

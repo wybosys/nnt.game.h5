@@ -1,0 +1,23 @@
+{
+    "autoGenerateExmlsList": true,
+    "exmls": [],
+    "skins": {
+"eui.ButtonU":"resource/eui_skins/wgt/ButtonSkin.exml",
+"eui.CheckBoxU":"resource/eui_skins/wgt/CheckBoxSkin.exml",
+"eui.ToggleSwitchU":"resource/eui_skins/wgt/ToggleSwitchSkin.exml",
+"eui.TextInputU":"resource/eui_skins/wgt/TextInputSkin.exml",
+"eui.ScrollerU":"resource/eui_skins/wgt/ScrollerSkin.exml",
+"eui.ItemRendererU":"resource/eui_skins/wgt/ItemRendererSkin.exml",
+"eui.VScrollBar":"resource/eui_skins/wgt/VScrollBarSkin.exml",
+"eui.HScrollBar":"resource/eui_skins/wgt/HScrollBarSkin.exml",
+"eui.ProgressBarU":"resource/eui_skins/wgt/ProgressBarSkin.exml",
+"app.Dlg":"resource/eui_skins/app/DlgSkin.exml",
+"app.HudText":"resource/eui_skins/app/HudTextSkin.exml",
+"app.item.TestButton1":"resource/eui_skins/app/item/TestButton1Skin.exml",
+"app.item.TestButton":"resource/eui_skins/app/item/TestButtonSkin.exml",
+"app.item.TestItem":"resource/eui_skins/app/item/TestItemSkin.exml",
+"app.ListItem":"resource/eui_skins/app/ListItemSkin.exml",
+"app.MainScene":"resource/eui_skins/app/MainSceneSkin.exml",
+"app.Panel":"resource/eui_skins/app/PanelSkin.exml"
+    }
+}

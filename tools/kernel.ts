@@ -256,6 +256,14 @@ export function ListDirs(dir: string, rets: string[] = null, blacklist: RegExp[]
     return rets;
 }
 
+export function DirAtChild(dir: string, childidx: number, full?: boolean): string {
+    let children = fs.readdirSync(dir);
+    let r = children[childidx];
+    if (full)
+        r = dir + '/' + r;
+    return r;
+}
+
 export function CombineFile(paths: string[], output: string) {
     let buf = '';
     paths.forEach(e => {
