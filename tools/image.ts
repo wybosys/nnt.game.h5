@@ -213,29 +213,28 @@ export class ImageCompress {
         let meta = await img.metadata();
         // png 和 jpeg 需要使用不同的压缩方案
         if (meta.format == 'png') {
-            img.toBuffer((err, buf) => {
-                sharp(buf).png({
-                    compressionLevel: 6
-                }).toFile(this._file, err => {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        const stat = fs.statSync(this._file);
-                        console.log(this._file + ' ' + (stat.size / prestat.size * 100) + '%');
-                    }
-                });
+            img.toBuffer((err, buf, bufinfo) => {
+                sharp(buf)
+                    .toFile(this._file, (err, outinfo) => {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            const stat = fs.statSync(this._file);
+                            console.log(this._file + ' ' + ((stat.size / prestat.size * 100) >> 0) + '%');
+                        }
+                    });
             });
         }
         else if (meta.format == 'jpeg') {
             img.toBuffer((err, buf) => {
                 sharp(buf).jpeg({
-                    quality: 80
+                    quality: 70
                 }).toFile(this._file, err => {
                     if (err) {
                         console.log(err);
                     } else {
                         const stat = fs.statSync(this._file);
-                        console.log(this._file + ' ' + (stat.size / prestat.size * 100) + '%');
+                        console.log(this._file + ' ' + ((stat.size / prestat.size * 100) >> 0) + '%');
                     }
                 });
             });
