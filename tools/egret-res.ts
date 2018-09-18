@@ -3,7 +3,14 @@ import {IsFile, ListDirs, ListFiles, StringT} from "./kernel";
 import {Resource, ResourceOptions} from "./resource";
 import fs = require("fs-extra");
 import path = require("path");
-import {BLACKS_GENRES, BLACKS_IMAGEMERGE, ImageMerge} from "./image";
+import {
+    BLACKS_GENRES,
+    BLACKS_IMAGECOMPRESS,
+    BLACKS_IMAGEMERGE,
+    ImageCompress,
+    ImageMerge,
+    WHITES_IMAGECOMPRESS
+} from "./image";
 import {Service} from "./service";
 import watch = require("watch");
 import execa = require("execa");
@@ -72,8 +79,8 @@ export class EgretResource extends Resource {
         // 合并图片
         if (opts.merge) {
             fs.ensureDirSync(".n2/resmerger");
-
             console.log("合并图片");
+
             const dirs = ListDirs("publish/resource/assets", null, BLACKS_IMAGEMERGE, null, 2, false);
             for (let i = 0, l = dirs.length; i < l; ++i) {
                 const subdir = dirs[i];
@@ -88,9 +95,14 @@ export class EgretResource extends Resource {
         // 压缩图片
         if (opts.compress) {
             fs.ensureDirSync(".n2/res/dist");
-
             console.log("压缩图片");
 
+            const files = ListFiles("publish/resource/assets", null, BLACKS_IMAGECOMPRESS, WHITES_IMAGECOMPRESS, -1);
+            // 挨个压缩
+            for (let i = 0, l = files.length; i < l; ++i) {
+                let comp = new ImageCompress(files[i]);
+                comp.process();
+            }
         }
         return true;
     }

@@ -10,12 +10,17 @@ export const BLACKS_FILES = [
 ];
 
 export const BLACKS_GENRES = BLACKS_FILES.concat(/\.d\/|\.d$/);
+
 export const BLACKS_IMAGEMERGE = BLACKS_GENRES.concat(/\.g\/|\.g$/);
 export const WHITES_IMAGEMERGE = [/\.png$/];
+
+export const BLACKS_IMAGECOMPRESS = BLACKS_GENRES.concat();
+export const WHITES_IMAGECOMPRESS = [/\.png$/, /.jpg$/, /.jpeg$/];
 
 export type Image = sharp.SharpInstance;
 
 class MergingFileInfo {
+
     // 源文件地址
     src: string;
 
@@ -191,4 +196,55 @@ export class ImageMergeResult {
 
     image: Image;
     result: MergingFileInfo[] = [];
+}
+
+export class ImageCompress {
+
+    constructor(file: string) {
+        this._file = file;
+    }
+
+    async process(): Promise<boolean> {
+        // 压缩前的大小
+        const prestat = fs.statSync(this._file);
+
+        // 开始要锁
+        let img = sharp(this._file);
+        let meta = await img.metadata();
+        // png 和 jpeg 需要使用不同的压缩方案
+        if (meta.format == 'png') {
+            img.toBuffer((err, buf) => {
+                sharp(buf).png({
+                    compressionLevel: 6
+                }).toFile(this._file, err => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        const stat = fs.statSync(this._file);
+                        console.log(this._file + ' ' + (stat.size / prestat.size * 100) + '%');
+                    }
+                });
+            });
+        }
+        else if (meta.format == 'jpeg') {
+            img.toBuffer((err, buf) => {
+                sharp(buf).jpeg({
+                    quality: 80
+                }).toFile(this._file, err => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        const stat = fs.statSync(this._file);
+                        console.log(this._file + ' ' + (stat.size / prestat.size * 100) + '%');
+                    }
+                });
+            });
+        }
+        else {
+            console.log("跳过 " + this._file);
+        }
+        return true;
+    }
+
+    private _file: string;
 }
