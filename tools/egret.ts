@@ -117,6 +117,12 @@ export class EgretGame extends Game {
 
         // 复制配置
         fs.copyFileSync('app.json', 'publish/app.json');
+
+        // 删除老的
+        fs.removeSync('project/bin-release');
+
+        // 生成index
+        this.makeReleaseIndex();
     }
 
     protected egret(cmd: string): string {
