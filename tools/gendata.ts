@@ -22,7 +22,7 @@ export class Gendata {
         fs.ensureDirSync(".n2/gendata");
 
         // 所有的excel文件
-        const paths = ListFiles('project/src/app', null, PAT_EXCEL_IGNORE, PAT_EXCEL, 999);
+        const paths = ListFiles('project/src/app', null, PAT_EXCEL_IGNORE, PAT_EXCEL, -1);
 
         // 提取有效的
         const files = ReadFiles(paths, {client: true});
