@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "help": "node tools/index.js -h"
+    "help": "node tools/index.js -h",
+    "build": "node tools/index.js build",
+    "gendata": "node tools/index.js gendata"
   },
   "dependencies": {
     "@types/async": "^2.0.49",
