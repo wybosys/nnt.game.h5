@@ -3,6 +3,16 @@ import path = require("path");
 import {ArrayT, IndexedObject, ListFiles, MD5, Point, Rect, Size} from "./kernel";
 import fs = require("fs-extra");
 
+export const BLACKS_FILES = [
+    /\.swf$/,
+    /\.fla$/,
+    /^\./
+];
+
+export const BLACKS_GENRES = BLACKS_FILES.concat(/\.d\/|\.d$/);
+export const BLACKS_IMAGEMERGE = BLACKS_GENRES.concat(/\.g\/|\.g$/);
+export const WHITES_IMAGEMERGE = [/\.png$/];
+
 export type Image = sharp.SharpInstance;
 
 class MergingFileInfo {
@@ -46,7 +56,7 @@ export class ImageMerge {
     async process() {
         console.log("自动合并 " + this._dir);
         // 只合并独立的png，其他的比如序列帧、字体也会用到png，需要被跳过
-        let files = ListFiles(this._dir, null, null, null, 1);
+        let files = ListFiles(this._dir, null, null, WHITES_IMAGEMERGE, 1);
         files.concat().forEach(file => {
             let info = path.parse(file);
             if (info.ext == ".json" || info.ext == ".fnt") {

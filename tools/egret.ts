@@ -10,16 +10,8 @@ import dot = require("dot");
 import os = require("os");
 import execa = require("execa");
 
-export const RESMAKER_BLACKS = [
-    /module\.res\.json$/,
-    /\.swf$/,
-    /\.fla$/,
-    /^\./
-];
-
-export const GENRES_BLACKS = RESMAKER_BLACKS.concat(/\.d\/|\.d$/);
-export const AUTOMERGE_BLACKS = GENRES_BLACKS.concat(/\.g\/|\.g$/);
 export const IMAGE_EXTS = ['.jpeg', '.jpg', '.png'];
+
 const EGRET_CMD = os.type() == 'Windows_NT' ? 'egret.cmd' : 'egret';
 
 export class EgretGame extends Game {

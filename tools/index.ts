@@ -37,22 +37,27 @@ function main() {
     program
         .command("publish")
         .description("生成正式项目")
-        .option("-c, --compress", "启用图片压缩")
+        .option("-c, --compress", "图片压缩")
+        .option("-m, --merge", "图片合并")
         .action(() => {
             game.build({
                 release: true,
-                noservice: true
+                noservice: true,
+                merge_images: program.merge,
+                compress_images: program.compress
             });
         });
 
     program
         .command("dist")
         .description("发布项目")
-        .option("-c, --compress", "启用图片压缩")
         .action(() => {
             game.build({
                 distribution: true,
-                noservice: true
+                noservice: true,
+                merge_images: true,
+                compress_images: true,
+                compress_scripts: true
             });
         });
 
@@ -83,13 +88,23 @@ function main() {
     program
         .command("res <up|pub|dist>")
         .description("项目资源控制")
+        .option("-c, --compress", "图片压缩")
+        .option("-m, --merge", "图片合并")
         .action((act) => {
-            if (act == "pub")
-                game.resource.publish();
-            else if (act == "dist")
-                game.resource.dist();
-            else
+            let opts = {
+                merge: program.merge,
+                compress: program.compress
+            };
+            if (act == "pub") {
+                game.resource.publish(opts);
+            } else if (act == "dist") {
+                game.resource.publish({
+                    merge: true,
+                    compress: true
+                });
+            } else {
                 game.resource.refresh();
+            }
         });
 
     // 添加程序命令

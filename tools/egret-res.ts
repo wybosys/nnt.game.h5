@@ -1,10 +1,9 @@
 import {Game} from "./game";
 import {IsFile, ListDirs, ListFiles, StringT} from "./kernel";
-import {Resource} from "./resource";
-import {AUTOMERGE_BLACKS, GENRES_BLACKS} from "./egret";
+import {Resource, ResourceOptions} from "./resource";
 import fs = require("fs-extra");
 import path = require("path");
-import {ImageMerge} from "./image";
+import {BLACKS_GENRES, BLACKS_IMAGEMERGE, ImageMerge} from "./image";
 import {Service} from "./service";
 import watch = require("watch");
 import execa = require("execa");
@@ -28,7 +27,7 @@ export class EgretResource extends Resource {
             'resources': new Array<{ url: string, name: string, type: string, subkeys: string }>()
         };
         // 第一级的资源为不加入group中的
-        ListFiles(dir + 'resource/assets', null, GENRES_BLACKS, null, 1).forEach(file => {
+        ListFiles(dir + 'resource/assets', null, BLACKS_GENRES, null, 1).forEach(file => {
             let info = new EgretFileInfo();
             if (!info.parse(file))
                 return;
@@ -40,9 +39,9 @@ export class EgretResource extends Resource {
             });
         });
         // 处理其他2级资源
-        ListDirs(dir + 'resource/assets', null, GENRES_BLACKS, null, 2).forEach(subdir => {
+        ListDirs(dir + 'resource/assets', null, BLACKS_GENRES, null, 2).forEach(subdir => {
             let keys = new Array<string>();
-            ListFiles(subdir, null, GENRES_BLACKS, null, 1).forEach(file => {
+            ListFiles(subdir, null, BLACKS_GENRES, null, 1).forEach(file => {
                 let info = new EgretFileInfo();
                 if (!info.parse(file))
                     return;
@@ -63,16 +62,19 @@ export class EgretResource extends Resource {
         return true;
     }
 
-    async publish(): Promise<boolean> {
-        // 用来存放临时资源
-        fs.ensureDirSync(".n2/resmerger");
+    // 发布图片
+    async publish(opts: ResourceOptions): Promise<boolean> {
         // 移除之前的老资源
         fs.removeSync("publish");
         console.log("拷贝资源");
         fs.copySync("project/resource", "publish/resource");
-        if (Game.shared.config.get('dev', 'automerge') == 'y') {
-            console.log("自动合并");
-            const dirs = ListDirs("publish/resource/assets", null, AUTOMERGE_BLACKS, null, 2, false);
+
+        // 合并图片
+        if (opts.merge) {
+            fs.ensureDirSync(".n2/resmerger");
+
+            console.log("合并图片");
+            const dirs = ListDirs("publish/resource/assets", null, BLACKS_IMAGEMERGE, null, 2, false);
             for (let i = 0, l = dirs.length; i < l; ++i) {
                 const subdir = dirs[i];
                 let full = "publish/resource/assets" + subdir;
@@ -82,11 +84,14 @@ export class EgretResource extends Resource {
             }
             await this.refreshIn('publish/');
         }
-        return true;
-    }
 
-    async dist(): Promise<boolean> {
-        fs.ensureDirSync(".n2/res/dist");
+        // 压缩图片
+        if (opts.compress) {
+            fs.ensureDirSync(".n2/res/dist");
+
+            console.log("压缩图片");
+
+        }
         return true;
     }
 

@@ -32,9 +32,8 @@ export class Config {
             ['app', 'background-color', '背景颜色'],
             ['app', 'orientation', '方向 [h]ov/[v]ec'],
             ['app', 'resource', '资源的模式 [d]ebug/[p]ublish]'],
-            ['app', 'version', '版本号'],
-            ['dev', 'genresdb', '自动生成资源数据 [y]es/[n]o'],
-            ['dev', 'automerge', '自动合并资源 [y]es/[n]o']];
+            ['app', 'version', '版本号']
+        ];
         for (let i = 0, l = arr.length; i < l; ++i) {
             let e = arr[i];
             let old = this._cfg.get(e[0], e[1], '');
