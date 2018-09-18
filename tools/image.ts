@@ -56,7 +56,7 @@ export class ImageMerge {
                 ArrayT.RemoveObject(files, file);
             }
         });
-        console.log("找到了 " + files.length + " 个图片");
+        //console.log("找到了 " + files.length + " 个图片");
         if (!files.length)
             return;
         let infos: MergingFileInfo[] = [];
@@ -157,6 +157,7 @@ export class ImageMerge {
         let buf = await work.image.toBuffer();
         work.image = sharp(buf).png();
         // 删除合并过了的
+        fs.removeSync(fnd.src);
         fs.removeSync(fnd.dest);
         // 添加下一张
         let res = await this.doMergeImages(work, infos, new Rect(rc.x + fnd.bbx.width, rc.y, rc.width - fnd.bbx.width, rc.height));
