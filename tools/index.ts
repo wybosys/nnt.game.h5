@@ -30,8 +30,7 @@ function main() {
         .description("生成调试项目")
         .action(() => {
             game.build({
-                debug: true,
-                noservice: program.noservice
+                debug: true
             });
         });
 
