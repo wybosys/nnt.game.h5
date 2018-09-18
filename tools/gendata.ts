@@ -2,7 +2,7 @@ import fs = require("fs-extra");
 import tpl = require("dustjs-linkedin");
 import xlsx = require("xlsx");
 import execa = require("execa");
-import {ArrayT, asString, AsyncQueue, ListFiles, static_cast, StringT} from "./kernel";
+import {ArrayT, asString, AsyncQueue, ListFiles, static_cast, StringT, toJson, toJsonObject} from "./kernel";
 import minjs = require("uglify-js");
 
 const PAT_EXCEL = [/\.xlsx$/];
@@ -610,3 +610,16 @@ class FormulaProcessor implements Processor {
 }
 
 RegisterConfigProcessor("Formula", new FormulaProcessor());
+
+
+class JsonProcessor implements Processor {
+    type = "any";
+
+    convert(val: string): string {
+        if (val.trim().length == 0)
+            return "null";
+        return toJson(toJsonObject(val));
+    }
+}
+
+RegisterConfigProcessor("Json", new JsonProcessor());

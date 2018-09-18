@@ -521,3 +521,34 @@ export class FileLocker {
 
     private _fd: number;
 }
+
+export function toJson(o: IndexedObject, def: string = null) {
+    let r: string;
+    try {
+        r = JSON.stringify(o);
+    }
+    catch (err) {
+        r = def;
+    }
+    return r;
+}
+
+export function toJsonObject(o: any, def: any = null): IndexedObject {
+    let t = typeof(o);
+    if (t == 'string') {
+        if (o == "undefined" || o == "null")
+            return def;
+        let r: any;
+        try {
+            r = JSON.parse(o as string);
+        }
+        catch (err) {
+            console.warn(o + " " + err);
+            r = def;
+        }
+        return r;
+    }
+    else if (t == 'object')
+        return <any>o;
+    return def;
+}
