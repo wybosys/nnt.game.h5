@@ -38,16 +38,13 @@ export class EgretGame extends Game {
         super.clean();
 
         // 清除egret的中间文件
-        fs.removeSync("index.html");
+        fs.removeSync("project/index.html");
         fs.removeSync("project/bin-debug");
         fs.removeSync("project/bin-release");
         fs.removeSync("project/libs");
         fs.removeSync(".n2/dist");
         fs.removeSync("dist");
         fs.removeSync("publish");
-        fs.unlinkSync("bin-debug");
-        fs.unlinkSync("libs");
-        fs.unlinkSync("resource");
 
         // 清理其他
         this._eui.clean();
@@ -61,10 +58,6 @@ export class EgretGame extends Game {
             this.egret('build');
             // 生成测试入口
             this.makeDebugIndex();
-            // 创建引用
-            fs.ensureSymlinkSync("project/bin-debug", "bin-debug");
-            fs.ensureSymlinkSync("project/libs", "libs");
-            fs.ensureSymlinkSync("project/resource", "resource");
             // 启动服务
             if (!opts.noservice) {
                 // 监听eui的改变，刷新代码
@@ -124,7 +117,7 @@ export class EgretGame extends Game {
             APPSCRIPT: '',
             FILESLIST: files.join('\n\t')
         });
-        fs.outputFileSync('index.html', index);
+        fs.outputFileSync('project/index.html', index);
         // 为了支持插件调试模式，需要描述一下当前项目的信息
         const debug = dot.template(TPL_DEBUG)({
             PATH: process.cwd(),

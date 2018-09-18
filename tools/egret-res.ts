@@ -18,6 +18,7 @@ export class EgretResource extends Resource {
     clean() {
         fs.removeSync("publish/resource");
         fs.removeSync(".n2/res/resmerger");
+        fs.removeSync(".n2/res/dist");
     }
 
     protected async refreshIn(dir: string): Promise<boolean> {
@@ -79,12 +80,13 @@ export class EgretResource extends Resource {
                 let merge = new ImageMerge(full, name);
                 await merge.process();
             }
-            this.refreshIn('publish/');
+            await this.refreshIn('publish/');
         }
         return true;
     }
 
     async dist(): Promise<boolean> {
+        fs.ensureDirSync(".n2/res/dist");
         return true;
     }
 
