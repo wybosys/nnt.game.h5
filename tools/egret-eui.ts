@@ -115,9 +115,12 @@ export class EgretEui {
         return tscls.replace(/\//g, '.');
     }
 
-    startWatch(svc: Service) {
+    async startWatch(svc: Service) {
         if (!Service.Locker('egret-eui').trylock())
             return;
+
+        await this.build();
+
         let res = execa('node', ['tools/egret-eui.js'], {
             detached: true,
             stdio: 'ignore'
@@ -185,8 +188,6 @@ if (path.basename(process.argv[1]) == 'egret-eui.js') {
     Service.Locker('egret-eui').acquire();
 
     let eui = new EgretEui();
-    eui.build();
-
     watch.createMonitor('project/resource/assets', moniter => {
         moniter.on('created', (f, stat) => {
             console.log('created:' + f);

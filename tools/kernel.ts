@@ -563,3 +563,19 @@ export function toJsonObject(o: any, def: any = null): IndexedObject {
         return <any>o;
     return def;
 }
+
+export function NotMatch(str: string, pat: RegExp[]): RegExp {
+    for (let i = 0, l = pat.length; i < l; ++i) {
+        if (str.match(pat[i]) == null)
+            return pat[i];
+    }
+    return null;
+}
+
+export function IsMatch(str: string, pat: RegExp[]): RegExp {
+    for (let i = 0, l = pat.length; i < l; ++i) {
+        if (str.match(pat[i]))
+            return pat[i];
+    }
+    return null;
+}

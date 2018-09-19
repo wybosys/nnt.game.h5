@@ -38,6 +38,8 @@ export class EgretGame extends Game {
         fs.removeSync(".n2/dist");
         fs.removeSync("dist");
         fs.removeSync("publish");
+        fs.removeSync("project/app.json");
+        fs.removeSync("project/manifest.json");
 
         // 清理其他
         this._eui.clean();
@@ -50,19 +52,21 @@ export class EgretGame extends Game {
         if (opts.debug) {
             console.log("构建debug版本");
             fs.copySync('app.json', 'project/app.json');
+
+            // 启动服务并生成第一波资源
+            if (!opts.noservice) {
+                // 监听添加了新的配表
+                await this.gendata.startWatch(this.service);
+                // 监听eui的改变，刷新代码
+                await this._eui.startWatch(this.service);
+                // 监听资源的改变，刷新资源数据表
+                await this.resource.startWatch(this.service);
+            }
+
             // 判断使用何种编译
             this.egret('build');
             // 生成测试入口
             this.makeDebugIndex();
-            // 启动服务
-            if (!opts.noservice) {
-                // 监听添加了新的配表
-                this.gendata.startWatch(this.service);
-                // 监听eui的改变，刷新代码
-                this._eui.startWatch(this.service);
-                // 监听资源的改变，刷新资源数据表
-                this.resource.startWatch(this.service);
-            }
             return;
         }
 
