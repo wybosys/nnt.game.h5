@@ -281,8 +281,6 @@ module nn {
                 mdl.response = data;
                 mdl.processResponse();
                 mdl.__mdl_end();
-                // 清理
-                mdl.drop();
                 this._fetchings.delete(data._cmid);
             }
 
