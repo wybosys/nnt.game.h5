@@ -56,7 +56,7 @@ module nn {
         params = new KvObject<string, string>();
 
         /** 域 */
-        host: string;
+        host: string = '';
 
         /** 返回的数据 */
         response: any;
