@@ -356,7 +356,7 @@ namespace nn.logic {
             // 需要对data进行处理，把服务端的IMPMessage结构数据提取出来
             super.onMessage({
                 _cmid: data.d,
-                code: 0,
+                code: data.c,
                 data: data.p
             }, e);
         }
