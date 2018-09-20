@@ -116,6 +116,7 @@ module nn {
         protected _initSignals() {
             super._initSignals();
             this._signals.register(SignalOpen);
+            this._signals.register(SignalConnected);
             this._signals.register(SignalClose);
             this._signals.register(SignalTimeout);
             this._signals.register(SignalEnd);
@@ -141,7 +142,7 @@ module nn {
             this._connector = cnt;
             if (cnt) {
                 (<any>cnt)._session = this;
-                cnt.signals.connect(SignalOpen, this.__cnt_connected, this);
+                cnt.signals.connect(SignalOpen, this.__cnt_open, this);
                 cnt.signals.connect(SignalClose, this.__cnt_disconnected, this);
                 cnt.signals.connect(SignalDataChanged, this.__cnt_gotmessage, this);
             }
@@ -246,13 +247,21 @@ module nn {
             return this.connector.isopened();
         }
 
-        private __cnt_connected() {
-            noti('连接服务器 ' + this.host + ' 成功');
+        private __cnt_open() {
+            noti('打开服务器 ' + this.host + ' 成功');
             this.signals.emit(SignalOpen);
 
-            // 重新建立监听
-            this._listenings.forEach(mdl => {
-                this.connector.watch(mdl, true);
+            // 初始化连接
+            let m = new Model();
+            m.action = "socket.init";
+            this.fetch(m, () => {
+                noti('连接服务器 ' + this.host + ' 成功');
+                this.signals.emit(SignalOpen);
+
+                // 重新建立监听
+                this._listenings.forEach(mdl => {
+                    this.connector.watch(mdl, true);
+                });
             });
         }
 
@@ -281,7 +290,7 @@ module nn {
             if (this._listenings.has(data._cmid)) {
                 let mdl = this._listenings.get(data._cmid);
                 mdl.response = data;
-                mdl.processResponse();
+                mdl.processResponse(false);
             }
         }
     }
@@ -291,15 +300,6 @@ module nn {
 namespace nn.logic {
 
     export class SocketConnector extends WebSocketConnector {
-
-        protected onOpen(e: Event) {
-            super.onOpen(e);
-
-            // 需要发起 init 请求
-            let m = new Model();
-            m.action = "socket.init";
-            this.write(m);
-        }
 
         // 自动重连
         autoReconnect = true;

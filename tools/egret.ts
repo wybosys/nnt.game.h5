@@ -177,7 +177,7 @@ export class EgretGame extends Game {
             APPNAME: this.config.get('app', 'name'),
             APPORI: this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait',
             APPANGLE: this.config.get('app', 'orientation') == 'h' ? '90' : '0',
-            APPCONTENT: 'version=0.0.1, debug, verbose' + this.config.get('app', 'resource') == 'p' ? 'publish' : '',
+            APPCONTENT: 'version=0.0.1, debug, verbose' + (this.config.get('app', 'resource') == 'p' ? 'publish' : ''),
             BACKGROUND: bkg,
             BACKGROUNDCOLOR: bkgcolor,
             APPSTYLE: '',

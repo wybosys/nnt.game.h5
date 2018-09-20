@@ -8,7 +8,6 @@ import inquirer = require("inquirer");
 import async = require("async");
 import xmldom = require("xmldom");
 import fsext = require("fs-ext");
-import tmp = require("tmp");
 
 export type IndexedObject = { [key: string]: any };
 

@@ -280,7 +280,8 @@ module nn {
         }
 
         // 处理接收到的数据
-        processResponse() {
+        // 有些处理，比如watch是不需要激发信号
+        processResponse(sig: boolean = true) {
             this.code = this.responseCode();
             this.message = this.responseMessage();
 
@@ -298,24 +299,25 @@ module nn {
                     Memcache.shared.cache(this);
                 }
 
-                if (this.response.data) {
-                    this.unserialize(this.response);
+                this.unserialize(this.response);
+                if (sig) {
                     this.signals.emit(SignalSucceed);
                     RestSession.signals.emit(SignalSucceed, this);
                 }
-
             }
             else {
                 warn('API ' + this.action + ' ' + this.message);
 
                 let tn = new SlotTunnel();
-                if (this.isDebug) {
-                    this.signals.emit(SignalSucceed);
-                    RestSession.signals.emit(SignalSucceed, this);
-                } else {
-                    this.signals.emit(SignalFailed, this, tn);
-                    if (!tn.veto)
-                        RestSession.signals.emit(SignalFailed, this, tn);
+                if (sig) {
+                    if (this.isDebug) {
+                        this.signals.emit(SignalSucceed);
+                        RestSession.signals.emit(SignalSucceed, this);
+                    } else {
+                        this.signals.emit(SignalFailed, this, tn);
+                        if (!tn.veto)
+                            RestSession.signals.emit(SignalFailed, this, tn);
+                    }
                 }
 
                 // 业务层可以拦截处理
@@ -995,7 +997,7 @@ namespace app.models.logic {
         }
 
         unserialize(respn: any): boolean {
-            Decode(this, respn.data);
+            Decode(this, respn.data || {});
             return true;
         }
 

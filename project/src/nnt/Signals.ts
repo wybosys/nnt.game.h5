@@ -772,6 +772,7 @@ module nn {
     // 打开
     export let SignalOpening = "::nn::opening";
     export let SignalOpen = "::nn::open";
+    export let SignalConnected = "::nn::connected";
 
     // 关闭
     export let SignalClosing = "::nn::Closing";
