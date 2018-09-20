@@ -153,6 +153,9 @@ module nn {
         /** 超时当作失败，因为默认的超时有可能是因为这个接口本来就跑的很久，并且通常的超时提示用户也没什么意义，所以先设计为由业务层设置该功能，如果为 true，则当超时时会发送 SignalFailed */
         timeoutAsFailed: boolean;
 
+        // 静默
+        quiet: boolean;
+
         /** 用于调试的数据 */
         protected urlForLog(): string {
             return this.url();
@@ -280,8 +283,7 @@ module nn {
         }
 
         // 处理接收到的数据
-        // 有些处理，比如watch是不需要激发信号
-        processResponse(sig: boolean = true) {
+        processResponse() {
             this.code = this.responseCode();
             this.message = this.responseMessage();
 
@@ -300,24 +302,26 @@ module nn {
                 }
 
                 this.unserialize(this.response);
-                if (sig) {
-                    this.signals.emit(SignalSucceed);
-                    RestSession.signals.emit(SignalSucceed, this);
+                if (!this.quiet) {
+                    this.signals.emit(SignalSucceed, this);
+                    if (this.session)
+                        this.session.signals.emit(SignalSucceed, this);
                 }
             }
             else {
                 warn('API ' + this.action + ' ' + this.message);
 
                 let tn = new SlotTunnel();
-                if (sig) {
-                    if (this.isDebug) {
-                        this.signals.emit(SignalSucceed);
-                        RestSession.signals.emit(SignalSucceed, this);
-                    } else {
-                        this.signals.emit(SignalFailed, this, tn);
-                        if (!tn.veto)
-                            RestSession.signals.emit(SignalFailed, this, tn);
+                if (this.isDebug) {
+                    if (!this.quiet) {
+                        this.signals.emit(SignalSucceed, this);
+                        if (this.session)
+                            this.session.signals.emit(SignalSucceed, this);
                     }
+                } else {
+                    this.signals.emit(SignalFailed, this, tn);
+                    if (!tn.veto && this.session)
+                        this.session.signals.emit(SignalFailed, this, tn);
                 }
 
                 // 业务层可以拦截处理

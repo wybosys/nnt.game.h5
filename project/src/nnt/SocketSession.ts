@@ -5,6 +5,9 @@ module nn {
 
         // model发送时标记自己的序号
         _cmid: number;
+
+        // 静默
+        quiet: boolean;
     }
 
     export class WebSocketConnector extends CSocketConnector {
@@ -278,6 +281,7 @@ module nn {
                 // 解析对象
                 let mdl = this._fetchings.get(data._cmid);
                 // 后处理
+                mdl.quiet = data.quiet;
                 mdl.response = data;
                 mdl.processResponse();
                 mdl.__mdl_end();
@@ -287,8 +291,9 @@ module nn {
             // 判断是否是watch请求
             if (this._listenings.has(data._cmid)) {
                 let mdl = this._listenings.get(data._cmid);
+                mdl.quiet = data.quiet;
                 mdl.response = data;
-                mdl.processResponse(false);
+                mdl.processResponse();
             }
         }
     }
@@ -357,7 +362,8 @@ namespace nn.logic {
             super.onMessage({
                 _cmid: data.d,
                 code: data.s === undefined ? 0 : data.s,
-                data: data.p
+                data: data.p,
+                quiet: data.q
             }, e);
         }
 
