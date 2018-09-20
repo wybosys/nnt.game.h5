@@ -71,6 +71,12 @@ export class EgretGame extends Game {
         }
 
         console.log("构建release版本");
+
+        // 准备附加数据文件
+        await this.gendata.build();
+        await this._eui.build();
+        await this.resource.refresh();
+
         // 先编译下基础debug版本
         this.egret('build');
 

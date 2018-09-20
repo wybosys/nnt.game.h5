@@ -62,7 +62,7 @@ export class EgretResource extends Resource {
                 });
             });
             jsobj.groups.push({
-                name: subdir.replace(dir + 'resource/', ''),
+                name: subdir.replace(dir + 'resource/assets/', '').replace('/', '_'),
                 keys: keys.join(',')
             });
         });

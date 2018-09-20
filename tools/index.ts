@@ -55,8 +55,8 @@ function main() {
             game.build({
                 distribution: true,
                 noservice: true,
-                merge_images: true,
-                compress_images: true,
+                merge_images: false,
+                compress_images: false,
                 compress_scripts: true
             });
         });
