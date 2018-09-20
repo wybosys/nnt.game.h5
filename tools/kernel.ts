@@ -416,6 +416,23 @@ export class StringT {
     }
 }
 
+export class ObjectT {
+    static RemoveKeyByFilter(obj: IndexedObject, filter: (val: any, key: any) => boolean): IndexedObject {
+        let keys = Object.keys(obj);
+        for (let i = 0, l = keys.length; i < l; ++i) {
+            let key = keys[i];
+            let val = obj[key];
+            if (filter(val, key)) {
+                delete obj[key];
+                let r = Object.create(null);
+                r[key] = val;
+                return r;
+            }
+        }
+        return null;
+    }
+}
+
 export class DateTime {
     static Current(): number {
         return (new Date().getTime() / 1000) >> 0;
