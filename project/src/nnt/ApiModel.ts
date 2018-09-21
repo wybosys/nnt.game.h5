@@ -545,37 +545,45 @@ namespace app.models.logic {
                     if (val) {
                         if (typeof(fp.valtype) == "string") {
                             if (fp.valtype == string_t) {
-                                val.forEach((e: any) => {
+                                val.forEach(e => {
                                     arr.push(e ? e.toString() : null);
                                 });
                             }
                             else if (fp.valtype == integer_t) {
-                                val.forEach((e: any) => {
+                                val.forEach(e => {
                                     arr.push(e ? nn.toInt(e) : 0);
                                 });
                             }
                             else if (fp.valtype == double_t) {
-                                val.forEach((e: any) => {
+                                val.forEach(e => {
                                     arr.push(e ? nn.toFloat(e) : 0);
                                 });
                             }
-                            else if (fp.valtype == boolean_t)
-                                val.forEach((e: any) => {
+                            else if (fp.valtype == boolean_t) {
+                                val.forEach(e => {
                                     arr.push(!!e);
                                 });
+                            }
                         }
                         else {
-                            let clz: any = fp.valtype;
-                            val.forEach((e: any) => {
-                                if (e == null) {
-                                    arr.push(null);
-                                }
-                                else {
-                                    let t = new clz();
-                                    Decode(t, e);
-                                    arr.push(t);
-                                }
-                            });
+                            if (fp.valtype == Object) {
+                                val.forEach(e => {
+                                    arr.push(e);
+                                });
+                            }
+                            else {
+                                let clz: any = fp.valtype;
+                                val.forEach(e => {
+                                    if (e == null) {
+                                        arr.push(null);
+                                    }
+                                    else {
+                                        let t = new clz();
+                                        Decode(t, e);
+                                        arr.push(t);
+                                    }
+                                });
+                            }
                         }
                     }
                     mdl[key] = arr;
@@ -756,7 +764,7 @@ namespace app.models.logic {
                     else {
                         // 特殊类型，需要迭代进去
                         let arr = new Array();
-                        val && val.forEach((e: any) => {
+                        val && val.forEach(e => {
                             arr.push(Output(e));
                         });
                         r[fk] = arr;
@@ -766,12 +774,12 @@ namespace app.models.logic {
                     let m: IndexedObject = {};
                     if (val) {
                         if (typeof(fp.valtype) == "string") {
-                            val.forEach((v: any, k: any) => {
+                            val.forEach((v, k) => {
                                 m[k] = v;
                             });
                         }
                         else {
-                            val.forEach((v: any, k: any) => {
+                            val.forEach((v, k) => {
                                 m[k] = Output(v);
                             });
                         }
@@ -782,12 +790,12 @@ namespace app.models.logic {
                     let m: IndexedObject = {};
                     if (val) {
                         if (typeof(fp.valtype) == "string") {
-                            val.forEach((v: any[], k: any) => {
+                            val.forEach((v, k) => {
                                 m[k] = v;
                             });
                         }
                         else {
-                            val.forEach((v: any[], k: any) => {
+                            val.forEach((v, k) => {
                                 m[k] = nn.ArrayT.Convert(v, e => Output(e));
                             });
                         }
