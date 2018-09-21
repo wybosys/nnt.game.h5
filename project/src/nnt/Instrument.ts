@@ -11,10 +11,6 @@ module nn {
     export let COLLECT_DRAWS: number;
     export let COLLECT_DIRTYR: number;
 
-    // 使用Webix框架来生产调试用的UI
-    declare let webix: any;
-    declare let $$: any;
-
     export class IPLabel
         extends dom.Label {
         constructor() {
@@ -88,51 +84,14 @@ module nn {
     export class InstrumentPanel extends dom.Sprite {
         constructor() {
             super();
-            this.css = "position:absolute;bottom:0px;height:90%;width:100%;z-position:999;opacity:0.95;background:white;";
         }
 
         protected preload(cb: () => void, ctx?: any) {
-            Js.loadSources([
-                ["http://7xlcco.com1.z0.glb.clouddn.com/webix/webix.css", Js.SOURCETYPE.CSS],
-                ["http://7xlcco.com1.z0.glb.clouddn.com/webix/webix_debug.js", Js.SOURCETYPE.JS]
-            ], cb, ctx);
+            cb.call(ctx);
         }
 
         onLoaded() {
             super.onLoaded();
-
-            webix.getElementById = (id: string): Element => {
-                return $$(id).getNode();
-            };
-
-            // 初始化webix
-            webix.ui({
-                view: "tabview",
-                cells: [
-                    {
-                        header: "INFO", body: {
-                            id: "::dt::info"
-                        }
-                    },
-                    {
-                        header: "DEBUG", body: {
-                            id: "::dt::debug"
-                        }
-                    }
-                ],
-                multiview: {
-                    keepViews: true
-                },
-                container: this.id
-            });
-
-            // 初始化panel
-            let panel = dom.DomObject.From(webix.getElementById("::dt::info"));
-            panel.add(this.pnlSysinfo);
-            panel.add(this.pnlProfiler);
-
-            panel = dom.DomObject.From(webix.getElementById("::dt::debug"));
-            panel.add(this.pnlDebug);
         }
 
         pnlSysinfo = new SystemInfoPanel();
@@ -170,14 +129,8 @@ module nn {
     export class Instrument extends SObject {
         constructor() {
             super();
-
-            this.button.content = "调试器";
-            this.button.css = "position:absolute;top:0;left:50%;z-position:999;background:white;opacity:0.3;";
-            this.button.signals.connect(SignalClicked, this.open, this);
-            Dom.add(this.button);
         }
 
-        button = new dom.Button();
         panel = new InstrumentPanel();
 
         static shared: Instrument;
@@ -198,19 +151,11 @@ module nn {
             }
 
             this.panel.visible = true;
-
-            this.button.signals.disconnect(SignalClicked);
-            this.button.signals.connect(SignalClicked, this.close, this);
-
             this.panel.open();
         }
 
         close() {
             this.panel.visible = false;
-
-            this.button.signals.disconnect(SignalClicked);
-            this.button.signals.connect(SignalClicked, this.open, this);
-
             this.panel.close();
         }
 
