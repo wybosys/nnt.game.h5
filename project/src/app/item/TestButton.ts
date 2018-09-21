@@ -12,8 +12,8 @@ module app.item {
     implements ITestButton
     {
         //skin {
-        iconDisplay:eui.ImageU;
-        labelDisplay:eui.LabelU;
+        iconDisplay: eui.ImageU;
+        labelDisplay: eui.LabelU;
         //skin }
     }
 

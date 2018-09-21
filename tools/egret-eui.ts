@@ -71,7 +71,7 @@ export class EgretEui {
             } else {
                 cls = 'eui.' + cls;
             }
-            props.push('        ' + id + ':' + cls + ';');
+            props.push('        ' + id + ': ' + cls + ';');
         });
         // 排序
         slots.sort();
@@ -104,7 +104,7 @@ export class EgretEui {
                     let a = each.split('=>');
                     if (a.length != 2)
                         return;
-                    funs.add('        _' + a[1] + '(s?:nn.Slot);');
+                    funs.add('        _' + a[1] + '(s?: nn.Slot);');
                 });
             });
             // 读取文件，插入对应的变量
