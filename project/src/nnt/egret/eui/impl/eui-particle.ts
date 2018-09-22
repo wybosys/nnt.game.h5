@@ -168,6 +168,26 @@ module eui {
         stop() {
             this.pc().stop();
         }
+
+        protected updateDisplayList(unscaledWidth: number, unscaledHeight: number) {
+            super.updateDisplayList(unscaledWidth, unscaledHeight);
+            // 设置mc和当前的容器大小一致
+            let pc = this.pc();
+            pc.frame = new nn.Rect(0, 0, unscaledWidth, unscaledHeight);
+            pc.flushLayout();
+        }
+
+        get frame(): nn.Rect {
+            return nn.getFrame(this);
+        }
+
+        set frame(rc: nn.Rect) {
+            nn.setFrame(this, rc);
+        }
+
+        bounds(): nn.Rect {
+            return nn.getBounds(this);
+        }
     }
 
     _EUIExtFix(ParticleU);

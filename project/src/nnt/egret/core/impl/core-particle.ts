@@ -38,6 +38,8 @@ module nn {
             if (this._pc) {
                 let rc = this.bounds();
                 this.impSetFrame(rc.integral(), this._pc);
+                this._pc.emitterX = rc.width / 2;
+                this._pc.emitterY = rc.height / 2;
             }
         }
 

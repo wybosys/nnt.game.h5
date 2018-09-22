@@ -10,10 +10,15 @@ module app {
     interface IMainScene {
         //slot {
         _actEcho(s?: nn.Slot);
+
         _actEnter(s?: nn.Slot);
+
         _actOpenLink(s?: nn.Slot);
+
         _actTestParticle(s?: nn.Slot);
+
         _actTouchMoved(s?: nn.Slot);
+
         //slot }
     }
 
@@ -148,7 +153,10 @@ module app {
         }
 
         _actTestParticle(s?: nn.Slot) {
-
+            let t = new eui.ParticleU();
+            t.particleName = "snow";
+            t.frame = this.bounds();
+            this.addChild(t);
         }
 
         private _mmo = new nn.SocketSession();
