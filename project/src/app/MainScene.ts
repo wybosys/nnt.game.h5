@@ -79,11 +79,7 @@ module app {
         }
 
         private _onBtn0Clicked() {
-            var panel = new eui.Panel();
-            panel.title = "Title";
-            panel.horizontalCenter = 0;
-            panel.verticalCenter = 0;
-            this.addChild(panel);
+
         }
 
         private _onBtn1Clicked() {
