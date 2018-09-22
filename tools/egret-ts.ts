@@ -8,6 +8,9 @@ import execa = require("execa");
 const PAT_TS = [/\.ts$/];
 const PAT_TS_IGNORE = [/\.d\.ts$/];
 
+let options:any;
+let project:any;
+
 export class EgretTs {
 
     async startWatch(svc: Service) {
@@ -26,12 +29,7 @@ export class EgretTs {
         let js = file.replace('src', 'bin-debug').replace('.ts', '.js');
         // 直接使用tsc编译
         //execa('tsc', ['-t', 'es5', '--outFile', js, file]);
-        const compiler = require("C:\\Users\\wybol\\AppData\\Roaming\\Egret\\engine\\5.2.9\\tools\\actions\\Compiler");
-        let tsc = new compiler.Compiler();
-        let opts = tsc.parseTsconfig('project/', false);
-        opts.options.allowUnreachableCode = true;
-        opts.options.emitReflection = true;
-        tsc.compile(opts, [file]);
+        project.compile(options, [file]);
     }
 }
 
@@ -39,8 +37,19 @@ if (path.basename(process.argv[1]) == 'egret-ts.js') {
     console.log('启动egret-ts服务');
     Service.Locker('egret-ts').acquire();
 
+    // 需要先编译完整项目
+    const compiler = require("C:\\Users\\wybol\\AppData\\Roaming\\Egret\\engine\\5.2.9\\tools\\actions\\Compiler");
+    project = new compiler.Compiler();
+    let res = project.parseTsconfig('project/', false);
+    res.options.allowUnreachableCode = true;
+    res.options.emitReflection = true;
+    res.options.outDir = 'project/bin-debug';
+    options = res.options;
+    project.compile(options, res.fileNames);
+
     let ts = new EgretTs();
     ts.buildOneTs("project/src/app/MainScene.ts");
+    /*
     watch.createMonitor('project/src', {interval: 1}, monitor => {
         monitor.on('created', (f: string, stat) => {
             if (NotMatch(f, PAT_TS_IGNORE) && IsMatch(f, PAT_TS))
@@ -55,6 +64,7 @@ if (path.basename(process.argv[1]) == 'egret-ts.js') {
             fs.unlink(js);
         });
     });
+    */
 }
 
 const TPL_TSCONFIG = `
