@@ -67,9 +67,7 @@ export class EgretGame extends Game {
             }
 
             // 判断使用何种编译
-            fs.writeFileSync('project/tsconfig.json', TPL_TSCONFIG);
             this.egret('build');
-            fs.unlinkSync('project/tsconfig.json');
             // 生成测试入口
             this.makeDebugIndex();
             return;
@@ -83,12 +81,11 @@ export class EgretGame extends Game {
         await this.resource.refresh();
 
         // 先编译下基础debug版本
-        fs.writeFileSync('project/tsconfig.json', TPL_TSCONFIG);
         this.egret('build');
+
         // 清理老的并编译
         fs.removeSync('project/bin-release');
         this.egret('publish --compressjson');
-        fs.unlinkSync('project/tsconfig.json');
 
         // 整理release出的文件，放到publish下面
         fs.ensureDirSync('publish');
