@@ -184,8 +184,6 @@ export class EgretGame extends Game {
             BACKGROUND: bkg,
             BACKGROUNDCOLOR: bkgcolor,
             APPSTYLE: '',
-            APPLAUNCH: '',
-            APPSCRIPT: '',
             FILESLIST: files.join('\n\t')
         });
         fs.outputFileSync('project/index.html', index);
@@ -222,8 +220,6 @@ export class EgretGame extends Game {
             BACKGROUND: bkg,
             BACKGROUNDCOLOR: bkgcolor,
             APPSTYLE: '',
-            APPLAUNCH: '',
-            APPSCRIPT: '',
             FILESLIST: [
                 '<script src="engine.min.js?v=' + this.config.get('app', 'version') + '"></script>',
                 '<script src="main.min.js?v=' + this.config.get('app', 'version') + '"></script>'
@@ -280,36 +276,21 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, 
     height:100%;
     background:{{BACKGROUNDCOLOR}}
     }
-    #launchDiv {
-    position:absolute;
-    left:0;
-    top:0;
-    text-align:center;
-    width:100%;
-    height:100%;
-    background:url({{BACKGROUND}}) top center no-repeat;
-    background-size:auto 100%;
-    }
 </style>
 {{APPSTYLE}}
 </head>
 <body>
-<div id="launchDiv">
-    {{APPLAUNCH}}
-    </div>
     {{APPSCRIPT}}
-    <div style="margin:auto;width:100%;height:100%;" class="egret-player"
-data-entry-class="Main"
-data-orientation="auto"
-data-scale-mode="showAll"
-data-multi-fingered="2"
-data-frame-rate="60"
-    >
-    </div>
+    <div style="margin:auto;width:100%;height:100%;"
+    class="egret-player"
+    data-entry-class="Main"
+    data-orientation="auto"
+    data-scale-mode="showAll"
+    data-multi-fingered="2"
+    data-frame-rate="60"
+    ></div>
     <!-- debug信息 -->
     <script src="bin-debug/app/~debug.js"></script>
-    <!-- dev工具 -->
-    <script src="tools/devtools/devtools.js" type="text/javascript"></script>
     <!-- 加载的文件列表 -->
     {{&FILESLIST}}
     <script>
@@ -349,32 +330,19 @@ name="{{APPNAME}}"></app>
     height:100%;
     background:{{BACKGROUNDCOLOR}}
     }
-    #launchDiv {
-    position:absolute;
-    left:0;
-    top:0;
-    text-align:center;
-    width:100%;
-    height:100%;
-    background:url({{BACKGROUND}}) top center no-repeat;
-    background-size:auto 100%;
-    }
 </style>
 {{APPSTYLE}}
 </head>
 <body>
-<div id="launchDiv">
-    {{APPLAUNCH}}
-    </div>
     {{APPSCRIPT}}
-    <div style="margin:auto;width:100%;height:100%;" class="egret-player"
-data-entry-class="Main"
-data-orientation="auto"
-data-scale-mode="showAll"
-data-multi-fingered="2"
-data-frame-rate="60"
-    >
-    </div>
+    <div style="margin:auto;width:100%;height:100%"
+    class="egret-player" 
+    data-entry-class="Main"
+    data-orientation="auto"
+    data-scale-mode="showAll"
+    data-multi-fingered="2"
+    data-frame-rate="60"
+    ></div>
     {{FILESLIST}}
     <script>
 var document_orientation = {{APPANGLE}};
