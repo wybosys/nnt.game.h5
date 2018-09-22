@@ -7,7 +7,9 @@
     "clean": "node tools/index.js clean",
     "gendata": "node tools/index.js gendata",
     "genskin": "node tools/index.js genskin",
-    "genres": "node tools/index.js res up"
+    "genres": "node tools/index.js res up",
+    "devops": "node tools/index.js dist",
+    "devops-restart": "node tools/index.js dist"
   },
   "dependencies": {
     "@types/async": "^2.0.49",
