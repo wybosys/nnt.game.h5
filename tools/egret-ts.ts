@@ -8,8 +8,9 @@ import execa = require("execa");
 const PAT_TS = [/\.ts$/];
 const PAT_TS_IGNORE = [/\.d\.ts$/];
 
-let options:any;
-let project:any;
+let options: any;
+let project: any;
+let host: any;
 
 export class EgretTs {
 
@@ -25,11 +26,14 @@ export class EgretTs {
         svc.add(res, 'egret-ts');
     }
 
-    buildOneTs(file: string) {
+    buildOneTs(file: string, mode: null | "added" | "removed") {
+        file = file.replace(/\\/g, '/');
         let js = file.replace('src', 'bin-debug').replace('.ts', '.js');
-        // 直接使用tsc编译
-        //execa('tsc', ['-t', 'es5', '--outFile', js, file]);
-        project.compile(options, [file]);
+        // 编译修改的文件
+        host = host.compileWithChanges([{
+            type: mode,
+            fileName: file
+        }], options.sourceMap);
     }
 }
 
@@ -45,26 +49,29 @@ if (path.basename(process.argv[1]) == 'egret-ts.js') {
     res.options.emitReflection = true;
     res.options.outDir = 'project/bin-debug';
     options = res.options;
-    project.compile(options, res.fileNames);
+    host = project.compile(options, res.fileNames);
+    console.log('egret自动编译');
 
     let ts = new EgretTs();
-    ts.buildOneTs("project/src/app/MainScene.ts");
-    /*
+    //ts.buildOneTs("project/src/app/MainScene.ts");
+
     watch.createMonitor('project/src', {interval: 1}, monitor => {
         monitor.on('created', (f: string, stat) => {
             if (NotMatch(f, PAT_TS_IGNORE) && IsMatch(f, PAT_TS))
-                ts.buildOneTs(f);
+                ts.buildOneTs(f, "added");
         });
         monitor.on('changed', (f: string, stat) => {
             if (NotMatch(f, PAT_TS_IGNORE) && IsMatch(f, PAT_TS))
-                ts.buildOneTs(f);
+                ts.buildOneTs(f, null);
         });
         monitor.on('removed', (f: string, stat) => {
-            let js = f.replace('src', 'bin-debug').replace('.ts', '.js');
-            fs.unlink(js);
+            if (NotMatch(f, PAT_TS_IGNORE) && IsMatch(f, PAT_TS)) {
+                ts.buildOneTs(f, "removed");
+                let js = f.replace('src', 'bin-debug').replace('.ts', '.js');
+                fs.unlink(js);
+            }
         });
     });
-    */
 }
 
 const TPL_TSCONFIG = `
