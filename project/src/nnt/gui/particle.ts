@@ -10,7 +10,12 @@ module nn {
             super._initSignals();
             this._signals.register(SignalStart);
             this._signals.register(SignalDone);
+            this._signals.register(SignalUpdated);
+            this._signals.register(SignalChanged);
         }
+
+        /** 自动播放 **/
+        autoPlay: boolean = true;
 
         /** 启动 **/
         abstract start();
@@ -99,6 +104,17 @@ module nn {
                 }
             }
             return src;
+        }
+
+        get hashCode(): number {
+            return StringT.Hash(this.name + "::" + this._config + "::" + this._texture + '::' + this.key);
+        }
+
+        isEqual(r: this): boolean {
+            return this.name == r.name &&
+                this._config == r._config &&
+                this._texture == r._texture &&
+                this.key == r.key;
         }
 
         getReqResources(): Array<ReqResource> {
