@@ -12,6 +12,7 @@ module app {
         _actEcho(s?: nn.Slot);
         _actEnter(s?: nn.Slot);
         _actOpenLink(s?: nn.Slot);
+        _actTestParticle(s?: nn.Slot);
         _actTouchMoved(s?: nn.Slot);
         //slot }
     }
@@ -152,6 +153,10 @@ module app {
                     console.log(data.content);
                 });
             });
+        }
+
+        _actTestParticle(s?: nn.Slot) {
+            
         }
 
         private _mmo = new nn.SocketSession();
