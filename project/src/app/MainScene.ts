@@ -10,15 +10,10 @@ module app {
     interface IMainScene {
         //slot {
         _actEcho(s?: nn.Slot);
-
         _actEnter(s?: nn.Slot);
-
         _actOpenLink(s?: nn.Slot);
-
         _actTestParticle(s?: nn.Slot);
-
         _actTouchMoved(s?: nn.Slot);
-
         //slot }
     }
 
@@ -33,6 +28,7 @@ module app {
         btn0: eui.ButtonU;
         btn1: eui.ButtonU;
         btnLogic: eui.ButtonU;
+        group: eui.Group;
         img0: eui.ImageU;
         lblHtml: eui.HtmlLabelU;
         lblInp: eui.TextInputU;
@@ -40,6 +36,7 @@ module app {
         list1: eui.ListU;
         sp_touch: eui.GroupU;
         tabbar0: eui.TabBarU;
+        test: egret.tween.TweenGroup;
         //skin }
 
         list0ItemRenderer = ItemRenderer;
@@ -69,12 +66,9 @@ module app {
             this._testMmo();
         }
 
-        protected createChildren() {
-            super.createChildren();
-        }
-
         protected childrenCreated() {
             super.childrenCreated();
+            this.test.play();
 
             var u = new nn.Sprite();
             u.frame = new nn.Rect(0, 0, 100, 50);

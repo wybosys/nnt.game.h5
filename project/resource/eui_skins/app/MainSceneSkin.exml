@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='utf-8'?>
-<e:Skin class="MainSceneSkin" width="480" height="800" xmlns:e="http://ns.egret.com/eui" xmlns:eui="eui.*" xmlns:w="http://ns.egret.com/wing"  states="b" >
+<e:Skin class="MainSceneSkin" width="480" height="800" xmlns:e="http://ns.egret.com/eui" xmlns:eui="eui.*" xmlns:w="http://ns.egret.com/wing" xmlns:tween="egret.tween.*"  states="b" >
+	<w:Declarations>
+		<tween:TweenGroup id="test">
+			<tween:TweenItem target="{btnLogic}">
+				<tween:Set/>
+				<tween:To duration="2000">
+					<tween:props>
+						<e:Object y="{429}"/>
+					</tween:props>
+				</tween:To>
+			</tween:TweenItem>
+		</tween:TweenGroup>
+	</w:Declarations>
 	<eui:ButtonU id="btnLogic" label="logic.echo" x="33" y="318" slots="nn.SignalClicked=&gt;actEcho"/>
 	<e:ListU id="list0" left="30" top="60" bottom="586" itemRendererSkinName="app.item.ButtonSkin" width="191">
 		<e:ArrayCollection>
@@ -29,7 +41,7 @@
 	<e:ProgressBarU value="50" right="33" bottom="0" left="31"/>
 	<e:ImageU id="img0" width="35" height="30" x="33" y="220" source="thumb"/>
 	<e:MovieClipU width="200" height="200" textureSource="mc://shangdi.png" frameSource="mc://shangdi.json" clipName="shangdi" playCount="-1" autoPlay="true" left="0" bottom="69"/>
-	<e:Group width="266" height="41" x="181" y="8">
+	<e:Group id="group" width="266" height="41" x="181" y="8">
 		<e:ButtonU id="btn0" x="59" y="-2" label="粒子" width="113" height="43" slots="nn.SignalClicked=&gt;actTestParticle"/>
 		<e:ButtonU id="btn1" label="DIALOG" x="22" y="15" height="43"/>
 		<e:layout>
