@@ -220,16 +220,16 @@ if (path.basename(process.argv[1]) == 'egret-eui.js') {
     Service.Locker('egret-eui').acquire();
 
     let eui = new EgretEui();
-    watch.createMonitor('project/resource/eui_skins', moniter => {
-        moniter.on('created', (f: string, stat) => {
+    watch.createMonitor('project/resource/eui_skins', monitor => {
+        monitor.on('created', (f: string, stat) => {
             if (IsMatch(f, PAT_EXML))
                 eui.addSkin(f.replace(/\\/g, '/'));
         });
-        moniter.on('changed', (f: string, stat) => {
+        monitor.on('changed', (f: string, stat) => {
             if (IsMatch(f, PAT_EXML))
                 eui.addSkin(f.replace(/\\/g, '/'));
         });
-        moniter.on('removed', (f: string, stat) => {
+        monitor.on('removed', (f: string, stat) => {
             if (IsMatch(f, PAT_EXML))
                 eui.removeSkin(f.replace(/\\/g, '/'));
         });

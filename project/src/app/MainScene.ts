@@ -156,7 +156,7 @@ module app {
         }
 
         _actTestParticle(s?: nn.Slot) {
-            
+            alert("hello world");
         }
 
         private _mmo = new nn.SocketSession();

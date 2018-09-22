@@ -9,6 +9,7 @@ import fs = require("fs-extra");
 import dot = require("dot");
 import os = require("os");
 import execa = require("execa");
+import {EgretTs} from "./egret-ts";
 
 export const IMAGE_EXTS = ['.jpeg', '.jpg', '.png'];
 const PUBLISH_FIX_IMAGESOURCE = new RegExp("imageSource = ([a-zA-Z0-9:/_.\\- ]+);", "g");
@@ -61,6 +62,8 @@ export class EgretGame extends Game {
                 await this._eui.startWatch(this.service);
                 // 监听资源的改变，刷新资源数据表
                 await this.resource.startWatch(this.service);
+                // 启动自动编译
+                await this._ts.startWatch(this.service);
             }
 
             // 判断使用何种编译
@@ -230,6 +233,7 @@ export class EgretGame extends Game {
     }
 
     protected _eui = new EgretEui();
+    protected _ts = new EgretTs();
 }
 
 class EgretConfig extends Config {
