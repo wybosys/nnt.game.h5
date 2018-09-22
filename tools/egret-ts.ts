@@ -4,9 +4,11 @@ import watch = require("watch");
 import {IsMatch, NotMatch} from "./kernel";
 import fs = require("fs-extra");
 import execa = require("execa");
+import os = require("os");
 
 const PAT_TS = [/\.ts$/];
 const PAT_TS_IGNORE = [/\.d\.ts$/];
+const EGRET_CMD = os.type() == 'Windows_NT' ? 'egret.cmd' : 'egret';
 
 let options: any;
 let project: any;
@@ -41,8 +43,18 @@ if (path.basename(process.argv[1]) == 'egret-ts.js') {
     console.log('启动egret-ts服务');
     Service.Locker('egret-ts').acquire();
 
+    // 获得egret的安装目录
+    let egretinfo = execa.sync(EGRET_CMD, ['info']);
+    let output = egretinfo.stdout.split('\n');
+    let data = output[2];
+    let ps = data.split('：');
+    if (ps.length != 2) {
+        ps = data.split(':');
+    }
+    let libdir = ps[1];
+
     // 需要先编译完整项目
-    const compiler = require("C:\\Users\\wybol\\AppData\\Roaming\\Egret\\engine\\5.2.9\\tools\\actions\\Compiler");
+    const compiler = require(libdir + '/tools/actions/Compiler');
     project = new compiler.Compiler();
     let res = project.parseTsconfig('project/', false);
     res.options.allowUnreachableCode = true;
