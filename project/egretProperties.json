@@ -31,14 +31,18 @@
       "name": "eui"
     },
     {
+      "name": "promise"
+    },
+    {
       "name": "dragonbones"
     },
     {
       "name": "particle",
-      "path": "./3rd/particle"
+      "path": "3rd/particle"
     },
     {
-      "name": "promise"
+      "name": "physics",
+      "path": "3rd/physics"
     }
   ]
 }
