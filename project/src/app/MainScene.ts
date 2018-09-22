@@ -78,10 +78,6 @@ module app {
             this.addChild(u);
         }
 
-        private _onBtn0Clicked() {
-            alert("hello 456");
-        }
-
         private _onBtn1Clicked() {
             let hud = new HudText();
             hud.open();
