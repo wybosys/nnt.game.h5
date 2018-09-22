@@ -79,7 +79,7 @@ module app {
         }
 
         private _onBtn0Clicked() {
-            alert(" ");
+            alert("hello");
         }
 
         private _onBtn1Clicked() {

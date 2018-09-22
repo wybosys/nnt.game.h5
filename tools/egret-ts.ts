@@ -25,7 +25,13 @@ export class EgretTs {
     buildOneTs(file: string) {
         let js = file.replace('src', 'bin-debug').replace('.ts', '.js');
         // 直接使用tsc编译
-        execa.shellSync('tsc -t es5 --outFile ' + js + ' --noEmit ' + file);
+        //execa('tsc', ['-t', 'es5', '--outFile', js, file]);
+        const compiler = require("C:\\Users\\wybol\\AppData\\Roaming\\Egret\\engine\\5.2.9\\tools\\actions\\Compiler");
+        let tsc = new compiler.Compiler();
+        let opts = tsc.parseTsconfig('project/', false);
+        opts.options.allowUnreachableCode = true;
+        opts.options.emitReflection = true;
+        tsc.compile(opts, [file]);
     }
 }
 
@@ -34,7 +40,8 @@ if (path.basename(process.argv[1]) == 'egret-ts.js') {
     Service.Locker('egret-ts').acquire();
 
     let ts = new EgretTs();
-    watch.createMonitor('project/src/', monitor => {
+    ts.buildOneTs("project/src/app/MainScene.ts");
+    watch.createMonitor('project/src', {interval: 1}, monitor => {
         monitor.on('created', (f: string, stat) => {
             if (NotMatch(f, PAT_TS_IGNORE) && IsMatch(f, PAT_TS))
                 ts.buildOneTs(f);
@@ -49,3 +56,23 @@ if (path.basename(process.argv[1]) == 'egret-ts.js') {
         });
     });
 }
+
+const TPL_TSCONFIG = `
+{
+    "compilerOptions": {
+        "target": "es5",
+        "outDir": "bin-debug",
+        "experimentalDecorators": true,
+        "lib": [
+            "es6",
+            "dom",
+            "es2015.promise"
+        ],
+        "types": []
+    },
+    "include": [
+        "src",
+        "libs",
+        "resource/*.d.ts"
+    ]
+}`;

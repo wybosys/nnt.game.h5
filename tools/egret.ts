@@ -359,23 +359,3 @@ app.debug = {
     CONFIG:{{CONFIG}},
     BUILDDATE:{{BUILDDATE}}
 };`;
-
-const TPL_TSCONFIG = `
-{
-    "compilerOptions": {
-        "target": "es5",
-        "outDir": "bin-debug",
-        "experimentalDecorators": true,
-        "lib": [
-            "es6",
-            "dom",
-            "es2015.promise"
-        ],
-        "types": []
-    },
-    "include": [
-        "src",
-        "libs",
-        "resource/*.d.ts"
-    ]
-}`;
