@@ -1,40 +1,44 @@
 {
-    "engineVersion": "5.2.9",
-    "compilerVersion": "5.2.9",
-    "template": {},
-    "target": {
-        "current": "web"
+  "engineVersion": "5.2.9",
+  "compilerVersion": "5.2.9",
+  "template": {},
+  "target": {
+    "current": "web"
+  },
+  "eui": {
+    "exmlRoot": [
+      "resource/eui_skins"
+    ],
+    "themes": [
+      "resource/default.thm.json"
+    ],
+    "exmlPublishPolicy": "commonjs"
+  },
+  "modules": [
+    {
+      "name": "egret"
     },
-    "eui": {
-        "exmlRoot": [
-            "resource/eui_skins"
-        ],
-        "themes": [
-            "resource/default.thm.json"
-        ],
-        "exmlPublishPolicy": "commonjs"
+    {
+      "name": "game"
     },
-    "modules": [
-        {
-            "name": "egret"
-        },
-        {
-            "name": "game"
-        },
-        {
-            "name": "tween"
-        },
-        {
-            "name": "eui"
-        },
-        {
-            "name": "dragonbones"
-        },
-        {
-            "name": "res"
-        },
-        {
-            "name": "promise"
-        }
-    ]
+    {
+      "name": "res"
+    },
+    {
+      "name": "tween"
+    },
+    {
+      "name": "eui"
+    },
+    {
+      "name": "dragonbones"
+    },
+    {
+      "name": "particle",
+      "path": "./3rd/particle"
+    },
+    {
+      "name": "promise"
+    }
+  ]
 }
