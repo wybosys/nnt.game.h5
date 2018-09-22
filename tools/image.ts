@@ -17,6 +17,9 @@ export const WHITES_IMAGEMERGE = [/\.png$/];
 export const BLACKS_IMAGECOMPRESS = BLACKS_GENRES.concat();
 export const WHITES_IMAGECOMPRESS = [/\.png$/, /.jpg$/, /.jpeg$/];
 
+// node-sharp限制
+const SHARP_MIN_LENGTH = 10;
+
 export type Image = sharp.SharpInstance;
 
 class MergingFileInfo {
@@ -103,15 +106,24 @@ export class ImageMerge {
             // 获得原始图片数据
             const meta = await img.metadata();
             info.size = new Size(meta.width, meta.height);
-            const bbx = await img.bbx(10);
-            if (bbx.width && bbx.height && (bbx.width != meta.width || bbx.height != meta.height)) {
-                info.bbx = new Rect(bbx.left, bbx.top, bbx.width, bbx.height);
-                info.dest = MergingFileInfo.Dest(info.src);
-                // trim后保存起来
-                await img.trim(10).toFile(info.dest);
-            } else {
+
+            // node-sharp计算bbx和trim会有最小window得限制，所以小于限制，就不进行bbx处理
+            if (meta.width <= SHARP_MIN_LENGTH || meta.height <= SHARP_MIN_LENGTH) {
                 info.bbx = new Rect(0, 0, meta.width, meta.height);
                 info.dest = info.src;
+            }
+            else {
+                // 求可用最小区域
+                const bbx = await img.bbx(10);
+                if (bbx.width && bbx.height && (bbx.width != meta.width || bbx.height != meta.height)) {
+                    info.bbx = new Rect(bbx.left, bbx.top, bbx.width, bbx.height);
+                    info.dest = MergingFileInfo.Dest(info.src);
+                    // trim后保存起来
+                    await img.trim(10).toFile(info.dest);
+                } else {
+                    info.bbx = new Rect(0, 0, meta.width, meta.height);
+                    info.dest = info.src;
+                }
             }
         }
 

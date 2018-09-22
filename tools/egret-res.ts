@@ -25,6 +25,7 @@ export class EgretResource extends Resource {
         fs.removeSync("publish/resource");
         fs.removeSync(".n2/res/resmerger");
         fs.removeSync(".n2/res/dist");
+        fs.removeSync("project/resource/default.res.json");
     }
 
     async refreshIn(dir: string): Promise<boolean> {
@@ -61,7 +62,7 @@ export class EgretResource extends Resource {
                 });
             });
             jsobj.groups.push({
-                name: subdir.replace(dir + 'resource/', ''),
+                name: subdir.replace(dir + 'resource/assets/', '').replace('/', '_'),
                 keys: keys.join(',')
             });
         });
@@ -110,9 +111,12 @@ export class EgretResource extends Resource {
         return this.publishIn('publish/', opts);
     }
 
-    startWatch(svc: Service) {
+    async startWatch(svc: Service) {
         if (!Service.Locker('egret-res').trylock())
             return;
+
+        await this.refresh();
+
         let res = execa('node', ['tools/egret-res.js'], {
             detached: true,
             stdio: 'ignore'
@@ -178,8 +182,6 @@ if (path.basename(process.argv[1]) == 'egret-res.js') {
     Service.Locker('egret-res').acquire();
 
     let res = new EgretResource();
-    res.refresh();
-
     watch.createMonitor('project/resource/assets', moniter => {
         moniter.on('created', (f, stat) => {
             console.log('created:' + f);

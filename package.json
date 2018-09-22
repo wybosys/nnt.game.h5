@@ -7,7 +7,9 @@
     "clean": "node tools/index.js clean",
     "gendata": "node tools/index.js gendata",
     "genskin": "node tools/index.js genskin",
-    "genres": "node tools/index.js res up"
+    "genres": "node tools/index.js res up",
+    "devops": "node tools/index.js dist",
+    "devops-restart": "node tools/index.js dist"
   },
   "dependencies": {
     "@types/async": "^2.0.49",
@@ -39,7 +41,7 @@
     "lowdb": "^1.0.0",
     "mustache": "^2.3.2",
     "proper-lockfile": "^3.0.2",
-    "sharpkit": "^10.30.1",
+    "sharpkit": "^10.30.10",
     "tmp": "^0.0.33",
     "uglify-js": "^3.4.9",
     "uuid": "^3.3.2",

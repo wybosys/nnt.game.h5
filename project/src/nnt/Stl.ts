@@ -42,20 +42,20 @@ module nn {
 
         delete: (k: K) => void = ECMA6_NATIVE ? this._n_delete : this._i_delete;
 
-        private _n_foreach(cb: (k: K, v: V) => void, ctx?: any) {
+        private _n_foreach(cb: (v: V, k: K) => void, ctx?: any) {
             this._imp.forEach((v: V, k: K) => {
-                cb.call(ctx, k, v);
+                cb.call(ctx, v, k);
             });
         }
 
-        private _i_foreach(cb: (k: K, v: V) => void, ctx?: any) {
+        private _i_foreach(cb: (v: V, k: K) => void, ctx?: any) {
             let ks = Object.keys(this._imp);
             ks.forEach(function (k) {
-                cb.call(ctx, k, this._imp[k]);
+                cb.call(ctx, this._imp[k], k);
             }, this);
         }
 
-        forEach: (cb: (k: K, v: V) => void, ctx?: any) => void = ECMA6_NATIVE ? this._n_foreach : this._i_foreach;
+        forEach: (cb: (v: V, k: K) => void, ctx?: any) => void = ECMA6_NATIVE ? this._n_foreach : this._i_foreach;
 
         private _n_has(k: K): boolean {
             return this._imp.has(k);

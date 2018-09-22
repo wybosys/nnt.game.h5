@@ -2,7 +2,18 @@ import fs = require("fs-extra");
 import tpl = require("dustjs-linkedin");
 import xlsx = require("xlsx");
 import execa = require("execa");
-import {ArrayT, asString, AsyncQueue, ListFiles, static_cast, StringT, toJson, toJsonObject} from "./kernel";
+import {
+    ArrayT,
+    asString,
+    AsyncQueue,
+    IsMatch,
+    ListFiles,
+    NotMatch,
+    static_cast,
+    StringT,
+    toJson,
+    toJsonObject
+} from "./kernel";
 import {Service} from "./service";
 import path = require("path");
 import watch = require("watch");
@@ -57,9 +68,13 @@ export class Gendata {
             .run();
     }
 
-    startWatch(svc: Service) {
+    async startWatch(svc: Service) {
         if (!Service.Locker('gendata').trylock())
             return;
+
+        // 第一次运行，执行构建
+        await this.build();
+
         let res = execa('node', ['tools/gendata.js'], {
             detached: true,
             stdio: 'ignore'
@@ -521,20 +536,21 @@ function FieldOfColumn(s: xlsx.WorkSheet, aoa: any[], idx: number): Field {
 
 // 服务
 if (path.basename(process.argv[1]) == 'gendata.js') {
-    Service.Locker('egret-eui').acquire();
+    Service.Locker('gendata').acquire();
 
     let gd = new Gendata();
-    gd.build();
-
     watch.createMonitor('project/src/app/data', moniter => {
-        moniter.on('created', (f, stat) => {
-            gd.build();
+        moniter.on('created', (f: string, stat) => {
+            if (!NotMatch(f, PAT_EXCEL_IGNORE) && IsMatch(f, PAT_EXCEL))
+                gd.build();
         });
-        moniter.on('changed', (f, stat) => {
-            gd.build();
+        moniter.on('changed', (f: string, stat) => {
+            if (!NotMatch(f, PAT_EXCEL_IGNORE) && IsMatch(f, PAT_EXCEL))
+                gd.build();
         });
-        moniter.on('removed', (f, stat) => {
-            gd.build();
+        moniter.on('removed', (f: string, stat) => {
+            if (!NotMatch(f, PAT_EXCEL_IGNORE) && IsMatch(f, PAT_EXCEL))
+                gd.build();
         });
     });
 }

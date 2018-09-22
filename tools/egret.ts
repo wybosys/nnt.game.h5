@@ -6,9 +6,10 @@ import {Service} from "./service";
 import {EgretResource} from "./egret-res";
 import {EgretEui} from "./egret-eui";
 import fs = require("fs-extra");
-import dot = require("dot");
+import mustache = require("mustache");
 import os = require("os");
 import execa = require("execa");
+import {EgretTs} from "./egret-ts";
 
 export const IMAGE_EXTS = ['.jpeg', '.jpg', '.png'];
 const PUBLISH_FIX_IMAGESOURCE = new RegExp("imageSource = ([a-zA-Z0-9:/_.\\- ]+);", "g");
@@ -38,6 +39,8 @@ export class EgretGame extends Game {
         fs.removeSync(".n2/dist");
         fs.removeSync("dist");
         fs.removeSync("publish");
+        fs.removeSync("project/app.json");
+        fs.removeSync("project/manifest.json");
 
         // 清理其他
         this._eui.clean();
@@ -50,23 +53,33 @@ export class EgretGame extends Game {
         if (opts.debug) {
             console.log("构建debug版本");
             fs.copySync('app.json', 'project/app.json');
+
+            // 启动服务并生成第一波资源
+            if (!opts.noservice) {
+                // 监听添加了新的配表
+                await this.gendata.startWatch(this.service);
+                // 监听eui的改变，刷新代码
+                await this._eui.startWatch(this.service);
+                // 监听资源的改变，刷新资源数据表
+                await this.resource.startWatch(this.service);
+                // 启动自动编译
+                await this._ts.startWatch(this.service);
+            }
+
             // 判断使用何种编译
             this.egret('build');
             // 生成测试入口
             this.makeDebugIndex();
-            // 启动服务
-            if (!opts.noservice) {
-                // 监听添加了新的配表
-                this.gendata.startWatch(this.service);
-                // 监听eui的改变，刷新代码
-                this._eui.startWatch(this.service);
-                // 监听资源的改变，刷新资源数据表
-                this.resource.startWatch(this.service);
-            }
             return;
         }
 
         console.log("构建release版本");
+
+        // 准备附加数据文件
+        await this.gendata.build();
+        await this._eui.build();
+        await this.resource.refresh();
+
         // 先编译下基础debug版本
         this.egret('build');
 
@@ -163,21 +176,19 @@ export class EgretGame extends Game {
         ArrayT.Merge(manifest.initial, manifest.game).forEach(e => {
             files.push('<script src="' + e + '"></script>');
         });
-        const index = dot.template(TPL_INDEX_DEBUG)({
+        const index = mustache.render(TPL_INDEX_DEBUG, {
             APPNAME: this.config.get('app', 'name'),
             APPORI: this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait',
             APPANGLE: this.config.get('app', 'orientation') == 'h' ? '90' : '0',
-            APPCONTENT: 'version=0.0.1, debug, verbose' + this.config.get('app', 'resource') == 'p' ? 'publish' : '',
+            APPCONTENT: 'version=0.0.1, debug, verbose' + (this.config.get('app', 'resource') == 'p' ? 'publish' : ''),
             BACKGROUND: bkg,
             BACKGROUNDCOLOR: bkgcolor,
             APPSTYLE: '',
-            APPLAUNCH: '',
-            APPSCRIPT: '',
             FILESLIST: files.join('\n\t')
         });
         fs.outputFileSync('project/index.html', index);
         // 为了支持插件调试模式，需要描述一下当前项目的信息
-        const debug = dot.template(TPL_DEBUG)({
+        const debug = mustache.render(TPL_DEBUG, {
             PATH: process.cwd(),
             UUID: this.config.uuid,
             CONFIG: fs.pathExistsSync('~debug.json'),
@@ -199,7 +210,7 @@ export class EgretGame extends Game {
                 bkg = bkg.replace('assets://', 'resource/assets');
             }
         }
-        const index = dot.template(TPL_INDEX_RELEASE)({
+        const index = mustache.render(TPL_INDEX_RELEASE, {
             APPNAME: this.config.get('app', 'name'),
             APPORI: this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait',
             APPANGLE: this.config.get('app', 'orientation') == 'h' ? '90' : '0',
@@ -209,8 +220,6 @@ export class EgretGame extends Game {
             BACKGROUND: bkg,
             BACKGROUNDCOLOR: bkgcolor,
             APPSTYLE: '',
-            APPLAUNCH: '',
-            APPSCRIPT: '',
             FILESLIST: [
                 '<script src="engine.min.js?v=' + this.config.get('app', 'version') + '"></script>',
                 '<script src="main.min.js?v=' + this.config.get('app', 'version') + '"></script>'
@@ -220,6 +229,7 @@ export class EgretGame extends Game {
     }
 
     protected _eui = new EgretEui();
+    protected _ts = new EgretTs();
 }
 
 class EgretConfig extends Config {
@@ -243,12 +253,12 @@ const TPL_INDEX_DEBUG = `
     <head>
     <meta charset="utf-8">
     <base href="project">
-    <title>{{=it.APPNAME}}</title>    
+    <title>{{APPNAME}}</title>    
     <meta name="viewport"
 content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="screen-orientation" content="{{=it.APPORI}}"/>
-<meta name="x5-orientation" content="{{=it.APPORI}}"/>
+<meta name="screen-orientation" content="{{APPORI}}"/>
+<meta name="x5-orientation" content="{{APPORI}}"/>
 <meta name="full-screen" content="true"/>
 <meta name="x5-fullscreen" content="true"/>
 <meta name="360-fullscreen" content="true"/>
@@ -256,51 +266,35 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, 
 <meta name="browsermode" content="application"/>
 <meta name="x5-page-mode" content="app"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<app content="{{=it.APPCONTENT}}">
-    </app>
-    <style>
+<app content="{{&APPCONTENT}}"></app>
+<style>
     html, body {
     -ms-touch-action:none;
     padding:0;
     border:0;
     margin:0;
     height:100%;
-    background:{{=it.BACKGROUNDCOLOR}}
-        }
-#launchDiv {
-    position:absolute;
-    left:0;
-    top:0;
-    text-align:center;
-    width:100%;
-    height:100%;
-    background:url({{=it.BACKGROUND}}) top center no-repeat;
-    background-size:auto 100%;
-}
+    background:{{BACKGROUNDCOLOR}}
+    }
 </style>
-{{=it.APPSTYLE}}
+{{APPSTYLE}}
 </head>
 <body>
-<div id="launchDiv">
-    {{=it.APPLAUNCH}}
-    </div>
-    {{=it.APPSCRIPT}}
-    <div style="margin:auto;width:100%;height:100%;" class="egret-player"
-data-entry-class="Main"
-data-orientation="auto"
-data-scale-mode="showAll"
-data-multi-fingered="2"
-data-frame-rate="60"
-    >
-    </div>
+    {{APPSCRIPT}}
+    <div style="margin:auto;width:100%;height:100%;"
+    class="egret-player"
+    data-entry-class="Main"
+    data-orientation="auto"
+    data-scale-mode="showAll"
+    data-multi-fingered="2"
+    data-frame-rate="60"
+    ></div>
     <!-- debug信息 -->
     <script src="bin-debug/app/~debug.js"></script>
-    <!-- dev工具 -->
-    <script src="tools/devtools/devtools.js" type="text/javascript"></script>
     <!-- 加载的文件列表 -->
-    {{=it.FILESLIST}}
+    {{&FILESLIST}}
     <script>
-var document_orientation = {{=it.APPANGLE}};
+var document_orientation = {{APPANGLE}};
 nn.loader.webstart();
 </script>
 </body>
@@ -311,12 +305,12 @@ const TPL_INDEX_RELEASE = `
 <html>
     <head>
         <meta charset="utf-8">
-    <title>{{=it.APPNAME}}</title>
+    <title>{{APPNAME}}</title>
     <meta name="viewport"
 content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="screen-orientation" content="{{=it.APPORI}}"/>
-<meta name="x5-orientation" content="{{=it.APPORI}}"/>
+<meta name="screen-orientation" content="{{APPORI}}"/>
+<meta name="x5-orientation" content="{{APPORI}}"/>
 <meta name="full-screen" content="true"/>
 <meta name="x5-fullscreen" content="true"/>
 <meta name="360-fullscreen" content="true"/>
@@ -324,48 +318,34 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, 
 <meta name="browsermode" content="application"/>
 <meta name="x5-page-mode" content="app"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<app content="{{=it.APPCONTENT}}"
-icon="{{=it.APPICON}}"
-name="{{=it.APPNAME}}">
-    </app>
-    <style>
+<app content="{{&APPCONTENT}}"
+icon="{{APPICON}}"
+name="{{APPNAME}}"></app>
+<style>
     html, body {
     -ms-touch-action:none;
     padding:0;
     border:0;
     margin:0;
     height:100%;
-    background:{{=it.BACKGROUNDCOLOR}}
-        }
-#launchDiv {
-    position:absolute;
-    left:0;
-    top:0;
-    text-align:center;
-    width:100%;
-    height:100%;
-    background:url({{=it.BACKGROUND}}) top center no-repeat;
-    background-size:auto 100%;
-}
+    background:{{BACKGROUNDCOLOR}}
+    }
 </style>
-{{=it.APPSTYLE}}
+{{APPSTYLE}}
 </head>
 <body>
-<div id="launchDiv">
-    {{=it.APPLAUNCH}}
-    </div>
-    {{=it.APPSCRIPT}}
-    <div style="margin:auto;width:100%;height:100%;" class="egret-player"
-data-entry-class="Main"
-data-orientation="auto"
-data-scale-mode="showAll"
-data-multi-fingered="2"
-data-frame-rate="60"
-    >
-    </div>
-    {{=it.FILESLIST}}
+    {{APPSCRIPT}}
+    <div style="margin:auto;width:100%;height:100%"
+    class="egret-player" 
+    data-entry-class="Main"
+    data-orientation="auto"
+    data-scale-mode="showAll"
+    data-multi-fingered="2"
+    data-frame-rate="60"
+    ></div>
+    {{FILESLIST}}
     <script>
-var document_orientation = {{=it.APPANGLE}};
+var document_orientation = {{APPANGLE}};
 nn.loader.webstart();
 </script>
 </body>
@@ -374,8 +354,8 @@ nn.loader.webstart();
 const TPL_DEBUG = `
 var app = {};
 app.debug = {
-    PATH:"{{=it.PATH}}",
-    UUID:"{{=it.UUID}}",
-    CONFIG:{{=it.CONFIG}},
-    BUILDDATE:{{=it.BUILDDATE}}
+    PATH:"{{PATH}}",
+    UUID:"{{UUID}}",
+    CONFIG:{{CONFIG}},
+    BUILDDATE:{{BUILDDATE}}
 };`;

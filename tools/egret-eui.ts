@@ -1,9 +1,10 @@
 import fs = require("fs-extra");
 import mustache = require("mustache");
 import {
+    ArrayT, IsMatch,
     LinesReplace,
     ListFiles,
-    LoadXmlFile,
+    LoadXmlFile, ObjectT,
     ReadFileLines,
     SetT,
     static_cast,
@@ -15,7 +16,7 @@ import {Service} from "./service";
 import execa = require("execa");
 import watch = require("watch");
 
-const PAT_EXML = [/\.exml$/];
+const PAT_EXML = [/Skin\.exml$/];
 
 export class EgretEui {
 
@@ -70,7 +71,7 @@ export class EgretEui {
             } else {
                 cls = 'eui.' + cls;
             }
-            props.push('        ' + id + ':' + cls + ';');
+            props.push('        ' + id + ': ' + cls + ';');
         });
         // 排序
         slots.sort();
@@ -103,7 +104,7 @@ export class EgretEui {
                     let a = each.split('=>');
                     if (a.length != 2)
                         return;
-                    funs.add('        _' + a[1] + '(s?:nn.Slot);');
+                    funs.add('        _' + a[1] + '(s?: nn.Slot);');
                 });
             });
             // 读取文件，插入对应的变量
@@ -115,9 +116,39 @@ export class EgretEui {
         return tscls.replace(/\//g, '.');
     }
 
-    startWatch(svc: Service) {
+    removeSkin(exml: string) {
+        // 移出不出现在配置文件中的部分，用来之后的比对
+        let path = exml.replace('project/', '');
+        let thms = fs.readJsonSync('project/resource/default.thm.json');
+        ArrayT.RemoveObject(thms.exmls, path);
+        ObjectT.RemoveKeyByFilter(thms.skins, val => {
+            return val == path;
+        });
+        // 直接保存
+        fs.writeJsonSync('project/resource/default.thm.json', thms);
+    }
+
+    addSkin(exml: string) {
+        let path = exml.replace('project/', '');
+        let thms = fs.readJsonSync('project/resource/default.thm.json');
+        let fnd = ArrayT.QueryObject(thms.exmls, e => e == path);
+        if (!fnd)
+            thms.exmls.push(path);
+        let cls = this.buildOneSkin(exml);
+        ObjectT.RemoveKeyByFilter(thms.skins, val => {
+            return val == path;
+        });
+        // 添加
+        thms.skins[cls] = path;
+        fs.writeJsonSync('project/resource/default.thm.json', thms);
+    }
+
+    async startWatch(svc: Service) {
         if (!Service.Locker('egret-eui').trylock())
             return;
+
+        await this.build();
+
         let res = execa('node', ['tools/egret-eui.js'], {
             detached: true,
             stdio: 'ignore'
@@ -130,6 +161,8 @@ export class EgretEui {
 function xml_getElementsByAttributeName(node: HTMLElement, name: string, arr?: HTMLElement[]): HTMLElement[] {
     if (arr == null)
         arr = [];
+    if (!node)
+        return arr;
     for (let iter = node.firstChild; iter != null; iter = iter.nextSibling) {
         if (iter.nodeType != XmlNode.ELEMENT_NODE)
             continue;
@@ -144,6 +177,8 @@ function xml_getElementsByAttributeName(node: HTMLElement, name: string, arr?: H
 function xml_getAttributesByName(node: HTMLElement, name: string, arr?: Attr[]): Attr[] {
     if (arr == null)
         arr = [];
+    if (!node)
+        return arr;
     if (node.nodeType != XmlNode.ELEMENT_NODE)
         return arr;
     if (node.hasAttribute(name))
@@ -185,19 +220,18 @@ if (path.basename(process.argv[1]) == 'egret-eui.js') {
     Service.Locker('egret-eui').acquire();
 
     let eui = new EgretEui();
-    eui.build();
-
-    watch.createMonitor('project/resource/assets', moniter => {
-        moniter.on('created', (f, stat) => {
-            console.log('created:' + f);
-            eui.build();
+    watch.createMonitor('project/resource/eui_skins', monitor => {
+        monitor.on('created', (f: string, stat) => {
+            if (IsMatch(f, PAT_EXML))
+                eui.addSkin(f.replace(/\\/g, '/'));
         });
-        moniter.on('changed', (f, stat) => {
-            //console.log('changed:' + f);
+        monitor.on('changed', (f: string, stat) => {
+            if (IsMatch(f, PAT_EXML))
+                eui.addSkin(f.replace(/\\/g, '/'));
         });
-        moniter.on('removed', (f, stat) => {
-            console.log('removed:' + f);
-            eui.build();
+        monitor.on('removed', (f: string, stat) => {
+            if (IsMatch(f, PAT_EXML))
+                eui.removeSkin(f.replace(/\\/g, '/'));
         });
     });
 }

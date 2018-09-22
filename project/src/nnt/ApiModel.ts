@@ -56,7 +56,7 @@ module nn {
         params = new KvObject<string, string>();
 
         /** 域 */
-        host: string;
+        host: string = '';
 
         /** 返回的数据 */
         response: any;
@@ -152,6 +152,9 @@ module nn {
 
         /** 超时当作失败，因为默认的超时有可能是因为这个接口本来就跑的很久，并且通常的超时提示用户也没什么意义，所以先设计为由业务层设置该功能，如果为 true，则当超时时会发送 SignalFailed */
         timeoutAsFailed: boolean;
+
+        // 静默
+        quiet: boolean;
 
         /** 用于调试的数据 */
         protected urlForLog(): string {
@@ -298,24 +301,27 @@ module nn {
                     Memcache.shared.cache(this);
                 }
 
-                if (this.response.data) {
-                    this.unserialize(this.response);
-                    this.signals.emit(SignalSucceed);
-                    RestSession.signals.emit(SignalSucceed, this);
+                this.unserialize(this.response);
+                if (!this.quiet) {
+                    this.signals.emit(SignalSucceed, this);
+                    if (this.session)
+                        this.session.signals.emit(SignalSucceed, this);
                 }
-
             }
             else {
                 warn('API ' + this.action + ' ' + this.message);
 
                 let tn = new SlotTunnel();
                 if (this.isDebug) {
-                    this.signals.emit(SignalSucceed);
-                    RestSession.signals.emit(SignalSucceed, this);
+                    if (!this.quiet) {
+                        this.signals.emit(SignalSucceed, this);
+                        if (this.session)
+                            this.session.signals.emit(SignalSucceed, this);
+                    }
                 } else {
                     this.signals.emit(SignalFailed, this, tn);
-                    if (!tn.veto)
-                        RestSession.signals.emit(SignalFailed, this, tn);
+                    if (!tn.veto && this.session)
+                        this.session.signals.emit(SignalFailed, this, tn);
                 }
 
                 // 业务层可以拦截处理
@@ -539,37 +545,45 @@ namespace app.models.logic {
                     if (val) {
                         if (typeof(fp.valtype) == "string") {
                             if (fp.valtype == string_t) {
-                                val.forEach((e: any) => {
+                                val.forEach(e => {
                                     arr.push(e ? e.toString() : null);
                                 });
                             }
                             else if (fp.valtype == integer_t) {
-                                val.forEach((e: any) => {
+                                val.forEach(e => {
                                     arr.push(e ? nn.toInt(e) : 0);
                                 });
                             }
                             else if (fp.valtype == double_t) {
-                                val.forEach((e: any) => {
+                                val.forEach(e => {
                                     arr.push(e ? nn.toFloat(e) : 0);
                                 });
                             }
-                            else if (fp.valtype == boolean_t)
-                                val.forEach((e: any) => {
+                            else if (fp.valtype == boolean_t) {
+                                val.forEach(e => {
                                     arr.push(!!e);
                                 });
+                            }
                         }
                         else {
-                            let clz: any = fp.valtype;
-                            val.forEach((e: any) => {
-                                if (e == null) {
-                                    arr.push(null);
-                                }
-                                else {
-                                    let t = new clz();
-                                    Decode(t, e);
-                                    arr.push(t);
-                                }
-                            });
+                            if (fp.valtype == Object) {
+                                val.forEach(e => {
+                                    arr.push(e);
+                                });
+                            }
+                            else {
+                                let clz: any = fp.valtype;
+                                val.forEach(e => {
+                                    if (e == null) {
+                                        arr.push(null);
+                                    }
+                                    else {
+                                        let t = new clz();
+                                        Decode(t, e);
+                                        arr.push(t);
+                                    }
+                                });
+                            }
                         }
                     }
                     mdl[key] = arr;
@@ -750,7 +764,7 @@ namespace app.models.logic {
                     else {
                         // 特殊类型，需要迭代进去
                         let arr = new Array();
-                        val && val.forEach((e: any) => {
+                        val && val.forEach(e => {
                             arr.push(Output(e));
                         });
                         r[fk] = arr;
@@ -760,12 +774,12 @@ namespace app.models.logic {
                     let m: IndexedObject = {};
                     if (val) {
                         if (typeof(fp.valtype) == "string") {
-                            val.forEach((v: any, k: any) => {
+                            val.forEach((v, k) => {
                                 m[k] = v;
                             });
                         }
                         else {
-                            val.forEach((v: any, k: any) => {
+                            val.forEach((v, k) => {
                                 m[k] = Output(v);
                             });
                         }
@@ -776,12 +790,12 @@ namespace app.models.logic {
                     let m: IndexedObject = {};
                     if (val) {
                         if (typeof(fp.valtype) == "string") {
-                            val.forEach((v: any[], k: any) => {
+                            val.forEach((v, k) => {
                                 m[k] = v;
                             });
                         }
                         else {
-                            val.forEach((v: any[], k: any) => {
+                            val.forEach((v, k) => {
                                 m[k] = nn.ArrayT.Convert(v, e => Output(e));
                             });
                         }
@@ -995,7 +1009,7 @@ namespace app.models.logic {
         }
 
         unserialize(respn: any): boolean {
-            Decode(this, respn.data);
+            Decode(this, respn.data || {});
             return true;
         }
 

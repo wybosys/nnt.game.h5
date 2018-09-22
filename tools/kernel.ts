@@ -8,7 +8,6 @@ import inquirer = require("inquirer");
 import async = require("async");
 import xmldom = require("xmldom");
 import fsext = require("fs-ext");
-import tmp = require("tmp");
 
 export type IndexedObject = { [key: string]: any };
 
@@ -416,6 +415,23 @@ export class StringT {
     }
 }
 
+export class ObjectT {
+    static RemoveKeyByFilter(obj: IndexedObject, filter: (val: any, key: any) => boolean): IndexedObject {
+        let keys = Object.keys(obj);
+        for (let i = 0, l = keys.length; i < l; ++i) {
+            let key = keys[i];
+            let val = obj[key];
+            if (filter(val, key)) {
+                delete obj[key];
+                let r = Object.create(null);
+                r[key] = val;
+                return r;
+            }
+        }
+        return null;
+    }
+}
+
 export class DateTime {
     static Current(): number {
         return (new Date().getTime() / 1000) >> 0;
@@ -562,4 +578,20 @@ export function toJsonObject(o: any, def: any = null): IndexedObject {
     else if (t == 'object')
         return <any>o;
     return def;
+}
+
+export function NotMatch(str: string, pat: RegExp[]): RegExp {
+    for (let i = 0, l = pat.length; i < l; ++i) {
+        if (str.match(pat[i]) == null)
+            return pat[i];
+    }
+    return null;
+}
+
+export function IsMatch(str: string, pat: RegExp[]): RegExp {
+    for (let i = 0, l = pat.length; i < l; ++i) {
+        if (str.match(pat[i]))
+            return pat[i];
+    }
+    return null;
 }

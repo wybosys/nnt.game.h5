@@ -1,27 +1,25 @@
 module app {
-    
+
     class ItemRenderer
-    extends eui.ItemRendererU
-    {
+        extends eui.ItemRendererU {
         protected dataChanged() {
             super.dataChanged();
         }
     }
 
-    interface IMainScene
-    {
+    interface IMainScene {
         //slot {
         _actEcho(s?: nn.Slot);
         _actEnter(s?: nn.Slot);
         _actOpenLink(s?: nn.Slot);
+        _actTestParticle(s?: nn.Slot);
         _actTouchMoved(s?: nn.Slot);
         //slot }
     }
 
     export class MainScene
-    extends eui.SpriteU
-    implements IMainScene
-    {
+        extends eui.SpriteU
+        implements IMainScene {
         constructor() {
             super();
         }
@@ -44,7 +42,7 @@ module app {
         onLoaded() {
             super.onLoaded();
 
-            this.lblHtml.href(/HAHA/, ()=>{
+            this.lblHtml.href(/HAHA/, () => {
                 alert("HAHA");
             });
 
@@ -54,29 +52,25 @@ module app {
             sb.pop().touch("HAHA");
             this.lblHtml.value = sb;
 
-            this.list1.data = [0,1,2,3,4,5,6,7,8];
+            this.list1.data = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
             let ges = new nn.GestureSwipe();
-            ges.signals.connect(nn.SignalDone, ()=>{
+            ges.signals.connect(nn.SignalDone, () => {
                 if (ges.direction == nn.Direction.LEFT)
                     nn.Hud.Text("手势激活");
             }, this);
             this.addGesture(ges);
 
-            let m = api.SampleEcho();
-            m.input = "send to server";
-            nn.RestSession.fetch(m, ()=>{
-                alert(m.output);
-            });
+            this._testMmo();
         }
 
         protected createChildren() {
             super.createChildren();
         }
-        
+
         protected childrenCreated() {
             super.childrenCreated();
-            
+
             var u = new nn.Sprite();
             u.frame = new nn.Rect(0, 0, 100, 50);
             u.backgroundColor = nn.Color.Random();
@@ -85,11 +79,7 @@ module app {
         }
 
         private _onBtn0Clicked() {
-            var panel = new eui.Panel();
-            panel.title = "Title";
-            panel.horizontalCenter = 0;
-            panel.verticalCenter = 0;
-            this.addChild(panel);
+            alert("hello 456");
         }
 
         private _onBtn1Clicked() {
@@ -97,52 +87,74 @@ module app {
             hud.open();
         }
 
-        private _onList0ItemClicked(item:eui.ItemInfo) {
+        private _onList0ItemClicked(item: eui.ItemInfo) {
             nn.noti("点击 " + item.data.label);
         }
 
-        private _onTabbar0SelectionChanging(info:eui.SelectionInfo) {
+        private _onTabbar0SelectionChanging(info: eui.SelectionInfo) {
             if (info.selecting.index == 2) {
                 nn.noti("取消选中");
                 info.cancel();
             }
         }
 
-        private _on_remove(s:nn.Slot) {
+        private _on_remove(s: nn.Slot) {
             this.removeChild(s.sender);
         }
 
-        _actKeyPress(s?:nn.Slot) {
-            let d:nn.CKeyboard = s.data;
+        _actKeyPress(s?: nn.Slot) {
+            let d: nn.CKeyboard = s.data;
             nn.noti("按下 " + d.key + " " + d.code);
         }
 
-        _actEnter(s?:nn.Slot) {
-            let inp:eui.TextInputU = s.sender;
+        _actEnter(s?: nn.Slot) {
+            let inp: eui.TextInputU = s.sender;
             this.lblHtml.value = inp.value;
         }
 
-        _actOpenLink(s?:nn.Slot) {
+        _actOpenLink(s?: nn.Slot) {
             nn.noti(s.data);
         }
 
-        list1ItemForData(d:number):any {
-            if (d%2)
+        list1ItemForData(d: number): any {
+            if (d % 2)
                 return item.TestButton;
             return item.TestButton1;
         }
 
-        _actTouchMoved(s?:nn.Slot) {
+        _actTouchMoved(s?: nn.Slot) {
             nn.info(s.data.currentPosition);
         }
 
         _actEcho() {
             let m = api.SampleEcho();
             m.input = this.lblInp.text;
-            nn.RestSession.fetch(m, ()=>{
+            nn.RestSession.fetch(m, () => {
                 alert(m.output);
             });
         }
-            
+
+        _testMmo() {
+            let m = api.SampleLogin();
+            m.uid = "chell";
+            nn.RestSession.fetch(m, () => {
+                this._mmo.connector = new nn.logic.SocketConnector();
+                this._mmo.host = "ws://localhost:8090/json";
+                this._mmo.SID = m.sid;
+                this._mmo.open();
+
+                // 建立短信轰炸的监听
+                this._mmo.watch(api.SampleMessage(), s => {
+                    let data: models.Message = s.data;
+                    console.log(data.content);
+                });
+            });
+        }
+
+        _actTestParticle(s?: nn.Slot) {
+            alert();
+        }
+
+        private _mmo = new nn.SocketSession();
     }
 }
