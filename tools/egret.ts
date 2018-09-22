@@ -70,6 +70,9 @@ export class EgretGame extends Game {
             this.egret('build');
             // 生成测试入口
             this.makeDebugIndex();
+            // 复制需要的第三方类库
+            if (!fs.existsSync('project/bin-debug/vconsole.min.js'))
+                fs.copyFileSync('tools/vconsole.jslib', 'project/bin-debug/vconsole.min.js');
             return;
         }
 
@@ -288,14 +291,14 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, 
     data-scale-mode="showAll"
     data-multi-fingered="2"
     data-frame-rate="60"
-    ></div>
-    <!-- debug信息 -->
+    ></div>    
     <script src="bin-debug/app/~debug.js"></script>
-    <!-- 加载的文件列表 -->
+    <script src="bin-debug/vconsole.min.js"></script>
+    <!-- 游戏 -->
     {{&FILESLIST}}
-    <script>
-var document_orientation = {{APPANGLE}};
-nn.loader.webstart();
+<script>    
+    var document_orientation = {{APPANGLE}};
+    nn.loader.webstart();
 </script>
 </body>
 </html>`;
