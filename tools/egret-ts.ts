@@ -1,7 +1,7 @@
 import path = require("path");
 import {Service} from "./service";
 import watch = require("watch");
-import {IsMatch, NotMatch} from "./kernel";
+import {IsMatch, NotMatch, StringT} from "./kernel";
 import fs = require("fs-extra");
 import execa = require("execa");
 import os = require("os");
@@ -47,11 +47,11 @@ if (path.basename(process.argv[1]) == 'egret-ts.js') {
     let egretinfo = execa.sync(EGRET_CMD, ['info']);
     let output = egretinfo.stdout.split('\n');
     let data = output[2];
-    let ps = data.split('：');
-    if (ps.length != 2) {
-        ps = data.split(':');
-    }
-    let libdir = ps[1];
+    let pos = data.indexOf('：');
+    if (pos == -1)
+        pos = data.indexOf(':');
+    let libdir = StringT.SubStr(data, pos + 1);
+    console.log(libdir);
 
     // 需要先编译完整项目
     const compiler = require(libdir + '/tools/actions/Compiler');
