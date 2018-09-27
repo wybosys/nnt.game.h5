@@ -622,6 +622,21 @@ class IntsProcessor implements Processor {
 
 RegisterConfigProcessor("Ints", new IntsProcessor());
 
+class StrsProcessor implements Processor {
+    type = "string[]";
+
+    convert(val: string): string {
+        let sp = val.split(",");
+        let arr = new Array();
+        sp.forEach(e => {
+            arr.push('"' + e + '"');
+        });
+        return '[' + arr.join(',') + ']';
+    }
+}
+
+RegisterConfigProcessor("Strs", new IntsProcessor());
+
 class IntssProcessor implements Processor {
     type = "number[][]";
 
