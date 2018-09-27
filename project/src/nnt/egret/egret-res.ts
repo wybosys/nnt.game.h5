@@ -85,6 +85,8 @@ module nn {
         use(): any;
     }
 
+    let WebImageUriCheckPattern = /^(https?):\/\/(.+)$/i;
+
     // 资源池
     export class _ResMemcache extends Memcache {
         constructor() {
@@ -448,9 +450,9 @@ module nn {
                 return;
             }
 
-            // 获得纹理需要处理跨域的情况
+            // 获得纹理需要处理跨域的情况, 只处理全url的情况
             let url: string = <string>src;
-            if (url.indexOf(document.domain) == -1) {
+            if (url.match(WebImageUriCheckPattern) && url.indexOf(document.domain) == -1) {
                 // 先判断是否可以从缓存中拿到
                 let rcd = this.cache.query(url);
                 if (rcd) {
