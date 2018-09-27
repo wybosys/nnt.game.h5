@@ -78,7 +78,7 @@ module nn {
 
     export type EntryIdrToLauncherIdr = (entryidr: string) => string;
     export type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
-    export type EntryClassType = () => IEntryClass | IEntryClass;
+    export type EntryClassType = Function | IEntryClass;
 
     // 实体管理器
     export class _Entries {
