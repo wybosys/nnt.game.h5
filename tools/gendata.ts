@@ -399,10 +399,6 @@ function ParseSheet(nm: string, s: xlsx.WorkSheet, opt: ParseOption): Sheet {
     }
     let rowtype = static_cast<Array<any>>(aoa[ROW_TYPE]);
     // 通过从数据行开始的数据来确定field的类型
-    if (aoa[ROW_DATA] == null) {
-        console.log("没有找到 " + name + " 的数据段");
-        return null;
-    }
     let rowcmt: any = aoa[ROW_COMMENT]; // 注释
     rowdef.forEach((e, idx) => {
         if (e == null)
