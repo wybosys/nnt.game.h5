@@ -240,6 +240,11 @@ class Sheet {
                 return "number";
             if (fp.string)
                 return "string";
+            if (fp.type && fp.type.config) {
+                let fnd = processors.get(fp.type.config);
+                if (fnd)
+                    return fnd.type;
+            }
         }
         return "rowindex";
     }
@@ -403,6 +408,7 @@ function ParseSheet(nm: string, s: xlsx.WorkSheet, opt: ParseOption): Sheet {
     rowdef.forEach((e, idx) => {
         if (e == null)
             return;
+
         let f = FieldOfColumn(s, aoa, idx);
         f.name = e;
         f.comment = rowcmt[idx];
