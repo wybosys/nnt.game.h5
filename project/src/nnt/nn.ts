@@ -75,7 +75,7 @@ module nn {
                 def = node.getAttribute('content');
             }
         }
-        ;
+
         if (!matched)
             parseContent(def);
     } else {

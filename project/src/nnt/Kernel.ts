@@ -527,7 +527,6 @@ module nn {
                     debug.obj(o);
                 });
             }, this);
-            console.log(console.trace());
         }
     }
 
@@ -539,6 +538,7 @@ module nn {
                 s += msg + ': ';
             s += obj.message;
             warn(s, obj.name, obj.stack);
+            console.log(console.trace());
         }
         Debugger();
     }

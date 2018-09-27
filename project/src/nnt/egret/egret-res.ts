@@ -32,10 +32,7 @@ module RES {
         length: number = 0;
 
         // 不通的等级定义不同的队列
-        items: Array<Array<ExtResourceItem>> = [
-            new Array<ExtResourceItem>(),
-            new Array<ExtResourceItem>()
-        ];
+        items: Array<Array<ExtResourceItem>> = [[], []];
     }
 
     RES.ResourceItem = ExtResourceItem;
@@ -398,6 +395,7 @@ module nn {
             }
         }
 
+        // 静态检查兼容性
         if(DEBUG) {
             if ((<any>RES).configInstance == undefined)
                 fatal('ResManager 存在兼容问题');
@@ -449,7 +447,32 @@ module nn {
                 cb.call(ctx, t);
                 return;
             }
-            this.getSourceByType(<string>src, priority, cb, ctx, ResType.TEXTURE);
+
+            // 获得纹理需要处理跨域的情况
+            let url: string = <string>src;
+            if (url.indexOf(document.domain) == -1) {
+                // 先判断是否可以从缓存中拿到
+                let rcd = this.cache.query(url);
+                if (rcd) {
+                    cb.call(ctx, rcd);
+                } else {
+                    // 跨域
+                    let il = new ExtImageLoader();
+                    il.crossOrigin = "anonymous";
+                    il.load(url, tex => {
+                        if (tex) {
+                            rcd = this.cache.add(url, tex);
+                        } else {
+                            rcd = new CacheRecord();
+                            warn("res " + url + " not found");
+                        }
+                        cb.call(ctx, rcd);
+                    }, null);
+                }
+            } else {
+                // 同域
+                this.getSourceByType(url, priority, cb, ctx, ResType.TEXTURE);
+            }
         }
 
         getBitmapFont(src: FontSource, priority: ResPriority,
@@ -506,6 +529,47 @@ module nn {
                 return;
             }
             this.getSourceByType(<string>src, priority, cb, ctx, ResType.SOUND);
+        }
+    }
+
+    // 用来异步加载跨域图片得加载类
+    class ExtImageLoader extends egret.ImageLoader {
+
+        load(url: string, cb?: (tex: egret.Texture) => void, ctx?: any) {
+            this._cb = cb;
+            this._ctx = ctx;
+
+            this.addEventListener(egret.Event.COMPLETE, this._cb_complete, this);
+            this.addEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
+
+            super.load(url);
+        }
+
+        private _cb: (tex: egret.Texture) => void;
+        private _ctx: any;
+
+        private _cb_complete(e: egret.Event) {
+            if (this._cb) {
+                let tex = new egret.Texture();
+                tex.bitmapData = this.data;
+                this._cb.call(this._ctx, tex);
+                this._cb = null;
+                this._ctx = null;
+            }
+
+            this.removeEventListener(egret.Event.COMPLETE, this._cb_complete, this);
+            this.removeEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
+        }
+
+        private _cb_error(e: egret.Event) {
+            if (this._cb) {
+                this._cb.call(this._ctx, null);
+                this._cb = null;
+                this._ctx = null;
+            }
+
+            this.removeEventListener(egret.Event.COMPLETE, this._cb_complete, this);
+            this.removeEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
         }
     }
 
