@@ -346,7 +346,7 @@ name="{{APPNAME}}"></app>
     data-multi-fingered="2"
     data-frame-rate="60"
     ></div>
-    {{FILESLIST}}
+    {{&FILESLIST}}
     <script>
 var document_orientation = {{APPANGLE}};
 nn.loader.webstart();
