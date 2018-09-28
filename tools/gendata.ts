@@ -60,7 +60,7 @@ export class Gendata {
                 });
             })
             .add(next => {
-                execa.shellSync('tsc -d -t es5 .n2/gendata/data.ts');
+                execa.shellSync('tsc -d -t es5 --skipLibCheck .n2/gendata/data.ts');
                 fs.moveSync('.n2/gendata/data.js', 'project/resource/default.data.js', {overwrite: true});
                 fs.moveSync('.n2/gendata/data.d.ts', 'project/resource/default.data.d.ts', {overwrite: true});
                 fs.removeSync('.n2/gendata/data.ts');
