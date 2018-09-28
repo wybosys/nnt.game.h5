@@ -22,7 +22,7 @@
     "@types/inquirer": "^0.0.43",
     "@types/lowdb": "^1.0.5",
     "@types/mustache": "^0.8.31",
-    "@types/node": "^10.9.4",
+    "@types/node": "^10.11.2",
     "@types/tmp": "^0.0.33",
     "@types/uglify-js": "^3.0.3",
     "@types/uuid": "^3.4.4",

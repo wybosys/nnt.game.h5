@@ -1,23 +1,33 @@
-// 标准APP架构
+// 定义模块化APP的开发基础架构
+// 实体：普通功能模块
+// 启动器：用来启动实体的入口模块
+// Manager：业务中的数据管理
 
 module nn {
 
+    // 实体参数
     export class EntrySettings {
-        /** 独立模式，代表该实体只能同时存在一个对象，默认为true */
+
+        // 独立模式，代表该实体只能同时存在一个对象，默认为true
         singletone: boolean = true;
 
-        /** 其他数据 */
+        // 附带的其他数据，构造时会传入实例中
         ext: any;
 
+        // 复用的设置
         static Default = new EntrySettings();
     }
 
+    // 业务的实体必须实现该接口
     export interface IEntry {
-        /** 模块的配置 */
+
+        // 模块的配置
         entrySettings?: EntrySettings;
     }
 
+    // 业务中作为启动器必须实现该接口
     export interface ILauncher {
+
         /** 处理模块的启动
          @param cls 待启动模块的类
          @param data 附加的参数
@@ -25,16 +35,21 @@ module nn {
         launchEntry(cls: any, data?: any);
     }
 
+    // 每一个特定管理器继承结构
     export abstract class Manager extends SObject {
-        /** 初始化自己和其它manager或者其它对象之间的关系 */
+
+        // 初始化自己和其它manager或者其它对象之间的关系
         abstract onLoaded();
 
-        /** 当整个APP完成配置数据加载试调用，初始化自身的数据 */
+        // 当整个APP完成配置数据加载试调用，初始化自身的数据
         onDataLoaded() {
+            // pass
         }
     }
 
+    // 管理合集
     export abstract class Managers extends SObject {
+
         register<T>(obj: T): T {
             this._managers.push(<any>obj);
             return obj;
@@ -55,6 +70,7 @@ module nn {
         protected _managers = new Array<Manager>();
     }
 
+    // 实际上只是普通类的定义
     export interface IEntryClass {
         name: string;
         clazz: () => Function;
@@ -64,9 +80,12 @@ module nn {
     export type EntryLauncherType = ILauncher | string | EntryIdrToLauncherIdr;
     export type EntryClassType = Function | IEntryClass;
 
-    export class _EntriesManager {
+    // 实体管理器
+    export class _Entries {
+
         /** 注册一个模块
-         @param entryClass类
+         @param entryClass 类或者获取类的函数
+         @param data 实体参数
          */
         register(entryClass: EntryClassType, data: EntrySettings = EntrySettings.Default) {
             let idr: string;
@@ -108,22 +127,22 @@ module nn {
             // 在launchers中查启动点
             let ler: ILauncher;
             if (typeof(launcher) == 'string')
-                ler = LaunchersManager.find(<string>launcher);
+                ler = Launchers.find(<string>launcher);
             if (ler == null && typeof(launcher) == 'function') {
                 let leridr = (<EntryIdrToLauncherIdr>launcher)(idr);
-                ler = LaunchersManager.find(leridr);
+                ler = Launchers.find(leridr);
                 // 如果ler为null，则代表目标模块还没有加载，需要先加载目标模块，待之准备好后，再加载当前模块
                 if (ler == null) {
                     let wait = (s: nn.Slot) => {
                         if (s.data != leridr)
                             return;
-                        LaunchersManager.signals.disconnect(nn.SignalChanged, wait);
+                        Launchers.signals.disconnect(nn.SignalChanged, wait);
                         let data = this._entriesdata[idr];
                         // 重新查找，此次不可能查不到
-                        ler = LaunchersManager.find(leridr);
+                        ler = Launchers.find(leridr);
                         ler.launchEntry(cls, data);
                     };
-                    LaunchersManager.signals.connect(nn.SignalChanged, wait, null);
+                    Launchers.signals.connect(nn.SignalChanged, wait, null);
                     this._doInvoke(leridr, launcher);
                     return;
                 }
@@ -160,9 +179,9 @@ module nn {
     export let EntryCheckSettings: (cls: any, data: EntrySettings) => boolean;
 
     // 应用实例管理器
-    export let EntriesManager = new _EntriesManager();
+    export let Entries = new _Entries();
 
-    export class _LaunchersManager extends nn.SObject {
+    export class _Launchers extends nn.SObject {
         constructor() {
             super();
         }
@@ -209,5 +228,5 @@ module nn {
     }
 
     // 应用入口管理器
-    export let LaunchersManager = new _LaunchersManager();
+    export let Launchers = new _Launchers();
 }

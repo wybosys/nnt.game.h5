@@ -1,19 +1,19 @@
-
 {
-    "compilerOptions": {
-        "target": "es5",
-        "outDir": "bin-debug",
-        "experimentalDecorators": true,
-        "lib": [
-            "es6",
-            "dom",
-            "es2015.promise"
-        ],
-        "types": []
-    },
-    "include": [
-        "src",
-        "libs",
-        "resource/*.d.ts"
-    ]
+  "compilerOptions": {
+    "target": "es5",
+    "outDir": "bin-debug",
+    "experimentalDecorators": true,
+    "lib": [
+      "es6",
+      "dom",
+      "es2015.promise"
+    ],
+    "types": []
+  },
+  "include": [
+    "3rd/**/*.d.ts",
+    "src",
+    "libs",
+    "resource/*.d.ts"
+  ]
 }

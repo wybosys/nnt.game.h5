@@ -28,6 +28,7 @@ module app {
         btn0: eui.ButtonU;
         btn1: eui.ButtonU;
         btnLogic: eui.ButtonU;
+        group: eui.Group;
         img0: eui.ImageU;
         lblHtml: eui.HtmlLabelU;
         lblInp: eui.TextInputU;
@@ -35,6 +36,7 @@ module app {
         list1: eui.ListU;
         sp_touch: eui.GroupU;
         tabbar0: eui.TabBarU;
+        test: egret.tween.TweenGroup;
         //skin }
 
         list0ItemRenderer = ItemRenderer;
@@ -64,22 +66,15 @@ module app {
             this._testMmo();
         }
 
-        protected createChildren() {
-            super.createChildren();
-        }
-
         protected childrenCreated() {
             super.childrenCreated();
+            this.test.play();
 
             var u = new nn.Sprite();
             u.frame = new nn.Rect(0, 0, 100, 50);
             u.backgroundColor = nn.Color.Random();
             u.signals.connect(nn.SignalClicked, this._on_remove, this);
             this.addChild(u);
-        }
-
-        private _onBtn0Clicked() {
-            alert("hello 456");
         }
 
         private _onBtn1Clicked() {
@@ -152,7 +147,10 @@ module app {
         }
 
         _actTestParticle(s?: nn.Slot) {
-            alert();
+            let t = new eui.ParticleU();
+            t.particleName = "snow";
+            t.frame = this.bounds();
+            this.addChild(t);
         }
 
         private _mmo = new nn.SocketSession();

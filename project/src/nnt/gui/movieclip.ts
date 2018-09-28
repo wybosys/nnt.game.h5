@@ -38,7 +38,7 @@ module nn {
         // 需要在disap的时候暂停count＝－1的动画
         onAppeared() {
             super.onAppeared();
-            if (this.__autopaused == true) {
+            if (this.__autopaused) {
                 this.__autopaused = false;
                 this.play();
             }
@@ -88,6 +88,7 @@ module nn {
     }
 
     export class ClipConfig implements IReqResources {
+
         /**
          @name 资源名称，资源由 json\bmp 组成，如过传入的时候没有带后缀，则自动加上后缀
          @res 动作文件，通常为 _json
@@ -96,7 +97,7 @@ module nn {
         constructor(name?: string, res?: string, tex?: string) {
             this._name = name;
             this._frame = nonnull1st(null, res, name);
-            this._texture = nonnull1st(null, tex, res, name, res);
+            this._texture = nonnull1st(null, tex, res, name);
         }
 
         private _frame: UriSource; // 帧配置文件

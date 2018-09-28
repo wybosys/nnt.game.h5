@@ -105,7 +105,7 @@ module eui {
             }
 
             if (this.__need_remove_from_launchersmanager)
-                nn.LaunchersManager.unregister(<any>this);
+                nn.Launchers.unregister(<any>this);
         }
 
         private _gestures: Array<nn.Gesture>;

@@ -60,7 +60,7 @@ export class Gendata {
                 });
             })
             .add(next => {
-                execa.shellSync('tsc -d -t es5 .n2/gendata/data.ts');
+                execa.shellSync('tsc -d -t es5 --skipLibCheck .n2/gendata/data.ts');
                 fs.moveSync('.n2/gendata/data.js', 'project/resource/default.data.js', {overwrite: true});
                 fs.moveSync('.n2/gendata/data.d.ts', 'project/resource/default.data.d.ts', {overwrite: true});
                 fs.removeSync('.n2/gendata/data.ts');
@@ -240,6 +240,11 @@ class Sheet {
                 return "number";
             if (fp.string)
                 return "string";
+            if (fp.type && fp.type.config) {
+                let fnd = processors.get(fp.type.config);
+                if (fnd)
+                    return fnd.type;
+            }
         }
         return "rowindex";
     }
@@ -399,14 +404,11 @@ function ParseSheet(nm: string, s: xlsx.WorkSheet, opt: ParseOption): Sheet {
     }
     let rowtype = static_cast<Array<any>>(aoa[ROW_TYPE]);
     // 通过从数据行开始的数据来确定field的类型
-    if (aoa[ROW_DATA] == null) {
-        console.log("没有找到 " + name + " 的数据段");
-        return null;
-    }
     let rowcmt: any = aoa[ROW_COMMENT]; // 注释
     rowdef.forEach((e, idx) => {
         if (e == null)
             return;
+
         let f = FieldOfColumn(s, aoa, idx);
         f.name = e;
         f.comment = rowcmt[idx];
@@ -619,6 +621,21 @@ class IntsProcessor implements Processor {
 }
 
 RegisterConfigProcessor("Ints", new IntsProcessor());
+
+class StrsProcessor implements Processor {
+    type = "string[]";
+
+    convert(val: string): string {
+        let sp = val.split(",");
+        let arr = new Array();
+        sp.forEach(e => {
+            arr.push('"' + e + '"');
+        });
+        return '[' + arr.join(',') + ']';
+    }
+}
+
+RegisterConfigProcessor("Strs", new IntsProcessor());
 
 class IntssProcessor implements Processor {
     type = "number[][]";

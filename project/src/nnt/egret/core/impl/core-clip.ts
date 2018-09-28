@@ -362,6 +362,7 @@ module nn {
                     [frame, ResType.JSON],
                     [tex, ResType.TEXTURE]
                 ], ResPriority.CLIP, (ds: ICacheRecord[]) => {
+                    // todo 适时释放
                     let djson = ds[0].use();
                     let dtex = ds[1].use();
 

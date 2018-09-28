@@ -163,7 +163,7 @@ function xml_getElementsByAttributeName(node: HTMLElement, name: string, arr?: H
         arr = [];
     if (!node)
         return arr;
-    for (let iter = node.firstChild; iter != null; iter = iter.nextSibling) {
+    for (let iter = node.firstChild; iter != null; iter = <ChildNode>iter.nextSibling) {
         if (iter.nodeType != XmlNode.ELEMENT_NODE)
             continue;
         let element = static_cast<HTMLElement>(iter);
@@ -183,7 +183,7 @@ function xml_getAttributesByName(node: HTMLElement, name: string, arr?: Attr[]):
         return arr;
     if (node.hasAttribute(name))
         arr.push(node.getAttributeNode(name));
-    for (let iter = node.firstChild; iter != null; iter = iter.nextSibling) {
+    for (let iter = node.firstChild; iter != null; iter = <ChildNode>iter.nextSibling) {
         if (node.nodeType != XmlNode.ELEMENT_NODE)
             continue;
         let element = static_cast<HTMLElement>(iter);

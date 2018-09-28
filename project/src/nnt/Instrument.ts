@@ -2,6 +2,8 @@ module app.dev {
     export declare function main(node: nn.dom.DomObject);
 }
 
+declare let VConsole: any;
+
 module nn {
 
     // 提供底层用来从egret获取一些必要的数据
@@ -139,6 +141,10 @@ module nn {
             // 当前利用dom来实现测试器，不支持原生模式
             if (ISNATIVE)
                 return;
+
+            // 如果是手机浏览器，打开虚拟控制台
+            if (Device.shared.isMobile)
+                new VConsole();
 
             if (Instrument.shared == null)
                 Instrument.shared = new Instrument();
