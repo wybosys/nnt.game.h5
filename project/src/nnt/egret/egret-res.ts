@@ -437,12 +437,19 @@ module nn {
 
         getTexture(src: TextureSource, priority: ResPriority,
                    cb: (tex: ICacheTexture) => void, ctx: any): void {
+            if (src == null) {
+                let rcd = new CacheRecord();
+                cb.call(ctx, rcd);
+                return;
+            }
+
             if (<any>src instanceof COriginType) {
                 let t = new CacheRecord();
                 t.val = (<COriginType>src).imp;
                 cb.call(ctx, t);
                 return;
             }
+
             if (<any>src instanceof egret.Texture) {
                 let t = new CacheRecord();
                 t.val = src;
