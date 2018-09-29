@@ -90,7 +90,7 @@ module nn {
 
         getReqResources(): Array<ReqResource> {
             let r = [];
-            r.push(new ResourceEntity(this.skeleton, ResType.JSON));
+            r.push(new ResourceEntity(this.skeleton, ResType.BINARY));
             r.push(new ResourceEntity(this.place, ResType.JSON));
             r.push(new ResourceEntity(this.texture, ResType.TEXTURE));
             return r;

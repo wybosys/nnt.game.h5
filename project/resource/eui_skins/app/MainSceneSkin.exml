@@ -45,7 +45,7 @@
 		</e:layout>
 	</e:Group>
 	<eui:TextInputU id="lblInp" x="30" y="262" width="419" prompt="输入框" slots="nn.SignalEnterKey=&gt;actEnter"/>
-	<eui:BoneU width="200" height="200" right="0" bottom="69" boneName="ruizi" autoPlay="true" playCount="-1" motion="attack"/>
+	<eui:BoneU width="200" height="200" right="0" bottom="69" boneName="dragon" autoPlay="true" playCount="-1" motion="walk"/>
 	<eui:GroupU id="sp_touch" width="300" height="177" x="163" y="318" anchorOffsetX="0" anchorOffsetY="0" slots="nn.SignalTouchMove=&gt;actTouchMoved">
 		<eui:RectU strokeColor="0x0949f4" left="0" bottom="0" right="0" top="0" fillColor="0x0422f9"/>
 	</eui:GroupU>

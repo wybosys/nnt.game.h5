@@ -1,24 +1,22 @@
 module nn {
 
-    class _BonesRender implements IFrameRender {
-        onRender(cost: number) {
-            dragonBones.WorldClock.clock.advanceTime(cost);
-        }
+    function DBEventHook(obj: any, event: any, fun: any, target?: any, capture?: boolean) {
+        if (target == null)
+            target = obj;
+        if (obj.hasDBEventListener(event, fun, target, capture) == false)
+            obj.addDBEventListener(event, fun, target, capture);
     }
 
     export class _BonesManager extends SObject {
+
         constructor() {
             super();
-            FramesManager.RENDERS.add(new _BonesRender());
         }
-
-        /** 使用Fast加速骨骼动画 */
-        turboMode: boolean = true;
 
         /** 默认骨骼的帧速 */
         fps: number = 30;
 
-        protected _factory = new dragonBones.EgretFactory();
+        protected _factory = dragonBones.EgretFactory.factory;
 
         instance(cfg: BoneConfig, cb: (bn: BoneData) => void, ctx?: any) {
             if (length(cfg.resourceGroups)) {
@@ -70,43 +68,33 @@ module nn {
                     return;
                 }
 
-                let bd = dragonBones.DataParser.parseDragonBonesData(sd);
+                let bd = this._factory.parseDragonBonesData(sd);
                 if (bd == null) {
                     warn("解析骨骼数据 " + character + " 失败");
                     cb.call(ctx, null);
                     return;
                 }
-                this._factory.addSkeletonData(bd);
 
-                let ta = new dragonBones.EgretTextureAtlas(t, td);
+                let ta = this._factory.parseTextureAtlasData(t, td);
                 if (ta == null) {
                     warn("构造骨骼贴图 " + character + " 失败");
                     cb.call(ctx, null);
                     return;
                 }
-                this._factory.addTextureAtlas(ta);
 
-                if (this.turboMode) {
-                    let arm: any = this._factory.buildFastArmature(character);
-                    if (arm == null) {
-                        warn("创建加速骨骼 " + character + " 失败 [" + character + "]");
-                    } else {
-                        let v = arm._armatureData.frameRate;
-                        if (!v)
-                            v = this.fps;
-                        arm.enableAnimationCache(v);
-                    }
-                    let bn = new BoneData(arm);
-                    cb.call(ctx, bn);
+                let arm = this._factory.buildArmature(character);
+                if (arm == null) {
+                    warn("创建骨骼 " + character + " 失败 [" + character + "]");
+                    cb.call(ctx, null);
                     return;
                 }
 
-                let arm: any = this._factory.buildArmature(character);
-                if (arm == null)
-                    warn("创建普通骨骼 " + character + " 失败 [" + character + "]");
+                // 绑定tick
+                arm.clock = this._factory.clock;
 
                 let bn = new BoneData(arm);
                 cb.call(ctx, bn);
+
             }, this);
         }
     }
@@ -137,29 +125,15 @@ module nn {
         }
 
         addLoop() {
-            if (this._armature)
-                dragonBones.WorldClock.clock.add(this._armature);
+            if (this._armature) {
+                this._armature.clock.add(this._armature);
+            }
         }
 
         rmLoop() {
-            if (this._armature)
-                dragonBones.WorldClock.clock.remove(this._armature);
-        }
-
-        // 计算指定帧数的进度
-        calcFrameProgress(mo: string, frame: number): number {
-            let ani = (<any>this._armature).animation;
-            let data = ArrayT.QueryObject(ani.animationDataList, (o: dragonBones.AnimationData): boolean => {
-                return o.name == mo;
-            });
-            if (data == null)
-                return 0;
-            fatal("没有实现");
-            let frametm = 0;
-            //let frametm = 1000/data.frameRate;
-            let frameslen = Math.ceil(data.duration / frametm);
-            let pos = frame < 0 ? frameslen + frame : frame;
-            return pos / frameslen;
+            if (this._armature) {
+                this._armature.clock.remove(this._armature);
+            }
         }
 
         /* 播放动画
@@ -169,13 +143,13 @@ module nn {
         */
         playMotion(motion: string, times: number, stopAtProgress?: number) {
             let ani = (<any>this._armature).animation;
-            let state: any = ani.gotoAndPlay(motion, 0, -1, times);
+            let state = ani.gotoAndPlayByTime(motion, 0, times);
             state.__stopAtProgress = stopAtProgress;
         }
 
         seekToMotion(motion: string, time: number) {
             let ani = (<any>this._armature).animation;
-            ani.gotoAndStop(motion, time);
+            ani.gotoAndStopByTime(motion, time);
         }
 
         hasMotion(val: string): boolean {
@@ -245,9 +219,9 @@ module nn {
 
                 // 绑定事件
                 let am = d.armature;
-                EventHook(am, dragonBones.AnimationEvent.START, self.__db_start, self);
-                EventHook(am, dragonBones.AnimationEvent.LOOP_COMPLETE, self.__db_loopcomplete, self);
-                EventHook(am, dragonBones.AnimationEvent.COMPLETE, self.__db_complete, self);
+                DBEventHook(am.eventDispatcher, dragonBones.EventObject.START, self.__db_start, self);
+                DBEventHook(am.eventDispatcher, dragonBones.EventObject.LOOP_COMPLETE, self.__db_loopcomplete, self);
+                DBEventHook(am.eventDispatcher, dragonBones.EventObject.COMPLETE, self.__db_complete, self);
 
                 // 更新大小
                 self.updateLayout();
@@ -438,7 +412,7 @@ module nn {
     }
 
     // hack-db
-    class FastAnimationState
+    class ExtAnimationState
         extends dragonBones.AnimationState {
         get progress(): number {
             let self: any = this;
@@ -450,6 +424,5 @@ module nn {
         }
     }
 
-    dragonBones.AnimationState = FastAnimationState;
-
+    dragonBones.AnimationState = ExtAnimationState;
 }
