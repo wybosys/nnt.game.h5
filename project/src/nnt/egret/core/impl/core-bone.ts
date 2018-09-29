@@ -82,15 +82,12 @@ module nn {
                     return;
                 }
 
-                let arm = this._factory.buildArmature(character);
+                let arm = this._factory.buildArmatureDisplay(character);
                 if (arm == null) {
                     warn("创建骨骼 " + character + " 失败 [" + character + "]");
                     cb.call(ctx, null);
                     return;
                 }
-
-                // 绑定tick
-                arm.clock = this._factory.clock;
 
                 let bn = new BoneData(arm);
                 cb.call(ctx, bn);
@@ -108,9 +105,10 @@ module nn {
         return _bonesManager;
     }
 
-    export type ArmatureSource = dragonBones.Armature | dragonBones.FastArmature;
+    export type ArmatureSource = dragonBones.EgretArmatureDisplay;
 
     export class BoneData {
+
         constructor(am: ArmatureSource) {
             this._armature = am;
         }
@@ -122,18 +120,6 @@ module nn {
 
         set armature(a: ArmatureSource) {
             warn("不能直接设置 BoneData");
-        }
-
-        addLoop() {
-            if (this._armature) {
-                this._armature.clock.add(this._armature);
-            }
-        }
-
-        rmLoop() {
-            if (this._armature) {
-                this._armature.clock.remove(this._armature);
-            }
         }
 
         /* 播放动画
@@ -148,30 +134,17 @@ module nn {
         }
 
         seekToMotion(motion: string, time: number) {
-            let ani = (<any>this._armature).animation;
+            let ani = this._armature.animation;
             ani.gotoAndStopByTime(motion, time);
         }
 
         hasMotion(val: string): boolean {
-            let ani = (<any>this._armature).animation;
+            let ani = this._armature.animation;
             return ani.hasAnimation(val);
         }
 
-        bestFrame(): Rect {
-            let r = new Rect();
-            if (this._armature) {
-                let rc = this._armature.display.getBounds();
-                // 去掉制作bone时的锚点偏移
-                r.x = -rc.x;
-                r.y = -rc.y;
-                r.width = rc.width;
-                r.height = rc.height;
-            }
-            return r.unapplyScaleFactor();
-        }
-
         get display(): egret.DisplayObject {
-            return this._armature.display;
+            return this._armature;
         }
     }
 
@@ -183,7 +156,6 @@ module nn {
 
         dispose() {
             if (this._data) {
-                this._data.rmLoop();
                 this._data = undefined;
             }
             super.dispose();
@@ -208,7 +180,6 @@ module nn {
 
             // 清除老的
             if (self._data) {
-                self._data.rmLoop();
                 self._imp.removeChild(self._data.display);
             }
 
@@ -219,9 +190,9 @@ module nn {
 
                 // 绑定事件
                 let am = d.armature;
-                DBEventHook(am.eventDispatcher, dragonBones.EventObject.START, self.__db_start, self);
-                DBEventHook(am.eventDispatcher, dragonBones.EventObject.LOOP_COMPLETE, self.__db_loopcomplete, self);
-                DBEventHook(am.eventDispatcher, dragonBones.EventObject.COMPLETE, self.__db_complete, self);
+                DBEventHook(am, dragonBones.EventObject.START, self.__db_start, self);
+                DBEventHook(am, dragonBones.EventObject.LOOP_COMPLETE, self.__db_loopcomplete, self);
+                DBEventHook(am, dragonBones.EventObject.COMPLETE, self.__db_complete, self);
 
                 // 更新大小
                 self.updateLayout();
@@ -274,40 +245,15 @@ module nn {
             }
         }
 
-        bestFrame(): Rect {
-            if (this._data)
-                return this._data.bestFrame();
-            return new Rect();
-        }
-
         updateLayout() {
             super.updateLayout();
             let bd = this._data;
             if (bd == null)
                 return;
 
-            // 计算bone的实际显示位置
             let rc = this.boundsForLayout();
-            let bst = bd.bestFrame();
-            if (bst.width == 0 || bst.height == 0)
-                return;
-
-            let bst2 = bst.clone().fill(rc, this.fillMode);
-            // 计算缩放的尺寸
-            let sw = bst2.width / bst.width;
-            let sh = bst2.height / bst.height;
-            let scale = Math.min(sw, sh) * this.additionScale;
-
-            // 定位位置
-            bst.x *= scale;
-            bst.y *= scale;
-            bst2.alignTo(rc, this.clipAlign);
-            bst.x += bst2.x;
-            bst.y += bst2.y;
-
             let dsp = this._data.display;
-            dsp.scaleX = dsp.scaleY = scale;
-            this.impSetFrame(bst, dsp);
+            this.impSetFrame(rc, dsp);
         }
 
         private _motions = new Array<string>();
@@ -343,7 +289,7 @@ module nn {
         }
 
         motions(): Array<string> {
-            return this._data ? this._data.armature.animation.animationList : [];
+            return this._data ? this._data.armature.animation.animationNames : [];
         }
 
         hasMotion(val: string): boolean {
@@ -374,7 +320,6 @@ module nn {
             }
 
             self._playingState = WorkState.DOING;
-            this._data.addLoop();
         }
 
         stop() {
@@ -384,8 +329,6 @@ module nn {
                 return;
 
             self._playingState = WorkState.DONE;
-            //let ani = self._data.animation();
-            self._data.rmLoop();
         }
 
         private __db_start() {
@@ -395,7 +338,6 @@ module nn {
         }
 
         private __db_complete() {
-            this._data.rmLoop();
             this._playingState = WorkState.DONE;
 
             if (this._signals) {
