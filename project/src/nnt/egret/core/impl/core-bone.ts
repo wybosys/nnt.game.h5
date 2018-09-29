@@ -143,6 +143,19 @@ module nn {
             return ani.hasAnimation(val);
         }
 
+        bestFrame(): Rect {
+            let r = new Rect();
+            if (this._armature) {
+                let rc = this._armature.getBounds();
+                // 去掉制作bone时的锚点偏移
+                r.x = -rc.x;
+                r.y = -rc.y;
+                r.width = rc.width;
+                r.height = rc.height;
+            }
+            return r.unapplyScaleFactor();
+        }
+
         get display(): egret.DisplayObject {
             return this._armature;
         }
@@ -245,15 +258,40 @@ module nn {
             }
         }
 
+        bestFrame(): Rect {
+            if (this._data)
+                return this._data.bestFrame();
+            return new Rect();
+        }
+
         updateLayout() {
             super.updateLayout();
             let bd = this._data;
             if (bd == null)
                 return;
 
+            // 计算bone的实际显示位置
             let rc = this.boundsForLayout();
+            let bst = bd.bestFrame();
+            if (bst.width == 0 || bst.height == 0)
+                return;
+
+            let bst2 = bst.clone().fill(rc, this.fillMode);
+            // 计算缩放的尺寸
+            let sw = bst2.width / bst.width;
+            let sh = bst2.height / bst.height;
+            let scale = Math.min(sw, sh) * this.additionScale;
+
+            // 定位位置
+            bst.x *= scale;
+            bst.y *= scale;
+            bst2.alignTo(rc, this.clipAlign);
+            bst.x += bst2.x;
+            bst.y += bst2.y;
+
             let dsp = this._data.display;
-            this.impSetFrame(rc, dsp);
+            dsp.scaleX = dsp.scaleY = scale;
+            this.impSetFrame(bst, dsp);
         }
 
         private _motions = new Array<string>();
