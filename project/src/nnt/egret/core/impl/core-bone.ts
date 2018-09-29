@@ -48,7 +48,7 @@ module nn {
                 [skeleton, ResType.JSON],
                 [place, ResType.JSON],
                 [texture, ResType.TEXTURE]
-            ], ResPriority.CLIP, (ds: [ICacheRecord]) => {
+            ], ResPriority.CLIP, (ds: ICacheRecord[]) => {
                 let sd = ds[0].use();
                 if (sd == null) {
                     warn("bone-skcfg " + skeleton + " not found");

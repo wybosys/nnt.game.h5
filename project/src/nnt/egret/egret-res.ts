@@ -1,58 +1,3 @@
-// 对egret的RES模块进行功能扩展
-module RES {
-
-    class ExtResourceItem extends ResourceItem {
-        constructor(name: string, url: string, type: string) {
-            super(name, url, type);
-        }
-
-        _priority: nn.ResPriority = nn.ResCurrentPriority;
-    }
-
-    class ExtLazyLoadList {
-        push(item: ExtResourceItem) {
-            let arr = this.items[item._priority];
-            arr.push(item);
-            ++this.length;
-        }
-
-        pop(): ExtResourceItem {
-            if (this.length == 0)
-                return null;
-            let arr = this.items[nn.ResPriority.NORMAL];
-            let poped = arr.pop();
-            if (poped == null) {
-                arr = this.items[nn.ResPriority.CLIP];
-                poped = arr.pop();
-            }
-            --this.length;
-            return poped;
-        }
-
-        length: number = 0;
-
-        // 不通的等级定义不同的队列
-        items: Array<Array<ExtResourceItem>> = [[], []];
-    }
-
-    RES.ResourceItem = ExtResourceItem;
-
-    // 使用ext换掉原来的lazy以提供附加的优先级控制
-    let lazyLoadListChanged: boolean;
-    let PROTO = ResourceLoader.prototype;
-    let funcLoadItem = PROTO.loadItem;
-    PROTO.loadItem = function (resItem: ResourceItem) {
-        let self: any = this;
-        if (!lazyLoadListChanged) {
-            if (self.lazyLoadList == null)
-                nn.fatal("Egret引擎升级RES的LazyLoadList方法，请检查引擎修改");
-            self.lazyLoadList = new ExtLazyLoadList();
-            lazyLoadListChanged = true;
-        }
-        funcLoadItem.call(self, resItem);
-    };
-}
-
 module nn {
 
     export interface ICacheJson
@@ -583,5 +528,29 @@ module nn {
     }
 
     ResManager = new _ResManager();
+}
 
+// AssertManager当在loadCOnfig之前load资源是，会因为fileSystem尚未初始化导致错误，所以需要增加判断
+module RES {
+    let _PROTO_RESCONFIG = ResourceConfig.prototype;
+
+    let OLD_RESCONFIG_GETRESOURCE = _PROTO_RESCONFIG.getResource;
+    _PROTO_RESCONFIG.getResource = function (path_or_alias) {
+        if (this.config.fileSystem)
+            return OLD_RESCONFIG_GETRESOURCE.call(this, path_or_alias);
+        // 框架中只有首次加载配置文件时，才会出现此类问题，所以只需要对json进行处理
+        return {
+            type: 'json',
+            root: '',
+            name: path_or_alias,
+            url: path_or_alias
+        };
+    };
+
+    let OLD_RESCONFIG_ADDRESDATA = _PROTO_RESCONFIG.addResourceData;
+    _PROTO_RESCONFIG.addResourceData = function (data) {
+        if (this.config.fileSystem) {
+            OLD_RESCONFIG_ADDRESDATA(data);
+        }
+    }
 }

@@ -9,10 +9,22 @@ module nn {
         protected _preloadConfig(oper: OperationGroup) {
             super._preloadConfig(oper);
 
-            let stage = this._imp.stage;
-            stage.registerImplementation("eui.IAssetAdapter", new AssetAdapter());
-            stage.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
+            egret.lifecycle.addLifecycleListener(() => {
+                // pass
+            });
 
+            egret.lifecycle.onPause = () => {
+                egret.ticker.pause();
+            };
+
+            egret.lifecycle.onResume = () => {
+                egret.ticker.resume();
+            };
+
+            egret.registerImplementation("eui.IAssetAdapter", new AssetAdapter());
+            egret.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
+
+            let stage = this._imp.stage;
             oper.add(new OperationClosure((oper: Operation) => {
                 let fn = ResManager.directory + this.themeFile + '?v=' + this.version;
                 let theme = new eeui.Theme(fn, stage);
