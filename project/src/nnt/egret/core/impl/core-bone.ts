@@ -47,35 +47,35 @@ module nn {
                 [place, ResType.JSON],
                 [texture, ResType.TEXTURE]
             ], ResPriority.CLIP, (ds: ICacheRecord[]) => {
-                let sd = ds[0].use();
-                if (sd == null) {
+                let dske = ds[0].use();
+                if (dske == null) {
                     warn("bone-skcfg " + skeleton + " not found");
                     cb.call(ctx, null);
                     return;
                 }
 
-                let td = ds[1].use();
-                if (td == null) {
+                let dcfg = ds[1].use();
+                if (dcfg == null) {
                     warn("bone-tcfg " + place + " not found");
                     cb.call(ctx, null);
                     return;
                 }
 
-                let t = ds[2].use();
-                if (t == null) {
+                let dtex = ds[2].use();
+                if (dtex == null) {
                     warn("bone-tex " + texture + " not found");
                     cb.call(ctx, null);
                     return;
                 }
 
-                let bd = this._factory.parseDragonBonesData(sd);
+                let bd = this._factory.parseDragonBonesData(dske);
                 if (bd == null) {
                     warn("解析骨骼数据 " + character + " 失败");
                     cb.call(ctx, null);
                     return;
                 }
 
-                let ta = this._factory.parseTextureAtlasData(t, td);
+                let ta = this._factory.parseTextureAtlasData(dcfg, dtex);
                 if (ta == null) {
                     warn("构造骨骼贴图 " + character + " 失败");
                     cb.call(ctx, null);
