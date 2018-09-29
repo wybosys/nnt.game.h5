@@ -36,7 +36,7 @@
 	</e:TabBarU>
 	<e:ProgressBarU value="50" right="33" bottom="0" left="31"/>
 	<e:ImageU id="img0" width="35" height="30" x="33" y="220" source="thumb"/>
-	<e:MovieClipU width="200" height="200" textureSource="mc://shangdi.png" frameSource="mc://shangdi.json" clipName="shangdi" playCount="-1" autoPlay="true" left="0" bottom="69"/>
+	<e:MovieClipU width="200" height="200" textureSource="assets://mc/shangdi.png" frameSource="assets://mc/shangdi.json" clipName="shangdi" playCount="-1" autoPlay="true" left="0" bottom="69"/>
 	<e:Group id="group" width="266" height="41" x="181" y="8">
 		<e:ButtonU id="btn0" x="59" y="-2" label="粒子" width="113" height="43" slots="nn.SignalClicked=&gt;actTestParticle"/>
 		<e:ButtonU id="btn1" label="DIALOG" x="22" y="15" height="43"/>

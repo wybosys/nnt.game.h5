@@ -294,6 +294,10 @@ module nn {
                         cb.call(ctx, rcd);
                     }, this, type);
                 }
+                else {
+                    fatal("ResManager无法解析路径协议 " + scheme);
+                    cb.call(ctx, new CacheRecord());
+                }
             }
             else {
                 let rcd = <CacheRecord>ResManager.tryGetRes(src);
