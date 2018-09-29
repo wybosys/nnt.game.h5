@@ -17,15 +17,15 @@ module nn {
             else
                 this._character = character;
             if (!skeleton)
-                this._skeleton = name + '_skeleton';
+                this._skeleton = name + '_ske';
             else
                 this._skeleton = skeleton;
             if (!place)
-                this._place = name + '_texture_json';
+                this._place = name + '_tex_json';
             else
                 this._place = place;
             if (!texture)
-                this._texture = name + '_texture_png';
+                this._texture = name + '_tex_png';
             else
                 this._texture = texture;
         }
@@ -49,11 +49,11 @@ module nn {
             if (!this._character)
                 this._character = name;
             if (!this._skeleton)
-                this._skeleton = name + '_skeleton';
+                this._skeleton = name + '_ske';
             if (!this._place)
-                this._place = name + '_texture_json';
+                this._place = name + '_tex_json';
             if (!this._texture)
-                this._texture = name + '_texture_png';
+                this._texture = name + '_tex_png';
         }
 
         set skeleton(v: string) {

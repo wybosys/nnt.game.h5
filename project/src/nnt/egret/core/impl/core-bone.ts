@@ -43,7 +43,7 @@ module nn {
                               fps: number,
                               cb: (d: BoneData) => void, ctx?: any) {
             ResManager.getSources([
-                [skeleton, ResType.JSON],
+                [skeleton, ResType.BINARY],
                 [place, ResType.JSON],
                 [texture, ResType.TEXTURE]
             ], ResPriority.CLIP, (ds: ICacheRecord[]) => {
