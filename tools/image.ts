@@ -1,7 +1,12 @@
-import sharp = require("sharpkit");
 import path = require("path");
 import {ArrayT, IndexedObject, ListFiles, MD5, Point, Rect, Size} from "./kernel";
 import fs = require("fs-extra");
+
+let sharp: any;
+try {
+    sharp = require("sharpkit");
+} catch (err) {
+}
 
 export const BLACKS_FILES = [
     /\.swf$/,
@@ -19,8 +24,6 @@ export const WHITES_IMAGECOMPRESS = [/\.png$/, /.jpg$/, /.jpeg$/];
 
 // node-sharp限制
 const SHARP_MIN_LENGTH = 10;
-
-export type Image = sharp.SharpInstance;
 
 class MergingFileInfo {
 
@@ -140,7 +143,7 @@ export class ImageMerge {
 
             // 保存合并后的图
             let file = this._dir + '/' + this._name + '_automerged_' + workid + '.png';
-            work.image.toBuffer((err, buf) => {
+            work.image.toBuffer((err: any, buf: any) => {
                 // 保存合并的图片
                 sharp(buf).png().trim().toFile(file);
             });
@@ -212,7 +215,7 @@ export class ImageMergeResult {
         }).png();
     }
 
-    image: Image;
+    image: any;
     result: MergingFileInfo[] = [];
 }
 
@@ -231,9 +234,9 @@ export class ImageCompress {
         let meta = await img.metadata();
         // png 和 jpeg 需要使用不同的压缩方案
         if (meta.format == 'png') {
-            img.toBuffer((err, buf, bufinfo) => {
+            img.toBuffer((err: any, buf: any, bufinfo: any) => {
                 sharp(buf)
-                    .toFile(this._file, (err, outinfo) => {
+                    .toFile(this._file, (err: any, outinfo: any) => {
                         if (err) {
                             console.log(err);
                         } else {
@@ -244,10 +247,10 @@ export class ImageCompress {
             });
         }
         else if (meta.format == 'jpeg') {
-            img.toBuffer((err, buf) => {
+            img.toBuffer((err: any, buf: any) => {
                 sharp(buf).jpeg({
                     quality: 70
-                }).toFile(this._file, err => {
+                }).toFile(this._file, (err: any) => {
                     if (err) {
                         console.log(err);
                     } else {

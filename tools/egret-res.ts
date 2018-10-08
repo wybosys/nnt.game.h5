@@ -1,4 +1,3 @@
-import {Game} from "./game";
 import {IsFile, ListDirs, ListFiles, StringT} from "./kernel";
 import {Resource, ResourceOptions} from "./resource";
 import fs = require("fs-extra");
@@ -70,7 +69,7 @@ export class EgretResource extends Resource {
         return true;
     }
 
-    async publishIn(dir: string, opts:ResourceOptions) {
+    async publishIn(dir: string, opts: ResourceOptions) {
         // 合并图片
         if (opts.merge) {
             fs.ensureDirSync(".n2/resmerger");
