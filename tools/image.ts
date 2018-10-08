@@ -1,12 +1,7 @@
+import sharp = require("sharpkit");
 import path = require("path");
 import {ArrayT, IndexedObject, ListFiles, MD5, Point, Rect, Size} from "./kernel";
 import fs = require("fs-extra");
-
-let sharp: any;
-try {
-    sharp = require("sharpkit");
-} catch (err) {
-}
 
 export const BLACKS_FILES = [
     /\.swf$/,
@@ -143,7 +138,7 @@ export class ImageMerge {
 
             // 保存合并后的图
             let file = this._dir + '/' + this._name + '_automerged_' + workid + '.png';
-            work.image.toBuffer((err: any, buf: any) => {
+            work.image.toBuffer((err, buf) => {
                 // 保存合并的图片
                 sharp(buf).png().trim().toFile(file);
             });
@@ -215,7 +210,7 @@ export class ImageMergeResult {
         }).png();
     }
 
-    image: any;
+    image: sharp.SharpInstance;
     result: MergingFileInfo[] = [];
 }
 
@@ -234,9 +229,9 @@ export class ImageCompress {
         let meta = await img.metadata();
         // png 和 jpeg 需要使用不同的压缩方案
         if (meta.format == 'png') {
-            img.toBuffer((err: any, buf: any, bufinfo: any) => {
+            img.toBuffer((err, buf, bufinfo) => {
                 sharp(buf)
-                    .toFile(this._file, (err: any, outinfo: any) => {
+                    .toFile(this._file, (err, outinfo) => {
                         if (err) {
                             console.log(err);
                         } else {
@@ -247,10 +242,10 @@ export class ImageCompress {
             });
         }
         else if (meta.format == 'jpeg') {
-            img.toBuffer((err: any, buf: any) => {
+            img.toBuffer((err, buf) => {
                 sharp(buf).jpeg({
                     quality: 70
-                }).toFile(this._file, (err: any) => {
+                }).toFile(this._file, (err) => {
                     if (err) {
                         console.log(err);
                     } else {
