@@ -31,18 +31,7 @@ egret_native.egretStart = function () {
         //以下为自动修改，请勿修改
         //The following is automatically modified, please do not modify
         //----auto option start----
-		entryClassName: "Main",
-		frameRate: 60,
-		scaleMode: "showAll",
-		contentWidth: 480,
-		contentHeight: 800,
-		showPaintRect: false,
-		showFPS: false,
-		fpsStyles: "",
-		showLog: false,
-		logFilter: "",
-		maxTouches: 2,
-		textureScaleFactor: 1
+		undefined
 		//----auto option end----
     };
 

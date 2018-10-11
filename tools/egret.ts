@@ -41,6 +41,7 @@ export class EgretGame extends Game {
         fs.removeSync("publish");
         fs.removeSync("project/app.json");
         fs.removeSync("project/manifest.json");
+        fs.removeSync("project/resource/default.boot.json");
 
         // 清理其他
         this._eui.clean();
@@ -49,6 +50,10 @@ export class EgretGame extends Game {
     async build(opts: GameBuildOptions) {
         // 去除publish引起的egret混乱
         fs.removeSync('publish');
+
+        // 生成引导用的json，具体原因查阅 egret-app.ts
+        if (!fs.existsSync("project/resource/default.boot.json"))
+            fs.outputFileSync("project/resource/default.boot.json", TPL_BOOTJSON);
 
         if (opts.debug) {
             console.log("构建debug版本");
@@ -362,3 +367,10 @@ app.debug = {
     CONFIG:{{CONFIG}},
     BUILDDATE:{{BUILDDATE}}
 };`;
+
+const TPL_BOOTJSON = `
+{
+  "groups": [],
+  "resources": []
+}
+`;

@@ -26,7 +26,9 @@ module nn {
             super._preloadConfig(queue);
             // assertmanager要求先加载resourcejson
             queue.add(new OperationClosure(oper => {
-                let res = this.resourceFile + '?v=' + this.version;
+                // 如果没有该文件，会导致必须一开始加载一个巨大的res.json
+                // 等引导用的json加载成功后，会异步加载res.json\theme.json等
+                let res = "default.boot.json";
                 ResManager.loadConfig(res, () => {
                     oper.done();
                 }, this);
@@ -56,6 +58,13 @@ module nn {
                         oper.done();
                     }
                 }, this, ResType.JSON);
+            }, this));
+            // 加载真正的resource文件
+            group.add(new OperationClosure(oper => {
+                let res = this.resourceFile + '?v=' + this.version;
+                ResManager.loadConfig(res, () => {
+                    oper.done();
+                }, this);
             }, this));
         }
     }

@@ -232,8 +232,7 @@ module nn {
             // 如过file是绝对地址，则不添加directory
             if (file.indexOf('://') == -1)
                 file = this.directory + file;
-            RES.loadConfig(file,
-                this.directory);
+            RES.loadConfig(file, this.directory);
         }
 
         get cacheEnabled(): boolean {
@@ -246,15 +245,13 @@ module nn {
 
         private _cfg_loaded(e: RES.ResourceEvent) {
             let idr = "::res::config";
-            this._ewd.invoke(idr, e, false);
-            this._ewd.remove(idr);
+            this._ewd.invokeAfterClear(idr, e, false);
         }
 
         private _grp_complete(e: RES.ResourceEvent) {
             let idr0 = "::res::group::" + e.groupName;
             let idr1 = "::res::group::progress::" + e.groupName;
-            this._ewd.invoke(idr0, e, false);
-            this._ewd.remove(idr0);
+            this._ewd.invokeAfterClear(idr0, e, false);
             this._ewd.remove(idr1);
         }
 

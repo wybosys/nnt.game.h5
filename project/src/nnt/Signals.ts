@@ -276,7 +276,7 @@ module nn {
 
         private _slots = new KvObject<string, Slots>();
 
-        // 信号的主体   
+        // 信号的主体
         owner: any;
 
         // 监听信号
@@ -600,6 +600,23 @@ module nn {
             }
 
             ew.cbs.forEach((cb) => {
+                if (cb.cb && cb.ctx)
+                    cb.cb.call(cb.ctx, e);
+            }, this);
+        }
+
+        invokeAfterClear<T>(idr: string, e: T, debug?: boolean) {
+            let ew = this._slots[idr];
+            if (ew == null) {
+                if (debug)
+                    fatal("没有找到 " + idr);
+                return;
+            }
+
+            let cbs = ew.cbs.concat();
+            ew.cbs.length = 0;
+
+            cbs.forEach((cb) => {
                 if (cb.cb && cb.ctx)
                     cb.cb.call(cb.ctx, e);
             }, this);
