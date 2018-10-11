@@ -368,9 +368,7 @@ app.debug = {
     BUILDDATE:{{BUILDDATE}}
 };`;
 
-const TPL_BOOTJSON = `
-{
+const TPL_BOOTJSON = `{
   "groups": [],
   "resources": []
-}
-`;
+}`;
