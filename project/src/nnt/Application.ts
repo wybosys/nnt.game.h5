@@ -136,12 +136,12 @@ module nn {
             this.addChild(this._gameLayer);
             this.addChild(this._desktopLayer);
 
-            // 预加载流程
+            // 使用操作队列来完成游戏业务的加载
             let queue = new OperationQueue();
             queue.autoMode = false;
-            let queuegrp = new OperationGroup();
-            this._preloadConfig(queuegrp);
-            queue.add(queuegrp);
+            this._preloadConfig(queue);
+
+            // 基础准备好后，启动游戏
             queue.add(new OperationClosure(() => {
                 // 绑定app的句柄
                 CApplication.shared = this;
@@ -188,6 +188,7 @@ module nn {
                 // 显示加载页面
                 this.addChild(this._loadingScreen);
             }, this));
+
             // 开始启动队列
             queue.tryrun();
         }
@@ -207,33 +208,8 @@ module nn {
         }
 
         // 预加载队列
-        protected _preloadConfig(oper: OperationGroup) {
-            // 加载资源文件
-            oper.add(new OperationClosure((oper: Operation) => {
-                let res = this.resourceFile + '?v=' + this.version;
-                ResManager.loadConfig(res, () => {
-                    oper.done();
-                }, this);
-            }, this));
-            // 加载配置文件
-            oper.add(new OperationClosure((oper: Operation) => {
-                let cfg = this.configFile + '?v=' + this.version;
-                ResManager.getResByUrl(cfg, ResPriority.NORMAL, (obj: CacheRecord) => {
-                    this.config = obj.val;
-                    // 如果需要处理debug的config文件
-                    if (app.debug.CONFIG) {
-                        ResManager.getResByUrl('~debug.json', ResPriority.NORMAL, (obj: CacheRecord) => {
-                            let cfg = obj.val;
-                            Object.keys(cfg).forEach((e: any) => {
-                                this.config[e] = cfg[e];
-                            });
-                            oper.done();
-                        }, this, ResType.JSON);
-                    } else {
-                        oper.done();
-                    }
-                }, this, ResType.JSON);
-            }, this));
+        protected _preloadConfig(queue: OperationQueue) {
+            // pass 由各个引擎的实现类实现
         }
 
         // 开始加载资源

@@ -21,13 +21,50 @@ module nn {
         get fontFamily(): string {
             return egret.TextField.default_fontFamily;
         }
+
+        protected _preloadConfig(queue: OperationQueue) {
+            super._preloadConfig(queue);
+            // assertmanager要求先加载resourcejson
+            queue.add(new OperationClosure(oper => {
+                let res = this.resourceFile + '?v=' + this.version;
+                ResManager.loadConfig(res, () => {
+                    oper.done();
+                }, this);
+            }, this));
+            // 之后处理异步加载的资源
+            let group = new OperationGroup();
+            this._asyncPreloadConfig(group);
+            queue.add(group);
+        }
+
+        protected _asyncPreloadConfig(group: OperationGroup) {
+            // 加载基础配置文件
+            group.add(new OperationClosure(oper => {
+                let cfg = this.configFile + '?v=' + this.version;
+                ResManager.getResByUrl(cfg, ResPriority.NORMAL, (obj: CacheRecord) => {
+                    this.config = obj.val;
+                    // 如果需要处理debug的config文件
+                    if (app.debug.CONFIG) {
+                        ResManager.getResByUrl('~debug.json', ResPriority.NORMAL, (obj: CacheRecord) => {
+                            let cfg = obj.val;
+                            Object.keys(cfg).forEach((e: any) => {
+                                this.config[e] = cfg[e];
+                            });
+                            oper.done();
+                        }, this, ResType.JSON);
+                    } else {
+                        oper.done();
+                    }
+                }, this, ResType.JSON);
+            }, this));
+        }
     }
 
     export let EUI_MODE: boolean = false;
 
     // ------------------实现egret需要的加载过程 ------------------------
 
-    // 保护Main入口类    
+    // 保护Main入口类
     let CLAZZ_MAIN: any;
 
     // 伪main类，为了支持library(用来支持wing项目)和framework两种模式下的切换
@@ -155,7 +192,7 @@ module nn {
             Device.shared._updateScreen();
             Dom.updateBounds();
 
-            // 设置大小            
+            // 设置大小
             this.ScreenBounds = Device.shared.screenBounds;
             this.DesignBounds = CLAZZ_MAIN.BestFrame();
             if (this.DesignBounds == null)
@@ -283,10 +320,10 @@ module nn {
         // 重新计算一下舞台的大小
         _AppStage.UpdateBounds();
 
-        // 刷新首页的尺寸        
+        // 刷新首页的尺寸
         _AppStage.shared.updateLayout();
 
-        // 激活信号            
+        // 激活信号
         emit(CApplication.shared, SignalFrameChanged);
 
         // 调用原始的实现
@@ -300,7 +337,7 @@ module nn {
         return orifn(name);
     });
 
-    // 替换掉默认的屏幕适配        
+    // 替换掉默认的屏幕适配
     class ExtScreenAdapter extends egret.sys.DefaultScreenAdapter {
         calculateStageSize(scaleMode: string, screenWidth: number, screenHeight: number, contentWidth: number, contentHeight: number): egret.sys.StageDisplaySize {
             // 如果是标准PC浏览器，使用设计尺寸直接计算

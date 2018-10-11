@@ -529,28 +529,3 @@ module nn {
 
     ResManager = new _ResManager();
 }
-
-// AssertManager当在loadCOnfig之前load资源是，会因为fileSystem尚未初始化导致错误，所以需要增加判断
-module RES {
-    let _PROTO_RESCONFIG = ResourceConfig.prototype;
-
-    let OLD_RESCONFIG_GETRESOURCE = _PROTO_RESCONFIG.getResource;
-    _PROTO_RESCONFIG.getResource = function (path_or_alias) {
-        if (this.config.fileSystem)
-            return OLD_RESCONFIG_GETRESOURCE.call(this, path_or_alias);
-        // 框架中只有首次加载配置文件时，才会出现此类问题，所以只需要对json进行处理
-        return {
-            type: 'json',
-            root: '',
-            name: path_or_alias,
-            url: path_or_alias
-        };
-    };
-
-    let OLD_RESCONFIG_ADDRESDATA = _PROTO_RESCONFIG.addResourceData;
-    _PROTO_RESCONFIG.addResourceData = function (data) {
-        if (this.config.fileSystem) {
-            OLD_RESCONFIG_ADDRESDATA(data);
-        }
-    }
-}
