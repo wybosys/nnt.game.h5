@@ -6,7 +6,7 @@ module nn {
 
     IMP_TIMEPASS = (): number => {
         return egret.getTimer() * 0.001;
-    }
+    };
 
     IMP_CREATE_TIMER = (duration: number, count: number): egret.Timer => {
         return new egret.Timer(duration * 1000, count);
