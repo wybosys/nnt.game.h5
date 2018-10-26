@@ -252,7 +252,6 @@ module nn {
 
         private __cnt_open() {
             noti('打开服务器 ' + this.host + ' 成功');
-            this.signals.emit(SignalOpen);
 
             // 初始化连接
             let m = new Model();
