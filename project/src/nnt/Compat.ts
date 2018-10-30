@@ -677,3 +677,21 @@ class Multimap<K, V> {
 
     private _store = new Map<K, Array<V>>();
 }
+
+declare var wx: any;
+const IS_WEIXIN_MINGAME = typeof wx != "undefined";
+
+// 如果是微信平台，则需要实现alert
+if (IS_WEIXIN_MINGAME) {
+    window.alert = (msg: string) => {
+        wx.showModal({
+            title: '警告',
+            content: msg,
+            success: function (res) {
+                if (res.confirm) {
+                    // pass
+                }
+            }
+        });
+    };
+}
