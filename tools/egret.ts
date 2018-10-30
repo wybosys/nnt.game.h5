@@ -1,7 +1,7 @@
 import {Game, GameBuildOptions, ProgramHandleType} from "./game";
 import {Config} from "./config";
 import {Gendata} from "./gendata";
-import {ArrayT, DateTime, DirAtChild, SimpleHashFile} from "./kernel";
+import {ArrayT, DateTime, DirAtChild, IndexedObject, SimpleHashFile} from "./kernel";
 import {Service} from "./service";
 import {EgretResource} from "./egret-res";
 import {EgretEui} from "./egret-eui";
@@ -172,7 +172,7 @@ export class EgretGame extends Game {
     }
 
     // 生成测试版的index.html
-    makeDebugIndex() {
+    makeDebugIndex(tpl?: IndexedObject) {
         console.log("生成debug版index.html");
         let bkg: string = this.config.get('app', 'background');
         let bkgcolor: string = this.config.get('app', 'background-color');
@@ -184,6 +184,11 @@ export class EgretGame extends Game {
         ArrayT.Merge(manifest.initial, manifest.game).forEach(e => {
             files.push('<script src="' + e + '"></script>');
         });
+
+        let scaleMode = "showAll";
+        if (tpl && tpl["scaleMode"])
+            scaleMode = tpl["scaleMode"];
+
         const index = mustache.render(TPL_INDEX_DEBUG, {
             APPNAME: this.config.get('app', 'name'),
             APPORI: this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait',
@@ -191,6 +196,7 @@ export class EgretGame extends Game {
             APPCONTENT: 'version=0.0.1, debug, verbose' + (this.config.get('app', 'resource') == 'p' ? 'publish' : ''),
             BACKGROUND: bkg,
             BACKGROUNDCOLOR: bkgcolor,
+            SCALEMODE: scaleMode,
             APPSTYLE: '',
             FILESLIST: files.join('\n\t')
         });
@@ -248,7 +254,9 @@ export class EgretGame extends Game {
         this.egret('build');
 
         // 生成测试入口
-        this.makeDebugIndex();
+        this.makeDebugIndex({
+            scaleMode: "fixedWidth"
+        });
     }
 
     protected _eui = new EgretEui();
@@ -308,7 +316,7 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, 
     class="egret-player"
     data-entry-class="Main"
     data-orientation="auto"
-    data-scale-mode="showAll"
+    data-scale-mode="{{SCALEMODE}}"
     data-multi-fingered="2"
     data-frame-rate="60"
     ></div>    
