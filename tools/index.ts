@@ -62,6 +62,13 @@ function main() {
         });
 
     program
+        .command("mingame")
+        .description("打包微信小游戏")
+        .action(() => {
+            game.mingame();
+        });
+
+    program
         .command("gendata")
         .description("生成数据文件")
         .action(() => {

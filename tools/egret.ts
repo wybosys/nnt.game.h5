@@ -236,6 +236,39 @@ export class EgretGame extends Game {
         fs.writeFileSync('publish/index.html', index);
     }
 
+    async mingame() {
+        console.log("构建微信小程序版本");
+
+        // 去除publish引起的egret混乱
+        fs.removeSync('publish');
+
+        // 准备附加数据文件
+        await this.gendata.build();
+        await this._eui.build();
+        await this.resource.refresh();
+
+        // 先编译下基础debug版本
+        this.egret('build');
+
+        // 清理老的并编译
+        fs.removeSync('project/bin-release');
+        this.egret('publish --compressjson');
+
+        // 对编译好得文件进行后处理
+        const binweb = DirAtChild('project/bin-release/web', 0, true);
+        const jsobj = fs.readJSONSync(binweb + '/manifest.json');
+
+        // 自定义thm会出现类型识别错误，进行后处理
+        jsobj.game.forEach((file: string) => {
+            if (file.indexOf('js/default.thm') != -1) {
+                // 修正编译皮肤编译错的属性
+                let content = fs.readFileSync(binweb + '/' + file, {encoding: 'utf8'});
+                content = content.replace(PUBLISH_FIX_IMAGESOURCE, 'imageSource = "$1";');
+                fs.writeFileSync(binweb + '/' + file, content, {encoding: 'utf8'});
+            }
+        });
+    }
+
     protected _eui = new EgretEui();
     protected _ts = new EgretTs();
 }

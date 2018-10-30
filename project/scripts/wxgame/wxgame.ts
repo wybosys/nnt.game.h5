@@ -1,9 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
+
+// nnt fix
+let UseEui = false;
+let UseDragonBones = false;
+
 export class WxgamePlugin implements plugins.Command {
 
     constructor() {
     }
+
     async onFile(file: plugins.File) {
         if (file.extname == '.js') {
             const filename = file.origin;
@@ -28,12 +34,19 @@ export class WxgamePlugin implements plugins.Command {
                 }
                 if (filename == "libs/modules/eui/eui.js" || filename == 'libs/modules/eui/eui.min.js') {
                     content += ";window.eui = eui;"
+                    UseEui = true;
                 }
                 if (filename == 'libs/modules/dragonBones/dragonBones.js' || filename == 'libs/modules/dragonBones/dragonBones.min.js') {
                     content += ';window.dragonBones = dragonBones';
+                    UseDragonBones = true;
                 }
                 content = "var egret = window.egret;" + content;
                 if (filename == 'main.js') {
+                    // nnt fix
+                    if (UseEui)
+                        content = "var eui = window.eui;" + content;
+                    if (UseDragonBones)
+                        content = "var dragonBones = window.dragonBones;" + content;
                     content += "\n;window.Main = Main;"
                 }
                 file.contents = new Buffer(content);
@@ -41,14 +54,15 @@ export class WxgamePlugin implements plugins.Command {
         }
         return file;
     }
+
     async onFinish(pluginContext: plugins.CommandContext) {
         //同步 index.html 配置到 game.js
         const gameJSPath = path.join(pluginContext.outputDir, "game.js");
-        if(!fs.existsSync(gameJSPath)) {
+        if (!fs.existsSync(gameJSPath)) {
             console.log(`${gameJSPath}不存在，请先使用 Launcher 发布微信小游戏`);
             return;
         }
-        let gameJSContent = fs.readFileSync(gameJSPath, { encoding: "utf8" });
+        let gameJSContent = fs.readFileSync(gameJSPath, {encoding: "utf8"});
         const projectConfig = pluginContext.buildConfig.projectConfig;
         const optionStr =
             `entryClassName: ${projectConfig.entryClassName},\n\t\t` +
@@ -75,7 +89,7 @@ export class WxgamePlugin implements plugins.Command {
             orientation = "portrait";
         }
         const gameJSONPath = path.join(pluginContext.outputDir, "game.json");
-        let gameJSONContent = JSON.parse(fs.readFileSync(gameJSONPath, { encoding: "utf8" }));
+        let gameJSONContent = JSON.parse(fs.readFileSync(gameJSONPath, {encoding: "utf8"}));
         gameJSONContent.deviceOrientation = orientation;
         fs.writeFileSync(gameJSONPath, JSON.stringify(gameJSONContent, null, "\t"));
     }
