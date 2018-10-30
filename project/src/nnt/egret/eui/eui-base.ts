@@ -187,7 +187,8 @@ module eui {
         }
 
         $setVisible(b: boolean): boolean {
-            if (super.$setVisible(b)) {
+            if (this.visible != b) {
+                super.$setVisible(b);
                 this.onVisibleChanged();
                 return true;
             }
