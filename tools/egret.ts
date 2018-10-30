@@ -120,10 +120,10 @@ export class EgretGame extends Game {
         // 打包游戏类
         let gamejss: string[] = [];
         jsobj.game.forEach((file: string) => {
-            if (file.indexOf('js/default.data') == 0) {
+            if (file.indexOf('js/default.data') != -1) {
                 fs.moveSync(binweb + '/' + file, 'publish/resource/default.data.js');
             }
-            else if (file.indexOf('js/default.thm') == 0) {
+            else if (file.indexOf('js/default.thm') != -1) {
                 // 修正编译皮肤编译错的属性
                 let content = fs.readFileSync(binweb + '/' + file, {encoding: 'utf8'});
                 content = content.replace(PUBLISH_FIX_IMAGESOURCE, 'imageSource = "$1";');
