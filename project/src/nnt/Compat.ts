@@ -679,7 +679,7 @@ class Multimap<K, V> {
 }
 
 declare var wx: any;
-const IS_WEIXIN_MINGAME = typeof wx != "undefined";
+export let IS_WEIXIN_MINGAME = typeof wx != "undefined";
 
 // 如果是微信平台，则需要实现alert
 if (IS_WEIXIN_MINGAME) {

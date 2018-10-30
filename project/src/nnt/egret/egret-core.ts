@@ -25,9 +25,12 @@ module nn {
     // 需要判断一下是使用LocalStorage还是使用SessionStorage
     let _storageMode = ((): number => {
         let key = "::n2::test::localstorage::mode";
-        if (egret.localStorage.setItem(key, "test")) {
-            egret.localStorage.removeItem(key);
-            return 0;
+        if (window && window.localStorage) {
+            localStorage.setItem(key, "test");
+            if (localStorage.getItem(key) == "test") {
+                localStorage.removeItem(key);
+                return 0;
+            }
         }
         if (window && window.sessionStorage) {
             try {
@@ -78,7 +81,7 @@ module nn {
 
     Defer = (cb: Function, ctx: any, ...p: any[]) => {
         egret.callLater.apply(null, [cb, ctx].concat(p));
-    }
+    };
 
     // 将point伪装成egret.point
     let __PROTO: any = Point.prototype;
