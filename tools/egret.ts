@@ -257,6 +257,10 @@ export class EgretGame extends Game {
         this.makeDebugIndex({
             scaleMode: "fixedWidth"
         });
+
+        // 复制一些基础数据
+        fs.ensureDirSync('project_wxgame');
+        fs.copySync("app.json", "project_wxgame/app.json");
     }
 
     protected _eui = new EgretEui();

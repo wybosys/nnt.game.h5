@@ -5579,6 +5579,9 @@ module nn {
             self.isPurePC = !self.isMobile && (self.isMac || self.isWin || self.isUnix || self.isLinux);
 
             self.isHighPerfomance = !self.isAndroid;
+
+            if (typeof wx != "undefined")
+                self.isMinGame = true;
         }
 
         platform: string;
@@ -5593,6 +5596,9 @@ module nn {
         isMobile: boolean;
         isPC: boolean;
         isPurePC: boolean;
+
+        /** 小程序模式 */
+        isMinGame: boolean = false;
 
         /** canvas模式 */
         isCanvas: boolean = true;

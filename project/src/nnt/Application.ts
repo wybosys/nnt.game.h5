@@ -195,7 +195,10 @@ module nn {
 
         /** 延期加载的capsules */
         capsules(reqs: ReqResource[]): CResCapsule {
-            let c: Array<ReqResource> = [new ResourceEntity(ResManager.directory + this.dataFile + '?v=' + this.version, ResType.JSREF)];
+            let u = ResManager.directory + this.dataFile;
+            if (!Device.shared.isMinGame)
+                u += '?v=' + this.version;
+            let c: Array<ReqResource> = [new ResourceEntity(u, ResType.JSREF)];
             let r = ResManager.capsules(reqs.concat(c));
             // 加载成功后，激发dataloaded的处理
             r.signals.connect(SignalDone, () => {

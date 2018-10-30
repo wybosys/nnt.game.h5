@@ -42,7 +42,9 @@ module nn {
         protected _asyncPreloadConfig(group: OperationGroup) {
             // 加载基础配置文件
             group.add(new OperationClosure(oper => {
-                let cfg = this.configFile + '?v=' + this.version;
+                let cfg = this.configFile;
+                if (!Device.shared.isMinGame)
+                    cfg += '?v=' + this.version;
                 ResManager.getResByUrl(cfg, ResPriority.NORMAL, (obj: CacheRecord) => {
                     this.config = obj.val;
                     // 如果需要处理debug的config文件
@@ -61,7 +63,9 @@ module nn {
             }, this));
             // 加载真正的resource文件
             group.add(new OperationClosure(oper => {
-                let res = this.resourceFile + '?v=' + this.version;
+                let res = this.resourceFile;
+                if (!Device.shared.isMinGame)
+                    res += '?v=' + this.version;
                 ResManager.loadConfig(res, () => {
                     oper.done();
                 }, this);
