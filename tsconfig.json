@@ -1,16 +1,16 @@
 {
-    "compilerOptions": {
-        "target": "esnext",
-        "moduleResolution": "node",
-        "module": "commonjs",
-        "removeComments": false,
-        "experimentalDecorators": true,
-        "noImplicitAny": true,
-        "noImplicitUseStrict": true,
-        "noImplicitReturns": true,
-        "sourceMap": true
-    },
-    "include": [
-        "tools/*.ts"
-    ]
+  "compilerOptions": {
+    "target": "esnext",
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "removeComments": false,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "noImplicitUseStrict": true,
+    "noImplicitReturns": true,
+    "sourceMap": true
+  },
+  "include": [
+    "tools/*.ts"
+  ]
 }

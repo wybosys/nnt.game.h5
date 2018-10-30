@@ -4,6 +4,7 @@
     "build": "node tools/index.js build",
     "publish": "node tools/index.js publish",
     "dist": "node tools/index.js dist",
+    "mingame": "node tools/index.js mingame",
     "clean": "node tools/index.js clean",
     "gendata": "node tools/index.js gendata",
     "genskin": "node tools/index.js genskin",
