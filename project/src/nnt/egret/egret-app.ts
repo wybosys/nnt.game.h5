@@ -317,7 +317,7 @@ module nn {
         static StageBounds: Rect;
     }
 
-    Js.OverrideFunction(egret, 'updateAllScreens', function (orifn: () => void) {
+    js.OverrideFunction(egret, 'updateAllScreens', function (orifn: () => void) {
         if (CLAZZ_MAIN == null)
             return;
 
@@ -340,7 +340,7 @@ module nn {
     });
 
     // 需要替换查找入口类的函数，使得我们可以插入非业务类作为主入口
-    Js.OverrideFunction(egret, 'getDefinitionByName', (orifn: (name: string) => any, name: string): any => {
+    js.OverrideFunction(egret, 'getDefinitionByName', (orifn: (name: string) => any, name: string): any => {
         if (name == 'Main')
             return _AppStage;
         return orifn(name);

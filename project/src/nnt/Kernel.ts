@@ -139,7 +139,7 @@ module nn {
         // static getInstance():any;
 
         /** 释放实体 */
-        // static freeInstance();        
+        // static freeInstance();
     }
 
     /** 全局的不可释放的唯一实例 */
@@ -721,7 +721,7 @@ module nn {
     /** 格式化字符串 */
     export function formatString(fmt: string, ...p: any[]): string {
         try {
-            return Invoke1(Js.printf, this, p, fmt);
+            return Invoke1(js.printf, this, p, fmt);
         } catch (err) {
             exception(new Error('format: ' + fmt + '\nargus: ' + dump(p) + '\n' + err));
         }
@@ -730,7 +730,7 @@ module nn {
 
     export function formatStringV(fmt: string, p: any[]): string {
         try {
-            return Invoke1(Js.printf, this, p, fmt);
+            return Invoke1(js.printf, this, p, fmt);
         } catch (err) {
             exception(new Error('format: ' + fmt + '\nargus: ' + dump(p) + '\n' + err));
         }
@@ -2266,14 +2266,14 @@ module nn {
             let r = [];
             let map = {};
             this._arr.forEach((e: T) => {
-                let h = Js.hashKey(getkey(e));
+                let h = js.hashKey(getkey(e));
                 if (!map[h]) {
                     map[h] = e;
                     r.push(e);
                 }
             });
             tgt.forEach((e: T) => {
-                let h = Js.hashKey(getkey(e));
+                let h = js.hashKey(getkey(e));
                 if (!map[h]) {
                     map[h] = e;
                     r.push(e);
@@ -4560,21 +4560,6 @@ module nn {
             return decodeURIComponent(d);
         }
 
-        /** 字符串打包，encode测试发现在native状态下，如果使用urlloader发送，则放在参数中的例如http://之类的字符串会被恢复编码，导致500错误 */
-        static pack(str: string, uri: boolean = true): string {
-            let r = btoa(str);
-            if (uri)
-                return encodeURIComponent(r);
-            return r;
-        }
-
-        static unpack(str: string, uri: boolean = true): string {
-            let r = atob(str);
-            if (uri)
-                return decodeURIComponent(r);
-            return r;
-        }
-
         static htmlEncode(s: string): string {
             if (s.length == 0)
                 return "";
@@ -4996,7 +4981,7 @@ module nn {
             else {
                 IMP_START_TIMER(this._tmr, this.__tmr_tick, this);
 
-                // 记录一下启动的时间                
+                // 记录一下启动的时间
                 this.currentTime = DateTime.Pass();
             }
         }
@@ -5631,8 +5616,8 @@ module nn {
         screenType: ScreenType = ScreenType.NORMAL;
 
         _updateScreen() {
-            let browserSize = Js.getBrowserSize();
-            let screenSize = Js.getScreenSize();
+            let browserSize = js.getBrowserSize();
+            let screenSize = js.getScreenSize();
 
             // 需要保护一下browser定义必须小于screen，但是有些渠道发现刚好相反
             /*
@@ -5643,7 +5628,7 @@ module nn {
             this.screenBounds.reset(0, 0, browserSize.width, browserSize.height);
             this.screenFrame.reset(0, 0, screenSize.width, screenSize.height);
 
-            let browserOri = Js.getBrowserOrientation();
+            let browserOri = js.getBrowserOrientation();
             if (this.screenOrientation.angle != browserOri) {
                 this.screenOrientation.angle = browserOri;
                 this.signals.emit(SignalOrientationChanged, this.screenOrientation);
@@ -6056,7 +6041,7 @@ module nn {
      new Retry(....).process();
      */
     export class Retry implements IOrder {
-        /* 
+        /*
            @param times 重试次数
            @param interval 重试的时间间隔s，或者是每一次的间隔
         */
@@ -6616,10 +6601,10 @@ module nn {
             if (ISHTML5) {
                 if (<any>p instanceof Array) {
                     let srcs = <string[]>p;
-                    Js.loadScripts(srcs, cb, ctx);
+                    js.loadScripts(srcs, cb, ctx);
                 } else {
                     let src = <string>p;
-                    Js.loadScript(src, cb, ctx);
+                    js.loadScript(src, cb, ctx);
                 }
             } else {
                 if (<any>p instanceof Array) {

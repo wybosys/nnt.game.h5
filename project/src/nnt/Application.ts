@@ -71,7 +71,7 @@ module nn {
         }
 
         /** 打开 app 所使用的地址 */
-        url = new URL(Js.siteUrl);
+        url = new URL(js.siteUrl);
 
         /** 版本号 */
         version: string = APPVERSION;
@@ -347,7 +347,7 @@ module nn {
 
         /** 生成唯一标示 */
         protected generateUniqueId(): string {
-            return Js.uuid(16, 16);
+            return js.uuid(16, 16);
         }
 
         // 打开全屏模式需要运行在touch事件中，所以需要设置一个开关，当touch事件发生时自动激活全屏幕时
@@ -397,20 +397,20 @@ module nn {
         enterFullscreen() {
             if (ISNATIVE || this.isFullscreen)
                 return;
-            Js.enterFullscreen(document.body);
+            js.enterFullscreen(document.body);
         }
 
         /** 推出全屏模式 */
         exitFullscreen() {
             if (ISNATIVE || !this.isFullscreen)
                 return;
-            Js.exitFullscreen();
+            js.exitFullscreen();
         }
 
         get isFullscreen(): boolean {
             if (ISNATIVE)
                 return true;
-            return Js.isFullscreen();
+            return js.isFullscreen();
         }
 
         /** 应用是否激活 */

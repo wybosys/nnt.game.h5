@@ -121,7 +121,7 @@ module nn {
         }
 
         private _i_add(o: V): boolean {
-            let k = Js.hashKey(o);
+            let k = js.hashKey(o);
             if (this._map[k] != undefined)
                 return false;
             this._map[k] = true;
@@ -136,7 +136,7 @@ module nn {
         }
 
         private _i_has(o: V): boolean {
-            let k = Js.hashKey(o);
+            let k = js.hashKey(o);
             return this._map[k] != undefined;
         }
 
@@ -147,7 +147,7 @@ module nn {
         }
 
         private _i_delete(o: V): boolean {
-            let k = Js.hashKey(o);
+            let k = js.hashKey(o);
             if (this._map[k] == undefined)
                 return false;
             this._map.delete(k);

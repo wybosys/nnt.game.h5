@@ -90,10 +90,12 @@ module nn {
         this.y = y;
     };
 
+    /*
     // 解决egret-inspector显示的是实现类而不是业务类的名称
     Js.OverrideFunction(egret, 'getQualifiedClassName', (orifn: (value: any) => string, value: any): string => {
         if ('_fmui' in value)
             return value._fmui.descriptionName;
         return orifn(value);
     });
+    */
 }

@@ -70,10 +70,10 @@ module nn {
         updateData() {
             super.updateData();
 
-            this.lblOrientation.content = 'Orientation: ' + Js.getBrowserOrientation() + ((<any>window).orientation != undefined ? ' SUPPORT' : '');
+            this.lblOrientation.content = 'Orientation: ' + js.getBrowserOrientation() + ((<any>window).orientation != undefined ? ' SUPPORT' : '');
 
-            let brwsz = Js.getBrowserSize();
-            let scrsz = Js.getScreenSize();
+            let brwsz = js.getBrowserSize();
+            let scrsz = js.getScreenSize();
             let stgsz = StageBounds.size;
             this.lblEnvSize.content = 'BrowserSize: ' + brwsz.width + ',' + brwsz.height
                 + ' ScreenSize: ' + scrsz.width + ',' + scrsz.height
