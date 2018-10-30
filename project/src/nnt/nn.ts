@@ -91,7 +91,7 @@ module nn {
                 __tag_publish = p == 'true';
         }
         else {
-            alert("没有配置 app 的基础信息");
+            //alert("没有配置 app 的基础信息");
         }
     }
 
@@ -109,7 +109,7 @@ module nn {
       options[@"debug"] = @"true";
       options[@"verbose"] = @"true";
       options[@"version"] = @"1.0.0";
-      options[@"publish"] = @"false";   
+      options[@"publish"] = @"false";
     */
 
 }
