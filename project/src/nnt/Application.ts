@@ -492,6 +492,7 @@ module nn.loader {
     // 不同环境下的启动程序
     export let webloading: () => void; // 应用加载时调用
     export let webstart: () => void; // 应用启动时调用
+    export let mingamestart: () => void; // 启动小程序
     export let nativestart: () => void; // 本地化应用启动时
     export let runtimestart: () => void; // RUNTIME化应用启动时
 

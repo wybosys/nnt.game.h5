@@ -175,7 +175,7 @@ module nn {
         // 初始化 Stage 架构
         static Init() {
             // 设置主业务入口类
-            CLAZZ_MAIN = eval("Main");
+            CLAZZ_MAIN = window["Main"];
 
             // 判断支持的特性
             let features = CLAZZ_MAIN.Features();
@@ -389,6 +389,38 @@ module nn {
             Device.shared.isCanvas = false;
     };
 
+    // 加载小程序
+    loader.mingamestart = () => {
+        // 执行加载动作
+        loader.InvokeBoot();
+
+        // 初始化舞台
+        _AppStage.Init();
+
+        // 默认使用webgl渲染
+        egret.runEgret({
+            entryClassName: "Main",
+            orientation: "auto",
+            frameRate: 60,
+            scaleMode: "fixedWidth",
+            contentWidth: 480,
+            contentHeight: 800,
+            maxTouches: 2,
+            renderMode: 'webgl',
+            audioType: 0,
+            calculateCanvasScaleFactor: function (context: any) {
+                var backingStore = context.backingStorePixelRatio ||
+                    context.webkitBackingStorePixelRatio ||
+                    context.mozBackingStorePixelRatio ||
+                    context.msBackingStorePixelRatio ||
+                    context.oBackingStorePixelRatio ||
+                    context.backingStorePixelRatio || 1;
+                return (window.devicePixelRatio || 1) / backingStore;
+            }
+        });
+        Device.shared.isCanvas = false;
+    };
+
     // 启动原生程序
     loader.nativestart = () => {
         // 创建舞台
@@ -407,3 +439,6 @@ module nn {
         egret.runEgret();
     };
 }
+
+// 提前保护设置
+window["nn"] = nn;

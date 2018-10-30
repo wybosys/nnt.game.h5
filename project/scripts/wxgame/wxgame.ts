@@ -76,8 +76,11 @@ export class WxgamePlugin implements plugins.Command {
             console.log(`${gameJSPath}不存在，请先使用 Launcher 发布微信小游戏`);
             return;
         }
-        let gameJSContent = fs.readFileSync(gameJSPath, {encoding: "utf8"});
+
         const projectConfig = pluginContext.buildConfig.projectConfig;
+
+        /*
+        let gameJSContent = fs.readFileSync(gameJSPath, {encoding: "utf8"});
         const optionStr =
             `entryClassName: ${projectConfig.entryClassName},\n\t\t` +
             `orientation: ${projectConfig.orientation},\n\t\t` +
@@ -92,7 +95,11 @@ export class WxgamePlugin implements plugins.Command {
         const reg = /\/\/----auto option start----[\s\S]*\/\/----auto option end----/;
         const replaceStr = '\/\/----auto option start----\n\t\t' + optionStr + '\n\t\t\/\/----auto option end----';
         gameJSContent = gameJSContent.replace(reg, replaceStr);
-        fs.writeFileSync(gameJSPath, gameJSContent);
+        fs.writeFileSync(gameJSPath + ".tmp", gameJSContent);
+        */
+
+        // 按照nnt的规则输出启动器
+        fs.writeFileSync(gameJSPath, TPL_GAMEJS);
 
         //修改横竖屏
         let orientation;
@@ -108,3 +115,22 @@ export class WxgamePlugin implements plugins.Command {
         fs.writeFileSync(gameJSONPath, JSON.stringify(gameJSONContent, null, "\t"));
     }
 }
+
+const TPL_GAMEJS = `require('./weapp-adapter.js');
+require('./platform.js');
+require('./manifest.js');
+require('./egret.wxgame.js');
+
+// 启动微信小游戏本地缓存，如果开发者不需要此功能，只需注释即可
+// 只有使用 assetsmanager 的项目可以使用
+if(window.RES && RES.processor) {
+    require('./library/image.js');
+    require('./library/text.js');
+    require('./library/sound.js');
+    require('./library/binary.js');
+}
+
+nn.loader.mingamestart();
+
+// require("egret.min.js")
+`;
