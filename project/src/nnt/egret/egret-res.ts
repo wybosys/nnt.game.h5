@@ -30,7 +30,11 @@ module nn {
         use(): any;
     }
 
+    // 图片地址解析
     let WebImageUriCheckPattern = /^(https?):\/\/(.+)$/i;
+
+    // 是否支持图片跨域
+    let CLAZZ_EXT_IMAGE_LOADER: any;
 
     // 资源池
     export class _ResMemcache extends Memcache {
@@ -401,14 +405,14 @@ module nn {
 
             // 获得纹理需要处理跨域的情况, 只处理全url的情况
             let url: string = <string>src;
-            if (url.match(WebImageUriCheckPattern) && url.indexOf(document.domain) == -1) {
+            if (CLAZZ_EXT_IMAGE_LOADER && url.match(WebImageUriCheckPattern) && url.indexOf(document.domain) == -1) {
                 // 先判断是否可以从缓存中拿到
                 let rcd = this.cache.query(url);
                 if (rcd) {
                     cb.call(ctx, rcd);
                 } else {
                     // 跨域
-                    let il = new ExtImageLoader();
+                    let il = new CLAZZ_EXT_IMAGE_LOADER();
                     il.crossOrigin = "anonymous";
                     il.load(url, tex => {
                         if (tex) {
@@ -483,45 +487,50 @@ module nn {
         }
     }
 
-    // 用来异步加载跨域图片得加载类
-    class ExtImageLoader extends egret.ImageLoader {
+    if (typeof egret.ImageLoader != "undefined") {
 
-        load(url: string, cb?: (tex: egret.Texture) => void, ctx?: any) {
-            this._cb = cb;
-            this._ctx = ctx;
+        // 用来异步加载跨域图片得加载类
+        class ExtImageLoader extends egret.ImageLoader {
 
-            this.addEventListener(egret.Event.COMPLETE, this._cb_complete, this);
-            this.addEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
+            load(url: string, cb?: (tex: egret.Texture) => void, ctx?: any) {
+                this._cb = cb;
+                this._ctx = ctx;
 
-            super.load(url);
-        }
+                this.addEventListener(egret.Event.COMPLETE, this._cb_complete, this);
+                this.addEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
 
-        private _cb: (tex: egret.Texture) => void;
-        private _ctx: any;
-
-        private _cb_complete(e: egret.Event) {
-            if (this._cb) {
-                let tex = new egret.Texture();
-                tex.bitmapData = this.data;
-                this._cb.call(this._ctx, tex);
-                this._cb = null;
-                this._ctx = null;
+                super.load(url);
             }
 
-            this.removeEventListener(egret.Event.COMPLETE, this._cb_complete, this);
-            this.removeEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
-        }
+            private _cb: (tex: egret.Texture) => void;
+            private _ctx: any;
 
-        private _cb_error(e: egret.Event) {
-            if (this._cb) {
-                this._cb.call(this._ctx, null);
-                this._cb = null;
-                this._ctx = null;
+            private _cb_complete(e: egret.Event) {
+                if (this._cb) {
+                    let tex = new egret.Texture();
+                    tex.bitmapData = this.data;
+                    this._cb.call(this._ctx, tex);
+                    this._cb = null;
+                    this._ctx = null;
+                }
+
+                this.removeEventListener(egret.Event.COMPLETE, this._cb_complete, this);
+                this.removeEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
             }
 
-            this.removeEventListener(egret.Event.COMPLETE, this._cb_complete, this);
-            this.removeEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
+            private _cb_error(e: egret.Event) {
+                if (this._cb) {
+                    this._cb.call(this._ctx, null);
+                    this._cb = null;
+                    this._ctx = null;
+                }
+
+                this.removeEventListener(egret.Event.COMPLETE, this._cb_complete, this);
+                this.removeEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
+            }
         }
+
+        CLAZZ_EXT_IMAGE_LOADER = ExtImageLoader;
     }
 
     ResManager = new _ResManager();
