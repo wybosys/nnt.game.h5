@@ -55,6 +55,9 @@ export class EgretGame extends Game {
         if (!fs.existsSync("project/resource/default.boot.json"))
             fs.outputFileSync("project/resource/default.boot.json", TPL_BOOTJSON);
 
+        // 生成配置文件
+        this.makeConfig({TARGET: "web"});
+
         if (opts.debug) {
             console.log("构建debug版本");
             fs.copySync('app.json', 'project/app.json');
@@ -171,6 +174,13 @@ export class EgretGame extends Game {
             });
     }
 
+    // 生成项目配置文件
+    makeConfig(tpl: IndexedObject) {
+        let content = fs.readFileSync('project/egretProperties.template.json', {encoding: 'utf8'});
+        content = mustache.render(content, tpl);
+        fs.writeFileSync('project/egretProperties.json', content, {encoding: 'utf8'});
+    }
+
     // 生成测试版的index.html
     makeDebugIndex(tpl?: IndexedObject) {
         console.log("生成debug版index.html");
@@ -251,6 +261,7 @@ export class EgretGame extends Game {
         await this.resource.refresh();
 
         // 先编译下基础debug版本
+        this.makeConfig({TARGET: "wxgame"});
         this.egret('build');
 
         // 生成测试入口

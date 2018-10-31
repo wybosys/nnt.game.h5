@@ -3,6 +3,7 @@
 /project/libs
 /project/index.html
 /project/app.json
+/project/egretProperties.json
 manifest.json
 \.idea
 \.n2
