@@ -28,6 +28,12 @@ export interface GameBuildOptions {
     noservice?: boolean;
 }
 
+export interface MinGameBuildOptions {
+
+    // 渠道名
+    channel?: string;
+}
+
 export type ProgramHandleType = program.Command;
 
 export abstract class Game {
@@ -50,7 +56,7 @@ export abstract class Game {
     abstract async build(opts: GameBuildOptions): Promise<void>;
 
     // 打包小游戏
-    abstract async mingame(): Promise<void>;
+    abstract async mingame(opts: MinGameBuildOptions): Promise<void>;
 
     // 添加命令
     abstract commands(program: ProgramHandleType): void;

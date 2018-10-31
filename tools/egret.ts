@@ -1,4 +1,4 @@
-import {Game, GameBuildOptions, ProgramHandleType} from "./game";
+import {Game, GameBuildOptions, MinGameBuildOptions, ProgramHandleType} from "./game";
 import {Config} from "./config";
 import {Gendata} from "./gendata";
 import {ArrayT, DateTime, DirAtChild, IndexedObject, SimpleHashFile} from "./kernel";
@@ -24,6 +24,8 @@ export class EgretGame extends Game {
         this.gendata = new Gendata();
         this.service = new Service();
         this.resource = new EgretResource();
+
+        fs.ensureDirSync(".n2/egret");
     }
 
     resource: EgretResource;
@@ -32,6 +34,7 @@ export class EgretGame extends Game {
         super.clean();
 
         // 清除egret的中间文件
+        fs.removeSync(".n2/egret");
         fs.removeSync("project/index.html");
         fs.removeSync("project/bin-debug");
         fs.removeSync("project/bin-release");
@@ -42,6 +45,9 @@ export class EgretGame extends Game {
         fs.removeSync("project/app.json");
         fs.removeSync("project/manifest.json");
         fs.removeSync("project/resource/default.boot.json");
+
+        // 清理渠道编译
+        this.clean_channel();
 
         // 清理其他
         this._eui.clean();
@@ -252,8 +258,27 @@ export class EgretGame extends Game {
         fs.writeFileSync('publish/index.html', index);
     }
 
-    async mingame() {
+    async mingame(opts: MinGameBuildOptions) {
         console.log("构建微信小程序版本");
+        fs.ensureDirSync('project_wxgame');
+        this.clean_channel();
+
+        // 处理渠道
+        if (opts.channel) {
+            let suc = true;
+            switch (opts.channel) {
+                case 'readygo': {
+                    suc = await this.channel_readygo();
+                }
+                    break;
+                default: {
+                    console.warn("未知渠道 " + opts.channel)
+                }
+                    break;
+            }
+            if (!suc)
+                return;
+        }
 
         // 准备附加数据文件
         await this.gendata.build();
@@ -270,8 +295,31 @@ export class EgretGame extends Game {
         });
 
         // 复制一些基础数据
-        fs.ensureDirSync('project_wxgame');
         fs.copySync("app.json", "project_wxgame/app.json");
+    }
+
+    protected clean_channel() {
+        fs.removeSync(".n2/egret/region1.js");
+        fs.removeSync(".n2/egret/region2.js");
+    }
+
+    // 渠道特殊处理
+    protected async channel_readygo(): Promise<boolean> {
+        if (!fs.existsSync("sdks/sdks.js")) {
+            console.error("没有找到渠道sdk，请从游戏中心下载");
+            return false;
+        }
+        if (!fs.existsSync("sdks/readygo.js")) {
+            console.error("没有找到星汉SDK");
+            return false;
+        }
+        fs.copySync("sdks/sdks.js", "project_wxgame/sdks.js");
+        fs.copySync("sdks/readygo.js", "project_wxgame/readygo.js");
+        let region1 = `require('./sdks.js');
+require('./readygo.js');
+        `;
+        fs.writeFileSync(".n2/egret/region1.js", region1);
+        return true;
     }
 
     protected _eui = new EgretEui();

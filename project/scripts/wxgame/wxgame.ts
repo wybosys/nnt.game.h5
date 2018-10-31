@@ -98,8 +98,18 @@ export class WxgamePlugin implements plugins.Command {
         fs.writeFileSync(gameJSPath + ".tmp", gameJSContent);
         */
 
+        // 替换
+        let content = TPL_GAMEJS;
+        for (let i = 1; i <= 2; ++i) {
+            let f = pluginContext.outputDir + "/../.n2/egret/region" + i + ".js";
+            if (fs.existsSync(f)) {
+                let js = fs.readFileSync(f, {encoding: "utf8"});
+                content = content.replace("//REGION_" + i + "//", js);
+            }
+        }
+
         // 按照nnt的规则输出启动器
-        fs.writeFileSync(gameJSPath, TPL_GAMEJS);
+        fs.writeFileSync(gameJSPath, content);
 
         //修改横竖屏
         let orientation;
@@ -130,7 +140,11 @@ if(window.RES && RES.processor) {
     require('./library/binary.js');
 }
 
+//REGION_1//
+
 nn.loader.mingamestart();
+
+//REGION_2//
 
 // require("egret.min.js")
 `;

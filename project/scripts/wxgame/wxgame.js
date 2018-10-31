@@ -106,7 +106,7 @@ var WxgamePlugin = /** @class */ (function () {
     };
     WxgamePlugin.prototype.onFinish = function (pluginContext) {
         return __awaiter(this, void 0, void 0, function () {
-            var gameJSPath, projectConfig, orientation, gameJSONPath, gameJSONContent;
+            var gameJSPath, projectConfig, content, i, f, js, orientation, gameJSONPath, gameJSONContent;
             return __generator(this, function (_a) {
                 gameJSPath = path.join(pluginContext.outputDir, "game.js");
                 if (!fs.existsSync(gameJSPath)) {
@@ -114,26 +114,16 @@ var WxgamePlugin = /** @class */ (function () {
                     return [2 /*return*/];
                 }
                 projectConfig = pluginContext.buildConfig.projectConfig;
-                /*
-                let gameJSContent = fs.readFileSync(gameJSPath, {encoding: "utf8"});
-                const optionStr =
-                    `entryClassName: ${projectConfig.entryClassName},\n\t\t` +
-                    `orientation: ${projectConfig.orientation},\n\t\t` +
-                    `frameRate: ${projectConfig.frameRate},\n\t\t` +
-                    `scaleMode: ${projectConfig.scaleMode},\n\t\t` +
-                    `contentWidth: ${projectConfig.contentWidth},\n\t\t` +
-                    `contentHeight: ${projectConfig.contentHeight},\n\t\t` +
-                    `showFPS: ${projectConfig.showFPS},\n\t\t` +
-                    `fpsStyles: ${projectConfig.fpsStyles},\n\t\t` +
-                    `showLog: ${projectConfig.showLog},\n\t\t` +
-                    `maxTouches: ${projectConfig.maxTouches},`;
-                const reg = /\/\/----auto option start----[\s\S]*\/\/----auto option end----/;
-                const replaceStr = '\/\/----auto option start----\n\t\t' + optionStr + '\n\t\t\/\/----auto option end----';
-                gameJSContent = gameJSContent.replace(reg, replaceStr);
-                fs.writeFileSync(gameJSPath + ".tmp", gameJSContent);
-                */
+                content = TPL_GAMEJS;
+                for (i = 1; i <= 2; ++i) {
+                    f = pluginContext.outputDir + "/../.n2/egret/region" + i + ".js";
+                    if (fs.existsSync(f)) {
+                        js = fs.readFileSync(f, { encoding: "utf8" });
+                        content = content.replace("//REGION_" + i + "//", js);
+                    }
+                }
                 // 按照nnt的规则输出启动器
-                fs.writeFileSync(gameJSPath, TPL_GAMEJS);
+                fs.writeFileSync(gameJSPath, content);
                 if (projectConfig.orientation == '"landscape"') {
                     orientation = "landscape";
                 }
@@ -151,4 +141,4 @@ var WxgamePlugin = /** @class */ (function () {
     return WxgamePlugin;
 }());
 exports.WxgamePlugin = WxgamePlugin;
-var TPL_GAMEJS = "require('./weapp-adapter.js');\nrequire('./platform.js');\nrequire('./manifest.js');\nrequire('./egret.wxgame.js');\n\n// \u542F\u52A8\u5FAE\u4FE1\u5C0F\u6E38\u620F\u672C\u5730\u7F13\u5B58\uFF0C\u5982\u679C\u5F00\u53D1\u8005\u4E0D\u9700\u8981\u6B64\u529F\u80FD\uFF0C\u53EA\u9700\u6CE8\u91CA\u5373\u53EF\n// \u53EA\u6709\u4F7F\u7528 assetsmanager \u7684\u9879\u76EE\u53EF\u4EE5\u4F7F\u7528\nif(window.RES && RES.processor) {\n    require('./library/image.js');\n    require('./library/text.js');\n    require('./library/sound.js');\n    require('./library/binary.js');\n}\n\nnn.loader.mingamestart();\n\n// require(\"egret.min.js\")\n";
+var TPL_GAMEJS = "require('./weapp-adapter.js');\nrequire('./platform.js');\nrequire('./manifest.js');\nrequire('./egret.wxgame.js');\n\n// \u542F\u52A8\u5FAE\u4FE1\u5C0F\u6E38\u620F\u672C\u5730\u7F13\u5B58\uFF0C\u5982\u679C\u5F00\u53D1\u8005\u4E0D\u9700\u8981\u6B64\u529F\u80FD\uFF0C\u53EA\u9700\u6CE8\u91CA\u5373\u53EF\n// \u53EA\u6709\u4F7F\u7528 assetsmanager \u7684\u9879\u76EE\u53EF\u4EE5\u4F7F\u7528\nif(window.RES && RES.processor) {\n    require('./library/image.js');\n    require('./library/text.js');\n    require('./library/sound.js');\n    require('./library/binary.js');\n}\n\n//REGION_1//\n\nnn.loader.mingamestart();\n\n//REGION_2//\n\n// require(\"egret.min.js\")\n";

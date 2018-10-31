@@ -62,10 +62,12 @@ function main() {
         });
 
     program
-        .command("mingame")
+        .command("mingame <special-channel>")
         .description("打包微信小游戏")
-        .action(() => {
-            game.mingame();
+        .action((channel) => {
+            game.mingame({
+                channel: channel
+            });
         });
 
     program
