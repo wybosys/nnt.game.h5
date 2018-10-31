@@ -316,7 +316,9 @@ export class EgretGame extends Game {
         fs.copySync("sdks/sdks.js", "project_wxgame/sdks.js");
         fs.copySync("sdks/readygo.js", "project_wxgame/readygo.js");
         let region1 = `require('./sdks.js');
-require('./readygo.js');
+import XH_MINIPRO_SDK from './readygo.js';
+window["readygo"] = XH_MINIPRO_SDK;
+window["XH_MINIPRO_SDK"] = XH_MINIPRO_SDK;
         `;
         fs.writeFileSync(".n2/egret/region1.js", region1);
         return true;
