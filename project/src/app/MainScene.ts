@@ -45,6 +45,12 @@ module app {
         onLoaded() {
             super.onLoaded();
 
+            // 初始化SDK
+            manager.sdk.init().then(()=>{
+                nn.info("初始化sdk成功");
+            });
+
+            // 测试其他功能
             this.lblHtml.href(/HAHA/, () => {
                 alert("HAHA");
             });
