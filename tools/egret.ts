@@ -306,19 +306,30 @@ export class EgretGame extends Game {
     // 渠道特殊处理
     protected async channel_readygo(): Promise<boolean> {
         if (!fs.existsSync("sdks/sdks.js")) {
-            console.error("没有找到渠道sdk，请从游戏中心下载");
+            console.error("没有找到渠道sdk，请从游戏中心下载到 sdks/sdks.js");
             return false;
         }
         if (!fs.existsSync("sdks/readygo.js")) {
-            console.error("没有找到星汉SDK");
+            console.error("没有找到渠道sdk，请从游戏中心下载到 sdks/readygo.js");
             return false;
         }
+        if (!fs.existsSync("sdks/readygo-sdk.js")) {
+            console.error("没有找到星汉SDK，请从星汉下载并改名到 sdks/readygo-sdk.js");
+            return false;
+        }
+
+        // 游戏中心的js
         fs.copySync("sdks/sdks.js", "project_wxgame/sdks.js");
         fs.copySync("sdks/readygo.js", "project_wxgame/readygo.js");
+        // 星汉分配游戏的js
+        fs.copySync("sdks/readygo-sdk.js", "project_wxgame/readygo-sdk.js");
+
         let region1 = `require('./sdks.js');
-import XH_MINIPRO_SDK from './readygo.js';
+require('./readygo.js');
+import XH_MINIPRO_SDK from './readygo-sdk.js';
 window["readygo"] = XH_MINIPRO_SDK;
 window["XH_MINIPRO_SDK"] = XH_MINIPRO_SDK;
+sdks.config.set('CHANNEL_ID', 1802);
         `;
         fs.writeFileSync(".n2/egret/region1.js", region1);
         return true;

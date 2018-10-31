@@ -20,9 +20,6 @@ module app {
     export class MainScene
         extends eui.SpriteU
         implements IMainScene {
-        constructor() {
-            super();
-        }
 
         //skin {
         btn0: eui.ButtonU;
@@ -40,6 +37,10 @@ module app {
         //skin }
 
         list0ItemRenderer = ItemRenderer;
+
+        constructor() {
+            super();
+        }
 
         onLoaded() {
             super.onLoaded();
