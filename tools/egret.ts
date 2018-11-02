@@ -324,14 +324,25 @@ export class EgretGame extends Game {
         // 星汉分配游戏的js
         fs.copySync("sdks/readygo-sdk.js", "project_wxgame/readygo-sdk.js");
 
+        //一些游戏配置参数
+        let opts: any = {};
+        opts.orientation = this.config.get('app', 'orientation') == 'v' ? "portrait" : "landscape";
+        opts.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
         let region1 = `require('./sdks.js');
 require('./readygo.js');
 import XH_MINIPRO_SDK from './readygo-sdk.js';
 window["readygo"] = XH_MINIPRO_SDK;
 window["XH_MINIPRO_SDK"] = XH_MINIPRO_SDK;
 sdks.config.set('CHANNEL_ID', 1802);
+let options = {orientation:'${opts.orientation}',frameRate:${opts.frameRate}};
         `;
+
+        //微信小游戏的一些配置
+        let region2 = `{"deviceOrientation":"${opts.orientation}"}`;
         fs.writeFileSync(".n2/egret/region1.js", region1);
+        fs.writeFileSync(".n2/egret/wx_config.json", region2);
+
+        // 输出关键配置
         return true;
     }
 

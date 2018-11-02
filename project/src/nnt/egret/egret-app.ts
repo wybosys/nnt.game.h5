@@ -394,7 +394,9 @@ module nn {
     };
 
     // 加载小程序
-    loader.mingamestart = () => {
+    loader.mingamestart = (options:any) => {
+        //判断方向
+
         // 执行加载动作
         loader.InvokeBoot();
 
@@ -404,8 +406,8 @@ module nn {
         // 默认使用webgl渲染
         egret.runEgret({
             entryClassName: "Main",
-            orientation: "auto",
-            frameRate: 60,
+            orientation: options.orientation,
+            frameRate: options.frameRate,
             scaleMode: "fixedWidth",
             contentWidth: 480,
             contentHeight: 800,

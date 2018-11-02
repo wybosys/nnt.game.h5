@@ -97,7 +97,6 @@ export class WxgamePlugin implements plugins.Command {
         gameJSContent = gameJSContent.replace(reg, replaceStr);
         fs.writeFileSync(gameJSPath + ".tmp", gameJSContent);
         */
-
         // 替换
         let content = TPL_GAMEJS;
         for (let i = 1; i <= 2; ++i) {
@@ -113,12 +112,16 @@ export class WxgamePlugin implements plugins.Command {
 
         //修改横竖屏
         let orientation;
-        if (projectConfig.orientation == '"landscape"') {
+        /*if (projectConfig.orientation == '"landscape"') {
             orientation = "landscape";
         }
         else {
             orientation = "portrait";
-        }
+        }*/
+        let g = pluginContext.outputDir + "/../.n2/egret/wx_config.json";
+        let wconfig = fs.readFileSync(g, {encoding: "utf8"});
+        orientation = JSON.parse(wconfig).deviceOrientation;
+
         const gameJSONPath = path.join(pluginContext.outputDir, "game.json");
         let gameJSONContent = JSON.parse(fs.readFileSync(gameJSONPath, {encoding: "utf8"}));
         gameJSONContent.deviceOrientation = orientation;
@@ -142,7 +145,7 @@ if(window.RES && RES.processor) {
 
 //REGION_1//
 
-nn.loader.mingamestart();
+nn.loader.mingamestart(options);
 
 //REGION_2//
 
