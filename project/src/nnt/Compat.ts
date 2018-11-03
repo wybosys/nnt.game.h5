@@ -33,6 +33,9 @@ __PROTO.pattern = function (fmt) {
     return fmt;
 };
 
+declare var wx: any;
+let IS_WEIXIN_MINGAME = typeof wx != "undefined";
+
 module js {
 
     export let siteUrl = location.href;
@@ -300,17 +303,22 @@ module js {
     }
 
     export function loadScript(src, cb, ctx) {
-        var s: any = document.createElement('script');
-        if (s.hasOwnProperty("async")) {
-            s.async = false;
-        }
-        s.src = src;
-        var fun = function () {
-            this.removeEventListener('load', fun, false);
+        if (IS_WEIXIN_MINGAME) {
+            console.info("微信小程序支持动态加载JS代码，请确保已经打包到项目中: " + src);
             cb.call(ctx);
-        };
-        s.addEventListener('load', fun, false);
-        document.body.appendChild(s);
+        } else {
+            var s: any = document.createElement('script');
+            if (s.hasOwnProperty("async")) {
+                s.async = false;
+            }
+            s.src = src;
+            var fun = function () {
+                this.removeEventListener('load', fun, false);
+                cb.call(ctx);
+            };
+            s.addEventListener('load', fun, false);
+            document.body.appendChild(s);
+        }
     }
 
     export function loadStyles(list, cb, ctx) {
@@ -330,19 +338,23 @@ module js {
     }
 
     export function loadStyle(src, cb, ctx) {
-        var s: any = document.createElement('link');
-        if (s.hasOwnProperty("async")) {
-            s.async = false;
+        if (IS_WEIXIN_MINGAME) {
+            console.info("微信小程序不支持动态加载样式 " + src);
+        } else {
+            var s: any = document.createElement('link');
+            if (s.hasOwnProperty("async")) {
+                s.async = false;
+            }
+            s.setAttribute("rel", "stylesheet");
+            s.setAttribute("type", "text/css");
+            s.setAttribute("href", src);
+            var fun = function () {
+                this.removeEventListener('load', fun, false);
+                cb.call(ctx);
+            };
+            s.addEventListener('load', fun, false);
+            document.body.appendChild(s);
         }
-        s.setAttribute("rel", "stylesheet");
-        s.setAttribute("type", "text/css");
-        s.setAttribute("href", src);
-        var fun = function () {
-            this.removeEventListener('load', fun, false);
-            cb.call(ctx);
-        };
-        s.addEventListener('load', fun, false);
-        document.body.appendChild(s);
     }
 
     export const enum SOURCETYPE {
@@ -413,9 +425,6 @@ class Multimap<K, V> {
 
     private _store = new Map<K, Array<V>>();
 }
-
-declare var wx: any;
-let IS_WEIXIN_MINGAME = typeof wx != "undefined";
 
 // 如果是微信平台，则需要实现alert
 if (IS_WEIXIN_MINGAME) {

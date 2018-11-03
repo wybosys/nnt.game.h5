@@ -6,6 +6,7 @@ let UseEui = false;
 let UseDragonBones = false;
 let UseParticle = false;
 let UsePhysics = false;
+let HasData = false;
 
 export class WxgamePlugin implements plugins.Command {
 
@@ -50,6 +51,10 @@ export class WxgamePlugin implements plugins.Command {
                     content += ';window.physics = physics;';
                     UsePhysics = true;
                 }
+                if (filename == 'resource/default.data.js' || filename == 'resource/default.data.min.js') {
+                    content += ';window.Data = Data;';
+                    HasData = true;
+                }
                 content = "var egret = window.egret;" + content;
                 if (filename == 'main.js') {
                     // nnt fix
@@ -61,6 +66,8 @@ export class WxgamePlugin implements plugins.Command {
                         content = "var particle = window.particle;" + content;
                     if (UsePhysics)
                         content = "var physics = window.physics;" + content;
+                    if (HasData)
+                        content = "var Data = window.Data;" + content;
                     content += "\n;window.Main = Main;"
                 }
                 file.contents = new Buffer(content);

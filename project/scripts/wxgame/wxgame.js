@@ -42,6 +42,7 @@ var UseEui = false;
 var UseDragonBones = false;
 var UseParticle = false;
 var UsePhysics = false;
+var HasData = false;
 var WxgamePlugin = /** @class */ (function () {
     function WxgamePlugin() {
     }
@@ -84,6 +85,10 @@ var WxgamePlugin = /** @class */ (function () {
                             content += ';window.physics = physics;';
                             UsePhysics = true;
                         }
+                        if (filename == 'resource/default.data.js' || filename == 'resource/default.data.min.js') {
+                            content += ';window.Data = Data;';
+                            HasData = true;
+                        }
                         content = "var egret = window.egret;" + content;
                         if (filename == 'main.js') {
                             // nnt fix
@@ -95,6 +100,8 @@ var WxgamePlugin = /** @class */ (function () {
                                 content = "var particle = window.particle;" + content;
                             if (UsePhysics)
                                 content = "var physics = window.physics;" + content;
+                            if (HasData)
+                                content = "var Data = window.Data;" + content;
                             content += "\n;window.Main = Main;";
                         }
                         file.contents = new Buffer(content);
@@ -106,7 +113,7 @@ var WxgamePlugin = /** @class */ (function () {
     };
     WxgamePlugin.prototype.onFinish = function (pluginContext) {
         return __awaiter(this, void 0, void 0, function () {
-            var gameJSPath, projectConfig, content, i, f, js, orientation, gameJSONPath, gameJSONContent;
+            var gameJSPath, projectConfig, content, i, f, js, orientation, g, wconfig, gameJSONPath, gameJSONContent;
             return __generator(this, function (_a) {
                 gameJSPath = path.join(pluginContext.outputDir, "game.js");
                 if (!fs.existsSync(gameJSPath)) {
@@ -124,12 +131,9 @@ var WxgamePlugin = /** @class */ (function () {
                 }
                 // 按照nnt的规则输出启动器
                 fs.writeFileSync(gameJSPath, content);
-                if (projectConfig.orientation == '"landscape"') {
-                    orientation = "landscape";
-                }
-                else {
-                    orientation = "portrait";
-                }
+                g = pluginContext.outputDir + "/../.n2/egret/wx_config.json";
+                wconfig = fs.readFileSync(g, { encoding: "utf8" });
+                orientation = JSON.parse(wconfig).deviceOrientation;
                 gameJSONPath = path.join(pluginContext.outputDir, "game.json");
                 gameJSONContent = JSON.parse(fs.readFileSync(gameJSONPath, { encoding: "utf8" }));
                 gameJSONContent.deviceOrientation = orientation;
@@ -141,4 +145,4 @@ var WxgamePlugin = /** @class */ (function () {
     return WxgamePlugin;
 }());
 exports.WxgamePlugin = WxgamePlugin;
-var TPL_GAMEJS = "require('./weapp-adapter.js');\nrequire('./platform.js');\nrequire('./manifest.js');\nrequire('./egret.wxgame.js');\n\n// \u542F\u52A8\u5FAE\u4FE1\u5C0F\u6E38\u620F\u672C\u5730\u7F13\u5B58\uFF0C\u5982\u679C\u5F00\u53D1\u8005\u4E0D\u9700\u8981\u6B64\u529F\u80FD\uFF0C\u53EA\u9700\u6CE8\u91CA\u5373\u53EF\n// \u53EA\u6709\u4F7F\u7528 assetsmanager \u7684\u9879\u76EE\u53EF\u4EE5\u4F7F\u7528\nif(window.RES && RES.processor) {\n    require('./library/image.js');\n    require('./library/text.js');\n    require('./library/sound.js');\n    require('./library/binary.js');\n}\n\n//REGION_1//\n\nnn.loader.mingamestart();\n\n//REGION_2//\n\n// require(\"egret.min.js\")\n";
+var TPL_GAMEJS = "require('./weapp-adapter.js');\nrequire('./platform.js');\nrequire('./manifest.js');\nrequire('./egret.wxgame.js');\n\n// \u542F\u52A8\u5FAE\u4FE1\u5C0F\u6E38\u620F\u672C\u5730\u7F13\u5B58\uFF0C\u5982\u679C\u5F00\u53D1\u8005\u4E0D\u9700\u8981\u6B64\u529F\u80FD\uFF0C\u53EA\u9700\u6CE8\u91CA\u5373\u53EF\n// \u53EA\u6709\u4F7F\u7528 assetsmanager \u7684\u9879\u76EE\u53EF\u4EE5\u4F7F\u7528\nif(window.RES && RES.processor) {\n    require('./library/image.js');\n    require('./library/text.js');\n    require('./library/sound.js');\n    require('./library/binary.js');\n}\n\n//REGION_1//\n\nnn.loader.mingamestart(options);\n\n//REGION_2//\n\n// require(\"egret.min.js\")\n";
