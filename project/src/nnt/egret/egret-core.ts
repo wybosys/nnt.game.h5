@@ -26,9 +26,9 @@ module nn {
     let _storageMode = ((): number => {
         let key = "::n2::test::localstorage::mode";
         if (window && window.localStorage) {
-            localStorage.setItem(key, "test");
-            if (localStorage.getItem(key) == "test") {
-                localStorage.removeItem(key);
+            window.localStorage.setItem(key, "test");
+            if (window.localStorage.getItem(key) == "test") {
+                window.localStorage.removeItem(key);
                 return 0;
             }
         }
@@ -44,10 +44,10 @@ module nn {
     })();
 
     if (_storageMode == 0) {
-        IMP_STORAGE_GET = egret.localStorage.getItem;
-        IMP_STORAGE_SET = egret.localStorage.setItem;
-        IMP_STORAGE_DEL = egret.localStorage.removeItem;
-        IMP_STORAGE_CLEAR = egret.localStorage.clear;
+        IMP_STORAGE_GET = window.localStorage.getItem;
+        IMP_STORAGE_SET = window.localStorage.setItem;
+        IMP_STORAGE_DEL = window.localStorage.removeItem;
+        IMP_STORAGE_CLEAR = window.localStorage.clear;
     }
     else if (_storageMode == 1) {
         IMP_STORAGE_GET = (k: string): string => {

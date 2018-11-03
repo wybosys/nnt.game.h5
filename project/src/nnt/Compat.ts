@@ -426,8 +426,10 @@ class Multimap<K, V> {
     private _store = new Map<K, Array<V>>();
 }
 
-// 如果是微信平台，则需要实现alert
+// 如果是微信平台
 if (IS_WEIXIN_MINGAME) {
+
+    // 实现alert
     window.alert = (msg: string) => {
         wx.showModal({
             title: '警告',
@@ -438,5 +440,35 @@ if (IS_WEIXIN_MINGAME) {
                 }
             }
         });
+    };
+
+    // 实现localstorage
+    window.localStorage.getItem = (key: string): string => {
+        try {
+            return wx.getStorageSync(key);
+        } catch {
+        }
+        return undefined;
+    };
+
+    window.localStorage.setItem = (key: string, val: any) => {
+        try {
+            wx.setStorageSync(key, val);
+        } catch {
+        }
+    };
+
+    window.localStorage.removeItem = (key: string) => {
+        try {
+            wx.removeStorageSync(key);
+        } catch {
+        }
+    };
+
+    window.localStorage.clear = () => {
+        try {
+            wx.clearStorageSync();
+        } catch {
+        }
     };
 }
