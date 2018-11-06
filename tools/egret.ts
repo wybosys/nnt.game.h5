@@ -334,6 +334,9 @@ import XH_MINIPRO_SDK from './readygo-sdk.js';
 window["readygo"] = XH_MINIPRO_SDK;
 window["XH_MINIPRO_SDK"] = XH_MINIPRO_SDK;
 sdks.config.set('CHANNEL_ID', 1802);
+sdks.config.set('HOST', 'wxgames.91yigame.com');
+sdks.config.set('URL', 'wxgames.91yigame.com');
+sdks.config.set('PROTOCOL', 'https:');
 let options = {orientation:'${opts.orientation}',frameRate:${opts.frameRate}};
         `;
 
