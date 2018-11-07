@@ -58,6 +58,7 @@ export class WxgamePlugin implements plugins.Command {
                 content = "var egret = window.egret;" + content;
                 if (filename == 'main.js') {
                     // nnt fix
+                    content = "window.app = {}; var app = window.app;" + content;
                     if (UseEui)
                         content = "var eui = window.eui;" + content;
                     if (UseDragonBones)
@@ -151,8 +152,8 @@ if(window.RES && RES.processor) {
 }
 
 //REGION_1//
-
 nn.loader.mingamestart(options);
+
 
 //REGION_2//
 

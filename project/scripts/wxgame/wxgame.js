@@ -92,6 +92,7 @@ var WxgamePlugin = /** @class */ (function () {
                         content = "var egret = window.egret;" + content;
                         if (filename == 'main.js') {
                             // nnt fix
+                            content = "window.app = {}; var app = window.app;" + content;
                             if (UseEui)
                                 content = "var eui = window.eui;" + content;
                             if (UseDragonBones)
@@ -145,4 +146,4 @@ var WxgamePlugin = /** @class */ (function () {
     return WxgamePlugin;
 }());
 exports.WxgamePlugin = WxgamePlugin;
-var TPL_GAMEJS = "require('./weapp-adapter.js');\nrequire('./platform.js');\nrequire('./manifest.js');\nrequire('./egret.wxgame.js');\n\n// \u542F\u52A8\u5FAE\u4FE1\u5C0F\u6E38\u620F\u672C\u5730\u7F13\u5B58\uFF0C\u5982\u679C\u5F00\u53D1\u8005\u4E0D\u9700\u8981\u6B64\u529F\u80FD\uFF0C\u53EA\u9700\u6CE8\u91CA\u5373\u53EF\n// \u53EA\u6709\u4F7F\u7528 assetsmanager \u7684\u9879\u76EE\u53EF\u4EE5\u4F7F\u7528\nif(window.RES && RES.processor) {\n    require('./library/image.js');\n    require('./library/text.js');\n    require('./library/sound.js');\n    require('./library/binary.js');\n}\n\n//REGION_1//\n\nnn.loader.mingamestart(options);\n\n//REGION_2//\n\n// require(\"egret.min.js\")\n";
+var TPL_GAMEJS = "require('./weapp-adapter.js');\nrequire('./platform.js');\nrequire('./manifest.js');\nrequire('./egret.wxgame.js');\n\n// \u542F\u52A8\u5FAE\u4FE1\u5C0F\u6E38\u620F\u672C\u5730\u7F13\u5B58\uFF0C\u5982\u679C\u5F00\u53D1\u8005\u4E0D\u9700\u8981\u6B64\u529F\u80FD\uFF0C\u53EA\u9700\u6CE8\u91CA\u5373\u53EF\n// \u53EA\u6709\u4F7F\u7528 assetsmanager \u7684\u9879\u76EE\u53EF\u4EE5\u4F7F\u7528\nif(window.RES && RES.processor) {\n    require('./library/image.js');\n    require('./library/text.js');\n    require('./library/sound.js');\n    require('./library/binary.js');\n}\n\n//REGION_1//\nnn.loader.mingamestart(options);\n\n\n//REGION_2//\n\n// require(\"egret.min.js\")\n";

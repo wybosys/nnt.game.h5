@@ -246,6 +246,9 @@ declare module 'built-in' {
 
         constructor(publishPolicy: EXML_Publish_Policy);
 
+        onFile(file: plugins.File): Promise<plugins.File | null>;
+
+        onFinish(pluginContext: plugins.CommandContext):Promise<void>;
     }
 
     /**
@@ -267,6 +270,10 @@ declare module 'built-in' {
      */
     export class ManifestPlugin implements plugins.Command {
         constructor(options?: ManifestPluginOptions)
+
+        onFile(file: plugins.File): Promise<plugins.File | null>;
+
+        onFinish(pluginContext: plugins.CommandContext):Promise<void>;
     }
 
     /**

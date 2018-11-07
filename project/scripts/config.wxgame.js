@@ -4,6 +4,7 @@
 var built_in_1 = require("built-in");
 var wxgame_1 = require("./wxgame/wxgame");
 var defaultConfig = require("./config");
+var fixplugin_1 = require("./fixplugin");
 var config = {
     buildConfig: function (params) {
         var target = params.target, command = params.command, projectName = params.projectName, version = params.version;
@@ -12,11 +13,16 @@ var config = {
             return {
                 outputDir: outputDir,
                 commands: [
-                    new built_in_1.CleanPlugin({ matchers: ["js", "resource"] }),
+                    new built_in_1.CleanPlugin({ matchers: ["js", "resource", "stage1"] }),
                     new built_in_1.CompilePlugin({ libraryType: "debug", defines: { DEBUG: true, RELEASE: false } }),
                     new built_in_1.ExmlPlugin('commonjs'),
                     new wxgame_1.WxgamePlugin(),
-                    new built_in_1.ManifestPlugin({ output: 'manifest.js' })
+                    // new ResSplitPlugin({
+                    //     matchers:[
+                    //         {from:"resource/**",to:`../${projectName}_wxgame_remote`}
+                    //     ]
+                    // }),
+                    new fixplugin_1.FixPlugin({ output: 'manifest.js' })
                 ]
             };
         }
@@ -24,7 +30,7 @@ var config = {
             return {
                 outputDir: outputDir,
                 commands: [
-                    new built_in_1.CleanPlugin({ matchers: ["js", "resource"] }),
+                    new built_in_1.CleanPlugin({ matchers: ["js", "resource", "stage1"] }),
                     new built_in_1.CompilePlugin({ libraryType: "release", defines: { DEBUG: false, RELEASE: true } }),
                     new built_in_1.ExmlPlugin('commonjs'),
                     new wxgame_1.WxgamePlugin(),
