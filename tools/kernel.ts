@@ -366,6 +366,13 @@ export class ArrayT {
         return null;
     }
 
+    /** 使用比较函数来判断是否包含元素 */
+    static Contains<L, R>(arr: L[], o: R): boolean {
+        return arr.some((each: any): boolean => {
+            return each == o;
+        }, this);
+    }
+
     /** 取得一段 */
     static RangeOf<T>(arr: Array<T>, pos: number, len?: number): Array<T> {
         let n = arr.length;

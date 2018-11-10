@@ -1,6 +1,8 @@
 import child_process = require("child_process");
 import {EmbededKv, FileLocker} from "./kernel";
 import fs = require("fs-extra");
+import {Worker} from "./worker";
+import {Game} from "./game";
 
 export class ServiceItem {
     pid: number;
@@ -11,7 +13,11 @@ export class ServiceItem {
     }
 }
 
-export class Service {
+export class Service extends Worker {
+
+    constructor(game: Game) {
+        super(game);
+    }
 
     // 生成锁
     static Locker(name: string): FileLocker {

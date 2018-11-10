@@ -1,3 +1,6 @@
+import {Worker} from './worker';
+import {Game} from "./game";
+
 export interface ResourceOptions {
     // 合并小图
     merge?: boolean;
@@ -6,7 +9,11 @@ export interface ResourceOptions {
     compress?: boolean;
 }
 
-export abstract class Resource {
+export abstract class Resource extends Worker {
+
+    constructor(game: Game) {
+        super(game);
+    }
 
     // 刷新资源
     abstract async refresh(): Promise<boolean>;

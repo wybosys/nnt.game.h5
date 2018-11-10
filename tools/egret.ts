@@ -1,7 +1,7 @@
 import {Game, GameBuildOptions, MinGameBuildOptions, ProgramHandleType} from "./game";
 import {Config} from "./config";
 import {Gendata} from "./gendata";
-import {ArrayT, DateTime, DirAtChild, IndexedObject, SimpleHashFile} from "./kernel";
+import {ArrayT, DateTime, DirAtChild, IndexedObject, ListFiles, SimpleHashFile} from "./kernel";
 import {Service} from "./service";
 import {EgretResource} from "./egret-res";
 import {EgretEui} from "./egret-eui";
@@ -10,9 +10,11 @@ import mustache = require("mustache");
 import os = require("os");
 import execa = require("execa");
 import {EgretTs} from "./egret-ts";
+import UglifyJS = require("uglify-js");
 
 export const IMAGE_EXTS = ['.jpeg', '.jpg', '.png'];
 const PUBLISH_FIX_IMAGESOURCE = new RegExp("imageSource = ([a-zA-Z0-9:/_.\\- ]+);", "g");
+export const WHITES_JS = [/\.js$/];
 
 const EGRET_CMD = os.type() == 'Windows_NT' ? 'egret.cmd' : 'egret';
 
@@ -20,10 +22,10 @@ export class EgretGame extends Game {
 
     constructor() {
         super();
-        this.config = new EgretConfig();
-        this.gendata = new Gendata();
-        this.service = new Service();
-        this.resource = new EgretResource();
+        this.config = new EgretConfig(this);
+        this.gendata = new Gendata(this);
+        this.service = new Service(this);
+        this.resource = new EgretResource(this);
 
         fs.ensureDirSync(".n2/egret");
     }
@@ -64,6 +66,12 @@ export class EgretGame extends Game {
         // 生成配置文件
         this.makeConfig({TARGET: "web"});
 
+        // 生成index的参数
+        let indexOptions: IndexedObject = {};
+        if (opts.channel == "sdks") {
+            indexOptions.APPSCRIPT = '<script src="//apps.91yigame.com/platform/sdks/ver/cur/script.es6.min.js"></script>';
+        }
+
         if (opts.debug) {
             console.log("构建debug版本");
             fs.copySync('app.json', 'project/app.json');
@@ -82,8 +90,10 @@ export class EgretGame extends Game {
 
             // 判断使用何种编译
             this.egret('build');
+
             // 生成测试入口
-            this.makeDebugIndex();
+            this.makeDebugIndex(indexOptions);
+
             // 复制需要的第三方类库
             if (!fs.existsSync('project/bin-debug/vconsole.min.js'))
                 fs.copyFileSync('tools/vconsole.jslib', 'project/bin-debug/vconsole.min.js');
@@ -154,7 +164,7 @@ export class EgretGame extends Game {
         fs.removeSync('project/bin-release');
 
         // 生成index
-        this.makeReleaseIndex();
+        this.makeReleaseIndex(indexOptions);
     }
 
     protected egret(cmd: string): string {
@@ -202,8 +212,13 @@ export class EgretGame extends Game {
         });
 
         let scaleMode = "showAll";
-        if (tpl && tpl["scaleMode"])
-            scaleMode = tpl["scaleMode"];
+        let appScript = '';
+        if (tpl) {
+            if (tpl["scaleMode"])
+                scaleMode = tpl["scaleMode"];
+            if (tpl["APPSCRIPT"])
+                appScript = tpl["APPSCRIPT"];
+        }
 
         const index = mustache.render(TPL_INDEX_DEBUG, {
             APPNAME: this.config.get('app', 'name'),
@@ -214,6 +229,7 @@ export class EgretGame extends Game {
             BACKGROUNDCOLOR: bkgcolor,
             SCALEMODE: scaleMode,
             APPSTYLE: '',
+            APPSCRIPT: appScript,
             FILESLIST: files.join('\n\t')
         });
         fs.outputFileSync('project/index.html', index);
@@ -228,7 +244,7 @@ export class EgretGame extends Game {
     }
 
     // 生成正式版的index.html
-    makeReleaseIndex() {
+    makeReleaseIndex(tpl?: IndexedObject) {
         console.log("生成release版index.html");
         fs.ensureDirSync('publish');
         let bkg: string = this.config.get('app', 'background');
@@ -240,6 +256,13 @@ export class EgretGame extends Game {
                 bkg = bkg.replace('assets://', 'resource/assets');
             }
         }
+
+        let appScript = '';
+        if (tpl) {
+            if (tpl["APPSCRIPT"])
+                appScript = tpl["APPSCRIPT"];
+        }
+
         const index = mustache.render(TPL_INDEX_RELEASE, {
             APPNAME: this.config.get('app', 'name'),
             APPORI: this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait',
@@ -250,6 +273,7 @@ export class EgretGame extends Game {
             BACKGROUND: bkg,
             BACKGROUNDCOLOR: bkgcolor,
             APPSTYLE: '',
+            APPSCRIPT: appScript,
             FILESLIST: [
                 '<script src="engine.min.js?v=' + this.config.get('app', 'version') + '"></script>',
                 '<script src="main.min.js?v=' + this.config.get('app', 'version') + '"></script>'
@@ -259,7 +283,7 @@ export class EgretGame extends Game {
     }
 
     async mingame(opts: MinGameBuildOptions) {
-        console.log("构建微信小程序版本");
+        console.log("构建微信小程序" + (opts.publish ? "发布" : '') + "版本");
         fs.ensureDirSync('project_wxgame');
         this.clean_channel();
 
@@ -268,7 +292,7 @@ export class EgretGame extends Game {
             let suc = true;
             switch (opts.channel) {
                 case 'readygo': {
-                    suc = await this.channel_readygo();
+                    suc = await this.channel_readygo(opts);
                 }
                     break;
                 default: {
@@ -287,6 +311,7 @@ export class EgretGame extends Game {
 
         // 先编译下基础debug版本
         this.makeConfig({TARGET: "wxgame"});
+
         this.egret('build');
 
         // 生成测试入口
@@ -304,7 +329,7 @@ export class EgretGame extends Game {
     }
 
     // 渠道特殊处理
-    protected async channel_readygo(): Promise<boolean> {
+    protected async channel_readygo(opts: MinGameBuildOptions): Promise<boolean> {
         if (!fs.existsSync("sdks/sdks.js")) {
             console.error("没有找到渠道sdk，请从游戏中心下载到 sdks/sdks.js");
             return false;
@@ -325,29 +350,41 @@ export class EgretGame extends Game {
         fs.copySync("sdks/readygo-sdk.js", "project_wxgame/readygo-sdk.js");
 
         //一些游戏配置参数
-        let opts: any = {};
-        opts.orientation = this.config.get('app', 'orientation') == 'v' ? "portrait" : "landscape";
-        opts.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
+        let optcs: any = {};
+        optcs.orientation = this.config.get('app', 'orientation') == 'v' ? "portrait" : "landscape";
+        optcs.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
+        optcs.version = this.config.get('app', 'version') ? this.config.get('app', 'version') : "";
+        optcs.sdkUrl = opts.publish ? 'wxgames.91yigame.com' : 'develop.91egame.com';
         let region1 = `require('./sdks.js');
 require('./readygo.js');
 import XH_MINIPRO_SDK from './readygo-sdk.js';
 window["readygo"] = XH_MINIPRO_SDK;
 window["XH_MINIPRO_SDK"] = XH_MINIPRO_SDK;
 sdks.config.set('CHANNEL_ID', 1802);
-sdks.config.set('HOST', 'wxgames.91yigame.com');
-sdks.config.set('HOSTNAME', '91yigame.com');
-sdks.config.set('URL', 'wxgames.91yigame.com');
-sdks.config.set('PROTOCOL', 'https:');
-let options = {orientation:'${opts.orientation}',frameRate:${opts.frameRate}};
+sdks.config.set('URL', '${optcs.sdkUrl}');
+sdks.config.set('GAME_VERSION', '${optcs.version}');
+let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
         `;
-
         //微信小游戏的一些配置
-        let region2 = `{"deviceOrientation":"${opts.orientation}"}`;
+        let region2 = `{"deviceOrientation":"${optcs.orientation}"}`;
         fs.writeFileSync(".n2/egret/region1.js", region1);
         fs.writeFileSync(".n2/egret/wx_config.json", region2);
 
-        // 输出关键配置
         return true;
+    }
+
+    async compress() {
+        if (fs.existsSync('project_wxgame')) {
+            // 遍历下面所有的js文件
+            ListFiles('project_wxgame', null, null, WHITES_JS, 2).forEach(file => {
+                let content = fs.readFileSync(file, {encoding: 'utf8'});
+                let res = UglifyJS.minify(content);
+                if (res.error)
+                    console.error(res.error);
+                else
+                    fs.writeFileSync(file, res.code, {encoding: 'utf8'});
+            });
+        }
     }
 
     protected _eui = new EgretEui();
@@ -402,7 +439,6 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, 
 {{APPSTYLE}}
 </head>
 <body>
-    {{APPSCRIPT}}
     <div style="margin:auto;width:100%;height:100%;"
     class="egret-player"
     data-entry-class="Main"
@@ -413,6 +449,7 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, 
     ></div>    
     <script src="bin-debug/app/~debug.js"></script>
     <script src="bin-debug/vconsole.min.js"></script>
+    {{&APPSCRIPT}}
     <!-- 游戏 -->
     {{&FILESLIST}}
 <script>    
@@ -456,7 +493,6 @@ name="{{APPNAME}}"></app>
 {{APPSTYLE}}
 </head>
 <body>
-    {{APPSCRIPT}}
     <div style="margin:auto;width:100%;height:100%"
     class="egret-player" 
     data-entry-class="Main"
@@ -465,6 +501,7 @@ name="{{APPNAME}}"></app>
     data-multi-fingered="2"
     data-frame-rate="60"
     ></div>
+    {{&APPSCRIPT}}
     {{&FILESLIST}}
     <script>
 var document_orientation = {{APPANGLE}};

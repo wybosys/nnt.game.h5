@@ -26,38 +26,41 @@ function main() {
         });
 
     program
-        .command("build")
+        .command("build [channel]")
         .description("生成调试项目")
-        .action(() => {
+        .action((channel) => {
             game.build({
-                debug: true
+                debug: true,
+                channel: channel
             });
         });
 
     program
-        .command("publish")
+        .command("publish [special-channel]")
         .description("生成正式项目")
         .option("-c, --compress", "图片压缩")
         .option("-m, --merge", "图片合并")
-        .action(() => {
+        .action((channel) => {
             game.build({
                 release: true,
                 noservice: true,
                 merge_images: program.merge,
-                compress_images: program.compress
+                compress_images: program.compress,
+                channel: channel
             });
         });
 
     program
-        .command("dist")
+        .command("dist [special-channel]")
         .description("发布项目")
-        .action(() => {
+        .action((channel) => {
             game.build({
                 distribution: true,
                 noservice: true,
                 merge_images: false,
                 compress_images: false,
-                compress_scripts: true
+                compress_scripts: true,
+                channel: channel
             });
         });
 
@@ -66,8 +69,16 @@ function main() {
         .description("打包微信小游戏")
         .action((channel) => {
             game.mingame({
-                channel: channel
+                channel: channel,
+                publish: true
             });
+        });
+
+    program
+        .command("compress")
+        .description("压缩输出的项目")
+        .action(() => {
+            game.compress();
         });
 
     program

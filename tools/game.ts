@@ -26,12 +26,18 @@ export interface GameBuildOptions {
 
     // 不打开服务
     noservice?: boolean;
+
+    // 渠道
+    channel?: string;
 }
 
 export interface MinGameBuildOptions {
 
     // 渠道名
     channel?: string;
+
+    // 发布版
+    publish?: boolean;
 }
 
 export type ProgramHandleType = program.Command;
@@ -60,6 +66,9 @@ export abstract class Game {
 
     // 添加命令
     abstract commands(program: ProgramHandleType): void;
+
+    // 压缩
+    abstract compress(): void;
 
     // 游戏配置
     config: Config;
