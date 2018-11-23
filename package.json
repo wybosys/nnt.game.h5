@@ -1,18 +1,18 @@
 {
   "scripts": {
     "help": "node tools/index.js -h",
-    "build": "node tools/index.js build",
+    "build": "node tools/index.js build test",
     "publish": "node tools/index.js publish",
     "dist": "node tools/index.js dist",
     "mingame": "node tools/index.js mingame",
+    "compress": "node tools/index.js compress",
     "clean": "node tools/index.js clean",
     "gendata": "node tools/index.js gendata",
     "genskin": "node tools/index.js genskin",
     "genres": "node tools/index.js res up",
-    "devops": "node tools/index.js dist",
-    "devops-restart": "node tools/index.js dist"
+    "devops": "node tools/index.js dist test"
   },
-  "dependencies": {
+  "devDependencies": {
     "@types/async": "^2.0.49",
     "@types/dot": "^1.1.2",
     "@types/dustjs-linkedin": "^1.2.31",
