@@ -1,7 +1,7 @@
 {
   "scripts": {
     "help": "node tools/index.js -h",
-    "build": "node tools/index.js build test",
+    "build": "node tools/index.js build",
     "publish": "node tools/index.js publish",
     "dist": "node tools/index.js dist",
     "mingame": "node tools/index.js mingame",
@@ -10,7 +10,7 @@
     "gendata": "node tools/index.js gendata",
     "genskin": "node tools/index.js genskin",
     "genres": "node tools/index.js res up",
-    "devops": "node tools/index.js dist test"
+    "devops": "node tools/index.js dist"
   },
   "devDependencies": {
     "@types/async": "^2.0.49",
