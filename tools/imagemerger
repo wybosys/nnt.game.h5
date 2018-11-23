@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+
+import os, sys, re, functools, json
+import common
+from PIL import Image
+
+RESMAKER_BLACKS = [
+    re.compile(r'module\.res\.json$'),
+    re.compile(r'\.swf$'),
+    re.compile(r'\.fla$'),
+    re.compile(r'^\.')
+]
+GENRES_BLACKS = RESMAKER_BLACKS + [re.compile(r'\.d/|\.d$'), re.compile(r'\.g/|\.g$')]
+PATTERN_FILENAME_EXT = re.compile(r'(.+)\.(.+)')
+IMAGE_EXTS = ['jpeg', 'jpg', 'png']
+
+def merge(dir):
+    common.processdirs(dir, mergeimages, blacklist=GENRES_BLACKS, depth=2);
+
+def mergeimages(dir, name):    
+    name = name.replace('/', '_').lower()
+    files = []
+    for ef in os.listdir(dir):        
+        fnd = PATTERN_FILENAME_EXT.search(ef)
+        if fnd and fnd.group(2) in IMAGE_EXTS:        
+            files.append((fnd.group(1), fnd.group(2)))    
+    ignores = []
+    for ef in files:
+        ext = ef[1]
+        if ext == 'fnt':
+            ignores.append(ef)
+        elif ext == 'json':
+            ignores.append(ef)
+        elif ext == 'jpg':
+            ignores.append(ef)        
+    for ef in ignores:        
+        nm = ef[0]
+        ext = ef[1]
+        if ext == 'fnt':            
+            try:
+                files.remove(ef)
+                files.remove((nm, 'png'))
+                files.remove((nm, 'tmf'))
+            except:
+                pass
+        elif ext == 'json':
+            try:
+                files.remove(ef)
+                files.remove((nm, 'png'))
+            except:
+                pass
+        elif ext == 'jpg':
+            files.remove(ef)
+    images = []
+    for ef in files:        
+        path = dir + '/' + ef[0] + '.' + ef[1]
+        img = Image.open(path)
+        if img == None:
+            continue
+        bbx = img.getbbox()
+        size = img.size        
+        if bbx == None:            
+            bbx = (0, 0, size[0], size[1])
+        else:
+            img = img.crop(bbx)
+        images.append({
+            'name': ef[0],
+            'path': path,
+            'frame':None,
+            'origin':{'offx':bbx[0], 'offy':bbx[1], 'w':size[0], 'h':size[1]},
+            'img':img
+        })
+    images = sorted(images, key=functools.cmp_to_key(mergesort))
+    if len(images) == 0:
+        return
+    workid = 0
+    while True:
+        work = {'work':Image.new('RGBA', (2048, 2048), (0, 0, 0, 0)),
+                'result':[]}
+        res = mergeImages(work, images, (0, 0, 2048, 2048))
+        png = work['work']        
+        png.crop(png.getbbox()).save(dir + '/' + name + '_automerged_' + str(workid) + '.png')
+        frmobjs = {}
+        for e in work['result']:
+            frame = e['frame']
+            origin = e['origin']
+            frmobjs[e['name']] = {
+                'x':frame['x'], 'y':frame['y'], 'w':frame['w'], 'h':frame['h'],
+                'offX':origin['offx'], 'offY':origin['offy'],
+                'sourceW':origin['w'], 'sourceH':origin['h']
+            }            
+            os.unlink(e['path'])
+        jsobj = {'file':name + "_automerged_" + str(workid) + ".png",
+                 'frames':frmobjs}
+        open(dir + '/' + name + '_automerged_' + str(workid) + ".json", 'w').write(json.dumps(jsobj))
+        workid += 1
+        if res == True:
+            break
+
+def mergesort(l, r):
+    if l['img'] == None:
+        return 0
+    if r['img'] == None:
+        return 0
+    lsz = l['img'].size
+    rsz = r['img'].size
+    return rsz[1] - lsz[1]
+
+def mergeImages(work, images, rc):
+    if len(images) == 0:
+        return True
+    image = None
+    for e in images:        
+        sz = e['img'].size
+        if rc[3] < sz[1]:
+            continue
+        if rc[2] < sz[0]:
+            continue
+        image = e
+        break
+    if image == None:
+        return False
+    images.remove(image)
+    img = image['img']    
+    sz = img.size
+    work['work'].paste(img, (rc[0], rc[1], (rc[0] + sz[0]), rc[1] + sz[1]))
+    image['frame'] = {'x':rc[0], 'y':rc[1], 'w':sz[0], 'h':sz[1]}
+    work['result'].append(image)
+    if mergeImages(work, images, (rc[0] + sz[0], rc[1], rc[2] - sz[0], sz[1])):
+        return True
+    return mergeImages(work, images, (rc[0], rc[1] + sz[1], rc[2], rc[3] - sz[1]))    
+
+if __name__ == "__main__":
+    merge(sys.argv[1])

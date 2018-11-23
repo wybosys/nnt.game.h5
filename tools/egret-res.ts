@@ -113,7 +113,7 @@ export class EgretResource extends Resource {
             // 挨个压缩
             for (let i = 0, l = files.length; i < l; ++i) {
                 let comp = new ImageCompress(files[i]);
-                comp.process();
+                await comp.process();
             }
         }
     }
@@ -156,7 +156,7 @@ class EgretFileInfo {
             if (info.ext == '.png')
                 return false;
             this.name = info.name + '_json';
-            this.type = 'json';
+            this.type = 'sheet';
             // 读取subkeys
             let jsobj = fs.readJSONSync(file);
             let frmobjs = jsobj["frames"];
