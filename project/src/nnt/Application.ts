@@ -56,9 +56,6 @@ module nn {
 
             // 屏幕方向变化
             Device.shared.signals.connect(SignalOrientationChanged, this.__app_orientationchanged, this);
-
-            // 设置资源的根目录
-            ResManager.directory = "resource";
         }
 
         protected _initSignals() {
@@ -89,7 +86,19 @@ module nn {
         icon: string = APPICON;
 
         /** 默认资源 */
-        resourceFile: string = "default.res.json";
+        resourceFile: ResourceGroupInfo = {
+            name: "default.res.json",
+            domain: 'resource'
+        };
+
+        /** 子包资源 */
+        subresourceFile: ResourceGroupInfo = {
+            name: "sub.res.json",
+            domain: 'resource'
+        };
+
+        /** 资源目录 */
+        assetsDirectory = "resource";
 
         /** 默认主题资源 */
         themeFile: string = "default.thm.json";
@@ -140,6 +149,9 @@ module nn {
             let queue = new OperationQueue();
             queue.autoMode = false;
             this._preloadConfig(queue);
+
+            // 同步默认资源设置
+            ResManager.directory = this.assetsDirectory;
 
             // 基础准备好后，启动游戏
             queue.add(new OperationClosure(() => {
@@ -495,7 +507,7 @@ module nn.loader {
     // 不同环境下的启动程序
     export let webloading: () => void; // 应用加载时调用
     export let webstart: () => void; // 应用启动时调用
-    export let mingamestart: (options:any) => void; // 启动小程序
+    export let mingamestart: (options: any) => void; // 启动小程序
     export let nativestart: () => void; // 本地化应用启动时
     export let runtimestart: () => void; // RUNTIME化应用启动时
 

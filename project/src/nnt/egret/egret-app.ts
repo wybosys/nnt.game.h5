@@ -29,7 +29,7 @@ module nn {
                 // 如果没有该文件，会导致必须一开始加载一个巨大的res.json
                 // 等引导用的json加载成功后，会异步加载res.json\theme.json等
                 let res = "default.boot.json";
-                ResManager.loadConfig(res, () => {
+                ResManager.loadConfig(res, "resource", () => {
                     oper.done();
                 }, this);
             }, this));
@@ -61,12 +61,25 @@ module nn {
                     }
                 }, this, ResType.JSON);
             }, this));
+
             // 加载真正的resource文件
             group.add(new OperationClosure(oper => {
-                let res = this.resourceFile;
+                let res = this.resourceFile.name;
+                let domain = this.resourceFile.domain;
                 if (!Device.shared.isMinGame)
                     res += '?v=' + this.version;
-                ResManager.loadConfig(res, () => {
+                ResManager.loadConfig(res, domain, () => {
+                    oper.done();
+                }, this);
+            }, this));
+
+            // 加载子包的resource文件
+            group.add(new OperationClosure(oper => {
+                let res = this.subresourceFile.name;
+                let domain = this.subresourceFile.domain;
+                if (!Device.shared.isMinGame)
+                    res += '?v=' + this.version;
+                ResManager.loadConfig(res, domain, () => {
                     oper.done();
                 }, this);
             }, this));
@@ -394,9 +407,7 @@ module nn {
     };
 
     // 加载小程序
-    loader.mingamestart = (options:any) => {
-        //判断方向
-
+    loader.mingamestart = (options: any) => {
         // 执行加载动作
         loader.InvokeBoot();
 
@@ -411,7 +422,7 @@ module nn {
             scaleMode: "fixedWidth",
             contentWidth: 480,
             contentHeight: 800,
-            maxTouches: 2,
+            maxTouches: 1,
             renderMode: 'webgl',
             audioType: 0,
             calculateCanvasScaleFactor: function (context: any) {

@@ -210,6 +210,7 @@ module eui {
             this._signals.register(nn.SignalTouchBegin);
             this._signals.register(nn.SignalTouchEnd);
             this._signals.register(nn.SignalTouchMove);
+            this._signals.register(nn.SignalTouchReleased);
             this._signals.register(nn.SignalVisibleChanged);
         }
 
@@ -228,14 +229,24 @@ module eui {
 
         _signalConnected(sig: string, s?: nn.Slot) {
             switch (sig) {
-                case nn.SignalTouchBegin:
-                case nn.SignalTouchEnd:
-                case nn.SignalTouchMove: {
+                case nn.SignalTouchBegin: {
                     this.touchEnabled = true;
                     nn.EventHook(this, egret.TouchEvent.TOUCH_BEGIN, this.__cmp_touchbegin, this);
+                }
+                    break;
+                case nn.SignalTouchEnd: {
+                    this.touchEnabled = true;
                     nn.EventHook(this, egret.TouchEvent.TOUCH_END, this.__cmp_touchend, this);
-                    nn.EventHook(this, egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.__cmp_touchrelease, this);
+                }
+                    break;
+                case nn.SignalTouchMove: {
+                    this.touchEnabled = true;
                     nn.EventHook(this, egret.TouchEvent.TOUCH_MOVE, this.__cmp_touchmove, this);
+                }
+                    break;
+                case nn.SignalTouchReleased: {
+                    this.touchEnabled = true;
+                    nn.EventHook(this, egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.__cmp_touchrelease, this);
                 }
                     break;
                 case nn.SignalClicked: {
@@ -542,11 +553,6 @@ module eui {
     export class SpriteU
         extends ComponentU {
     }
-
-    //模块化后需要按照eui的要求做一下附加处理，负责继承spriteu实现的itemrenderer不会被listu识别
-    declare function __reflect(...p);
-
-    __reflect(SpriteU.prototype, "eui.SpritteU", ["eui.IItemRenderer"]);
 
     nn.EntryCheckSettings = (cls: any, data: nn.EntrySettings): boolean => {
         if (data.singletone) {

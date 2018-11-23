@@ -446,7 +446,7 @@ if (IS_WEIXIN_MINGAME) {
     window.localStorage.getItem = (key: string): string => {
         try {
             return wx.getStorageSync(key);
-        } catch {
+        } catch(e) {
         }
         return undefined;
     };
@@ -454,21 +454,21 @@ if (IS_WEIXIN_MINGAME) {
     window.localStorage.setItem = (key: string, val: any) => {
         try {
             wx.setStorageSync(key, val);
-        } catch {
+        } catch(e) {
         }
     };
 
     window.localStorage.removeItem = (key: string) => {
         try {
             wx.removeStorageSync(key);
-        } catch {
+        } catch(e) {
         }
     };
 
     window.localStorage.clear = () => {
         try {
             wx.clearStorageSync();
-        } catch {
+        } catch(e) {
         }
     };
 }

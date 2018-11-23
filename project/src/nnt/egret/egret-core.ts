@@ -44,10 +44,10 @@ module nn {
     })();
 
     if (_storageMode == 0) {
-        IMP_STORAGE_GET = window.localStorage.getItem;
-        IMP_STORAGE_SET = window.localStorage.setItem;
-        IMP_STORAGE_DEL = window.localStorage.removeItem;
-        IMP_STORAGE_CLEAR = window.localStorage.clear;
+        IMP_STORAGE_GET = IS_WEIXIN_MINGAME ? window.localStorage.getItem : egret.localStorage.getItem;
+        IMP_STORAGE_SET = IS_WEIXIN_MINGAME ? window.localStorage.setItem : egret.localStorage.setItem;
+        IMP_STORAGE_DEL = IS_WEIXIN_MINGAME ? window.localStorage.removeItem : egret.localStorage.removeItem;
+        IMP_STORAGE_CLEAR = IS_WEIXIN_MINGAME ? window.localStorage.clear : egret.localStorage.clear;
     }
     else if (_storageMode == 1) {
         IMP_STORAGE_GET = (k: string): string => {
@@ -98,4 +98,19 @@ module nn {
         return orifn(value);
     });
     */
+
+    /**
+     * 解决wxgame触摸滑动卡顿的问题
+     */
+    if (IS_WEIXIN_MINGAME) {
+        let _PROTO: any = egret.sys.TouchHandler.prototype;
+        _PROTO.onTouchMove = function (t, e, i) {
+            if (null != this.touchDownTarget[i] && (this.lastTouchX != t || this.lastTouchY != e)) {
+                this.lastTouchX = t, this.lastTouchY = e;
+                //var r = this.findTarget(t, e); // 锁定在之前判定过的对象上
+                var r = this.touchDownTarget[i];
+                egret.TouchEvent.dispatchTouchEvent(r, egret.TouchEvent.TOUCH_MOVE, !0, !0, t, e, i, !0)
+            }
+        }
+    }
 }

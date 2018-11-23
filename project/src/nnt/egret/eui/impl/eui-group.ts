@@ -59,6 +59,7 @@ module eui {
             this._signals.register(nn.SignalTouchBegin);
             this._signals.register(nn.SignalTouchEnd);
             this._signals.register(nn.SignalTouchMove);
+            this._signals.register(nn.SignalTouchReleased);
         }
 
         protected _signals: nn.Signals;
@@ -83,14 +84,24 @@ module eui {
 
         _signalConnected(sig: string, s?: nn.Slot) {
             switch (sig) {
-                case nn.SignalTouchBegin:
-                case nn.SignalTouchEnd:
-                case nn.SignalTouchMove: {
+                case nn.SignalTouchBegin: {
                     this.touchEnabled = true;
                     nn.EventHook(this, egret.TouchEvent.TOUCH_BEGIN, this.__dsp_touchbegin, this);
+                }
+                    break;
+                case nn.SignalTouchEnd: {
+                    this.touchEnabled = true;
                     nn.EventHook(this, egret.TouchEvent.TOUCH_END, this.__dsp_touchend, this);
-                    nn.EventHook(this, egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.__dsp_touchrelease, this);
+                }
+                    break;
+                case nn.SignalTouchMove: {
+                    this.touchEnabled = true;
                     nn.EventHook(this, egret.TouchEvent.TOUCH_MOVE, this.__dsp_touchmove, this);
+                }
+                    break;
+                case nn.SignalTouchReleased: {
+                    this.touchEnabled = true;
+                    nn.EventHook(this, egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.__dsp_touchrelease, this);
                 }
                     break;
                 case nn.SignalClicked: {
@@ -102,11 +113,9 @@ module eui {
         }
 
         private __dsp_touchbegin(e: egret.TouchEvent) {
-            if (this._signals) {
-                let t = this.touch;
-                t._event = e;
-                this._signals.emit(nn.SignalTouchBegin, t);
-            }
+            let t = this.touch;
+            t._event = e;
+            this._signals.emit(nn.SignalTouchBegin, t);
         }
 
         private __dsp_touchend(e: egret.TouchEvent) {
@@ -135,6 +144,14 @@ module eui {
             // 防止之后的被点击
             e.stopPropagation();
         }
+
+        /*
+        $hitTest(stageX: number, stageY: number): egret.DisplayObject {
+            if (!this.touchChildren)
+                return null;
+            return super.$hitTest(stageX, stageY);
+        }
+        */
 
         // 让group表现和button类似
         selected: boolean;

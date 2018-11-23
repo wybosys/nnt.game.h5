@@ -264,13 +264,26 @@ module nn {
                 this._listenings.forEach(mdl => {
                     this.connector.watch(mdl, true);
                 });
+
+                this._tmrPing = Repeat(30, () => {
+                    let m = new Model();
+                    m.action = "socket.ping";
+                    this.fetch(m);
+                });
             });
         }
 
         private __cnt_disconnected() {
             noti('服务器 ' + this.host + ' 断开连接');
             this.signals.emit(SignalClose);
+
+            if (this._tmrPing) {
+                this._tmrPing.drop();
+                this._tmrPing = null;
+            }
         }
+
+        private _tmrPing: CTimer;
 
         private __cnt_gotmessage(s: Slot) {
             let data: ISocketResponse = s.data;
@@ -327,11 +340,11 @@ namespace nn.logic {
                         break;
                 }
                 return;
-            }
-            else {
+            } else {
                 // 尝试重连
                 if (this.autoReconnect) {
-                    Delay(this._reconnect_counter++, () => {
+                    this.signals.emit(SignalReopen);
+                    Delay(1, () => {
                         this.doReconnect();
                     }, this);
                 }
@@ -343,18 +356,16 @@ namespace nn.logic {
             log(e.message);
 
             if (this.autoReconnect) {
-                Delay(this._reconnect_counter++, () => {
+                Delay(1, () => {
                     this.doReconnect();
                 }, this);
             }
         }
 
         protected doReconnect() {
-            log("尝试第" + this._reconnect_counter + "次重新连接");
+            log("尝试重新连接");
             this.open();
         }
-
-        private _reconnect_counter = 0;
 
         protected onMessage(data: any, e: MessageEvent) {
             // 需要对data进行处理，把服务端的IMPMessage结构数据提取出来

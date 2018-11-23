@@ -399,7 +399,7 @@ module nn {
                 sig2 = params[1];
                 target = params[2];
             } else if (params.length == 2) {
-                if (typeof(params[1]) == 'string') {
+                if (typeof (params[1]) == 'string') {
                     sig2 = params[1];
                     target = this.owner;
                 } else {
@@ -502,8 +502,7 @@ module nn {
                     if (!this.isConnectedOfTarget(target))
                         this.__inv_disconnect(target);
                 }, this);
-            }
-            else {
+            } else {
                 // 先清除对应的slot，再判断是否存在和target相连的插槽，如过不存在，则断开反向连接
                 if (ss.disconnect(cb, target) &&
                     target && !this.isConnectedOfTarget(target)) {
@@ -764,6 +763,7 @@ module nn {
     export let SignalTouchBegin = "::nn::touch::begin"; // 开始
     export let SignalTouchEnd = "::nn::touch::end"; // 结束
     export let SignalTouchMove = "::nn::touch::move"; // 移动
+    export let SignalTouchReleased = "::nn::touch::released"; // 释放
 
     // 按键相关
     export let SignalKeyPress = "::nn::key::press"; // 任意键
@@ -789,6 +789,7 @@ module nn {
     // 打开
     export let SignalOpening = "::nn::opening";
     export let SignalOpen = "::nn::open";
+    export let SignalReopen = "::nn::reopen";
     export let SignalConnected = "::nn::connected";
 
     // 关闭

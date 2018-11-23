@@ -107,14 +107,24 @@ module nn {
         _signalConnected(sig: string, s?: Slot) {
             super._signalConnected(sig, s);
             switch (sig) {
-                case SignalTouchBegin:
-                case SignalTouchEnd:
-                case SignalTouchMove: {
+                case SignalTouchBegin: {
                     this.touchEnabled = true;
                     EventHook(this._imp, egret.TouchEvent.TOUCH_BEGIN, this.__dsp_touchbegin, this);
+                }
+                    break;
+                case SignalTouchEnd: {
+                    this.touchEnabled = true;
                     EventHook(this._imp, egret.TouchEvent.TOUCH_END, this.__dsp_touchend, this);
-                    EventHook(this._imp, egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.__dsp_touchrelease, this);
+                }
+                    break;
+                case SignalTouchMove: {
+                    this.touchEnabled = true;
                     EventHook(this._imp, egret.TouchEvent.TOUCH_MOVE, this.__dsp_touchmove, this);
+                }
+                    break;
+                case SignalTouchReleased: {
+                    this.touchEnabled = true;
+                    EventHook(this._imp, egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.__dsp_touchrelease, this);
                 }
                     break;
                 case SignalAddedToStage: {

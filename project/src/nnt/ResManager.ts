@@ -31,6 +31,11 @@ module nn {
 
     export let ResPartKey = "::res::part";
 
+    export interface ResourceGroupInfo {
+        name: string;
+        domain: string;
+    }
+
     // 资源氛围通过引擎工具整理好的group以及临时拼凑的资源组
     export type ResourceGroup = string;
 
@@ -154,48 +159,11 @@ module nn {
         /** 是否支持多分辨率架构 */
         multiRes: boolean;
 
-        /** Manager 依赖的目录名，其他资源目录均通过附加此目录来定位 */
-        private _directory: string;
-        get directory(): string {
-            return this._directory;
-        }
-
-        set directory(nm: string) {
-            this._directory = nm;
-
-            // 仿照 android，不同尺寸适配不同分辨率的资源
-            if (this.multiRes) {
-                switch (Device.shared.screenType) {
-                    case ScreenType.NORMAL:
-                        break;
-                    case ScreenType.LOW:
-                        this._directory += '_m';
-                        break;
-                    case ScreenType.EXTRALOW:
-                        this._directory += '_l';
-                        break;
-                    case ScreenType.EXTRAHIGH:
-                        this._directory += '_xh';
-                        break;
-                    case ScreenType.HIGH:
-                        this._directory += '_h';
-                        break;
-                }
-            }
-
-            // 如果是发布模式，则使用发布图片
-            if (PUBLISH) {
-                // RELEASE模式下才需要拼装资源目录
-                if (!ISDEBUG)
-                    this._directory = this._directory + '_' + APPVERSION;
-            }
-
-            // 保护一下路径末尾
-            this._directory += '/';
-        }
+        /** Manager 依赖的目录名，动态资源通过附加此目录来定位 */
+        directory: string;
 
         /** 加载一个资源配置 */
-        abstract loadConfig(file: string, cb: (e: any) => void, ctx: any);
+        abstract loadConfig(file: string, domain: string, cb: (e: any) => void, ctx: any);
 
         /** 缓存控制 */
         cacheEnabled: boolean;
@@ -256,9 +224,13 @@ module nn {
 
             // 处理特殊类型
             if (type == ResType.JSREF) {
-                Scripts.require(src, () => {
+                if (Device.shared.isMinGame) {
                     cb.call(ctx);
-                }, this);
+                } else {
+                    Scripts.require(src, () => {
+                        cb.call(ctx);
+                    }, this);
+                }
                 return;
             }
 

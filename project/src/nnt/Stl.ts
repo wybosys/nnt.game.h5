@@ -3,12 +3,14 @@
 class KvObject<K, V> {
 }
 
+type IndexedObject = KvObject<any, any>;
+
 module nn {
 
     declare let Map;
     declare let Set;
     export let ECMA6_NATIVE: boolean = true;
-    if (typeof(Map) == 'undefined')
+    if (typeof (Map) == 'undefined')
         ECMA6_NATIVE = false;
 
     export class CMap<K, V> {

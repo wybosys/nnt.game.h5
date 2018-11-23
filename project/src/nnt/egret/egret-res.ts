@@ -47,7 +47,7 @@ module nn {
             super.doRemoveObject(rcd);
             let srcs = this._sources[rcd.key];
             srcs.forEach((e: string) => {
-                RES.destroyRes(e);
+                //RES.destroyRes(e);
                 if (VERBOSE)
                     log("释放资源 " + e);
                 delete this._keys[e];
@@ -210,10 +210,6 @@ module nn {
         constructor() {
             super();
 
-            // config 只在manager中处理，其他事件转到包中处理
-            RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE,
-                this._cfg_loaded, this);
-
             RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE,
                 this._grp_complete, this);
             RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR,
@@ -231,12 +227,10 @@ module nn {
         // 资源的缓存管理
         cache = new _ResMemcache();
 
-        loadConfig(file: string, cb: (e: any) => void, ctx: any) {
-            this._ewd.add("::res::config", cb, ctx);
-            // 如过file是绝对地址，则不添加directory
-            if (file.indexOf('://') == -1)
-                file = this.directory + file;
-            RES.loadConfig(file, this.directory);
+        loadConfig(file: string, domain: string, cb: (e: any) => void, ctx: any) {
+            RES.loadConfig(file, domain).then(() => {
+                cb.call(ctx);
+            });
         }
 
         get cacheEnabled(): boolean {
@@ -245,11 +239,6 @@ module nn {
 
         set cacheEnabled(v: boolean) {
             this.cache.enable = v;
-        }
-
-        private _cfg_loaded(e: RES.ResourceEvent) {
-            let idr = "::res::config";
-            this._ewd.invokeAfterClear(idr, e, false);
         }
 
         private _grp_complete(e: RES.ResourceEvent) {
@@ -308,6 +297,8 @@ module nn {
         }
 
         tryGetRes(key: string): ICacheRecord {
+            if (!key)
+                return new CacheRecord();
             let rcd = this.cache.query(key);
             if (rcd == null) {
                 let d = RES.getRes(key);
@@ -322,10 +313,11 @@ module nn {
 
         getResAsync(key: string, priority: ResPriority,
                     cb: (rcd: ICacheRecord) => void, ctx?: any) {
-            if (length(key) == 0) {
+            if (!key) {
                 cb.call(ctx, new CacheRecord());
                 return;
             }
+
             let rcd = this.cache.query(key);
             if (rcd == null) {
                 ResCurrentPriority = priority;
@@ -360,6 +352,9 @@ module nn {
 
         getResByUrl(src: UriSource, priority: ResPriority,
                     cb: (rcd: ICacheRecord | CacheRecord) => void, ctx: any, type: ResType) {
+            if (!src)
+                return new CacheRecord();
+
             // 如果位于缓存中，则直接返回
             let rcd = this.cache.query(src);
             if (rcd != null) {
