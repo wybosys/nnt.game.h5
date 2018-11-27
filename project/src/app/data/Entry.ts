@@ -5,11 +5,11 @@ module app.data {
         static FromIdr(idr: string): Entry {
             let r = new Entry();
             r._idr = idr;
-            //r._cfg = Data.Entry.Get(idr);
-            // if (r._cfg.feature) {
-            //     r._feature = new Feature(r._cfg.feature);
-            //     getManager().feature.check(r._feature, null);
-            // }
+            r._cfg = Data.Entry.Get(idr);
+            if (r._cfg.feature) {
+                r._feature = new Feature(r._cfg.feature);
+                //     getManager().feature.check(r._feature, null);
+            }
             return r;
         }
 
@@ -18,17 +18,15 @@ module app.data {
         }
 
         private _idr: string;
-        //private _cfg: Data.Entry;
+        private _cfg: Data.Entry;
         private _feature: Feature;
 
         // 打开本模块
         open(ext?: any) {
-            /*
             if (!this._cfg || !this._cfg.launcherIdr) {
                 nn.warn("模块定义的数据不全");
                 return;
             }
-            */
 
             // 判断是否满足打开条件
             if (this._feature && !this._feature.opening) {
@@ -37,15 +35,8 @@ module app.data {
             }
 
             // 启动模块
-            /*
             let lcfg = Data.Entry.Get(this._cfg.launcherIdr);
-            Entries.invoke(this._cfg.clazz, lcfg.clazz, ext);
-            //数据打点
-            let report:any = {};
-            report.type = 'open';
-            report.data = {'idr': this._idr};
-            getManager().sdks.game_sdks.report(report);
-            */
+            nn.Entries.invoke(this._cfg.clazz, lcfg.clazz, ext);
         }
 
 
@@ -58,14 +49,13 @@ module app.data {
 
         constructor(id?: string) {
             if (id) {
-                //this._cfg = Data.Feature.Get(id);
-                //this.unopenTips.fmt = this._cfg.message;
+                this._cfg = Data.Feature.Get(id);
+                this.unopenTips.fmt = this._cfg.message;
             }
         }
 
         get id(): string {
-            //return this._cfg.id;
-            return '';
+            return this._cfg.id;
         }
 
         // 是否可以开启
@@ -86,13 +76,13 @@ module app.data {
         get disabled(): boolean {
             if (this._disabled)
                 return true;
-            /*
+
             if (!this.opening && !this._cfg.visible)
                 return true;
-                */
+
             return false;
         }
 
-        //private _cfg: Data.Feature;
+        private _cfg: Data.Feature;
     }
 }
