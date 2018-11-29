@@ -1,15 +1,20 @@
-
 class Main
-extends nn.EuiApplication
-{
+    extends nn.EuiApplication {
     constructor() {
         super();
         this.backgroundColor = nn.Color.Random();
-        //new nn.XHBServices().setAsDefault();
     }
-    
+
     protected onLoaded() {
         super.onLoaded();
         this.root = new app.MainScene();
-    }    
+    }
+
+    static BestFrame(): nn.Rect {
+        return new nn.Rect(0, 0, 720, 1080);
+    }
+
+    static ScreenFillMode(): nn.FillMode {
+        return nn.FillMode.CENTER | nn.FillMode.NOBORDER;
+    }
 }
