@@ -1,4 +1,4 @@
-\.+
+.+
 /project/bin-*
 /project/libs
 /project/index.html
@@ -11,11 +11,12 @@ default.data.js
 default.res.json
 default.thm.json
 sub.res.json
-\.idea
-\.n2
-\.wing
+.idea
+.n2
+.wing
 ^.*
 ~.*
+~$*
 node_modules
 *.js.map
 /publish
