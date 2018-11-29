@@ -6,4 +6,6 @@
 		<eui:RectU strokeColor="0x0949F4" left="0" bottom="0" top="0" fillColor="0x0422F9" right="0"/>
 		<eui:LabelU text="Touch Move On" horizontalCenter="0" verticalCenter="0"/>
 	</eui:GroupU>
+	<eui:TextInputU id="lblInp" y="295.33" prompt="输入框" slots="nn.SignalEnterKey=>actEnter" right="30" left="30" height="40"/>
+	<e:HtmlLabelU id="lblHtml" height="91.58" size="20" verticalAlign="middle" textAlign="left" left="30" right="30" top="353" slots="nn.SignalAction=>actOpenLink" anchorOffsetY="0"/>
 </e:Skin>

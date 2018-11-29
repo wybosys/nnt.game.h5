@@ -43,5 +43,4 @@
 			<e:HorizontalLayout/>
 		</e:layout>
 	</e:Group>
-	<eui:TextInputU id="lblInp" x="30" y="262" width="419" prompt="输入框" slots="nn.SignalEnterKey=&gt;actEnter"/>
 </e:Skin>

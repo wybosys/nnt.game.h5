@@ -10,7 +10,6 @@ module app {
     interface IMainScene {
         //slot {
         _actEcho(s?: nn.Slot);
-        _actEnter(s?: nn.Slot);
         _actOpenLink(s?: nn.Slot);
         _actTestParticle(s?: nn.Slot);
         //slot }
@@ -27,7 +26,6 @@ module app {
         group: eui.Group;
         img0: eui.ImageU;
         lblHtml: eui.HtmlLabelU;
-        lblInp: eui.TextInputU;
         list0: eui.ListU;
         list1: eui.ListU;
         tabbar0: eui.TabBarU;
@@ -127,11 +125,13 @@ module app {
         }
 
         _actEcho() {
+            /*
             let m = api.SampleEcho();
             m.input = this.lblInp.text;
             nn.RestSession.fetch(m, () => {
                 alert(m.output);
             });
+            */
         }
 
         _testMmo() {
