@@ -108,6 +108,11 @@ module eui {
             if (this._textColor && this._getLabel()) {
                 this._getLabel().textColor = this._textColor;
             }
+            this.onLoaded();
+        }
+
+        onLoaded() {
+            // pass
         }
 
         private _data: any;

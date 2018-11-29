@@ -3,6 +3,6 @@
 	<eui:RectU id="spBkg" left="0" right="0" top="0" bottom="0"/>
 	<e:ImageU id="iconDisplay" horizontalCenter="0" verticalCenter="0"/>
     <e:LabelU id="labelDisplay" top="8" bottom="8" left="8" right="8"
-             size="20"
-             textColor="0xFFFFFF" verticalAlign="middle" textAlign="center"/>
+             size="26"
+             textColor="0xFFFFFF" verticalAlign="middle" textAlign="center" stroke="1"/>
 </e:Skin>

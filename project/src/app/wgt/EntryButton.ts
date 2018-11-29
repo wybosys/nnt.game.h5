@@ -14,5 +14,10 @@ module app.wgt {
         spBkg: eui.RectU;
         //skin }
 
+        onLoaded() {
+            let br = new nn.Brush();
+            br.color = nn.Color.Random();
+            this.spBkg.brush = br;
+        }
     }
 }
