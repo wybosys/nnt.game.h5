@@ -1,16 +1,15 @@
 module app.main {
-    interface IMainScene
+    interface ISample
     {
         //slot {
         //slot }
     }
 
-    export class MainScene
+    export class Sample
     extends eui.SpriteU
-    implements IMainScene
+    implements ISample
     {
         //skin {
-        viewStack: eui.NavigationU;
         //skin }
     }
 }

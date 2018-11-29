@@ -1,6 +1,7 @@
 module eui {
 
     export class ButtonU extends eui.Button implements eui.IItemRenderer {
+
         public slots: string = null;
         public tag: any = null;
 

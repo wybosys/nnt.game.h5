@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<e:Skin class="SampleSkin" width="400" xmlns:e="http://ns.egret.com/eui" xmlns:wgt="app.wgt.*">
+	<e:Group horizontalCenter="0" top="40" bottom="40">
+		<wgt:EntryButton width="200" height="50" label="基础控件" x="0" y="0"/>
+		<wgt:EntryButton width="200" height="50" x="0" y="106.08" label="列表"/>
+		<wgt:EntryButton width="200" height="50" x="0" y="211.17" label="弹出框"/>
+		<wgt:EntryButton width="200" height="50" x="0" y="316.92" label="通讯"/>
+		<wgt:EntryButton width="200" height="50" x="0" y="423" label="动效"/>
+	</e:Group>
+</e:Skin>

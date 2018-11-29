@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<e:Skin class="app.wgt.EntryButtonSkin" states="up,down,disabled" minHeight="50" minWidth="100" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing" width="200" height="50">
+<e:Skin class="app.wgt.EntryButtonSkin" states="up,down,disabled" minHeight="50" minWidth="100" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing" xmlns:eui="eui.*" width="200" height="50">
+	<eui:RectU id="spBkg" left="0" right="0" top="0" bottom="0"/>
 	<e:ImageU id="iconDisplay" horizontalCenter="0" verticalCenter="0"/>
     <e:LabelU id="labelDisplay" top="8" bottom="8" left="8" right="8"
-             size="13"
+             size="20"
              textColor="0xFFFFFF" verticalAlign="middle" textAlign="center"/>
 </e:Skin>
