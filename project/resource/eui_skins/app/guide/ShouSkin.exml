@@ -1,3 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<e:Skin class="app.guide.ShouSkin" width="400" height="153" xmlns:e="http://ns.egret.com/eui">
+<e:Skin class="app.guide.ShouSkin" width="150" height="150" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing" xmlns:eui="eui.*">
+	<e:MovieClipU id="mcShou" width="150" height="150" textureSource="assets://mc/shou.png" frameSource="assets://mc/shou.json" playCount="-1" autoPlay="true" x="0" y="0"/>
+	<eui:LabelU id="idrLeft" text="说明" x="-260" y="0" anchorOffsetX="0" width="260" anchorOffsetY="0" height="148" verticalAlign="middle" textAlign="right" size="22" multiline="true"/>
+	<eui:LabelU id="idrRight" text="说明" x="150" y="2" anchorOffsetX="0" width="260" anchorOffsetY="0" height="148" verticalAlign="middle" textAlign="left" size="22" multiline="true"/>
+	<eui:LabelU id="idrTop" text="说明" x="-55" y="-148" anchorOffsetX="0" width="260" anchorOffsetY="0" height="148" verticalAlign="bottom" textAlign="center" size="22" multiline="true"/>
+	<eui:LabelU id="idrBottom" text="说明" x="-55" y="150" anchorOffsetX="0" width="260" anchorOffsetY="0" height="148" verticalAlign="top" textAlign="center" size="22" multiline="true"/>
 </e:Skin>
