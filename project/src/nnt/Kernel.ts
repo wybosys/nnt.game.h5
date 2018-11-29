@@ -6364,7 +6364,7 @@ module nn {
 
         getObject(key: any, def?: any): any {
             let s = this.value(key, undefined);
-            if (s === undefined)
+            if (s == null)
                 return def;
             return JSON.parse(s);
         }

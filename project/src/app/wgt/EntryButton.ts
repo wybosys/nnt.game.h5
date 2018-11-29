@@ -1,4 +1,6 @@
 module app.wgt {
+    import Shou = app.guide.Shou;
+
     interface IEntryButton {
         //slot {
         //slot }
@@ -60,16 +62,27 @@ module app.wgt {
         // 当前的新手数据
         _guide: data.Guide;
 
+        // 正在显示新手
+        _shou: Shou;
+
         clearGuide() {
             if (this._guide) {
-                manager.guide.setReaded(this._guide);
-                this._guide = null;
+                nn.Delay(0.3, () => {
+                    manager.guide.setReaded(this._guide);
+                    this._guide = null;
+                    this._shou = null;
+                }, this);
             }
         }
 
         // 当现实隐藏时，更新新手
         onVisibleChanged() {
             super.onVisibleChanged();
+            if (this._guide)
+                this._showGuide();
+        }
+
+        onAppeared() {
             if (this._guide)
                 this._showGuide();
         }
@@ -86,9 +99,12 @@ module app.wgt {
         // 显示新手
         protected _showGuide() {
             // 当前没有新手数据
-            if (!this._guide) {
+            if (!this._guide)
                 return;
-            }
+
+            // 已经在播放
+            if (this._shou)
+                return;
 
             // 如果当前的没有显示在舞台上，则不显示新手
             if (nn.isAppearing(this) == false)
@@ -98,10 +114,13 @@ module app.wgt {
             if (nn.Desktop.Current() != eui.DesktopU.FromView(this))
                 nn.Desktop.CloseAllOpenings();
 
-            let dlg = new guide.Shou(this);
-            dlg.data = this._guide;
-            dlg.direction = nn.DirectionFromString(this.guideDirection);
-            dlg.open(true);
+            // 延迟打开新手
+            this._shou = new guide.Shou(this);
+            nn.Delay(0.3, () => {
+                this._shou.data = this._guide;
+                this._shou.direction = nn.DirectionFromString(this.guideDirection);
+                this._shou.open(true);
+            }, this);
         }
     }
 }

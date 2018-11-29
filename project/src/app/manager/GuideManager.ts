@@ -26,7 +26,7 @@ module app {
         onDataLoaded() {
             // 将配表的新手转换成逻辑的新手
             Data.guides.forEach(e => {
-                let g = new data.Guide(e);
+                let g = new data.Guide(new Data.Guide(e));
                 this._guidegrps.add(g.gid, g);
                 this._guides[g.id] = g;
             });
@@ -70,7 +70,7 @@ module app {
 
             let has = false;
             this._guides.forEach(e => {
-                if (e.gid > gid || e.valid())
+                if (e.gid > gid || !e.valid())
                     return;
                 e.using = true;
                 this._valids.push(e);
@@ -96,6 +96,9 @@ module app {
             nn.ArrayT.RemoveObjectByFilter(this._valids, e => {
                 return e.id == guide.id;
             });
+
+            // 刷新一下新手
+            this._updateValids();
         }
 
         // 根据idr查找guide对象

@@ -183,9 +183,11 @@ module eui {
         }
 
         onAppeared() {
+            ComponentU.ProcessAppeared(this);
         }
 
         onDisappeared() {
+            ComponentU.ProcessDisppeared(this);
         }
     }
 

@@ -36,8 +36,7 @@ module eui {
                 this.__created = true;
                 if (this.__thmcreated)
                     this.onLoaded();
-            }
-            else if (evt.type == eui.UIEvent.CREATION_COMPLETE) {
+            } else if (evt.type == eui.UIEvent.CREATION_COMPLETE) {
                 this.__thmcreated = true;
                 if (this.__created)
                     this.onLoaded();
@@ -156,14 +155,14 @@ module eui {
 
         // 和core模块的意义相同
         protected onAppeared() {
+            ComponentU.ProcessAppeared(this);
         }
 
         protected onDisappeared() {
+            ComponentU.ProcessDisppeared(this);
         }
 
-        static _ProcessAppeared(ui: any) {
-            if (ui.onAppeared)
-                ui.onAppeared();
+        static ProcessAppeared(ui: any) {
             for (let i = 0; i < ui.numChildren; ++i) {
                 let c: any = ui.getChildAt(i);
                 if (c.onAppeared)
@@ -171,9 +170,7 @@ module eui {
             }
         }
 
-        static _ProcessDisppeared(ui: any) {
-            if (ui.onDisappeared)
-                ui.onDisappeared();
+        static ProcessDisppeared(ui: any) {
             for (let i = 0; i < ui.numChildren; ++i) {
                 let c: any = ui.getChildAt(i);
                 if (c.onDisappeared)
@@ -324,7 +321,7 @@ module eui {
                         return;
                     }
                     let tgt = this['_' + a[1]];
-                    if (typeof(tgt) == 'string') {
+                    if (typeof (tgt) == 'string') {
                         instance.signals.redirect(sig, tgt, this);
                     } else {
                         instance.signals.connect(sig, tgt, this);

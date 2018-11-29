@@ -737,7 +737,7 @@ module nn {
             }
 
             // 传递给子集
-            this.children.forEach((c: CComponent) => {
+            this.children.forEach(c => {
                 if (!c.isAppeared)
                     c.onAppeared();
             }, this);

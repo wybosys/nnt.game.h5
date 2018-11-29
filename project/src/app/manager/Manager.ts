@@ -11,9 +11,14 @@ module app {
 
     export let manager: Manager;
 
-    // 程序加载成功后初始化manager
+    // 程序加载成功
     nn.CApplication.InBoot(() => {
         manager = new Manager();
         manager.onLoaded();
+    });
+
+    // 数据加载成功
+    nn.CApplication.InData(() => {
+        manager.onDataLoaded();
     });
 }

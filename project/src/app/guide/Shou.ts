@@ -13,7 +13,6 @@ module app.guide {
         idrRight: eui.LabelU;
         idrTop: eui.LabelU;
         mcShou: eui.MovieClipU;
-
         //skin }
 
         constructor(target: eui.UiType) {
@@ -31,7 +30,6 @@ module app.guide {
 
         onLoaded() {
             super.onLoaded();
-            this.mcShou.play();
             this.updateData();
         }
 

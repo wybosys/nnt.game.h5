@@ -190,12 +190,6 @@ module eui {
             nn.setFrame(this, rc);
         }
 
-        onAppeared() {
-        }
-
-        onDisappeared() {
-        }
-
         updateCache() {
         }
     }

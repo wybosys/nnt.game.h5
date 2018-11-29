@@ -20,13 +20,18 @@ module eui {
 
     let _PROTO = PageStackU.prototype;
     let _FUN = _PROTO['showOrHide'];
-    _PROTO['showOrHide'] = function (child: egret.DisplayObject, visible: boolean) {
+    _PROTO['showOrHide'] = function (child, visible: boolean) {
         let self = <any>this;
         _FUN.call(self, child, visible);
-        if (visible)
-            ComponentU._ProcessAppeared(child);
-        else
-            ComponentU._ProcessDisppeared(child);
+        if (visible) {
+            if (child.onAppeared)
+                child.onAppeared();
+            ComponentU.ProcessAppeared(child);
+        } else {
+            if (child.onDisappeared)
+                child.onDisappeared();
+            ComponentU.ProcessDisppeared(child);
+        }
     };
 
 }

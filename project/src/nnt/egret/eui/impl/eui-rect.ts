@@ -8,12 +8,6 @@ module eui {
             _EUIExt.onPartBinded(this, name, target);
         }
 
-        onAppeared() {
-        }
-
-        onDisappeared() {
-        }
-
         updateCache() {
             this.validateDisplayList();
         }

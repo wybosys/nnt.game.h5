@@ -237,12 +237,6 @@ module eui {
             nn.setFrame(this, rc);
         }
 
-        onAppeared() {
-        }
-
-        onDisappeared() {
-        }
-
         onVisibleChanged() {
             if (this._signals)
                 this._signals.emit(nn.SignalVisibleChanged);
