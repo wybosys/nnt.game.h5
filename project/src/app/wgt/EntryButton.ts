@@ -12,6 +12,7 @@ module app.wgt {
         iconDisplay: eui.ImageU;
         labelDisplay: eui.LabelU;
         spBkg: eui.RectU;
+
         //skin }
 
         onLoaded() {
@@ -32,6 +33,12 @@ module app.wgt {
         public set entryIdr(v: string) {
             this._dentry = data.Entry.FromIdr(v);
         }
+
+        // 用来显示标记的方向，现在给新手导引用
+        public idrDirection: string = null;
+
+        // 用来控制标记的偏移
+        public idrOffset: string = null;
 
         private _actOpenEntry() {
             if (!this._dentry)
