@@ -10,7 +10,6 @@ module app.main {
         implements IMainScene {
         //skin {
         viewStack: eui.NavigationU;
-
         //skin }
 
         onLoaded() {

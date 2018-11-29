@@ -17,6 +17,7 @@ module app.guide {
 
         constructor(target: eui.UiType) {
             super();
+            this.desktopBackgroundColor = nn.Color.Random();
             this.clickedToClose = true;
             this.onlyFiltersTouchEnabled = true;
             this.queue = manager.guide.queue;
