@@ -7,7 +7,11 @@ class Main
 
     protected onLoaded() {
         super.onLoaded();
-        this.root = new app.main.MainScene();
+
+        let cap = this.capsules(['wgt']);
+        cap.load(() => {
+            this.root = new app.main.MainScene();
+        });
     }
 
     static BestFrame(): nn.Rect {

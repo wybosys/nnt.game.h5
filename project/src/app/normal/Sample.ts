@@ -1,5 +1,5 @@
 module app.normal {
-    interface ISample
+    interface ISample extends nn.IEntry
     {
         //slot {
         //slot }
@@ -12,4 +12,6 @@ module app.normal {
         //skin {
         //skin }
     }
+
+    nn.Entries.register(Sample);
 }

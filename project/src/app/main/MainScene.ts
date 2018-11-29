@@ -14,6 +14,8 @@ module app.main {
         //skin }
 
         onLoaded() {
+            nn.Launchers.register(this);
+
             this.viewStack.push(new Sample());
         }
 

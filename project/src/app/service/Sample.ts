@@ -1,5 +1,5 @@
 module app.service {
-    interface ISample
+    interface ISample extends nn.IEntry
     {
         //slot {
         //slot }
@@ -12,4 +12,6 @@ module app.service {
         //skin {
         //skin }
     }
+
+    nn.Entries.register(Sample);
 }
