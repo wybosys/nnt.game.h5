@@ -2,6 +2,7 @@ module app.ani {
     interface ISample extends nn.IEntry {
         //slot {
         _actParticle(s?: nn.Slot);
+        _actPlayFrameAni(s?: nn.Slot);
         //slot }
     }
 
@@ -9,6 +10,8 @@ module app.ani {
         extends eui.SpriteU
         implements ISample {
         //skin {
+        btnLogic: eui.ButtonU;
+        test: egret.tween.TweenGroup;
         //skin }
 
         entrySettings: nn.EntrySettings;
@@ -18,6 +21,10 @@ module app.ani {
             t.particleName = "snow";
             t.frame = this.bounds();
             this.addChild(t);
+        }
+
+        _actPlayFrameAni(s?: nn.Slot) {
+            this.test.play();
         }
     }
 

@@ -13,7 +13,7 @@
 		</tween:TweenGroup>
 	</w:Declarations>
 	<eui:ButtonU id="btnLogic" label="logic.echo" x="33" y="318" slots="nn.SignalClicked=&gt;actEcho"/>
-	<e:ListU id="list0" left="30" top="60" bottom="586" itemRendererSkinName="app.item.ButtonSkin" width="191">
+	<e:ListU id="list0" left="396" top="254" bottom="392" itemRendererSkinName="app.item.ButtonSkin" width="191">
 		<e:ArrayCollection>
 			<e:Array>
 				<e:Object label="数据1"/>
