@@ -13,7 +13,6 @@ module app {
         _actEnter(s?: nn.Slot);
         _actOpenLink(s?: nn.Slot);
         _actTestParticle(s?: nn.Slot);
-        _actTouchMoved(s?: nn.Slot);
         //slot }
     }
 
@@ -31,7 +30,6 @@ module app {
         lblInp: eui.TextInputU;
         list0: eui.ListU;
         list1: eui.ListU;
-        sp_touch: eui.GroupU;
         tabbar0: eui.TabBarU;
         test: egret.tween.TweenGroup;
         //skin }

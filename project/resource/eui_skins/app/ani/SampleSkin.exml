@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<e:Skin class="app.ani.SampleSkin" width="400" height="300" xmlns:e="http://ns.egret.com/eui" xmlns:wgt="app.wgt.*" xmlns:w="http://ns.egret.com/wing">
+<e:Skin class="app.ani.SampleSkin" width="720" height="1080" xmlns:e="http://ns.egret.com/eui" xmlns:wgt="app.wgt.*" xmlns:w="http://ns.egret.com/wing" xmlns:eui="eui.*">
 	<wgt:SamplePanel left="0" right="0" top="0" bottom="0" locked="true"/>
+	<e:MovieClipU width="200" height="200" textureSource="assets://mc/shangdi.png" frameSource="assets://mc/shangdi.json" clipName="shangdi" playCount="-1" autoPlay="true" x="48.48" y="100"/>
+	<eui:BoneU width="200" height="200" boneName="dragon" autoPlay="true" playCount="-1" motion="walk" x="300" y="100"/>
+	<wgt:EntryButton label="粒子" x="50" y="336" slots="nn.SignalClicked=&gt;actParticle"/>
 </e:Skin>

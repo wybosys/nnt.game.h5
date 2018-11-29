@@ -36,7 +36,6 @@
 	</e:TabBarU>
 	<e:ProgressBarU value="50" right="33" bottom="0" left="31"/>
 	<e:ImageU id="img0" width="35" height="30" x="33" y="220" source="thumb"/>
-	<e:MovieClipU width="200" height="200" textureSource="assets://mc/shangdi.png" frameSource="assets://mc/shangdi.json" clipName="shangdi" playCount="-1" autoPlay="true" left="0" bottom="69"/>
 	<e:Group id="group" width="266" height="41" x="181" y="8">
 		<e:ButtonU id="btn0" x="59" y="-2" label="粒子" width="113" height="43" slots="nn.SignalClicked=&gt;actTestParticle"/>
 		<e:ButtonU id="btn1" label="DIALOG" x="22" y="15" height="43"/>
@@ -45,9 +44,4 @@
 		</e:layout>
 	</e:Group>
 	<eui:TextInputU id="lblInp" x="30" y="262" width="419" prompt="输入框" slots="nn.SignalEnterKey=&gt;actEnter"/>
-	<eui:BoneU width="200" height="200" right="0" bottom="69" boneName="dragon" autoPlay="true" playCount="-1" motion="walk"/>
-	<eui:GroupU id="sp_touch" width="300" height="177" x="163" y="318" anchorOffsetX="0" anchorOffsetY="0" slots="nn.SignalTouchMove=&gt;actTouchMoved">
-		<eui:RectU strokeColor="0x0949f4" left="0" bottom="0" right="0" top="0" fillColor="0x0422f9"/>
-	</eui:GroupU>
-	<eui:ImageU width="236" height="193" y="535" anchorOffsetX="0" anchorOffsetY="0" horizontalCenter="0" source="http://jdc.jd.com/wp-content/uploads/2017/08/22.png"/>
 </e:Skin>
