@@ -7,7 +7,7 @@ class Main
 
     protected onLoaded() {
         super.onLoaded();
-        this.root = new app.MainScene();
+        this.root = new app.main.MainScene();
     }
 
     static BestFrame(): nn.Rect {
