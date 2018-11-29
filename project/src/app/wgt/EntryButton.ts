@@ -14,7 +14,6 @@ module app.wgt {
         iconDisplay: eui.ImageU;
         labelDisplay: eui.LabelU;
         spBkg: eui.RectU;
-
         //skin }
 
         onLoaded() {
