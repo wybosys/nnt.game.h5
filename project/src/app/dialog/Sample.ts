@@ -11,6 +11,8 @@ module app.dialog {
     {
         //skin {
         //skin }
+
+        entrySettings: nn.EntrySettings;
     }
 
     nn.Entries.register(Sample);

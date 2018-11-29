@@ -9,6 +9,8 @@ module app.ani {
         implements ISample {
         //skin {
         //skin }
+
+        entrySettings: nn.EntrySettings;
     }
 
     nn.Entries.register(Sample);

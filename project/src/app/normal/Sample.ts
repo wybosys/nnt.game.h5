@@ -11,6 +11,8 @@ module app.normal {
     {
         //skin {
         //skin }
+
+        entrySettings: nn.EntrySettings;
     }
 
     nn.Entries.register(Sample);

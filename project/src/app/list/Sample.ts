@@ -11,6 +11,8 @@ module app.list {
     {
         //skin {
         //skin }
+
+        entrySettings: nn.EntrySettings;
     }
 
     nn.Entries.register(Sample);
