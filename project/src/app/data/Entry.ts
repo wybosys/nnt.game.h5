@@ -3,9 +3,13 @@ module app.data {
     export class Entry {
 
         static FromIdr(idr: string): Entry {
+            let cfg = Data.Entry.Get(idr);
+            if (!cfg)
+                return null;
+
             let r = new Entry();
             r._idr = idr;
-            r._cfg = Data.Entry.Get(idr);
+            r._cfg = cfg;
             if (r._cfg.feature) {
                 r._feature = new Feature(r._cfg.feature);
                 //     getManager().feature.check(r._feature, null);

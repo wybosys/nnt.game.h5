@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <e:Skin class="app.wgt.SamplePanelSkin" width="400" height="300" xmlns:e="http://ns.egret.com/eui" xmlns:eui="eui.*" xmlns:wgt="app.wgt.*">
-	<wgt:EntryButton label="返回" y="0" slots="nn.SignalClicked=&gt;actBack" x="0"/>
+	<wgt:EntryButton label="返回" y="0" slots="nn.SignalClicked=&gt;actBack" x="0" entryIdr="panelback" guideDirection="down"/>
 </e:Skin>
