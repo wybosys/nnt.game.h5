@@ -16,7 +16,11 @@ module app.main {
         onLoaded() {
             nn.Launchers.register(this);
 
+            // 推送根测试页面
             this.viewStack.push(new Sample());
+
+            // 启动新手
+            manager.guide.start();
         }
 
         launchEntry(cls: any, data: nn.EntrySettings) {

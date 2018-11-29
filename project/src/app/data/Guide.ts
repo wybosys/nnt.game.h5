@@ -8,8 +8,8 @@ module app.data {
 
         private _cfg: Data.Guide;
 
-        // 当前有没有被占用
-        unusing: boolean = true;
+        // 正在使用
+        using = false;
 
         // 配表
         get id(): number {
@@ -38,5 +38,10 @@ module app.data {
 
         // 获取已读状态
         readed: boolean;
+
+        // 计算当前是否可用
+        valid(): boolean {
+            return !this.readed && !this.using;
+        }
     }
 }

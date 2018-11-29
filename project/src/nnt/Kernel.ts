@@ -6362,8 +6362,10 @@ module nn {
             this.set(key, JSON.stringify(val));
         }
 
-        getObject(key: any): any {
-            let s = this.value(key);
+        getObject(key: any, def?: any): any {
+            let s = this.value(key, undefined);
+            if (s === undefined)
+                return def;
             return JSON.parse(s);
         }
 
