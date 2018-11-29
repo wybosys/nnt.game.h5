@@ -18,6 +18,16 @@ module app.normal {
 
         entrySettings: nn.EntrySettings;
 
+        onLoaded() {
+            super.onLoaded();
+
+            let sb = new nn.StringBuilder();
+            sb.font(0xff0000);
+            sb.href("BAIDU", "http://www.baidu.com");
+            sb.pop().touch("HAHA");
+            this.lblHtml.value = sb;
+        }
+
         _actTouchMoved(s?: nn.Slot) {
             nn.info(s.data.currentPosition);
         }
