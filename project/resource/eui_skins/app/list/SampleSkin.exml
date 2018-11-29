@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<e:Skin class="app.list.SampleSkin" width="400" height="300" xmlns:e="http://ns.egret.com/eui" xmlns:wgt="app.wgt.*" xmlns:w="http://ns.egret.com/wing">
+<e:Skin class="app.list.SampleSkin" width="720" height="1080" xmlns:e="http://ns.egret.com/eui" xmlns:wgt="app.wgt.*" xmlns:w="http://ns.egret.com/wing" xmlns:eui="eui.*">
 	<wgt:SamplePanel left="0" right="0" top="0" bottom="0" locked="true"/>
+	<eui:ScrollerU width="200" height="140.91" x="0" y="106" anchorOffsetY="0">
+		<e:ListU id="lstClick" left="169" top="126" bottom="774" width="191" anchorOffsetY="0" itemRendererSkinName="app.wgt.EntryButtonSkin" slots="nn.SignalItemClicked=&gt;actLstClick">
+		<e:ArrayCollection>
+		<e:Array>
+			<e:Object label="点击1"/>
+			<e:Object label="点击2"/>
+			<e:Object label="数据3"/>
+			<e:Object label="点击4"/>
+			<e:Object label="点击5"/>
+		</e:Array>
+		</e:ArrayCollection>
+	</e:ListU>
+	</eui:ScrollerU>
+	<eui:ScrollerU width="200" height="393.94" x="0" y="285.7" anchorOffsetY="0">
+		<e:ListU id="lstGen" left="169" top="126" bottom="774" width="191" anchorOffsetY="0" itemRendererSkinName="app.wgt.EntryButtonSkin" slots="nn.SignalItemClicked=&gt;actLstClick">
+		</e:ListU>
+	</eui:ScrollerU>
 </e:Skin>
