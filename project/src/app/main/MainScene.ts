@@ -12,5 +12,9 @@ module app.main {
         //skin {
         viewStack: eui.NavigationU;
         //skin }
+
+        onLoaded() {
+            this.viewStack.push(new Sample());
+        }
     }
 }
