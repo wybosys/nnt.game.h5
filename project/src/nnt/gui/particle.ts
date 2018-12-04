@@ -6,6 +6,11 @@ module nn {
             super();
         }
 
+        dispose() {
+            this.stop();
+            super.dispose();
+        }
+
         protected _initSignals() {
             super._initSignals();
             this._signals.register(SignalStart);
