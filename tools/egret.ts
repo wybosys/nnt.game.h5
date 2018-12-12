@@ -417,6 +417,7 @@ export class EgretGame extends Game {
         // 星汉分配游戏的js
         fs.copySync("sdks/readygo-sdk.js", "project_wxgame/readygo-sdk.js");
         fs.copySync("sdks/readygo-stat-sdk.js", "project_wxgame/readygo-stat-sdk.js");
+        fs.copySync("sdks/readygo-dsp-sdk.js", "project_wxgame/readygo-dsp-sdk.js");
 
         //一些游戏配置参数
         let optcs: any = {};
@@ -424,21 +425,27 @@ export class EgretGame extends Game {
         optcs.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
         optcs.version = this.config.get('app', 'version') ? this.config.get('app', 'version') : "";
         optcs.sdkUrl = opts.publish ? 'wxgames.91yigame.com' : 'develop.91egame.com';
+        //dsp接入参数
+        let dspin: any = {};
+        dspin.appids = this.config.get('readygo', 'appids');
         let region1 = `require('./sdks.js');
 require('./readygo.js');
 import XH_MINIPRO_SDK from './readygo-sdk.js';
 import XH_MINIPRO_STATISTIC from './readygo-stat-sdk.js';
+import XH_MINIPRO_DSP from './readygo-dsp-sdk.js';
 window["readygo"] = XH_MINIPRO_SDK;
 window["XH_MINIPRO_SDK"] = XH_MINIPRO_SDK;
 window["readygo_stat"] = XH_MINIPRO_STATISTIC;
 window["XH_MINIPRO_STATISTIC"] = XH_MINIPRO_STATISTIC;
+window["readygo_dsp"] = XH_MINIPRO_DSP;
+window["XH_MINIPRO_DSP"] = XH_MINIPRO_DSP;
 sdks.config.set('CHANNEL_ID', 1802);
 sdks.config.set('URL', '${optcs.sdkUrl}');
 sdks.config.set('GAME_VERSION', '${optcs.version}');
 let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
         `;
         //微信小游戏的一些配置
-        let region2 = `{"deviceOrientation":"${optcs.orientation}"}`;
+        let region2 = `{"deviceOrientation":"${optcs.orientation}","navigatelist":"${dspin.appids}"}`;
         fs.writeFileSync(".n2/egret/region1.js", region1);
         fs.writeFileSync(".n2/egret/wx_config.json", region2);
 
