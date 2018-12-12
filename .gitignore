@@ -22,4 +22,5 @@ node_modules
 /dist
 /publish
 /project_wxgame
+/project_baidugame
 *.pyc

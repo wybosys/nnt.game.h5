@@ -120,6 +120,7 @@ export class WxgamePlugin implements plugins.Command {
 
         //修改横竖屏
         let orientation;
+        let navigateToMiniProgramAppIdList;
         /*if (projectConfig.orientation == '"landscape"') {
             orientation = "landscape";
         }
@@ -129,10 +130,13 @@ export class WxgamePlugin implements plugins.Command {
         let g = pluginContext.outputDir + "/../.n2/egret/wx_config.json";
         let wconfig = fs.readFileSync(g, {encoding: "utf8"});
         orientation = JSON.parse(wconfig).deviceOrientation;
+        navigateToMiniProgramAppIdList = JSON.parse(wconfig).navigatelist;
+
 
         const gameJSONPath = path.join(pluginContext.outputDir, "game.json");
         let gameJSONContent = JSON.parse(fs.readFileSync(gameJSONPath, {encoding: "utf8"}));
         gameJSONContent.deviceOrientation = orientation;
+        gameJSONContent.navigateToMiniProgramAppIdList = navigateToMiniProgramAppIdList.split(',');
         fs.writeFileSync(gameJSONPath, JSON.stringify(gameJSONContent, null, "\t"));
     }
 }

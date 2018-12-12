@@ -16,7 +16,7 @@ export class FixPlugin extends ManifestPlugin {
 
             if (r.extname == '.js') {
                const filename = r.origin;
-               if (filename == 'resource/default.thm.js' || filename == 'resource/default.thm.min.js') {
+               if (filename.indexOf('default.thm.') != -1) {
                    let content = r.contents.toString();
                    content = content.replace(/(window.app\.?[a-z]*)={};/g, '$1||($1={});')
                    r.contents = new Buffer(content);
