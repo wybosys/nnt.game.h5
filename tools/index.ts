@@ -22,7 +22,10 @@ function main() {
         .command("clean")
         .description("清理项目")
         .action(() => {
-            game.clean();
+            try {
+                game.clean();
+            } catch (err) {
+            }
         });
 
     program

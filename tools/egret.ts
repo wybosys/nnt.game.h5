@@ -48,6 +48,7 @@ export class EgretGame extends Game {
         fs.removeSync("project/app.json");
         fs.removeSync("project/manifest.json");
         fs.removeSync("project/resource/default.boot.json");
+        fs.removeSync("project/egretProperties.json");
 
         // 清理渠道编译
         this.clean_channel();
@@ -479,12 +480,14 @@ class EgretConfig extends Config {
 
     async refresh(): Promise<boolean> {
         let r = await super.refresh();
-        // 比对egretProp是否修改过
-        let hash = SimpleHashFile("project/egretProperties.json");
-        if (this._cfgdb.get("egret-prop-hash") != hash) {
-            this._cfgdb.set("egret-prop-hash", hash);
-            console.log("egret的配置更新");
-            r = true;
+        if (fs.existsSync("project/egretProperties.json")) {
+            // 比对egretProp是否修改过
+            let hash = SimpleHashFile("project/egretProperties.json");
+            if (this._cfgdb.get("egret-prop-hash") != hash) {
+                this._cfgdb.set("egret-prop-hash", hash);
+                console.log("egret的配置更新");
+                r = true;
+            }
         }
         return r;
     }
