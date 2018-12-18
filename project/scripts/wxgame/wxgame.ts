@@ -145,6 +145,9 @@ export class WxgamePlugin implements plugins.Command {
 }
 
 const TPL_GAMEJS = `require('./weapp-adapter.js');
+
+//REGION_1//
+
 require('./platform.js');
 require('./manifest.js');
 require('./egret.wxgame.js');
@@ -158,7 +161,6 @@ if(window.RES && RES.processor) {
     require('./library/binary.js');
 }
 
-//REGION_1//
 nn.loader.mingamestart(options);
 
 //REGION_2//
