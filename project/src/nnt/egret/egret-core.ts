@@ -6,7 +6,7 @@ module nn {
 
     IMP_TIMEPASS = (): number => {
         return egret.getTimer() * 0.001;
-    }
+    };
 
     IMP_CREATE_TIMER = (duration: number, count: number): egret.Timer => {
         return new egret.Timer(duration * 1000, count);
@@ -25,9 +25,12 @@ module nn {
     // 需要判断一下是使用LocalStorage还是使用SessionStorage
     let _storageMode = ((): number => {
         let key = "::n2::test::localstorage::mode";
-        if (egret.localStorage.setItem(key, "test")) {
-            egret.localStorage.removeItem(key);
-            return 0;
+        if (window && window.localStorage) {
+            window.localStorage.setItem(key, "test");
+            if (window.localStorage.getItem(key) == "test") {
+                window.localStorage.removeItem(key);
+                return 0;
+            }
         }
         if (window && window.sessionStorage) {
             try {
@@ -41,10 +44,10 @@ module nn {
     })();
 
     if (_storageMode == 0) {
-        IMP_STORAGE_GET = egret.localStorage.getItem;
-        IMP_STORAGE_SET = egret.localStorage.setItem;
-        IMP_STORAGE_DEL = egret.localStorage.removeItem;
-        IMP_STORAGE_CLEAR = egret.localStorage.clear;
+        IMP_STORAGE_GET = IS_MINGAME ? window.localStorage.getItem : egret.localStorage.getItem;
+        IMP_STORAGE_SET = IS_MINGAME ? window.localStorage.setItem : egret.localStorage.setItem;
+        IMP_STORAGE_DEL = IS_MINGAME ? window.localStorage.removeItem : egret.localStorage.removeItem;
+        IMP_STORAGE_CLEAR = IS_MINGAME ? window.localStorage.clear : egret.localStorage.clear;
     }
     else if (_storageMode == 1) {
         IMP_STORAGE_GET = (k: string): string => {
@@ -78,7 +81,7 @@ module nn {
 
     Defer = (cb: Function, ctx: any, ...p: any[]) => {
         egret.callLater.apply(null, [cb, ctx].concat(p));
-    }
+    };
 
     // 将point伪装成egret.point
     let __PROTO: any = Point.prototype;
@@ -87,10 +90,27 @@ module nn {
         this.y = y;
     };
 
+    /*
     // 解决egret-inspector显示的是实现类而不是业务类的名称
     Js.OverrideFunction(egret, 'getQualifiedClassName', (orifn: (value: any) => string, value: any): string => {
         if ('_fmui' in value)
             return value._fmui.descriptionName;
         return orifn(value);
     });
+    */
+
+    /**
+     * 解决wxgame触摸滑动卡顿的问题
+     */
+    if (IS_WEIXIN_MINGAME) {
+        let _PROTO: any = egret.sys.TouchHandler.prototype;
+        _PROTO.onTouchMove = function (t, e, i) {
+            if (null != this.touchDownTarget[i] && (this.lastTouchX != t || this.lastTouchY != e)) {
+                this.lastTouchX = t, this.lastTouchY = e;
+                //var r = this.findTarget(t, e); // 锁定在之前判定过的对象上
+                var r = this.touchDownTarget[i];
+                egret.TouchEvent.dispatchTouchEvent(r, egret.TouchEvent.TOUCH_MOVE, !0, !0, t, e, i, !0)
+            }
+        }
+    }
 }

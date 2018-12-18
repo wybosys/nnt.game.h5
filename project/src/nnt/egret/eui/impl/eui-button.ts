@@ -1,6 +1,7 @@
 module eui {
 
     export class ButtonU extends eui.Button implements eui.IItemRenderer {
+
         public slots: string = null;
         public tag: any = null;
 
@@ -107,6 +108,11 @@ module eui {
             if (this._textColor && this._getLabel()) {
                 this._getLabel().textColor = this._textColor;
             }
+            this.onLoaded();
+        }
+
+        onLoaded() {
+            // pass
         }
 
         private _data: any;
@@ -231,19 +237,14 @@ module eui {
             nn.setFrame(this, rc);
         }
 
-        onAppeared() {
-        }
-
-        onDisappeared() {
-        }
-
         onVisibleChanged() {
             if (this._signals)
                 this._signals.emit(nn.SignalVisibleChanged);
         }
 
         $setVisible(b: boolean): boolean {
-            if (super.$setVisible(b)) {
+            if (this.visible != b) {
+                super.$setVisible(b);
                 this.onVisibleChanged();
                 return true;
             }

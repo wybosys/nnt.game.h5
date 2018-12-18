@@ -21,13 +21,76 @@ module nn {
         get fontFamily(): string {
             return egret.TextField.default_fontFamily;
         }
+
+        protected _preloadConfig(queue: OperationQueue) {
+            super._preloadConfig(queue);
+            // assertmanager要求先加载resourcejson
+            queue.add(new OperationClosure(oper => {
+                // 如果没有该文件，会导致必须一开始加载一个巨大的res.json
+                // 等引导用的json加载成功后，会异步加载res.json\theme.json等
+                let res = "default.boot.json";
+                ResManager.loadConfig(res, "resource", () => {
+                    oper.done();
+                }, this);
+            }, this));
+            // 之后处理异步加载的资源
+            let group = new OperationGroup();
+            this._asyncPreloadConfig(group);
+            queue.add(group);
+        }
+
+        protected _asyncPreloadConfig(group: OperationGroup) {
+            // 加载基础配置文件
+            group.add(new OperationClosure(oper => {
+                let cfg = this.configFile;
+                if (!Device.shared.isMinGame)
+                    cfg += '?v=' + this.version;
+                ResManager.getResByUrl(cfg, ResPriority.NORMAL, (obj: CacheRecord) => {
+                    this.config = obj.val;
+                    // 如果需要处理debug的config文件
+                    if (app.debug.CONFIG) {
+                        ResManager.getResByUrl('~debug.json', ResPriority.NORMAL, (obj: CacheRecord) => {
+                            let cfg = obj.val;
+                            Object.keys(cfg).forEach((e: any) => {
+                                this.config[e] = cfg[e];
+                            });
+                            oper.done();
+                        }, this, ResType.JSON);
+                    } else {
+                        oper.done();
+                    }
+                }, this, ResType.JSON);
+            }, this));
+
+            // 加载真正的resource文件
+            group.add(new OperationClosure(oper => {
+                let res = this.resourceFile.name;
+                let domain = this.resourceFile.domain;
+                if (!Device.shared.isMinGame)
+                    res += '?v=' + this.version;
+                ResManager.loadConfig(res, domain, () => {
+                    oper.done();
+                }, this);
+            }, this));
+
+            // 加载子包的resource文件
+            group.add(new OperationClosure(oper => {
+                let res = this.subresourceFile.name;
+                let domain = this.subresourceFile.domain;
+                if (!Device.shared.isMinGame)
+                    res += '?v=' + this.version;
+                ResManager.loadConfig(res, domain, () => {
+                    oper.done();
+                }, this);
+            }, this));
+        }
     }
 
     export let EUI_MODE: boolean = false;
 
     // ------------------实现egret需要的加载过程 ------------------------
 
-    // 保护Main入口类    
+    // 保护Main入口类
     let CLAZZ_MAIN: any;
 
     // 伪main类，为了支持library(用来支持wing项目)和framework两种模式下的切换
@@ -129,7 +192,7 @@ module nn {
         // 初始化 Stage 架构
         static Init() {
             // 设置主业务入口类
-            CLAZZ_MAIN = eval("Main");
+            CLAZZ_MAIN = window["Main"];
 
             // 判断支持的特性
             let features = CLAZZ_MAIN.Features();
@@ -155,7 +218,7 @@ module nn {
             Device.shared._updateScreen();
             Dom.updateBounds();
 
-            // 设置大小            
+            // 设置大小
             this.ScreenBounds = Device.shared.screenBounds;
             this.DesignBounds = CLAZZ_MAIN.BestFrame();
             if (this.DesignBounds == null)
@@ -271,7 +334,7 @@ module nn {
         static StageBounds: Rect;
     }
 
-    Js.OverrideFunction(egret, 'updateAllScreens', function (orifn: () => void) {
+    js.OverrideFunction(egret, 'updateAllScreens', function (orifn: () => void) {
         if (CLAZZ_MAIN == null)
             return;
 
@@ -283,10 +346,10 @@ module nn {
         // 重新计算一下舞台的大小
         _AppStage.UpdateBounds();
 
-        // 刷新首页的尺寸        
+        // 刷新首页的尺寸
         _AppStage.shared.updateLayout();
 
-        // 激活信号            
+        // 激活信号
         emit(CApplication.shared, SignalFrameChanged);
 
         // 调用原始的实现
@@ -294,13 +357,13 @@ module nn {
     });
 
     // 需要替换查找入口类的函数，使得我们可以插入非业务类作为主入口
-    Js.OverrideFunction(egret, 'getDefinitionByName', (orifn: (name: string) => any, name: string): any => {
+    js.OverrideFunction(egret, 'getDefinitionByName', (orifn: (name: string) => any, name: string): any => {
         if (name == 'Main')
             return _AppStage;
         return orifn(name);
     });
 
-    // 替换掉默认的屏幕适配        
+    // 替换掉默认的屏幕适配
     class ExtScreenAdapter extends egret.sys.DefaultScreenAdapter {
         calculateStageSize(scaleMode: string, screenWidth: number, screenHeight: number, contentWidth: number, contentHeight: number): egret.sys.StageDisplaySize {
             // 如果是标准PC浏览器，使用设计尺寸直接计算
@@ -343,6 +406,38 @@ module nn {
             Device.shared.isCanvas = false;
     };
 
+    // 加载小程序
+    loader.mingamestart = (options: any) => {
+        // 执行加载动作
+        loader.InvokeBoot();
+
+        // 初始化舞台
+        _AppStage.Init();
+
+        // 默认使用webgl渲染
+        egret.runEgret({
+            entryClassName: "Main",
+            orientation: options.orientation,
+            frameRate: options.frameRate,
+            scaleMode: "fixedWidth",
+            contentWidth: 480,
+            contentHeight: 800,
+            maxTouches: 1,
+            renderMode: 'webgl',
+            audioType: 0,
+            calculateCanvasScaleFactor: function (context: any) {
+                var backingStore = context.backingStorePixelRatio ||
+                    context.webkitBackingStorePixelRatio ||
+                    context.mozBackingStorePixelRatio ||
+                    context.msBackingStorePixelRatio ||
+                    context.oBackingStorePixelRatio ||
+                    context.backingStorePixelRatio || 1;
+                return (window.devicePixelRatio || 1) / backingStore;
+            }
+        });
+        Device.shared.isCanvas = false;
+    };
+
     // 启动原生程序
     loader.nativestart = () => {
         // 创建舞台
@@ -361,3 +456,6 @@ module nn {
         egret.runEgret();
     };
 }
+
+// 提前保护设置
+window["nn"] = nn;

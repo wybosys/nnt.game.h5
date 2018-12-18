@@ -4,16 +4,29 @@ module nn {
         constructor() {
             super();
             EUI_MODE = true;
+
+            egret.lifecycle.addLifecycleListener(() => {
+                // pass
+            });
+
+            egret.lifecycle.onPause = () => {
+                egret.ticker.pause();
+            };
+
+            egret.lifecycle.onResume = () => {
+                egret.ticker.resume();
+            };
+
+            egret.registerImplementation("eui.IAssetAdapter", new AssetAdapter());
+            egret.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
         }
 
-        protected _preloadConfig(oper: OperationGroup) {
-            super._preloadConfig(oper);
+        protected _asyncPreloadConfig(group: OperationGroup) {
+            super._asyncPreloadConfig(group);
 
+            // 加载皮肤文件
             let stage = this._imp.stage;
-            stage.registerImplementation("eui.IAssetAdapter", new AssetAdapter());
-            stage.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
-
-            oper.add(new OperationClosure((oper: Operation) => {
+            group.add(new OperationClosure((oper: Operation) => {
                 let fn = ResManager.directory + this.themeFile + '?v=' + this.version;
                 let theme = new eeui.Theme(fn, stage);
                 theme.addEventListener(egret.Event.COMPLETE, () => {

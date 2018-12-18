@@ -1,14 +1,11 @@
 module eui {
 
+    import CBrush = nn.CBrush;
+
     export class RectU extends eui.Rect {
+
         onPartBinded(name: string, target: any) {
             _EUIExt.onPartBinded(this, name, target);
-        }
-
-        onAppeared() {
-        }
-
-        onDisappeared() {
         }
 
         updateCache() {
@@ -25,6 +22,24 @@ module eui {
         $onRemoveFromStage() {
             super.$onRemoveFromStage();
             this.drop();
+        }
+
+        private _brush: nn.CBrush;
+
+        get brush(): nn.CBrush {
+            return this._brush;
+        }
+
+        set brush(br: nn.CBrush) {
+            this._brush = br;
+            this.fillColor = br.color.rgba;
+        }
+
+        private _painter: nn.Painter;
+        get painter(): nn.Painter {
+            if (!this._painter)
+                this._painter = new nn.Painter(this.graphics);
+            return this._painter;
         }
     }
 

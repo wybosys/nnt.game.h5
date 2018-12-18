@@ -5,10 +5,10 @@
             <e:HorizontalLayout verticalAlign="middle"/>
         </e:layout>
         <e:ImageU fillMode="scale" alpha="1" alpha.disabled="0.5" alpha.down="0.7"
-                 source="checkbox_unselect_png"
-                 source.upAndSelected="checkbox_select_up_png"
-                 source.downAndSelected="checkbox_select_down_png"
-                 source.disabledAndSelected="checkbox_select_disabled_png"/>
+                 source="checkbox_unselect"
+                 source.upAndSelected="checkbox_select_up"
+                 source.downAndSelected="checkbox_select_down"
+                 source.disabledAndSelected="checkbox_select_disabled"/>
         <e:LabelU id="labelDisplay" size="20" textColor="0x707070"
                  textAlign="center" verticalAlign="middle"
                  fontFamily="Tahoma"/>

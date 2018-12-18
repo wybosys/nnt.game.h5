@@ -50,14 +50,14 @@ module nn {
 
         // 默认没有属性
         DEFAULT = 0,
-    };
+    }
 
     /** 定位方式 */
     export enum LocatingType {
         LAYOUT, // 默认，使用LayoutBox来布局，只使用FactorSize来调整缩放后的尺寸
         ABSOLUTE, // 绝对布局，会使用ScaleFactor来调整位置
         RELATIVE, // 相对布局，会使用ScaleFactor来调整位置以及尺寸
-    };
+    }
 
     /** 全局的设计和实际坐标的转换 */
     export let ScaleFactorX = 1;
@@ -139,7 +139,7 @@ module nn {
         // static getInstance():any;
 
         /** 释放实体 */
-        // static freeInstance();        
+        // static freeInstance();
     }
 
     /** 全局的不可释放的唯一实例 */
@@ -443,7 +443,7 @@ module nn {
             if (v == null) {
                 buf += 'null';
             } else {
-                let tp = typeof(v);
+                let tp = typeof (v);
                 switch (tp) {
                     case 'string': {
                         buf += '"' + v + '"';
@@ -540,7 +540,7 @@ module nn {
             warn(s, obj.name, obj.stack);
             console.log(console.trace());
         }
-        Debugger();
+        //Debugger();
     }
 
     /** 控制台弹窗 */
@@ -553,7 +553,7 @@ module nn {
     export function assert(exp: boolean, msg?: string) {
         if (!exp) {
             warn(msg);
-            Debugger();
+            //Debugger();
         }
     }
 
@@ -585,7 +585,7 @@ module nn {
     export function fatal(msg: string) {
         warn(msg);
         alert(msg);
-        Debugger();
+        //Debugger();
     }
 
     /** 带保护的取得一个对象的长度 */
@@ -631,7 +631,7 @@ module nn {
     export function toFloat(o: any, def = 0): number {
         if (o == null)
             return def;
-        let tp = typeof(o);
+        let tp = typeof (o);
         if (tp == 'number')
             return SafeNumber(o, def);
         if (tp == 'string') {
@@ -647,7 +647,7 @@ module nn {
     export function toInt(o: any, def = 0): number {
         if (o == null)
             return def;
-        let tp = typeof(o);
+        let tp = typeof (o);
         if (tp == 'number' || tp == 'string') {
             let v = parseInt(o);
             return SafeNumber(v, def);
@@ -663,7 +663,7 @@ module nn {
     export function toNumber(o: any, def = 0): number {
         if (o == null)
             return def;
-        let tp = typeof(o);
+        let tp = typeof (o);
         if (tp == 'number')
             return SafeNumber(o, def);
         if (tp == 'string') {
@@ -683,7 +683,7 @@ module nn {
     export function asString(o: any, def = ''): string {
         if (o == null)
             return def;
-        let tp = typeof(o);
+        let tp = typeof (o);
         if (tp == 'string')
             return o;
         if (tp == 'number')
@@ -695,14 +695,13 @@ module nn {
 
     /** 转换到json字串 */
     export function toJson(o: any, def = null): string {
-        let t = typeof(o);
+        let t = typeof (o);
         if (t == 'string')
             return o;
         let r = null;
         try {
             r = JSON.stringify(o);
-        }
-        catch (ex) {
+        } catch (ex) {
             r = def;
         }
         return r;
@@ -710,18 +709,23 @@ module nn {
 
     /** 转换到对象 */
     export function toJsonObject(o: jsonobj, def = null): Object {
-        let t = typeof(o);
-        if (t == 'string')
-            return JSON.parse(<string>o);
-        else if (t == 'object')
+        let t = typeof (o);
+        if (t == 'string') {
+            try {
+                return JSON.parse(<string>o);
+            } catch (ex) {
+                return def;
+            }
+        } else if (t == 'object') {
             return o;
+        }
         return def;
     }
 
     /** 格式化字符串 */
     export function formatString(fmt: string, ...p: any[]): string {
         try {
-            return Invoke1(Js.printf, this, p, fmt);
+            return Invoke1(js.printf, this, p, fmt);
         } catch (err) {
             exception(new Error('format: ' + fmt + '\nargus: ' + dump(p) + '\n' + err));
         }
@@ -730,7 +734,7 @@ module nn {
 
     export function formatStringV(fmt: string, p: any[]): string {
         try {
-            return Invoke1(Js.printf, this, p, fmt);
+            return Invoke1(js.printf, this, p, fmt);
         } catch (err) {
             exception(new Error('format: ' + fmt + '\nargus: ' + dump(p) + '\n' + err));
         }
@@ -774,7 +778,7 @@ module nn {
     export function IsEmpty(o: any): boolean {
         if (o == null)
             return true;
-        let tp = typeof(o);
+        let tp = typeof (o);
         if (tp == 'string') {
             if (tp.length == 0)
                 return true;
@@ -784,10 +788,10 @@ module nn {
             return (<any>o).length == 0;
         }
         if (o instanceof CMap) {
-            return (<CMap<any, any> >o).length != 0;
+            return (<CMap<any, any>>o).length != 0;
         }
         if (o instanceof CSet) {
-            return (<CSet<any> >o).size != 0;
+            return (<CSet<any>>o).size != 0;
         }
         return Object.keys(o).length == 0;
     }
@@ -875,11 +879,10 @@ module nn {
             if (o == null)
                 return null;
             let top = ArrayT.Top(this._sck);
-            let tp = typeof(o);
+            let tp = typeof (o);
             if (tp == 'number' || tp == 'string') {
                 top.push(o);
-            }
-            else if (tp == 'object') {
+            } else if (tp == 'object') {
                 if (o instanceof Array) {
                     let t: any = {'__': 'Array', '--': []};
                     top.push(t);
@@ -888,8 +891,7 @@ module nn {
                         this.write(o);
                     }, this);
                     this._sck.pop();
-                }
-                else if (o instanceof CMap) {
+                } else if (o instanceof CMap) {
                     let t: any = {'__': 'Map', '--': [[], []]};
                     top.push(t);
 
@@ -907,16 +909,14 @@ module nn {
                             this.write(v);
                     }, this);
                     this._sck.pop();
-                }
-                else if (typeof(o.serialize) == 'function') {
+                } else if (typeof (o.serialize) == 'function') {
                     let t: any = {'__': Classname(o), '--': []};
                     top.push(t);
 
                     this._sck.push(t['--']);
                     o.serialize(this);
                     this._sck.pop();
-                }
-                else {
+                } else {
                     let t: any = {'__': 'Object', '--': []};
                     top.push(t);
 
@@ -927,8 +927,7 @@ module nn {
                     }, this);
                     this._sck.pop();
                 }
-            }
-            else {
+            } else {
                 return null;
             }
             return top;
@@ -938,7 +937,7 @@ module nn {
             let top = ArrayT.Top(this._sck);
 
             let o = top[0];
-            let tp = typeof(o);
+            let tp = typeof (o);
             if (tp == 'number' || tp == 'string') {
                 return o;
             }
@@ -955,8 +954,7 @@ module nn {
 
                     obj.push(v);
                 }, this);
-            }
-            else if (objcls == 'Map') {
+            } else if (objcls == 'Map') {
                 let o0 = objdata[0];
                 let o1 = objdata[1];
 
@@ -989,8 +987,7 @@ module nn {
 
                     obj[k] = v;
                 }
-            }
-            else if (objcls == 'Object') {
+            } else if (objcls == 'Object') {
                 for (let i = 0; i < objdata.length; ++i) {
                     let k: any = objdata[i];
                     let v: any = objdata[++i];
@@ -1005,8 +1002,7 @@ module nn {
 
                     obj[k] = v;
                 }
-            }
-            else if (typeof(obj.unserialize) == 'function') {
+            } else if (typeof (obj.unserialize) == 'function') {
                 this._sck.push(objdata);
                 obj.unserialize(this);
                 this._sck.pop();
@@ -1193,7 +1189,7 @@ module nn {
             keys.forEach((key: string) => {
                 if (key.indexOf('_') == 0)
                     return;
-                let t = typeof(b[key]);
+                let t = typeof (b[key]);
                 if (t == "string" || t == "number" || t == "boolean") {
                     l[key] = r[key];
                 } else if (t == "object") {
@@ -1603,7 +1599,7 @@ module nn {
 
         /** 初始化数量 */
         static Allocate<T>(count: number, def?: any): T[] {
-            let isfun = typeof(def) == 'function';
+            let isfun = typeof (def) == 'function';
             let f = <any>def;
             let r = [];
             for (let i = 0; i < count; ++i) {
@@ -2098,8 +2094,7 @@ module nn {
                     t.push(o);
                     h[k] = true;
                 });
-            }
-            else {
+            } else {
                 arr.forEach((o: any) => {
                     if (t.indexOf(o) == -1)
                         t.push(o);
@@ -2266,14 +2261,14 @@ module nn {
             let r = [];
             let map = {};
             this._arr.forEach((e: T) => {
-                let h = Js.hashKey(getkey(e));
+                let h = js.hashKey(getkey(e));
                 if (!map[h]) {
                     map[h] = e;
                     r.push(e);
                 }
             });
             tgt.forEach((e: T) => {
-                let h = Js.hashKey(getkey(e));
+                let h = js.hashKey(getkey(e));
                 if (!map[h]) {
                     map[h] = e;
                     r.push(e);
@@ -2511,8 +2506,7 @@ module nn {
                 let idx = this._keys.indexOf(k);
                 this._keys[idx] = k;
                 this._vals[idx] = v;
-            }
-            else {
+            } else {
                 this._keys.push(k);
                 this._vals.push(v);
             }
@@ -2525,8 +2519,7 @@ module nn {
             if (<any>k in this._map) {
                 let idx = this._keys.indexOf(k);
                 this._vals[idx] = v;
-            }
-            else {
+            } else {
                 this._keys.push(k);
                 this._vals.push(v);
             }
@@ -2942,7 +2935,7 @@ module nn {
 
     /** 颜色数值，rgb为24位，alpha规约到0-1的float */
     export function GetColorComponent(c: ColorType): number[] {
-        switch (typeof(c)) {
+        switch (typeof (c)) {
             case 'number': {
                 let rgb = (<number>c) & 0xffffff;
                 let a = (((<number>c) >> 24) & 0xff) * Color._1_255;
@@ -3555,7 +3548,7 @@ module nn {
         private rvalue(v: rnumber, p: number): number {
             if (v == null)
                 return null;
-            return typeof(<any>v) == 'number' ?
+            return typeof (<any>v) == 'number' ?
                 <number>v :
                 <any>v * p;
         }
@@ -4560,21 +4553,6 @@ module nn {
             return decodeURIComponent(d);
         }
 
-        /** 字符串打包，encode测试发现在native状态下，如果使用urlloader发送，则放在参数中的例如http://之类的字符串会被恢复编码，导致500错误 */
-        static pack(str: string, uri: boolean = true): string {
-            let r = btoa(str);
-            if (uri)
-                return encodeURIComponent(r);
-            return r;
-        }
-
-        static unpack(str: string, uri: boolean = true): string {
-            let r = atob(str);
-            if (uri)
-                return decodeURIComponent(r);
-            return r;
-        }
-
         static htmlEncode(s: string): string {
             if (s.length == 0)
                 return "";
@@ -4845,7 +4823,7 @@ module nn {
         /** 计算diff-year，根绝suffix的类型返回对应的类型 */
         dyears(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Dyears(this._timestamp, up);
-            if (typeof(suffix) == 'string')
+            if (typeof (suffix) == 'string')
                 return v ? v + suffix : '';
             return v + suffix;
         }
@@ -4853,7 +4831,7 @@ module nn {
         /** 计算diff-months */
         dmonths(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Dmonths(this._timestamp, up);
-            if (typeof(suffix) == 'string')
+            if (typeof (suffix) == 'string')
                 return v ? v + suffix : '';
             return v + suffix;
         }
@@ -4861,7 +4839,7 @@ module nn {
         /** 计算diff-days */
         ddays(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Ddays(this._timestamp, up);
-            if (typeof(suffix) == 'string')
+            if (typeof (suffix) == 'string')
                 return v ? v + suffix : '';
             return v + suffix;
         }
@@ -4869,7 +4847,7 @@ module nn {
         /** 计算diff-hours */
         dhours(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Dhours(this._timestamp, up);
-            if (typeof(suffix) == 'string')
+            if (typeof (suffix) == 'string')
                 return v ? v + suffix : '';
             return v + suffix;
         }
@@ -4877,7 +4855,7 @@ module nn {
         /** 计算diff-mins */
         dminutes(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Dminutes(this._timestamp, up);
-            if (typeof(suffix) == 'string')
+            if (typeof (suffix) == 'string')
                 return v ? v + suffix : '';
             return v + suffix;
         }
@@ -4885,7 +4863,7 @@ module nn {
         /** 计算diff-secs */
         dseconds(up: boolean = true, suffix: any | string = 0): any {
             let v = DateTime.Dseconds(this._timestamp, up);
-            if (typeof(suffix) == 'string')
+            if (typeof (suffix) == 'string')
                 return v ? v + suffix : '';
             return v + suffix;
         }
@@ -4992,11 +4970,10 @@ module nn {
             this._tmr = IMP_CREATE_TIMER(this.interval, 0);
             if (CTimer.SAFE_TIMER_ENABLED) {
                 CTimer.SAFE_TIMERS.add(this);
-            }
-            else {
+            } else {
                 IMP_START_TIMER(this._tmr, this.__tmr_tick, this);
 
-                // 记录一下启动的时间                
+                // 记录一下启动的时间
                 this.currentTime = DateTime.Pass();
             }
         }
@@ -5038,8 +5015,7 @@ module nn {
                     } else {
                         this.signals.emit(SignalAction);
                     }
-                }
-                else {
+                } else {
                     this.signals.emit(SignalAction);
                 }
 
@@ -5073,8 +5049,7 @@ module nn {
             this._tmr = IMP_CREATE_TIMER(this.interval, this.count == -1 ? 0 : this.count);
             if (CTimer.SAFE_TIMER_ENABLED) {
                 CTimer.SAFE_TIMERS.add(this);
-            }
-            else {
+            } else {
                 IMP_START_TIMER(this._tmr, this.__tmr_tick, this);
             }
         }
@@ -5103,8 +5078,7 @@ module nn {
                 } else {
                     this.signals.emit(SignalAction);
                 }
-            }
-            else {
+            } else {
                 this.signals.emit(SignalAction);
             }
         }
@@ -5463,12 +5437,10 @@ module nn {
 
                         // 恢复激发计数
                         item._firedCount = 0;
-                    }
-                    else {
+                    } else {
                         item.signals.emit(SignalAction, s.sender.xdata);
                     }
-                }
-                else {
+                } else {
                     item.signals.emit(SignalAction, s.sender.xdata);
                 }
             }, this);
@@ -5594,6 +5566,7 @@ module nn {
             self.isPurePC = !self.isMobile && (self.isMac || self.isWin || self.isUnix || self.isLinux);
 
             self.isHighPerfomance = !self.isAndroid;
+            self.isMinGame = IS_MINGAME;
         }
 
         platform: string;
@@ -5608,6 +5581,9 @@ module nn {
         isMobile: boolean;
         isPC: boolean;
         isPurePC: boolean;
+
+        /** 小程序模式 */
+        isMinGame: boolean = false;
 
         /** canvas模式 */
         isCanvas: boolean = true;
@@ -5631,8 +5607,8 @@ module nn {
         screenType: ScreenType = ScreenType.NORMAL;
 
         _updateScreen() {
-            let browserSize = Js.getBrowserSize();
-            let screenSize = Js.getScreenSize();
+            let browserSize = js.getBrowserSize();
+            let screenSize = js.getScreenSize();
 
             // 需要保护一下browser定义必须小于screen，但是有些渠道发现刚好相反
             /*
@@ -5643,7 +5619,7 @@ module nn {
             this.screenBounds.reset(0, 0, browserSize.width, browserSize.height);
             this.screenFrame.reset(0, 0, screenSize.width, screenSize.height);
 
-            let browserOri = Js.getBrowserOrientation();
+            let browserOri = js.getBrowserOrientation();
             if (this.screenOrientation.angle != browserOri) {
                 this.screenOrientation.angle = browserOri;
                 this.signals.emit(SignalOrientationChanged, this.screenOrientation);
@@ -5719,6 +5695,7 @@ module nn {
             this._signals.register(SignalDataChanged);
             this._signals.register(SignalTimeout);
             this._signals.register(SignalFailed);
+            this._signals.register(SignalReopen);
         }
 
         /** 是否已经打开 */
@@ -6056,7 +6033,7 @@ module nn {
      new Retry(....).process();
      */
     export class Retry implements IOrder {
-        /* 
+        /*
            @param times 重试次数
            @param interval 重试的时间间隔s，或者是每一次的间隔
         */
@@ -6083,10 +6060,10 @@ module nn {
         /** 下一个 */
         next() {
             let delay: number;
-            if (typeof(this._interval) == 'number')
+            if (typeof (this._interval) == 'number')
                 delay = <number>this._interval;
             else
-                delay = (<Array<number> >this._interval)[this._currentTime];
+                delay = (<Array<number>>this._interval)[this._currentTime];
 
             if (this._times > 0 &&
                 this._currentTime++ == this._times) {
@@ -6616,10 +6593,10 @@ module nn {
             if (ISHTML5) {
                 if (<any>p instanceof Array) {
                     let srcs = <string[]>p;
-                    Js.loadScripts(srcs, cb, ctx);
+                    js.loadScripts(srcs, cb, ctx);
                 } else {
                     let src = <string>p;
-                    Js.loadScript(src, cb, ctx);
+                    js.loadScript(src, cb, ctx);
                 }
             } else {
                 if (<any>p instanceof Array) {
@@ -6642,5 +6619,5 @@ module nn {
 
 /** 当native时，直接用set会出现key为ui时第二次加入时崩溃，所以需要转成安全的set */
 function NewSet<T>(): nn.SetType<T> {
-    return <any> (nn.ISHTML5 ? new nn.CSet<T>() : new nn.SafeSet<T>());
+    return <any>(nn.ISHTML5 ? new nn.CSet<T>() : new nn.SafeSet<T>());
 }

@@ -17,12 +17,18 @@ import {
 import {Service} from "./service";
 import path = require("path");
 import watch = require("watch");
+import {Worker} from "./worker";
+import {Game} from "./game";
 
 const PAT_EXCEL = [/\.xlsx$/];
 const PAT_EXCEL_IGNORE = [/^~/, /^#/]; // office文件打开会产生临时文件
 const PAT_JS = [/\.js$/];
 
-export class Gendata {
+export class Gendata extends Worker {
+
+    constructor(game: Game) {
+        super(game);
+    }
 
     clean() {
         fs.removeSync(".n2/gendata");
@@ -540,7 +546,7 @@ function FieldOfColumn(s: xlsx.WorkSheet, aoa: any[], idx: number): Field {
 if (path.basename(process.argv[1]) == 'gendata.js') {
     Service.Locker('gendata').acquire();
 
-    let gd = new Gendata();
+    let gd = new Gendata(null);
     watch.createMonitor('project/src/app/data', moniter => {
         moniter.on('created', (f: string, stat) => {
             if (!NotMatch(f, PAT_EXCEL_IGNORE) && IsMatch(f, PAT_EXCEL))

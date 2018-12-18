@@ -14,7 +14,7 @@ module nn {
         else if (inout == TimeFunction.OUT)
             return egret.Ease.quadOut;
         return egret.Ease.quadIn;
-    }
+    };
 
     TimeFunction.Bounce = (inout?: number): Function => {
         if (inout == TimeFunction.INOUT)
@@ -22,7 +22,7 @@ module nn {
         else if (inout == TimeFunction.OUT)
             return egret.Ease.bounceOut;
         return egret.Ease.bounceIn;
-    }
+    };
 
     TimeFunction.Elastic = (amplitude?: any, period?: any, inout?: number): Function => {
         if (amplitude == null && period == null) {
@@ -45,7 +45,7 @@ module nn {
         else if (inout == TimeFunction.OUT)
             return egret.Ease.circOut;
         return egret.Ease.circIn;
-    }
+    };
 
     TimeFunction.Back = (amount?: number, inout?: number): Function => {
         if (amount == null) {
@@ -61,7 +61,7 @@ module nn {
         else if (inout == TimeFunction.OUT)
             return egret.Ease.getBackOut(amount);
         return egret.Ease.getBackIn(amount);
-    }
+    };
 
     interface DAnimateStep {
         preprops: {}; // 变化前

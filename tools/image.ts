@@ -20,8 +20,6 @@ export const WHITES_IMAGECOMPRESS = [/\.png$/, /.jpg$/, /.jpeg$/];
 // node-sharp限制
 const SHARP_MIN_LENGTH = 10;
 
-export type Image = sharp.SharpInstance;
-
 class MergingFileInfo {
 
     // 源文件地址
@@ -212,7 +210,7 @@ export class ImageMergeResult {
         }).png();
     }
 
-    image: Image;
+    image: sharp.SharpInstance;
     result: MergingFileInfo[] = [];
 }
 
@@ -247,7 +245,7 @@ export class ImageCompress {
             img.toBuffer((err, buf) => {
                 sharp(buf).jpeg({
                     quality: 70
-                }).toFile(this._file, err => {
+                }).toFile(this._file, (err) => {
                     if (err) {
                         console.log(err);
                     } else {

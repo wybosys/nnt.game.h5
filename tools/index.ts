@@ -15,50 +15,74 @@ function main() {
 
     // 根据项目特征选用游戏模板
     let game: Game;
-    if (fs.existsSync("project/egretProperties.json"))
+    if (fs.existsSync("project/wingProperties.json"))
         game = new EgretGame();
 
     program
         .command("clean")
         .description("清理项目")
         .action(() => {
-            game.clean();
+            try {
+                game.clean();
+            } catch (err) {
+            }
         });
 
     program
-        .command("build")
+        .command("build [channel]")
         .description("生成调试项目")
-        .action(() => {
+        .action((channel) => {
             game.build({
-                debug: true
+                debug: true,
+                channel: channel
             });
         });
 
     program
-        .command("publish")
+        .command("publish [special-channel]")
         .description("生成正式项目")
         .option("-c, --compress", "图片压缩")
         .option("-m, --merge", "图片合并")
-        .action(() => {
+        .action((channel) => {
             game.build({
                 release: true,
                 noservice: true,
                 merge_images: program.merge,
-                compress_images: program.compress
+                compress_images: program.compress,
+                channel: channel
             });
         });
 
     program
-        .command("dist")
+        .command("dist [special-channel]")
         .description("发布项目")
-        .action(() => {
+        .action((channel) => {
             game.build({
                 distribution: true,
                 noservice: true,
                 merge_images: false,
                 compress_images: false,
-                compress_scripts: true
+                compress_scripts: true,
+                channel: channel
             });
+        });
+
+    program
+        .command("mingame <special-channel>")
+        .description("打包微信小游戏")
+        .option("-d, --debug", "测试")
+        .action((channel, opts) => {
+            game.mingame({
+                channel: channel,
+                publish: !opts.debug
+            });
+        });
+
+    program
+        .command("compress")
+        .description("压缩输出的项目")
+        .action(() => {
+            game.compress();
         });
 
     program

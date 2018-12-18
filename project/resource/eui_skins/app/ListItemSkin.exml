@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<e:Skin class="ListItemSkin" width="370" height="110" xmlns:e="http://ns.egret.com/eui"  xmlns:app="app.*">
-	<e:ImageU width="103" height="83" x="8" y="11" source="checkbox_select_down"/>
-	<app:TestItem x="237" y="27" width="107" height="65" skinName="app.item.TestItemSkin"/>
-</e:Skin>

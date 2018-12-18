@@ -45,6 +45,7 @@ module nn {
             this._signals.register(SignalTouchBegin);
             this._signals.register(SignalTouchEnd);
             this._signals.register(SignalTouchMove);
+            this._signals.register(SignalTouchReleased);
             this._signals.register(SignalConstriantChanged);
             this._signals.register(SignalLoaded);
             this._signals.register(SignalAddedToStage);

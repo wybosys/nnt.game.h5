@@ -3,12 +3,14 @@
 class KvObject<K, V> {
 }
 
+type IndexedObject = KvObject<any, any>;
+
 module nn {
 
     declare let Map;
     declare let Set;
     export let ECMA6_NATIVE: boolean = true;
-    if (typeof(Map) == 'undefined')
+    if (typeof (Map) == 'undefined')
         ECMA6_NATIVE = false;
 
     export class CMap<K, V> {
@@ -121,7 +123,7 @@ module nn {
         }
 
         private _i_add(o: V): boolean {
-            let k = Js.hashKey(o);
+            let k = js.hashKey(o);
             if (this._map[k] != undefined)
                 return false;
             this._map[k] = true;
@@ -136,7 +138,7 @@ module nn {
         }
 
         private _i_has(o: V): boolean {
-            let k = Js.hashKey(o);
+            let k = js.hashKey(o);
             return this._map[k] != undefined;
         }
 
@@ -147,7 +149,7 @@ module nn {
         }
 
         private _i_delete(o: V): boolean {
-            let k = Js.hashKey(o);
+            let k = js.hashKey(o);
             if (this._map[k] == undefined)
                 return false;
             this._map.delete(k);

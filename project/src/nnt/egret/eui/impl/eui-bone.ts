@@ -5,8 +5,8 @@ module eui {
             let src = this._skeleton;
             if (src) {
                 if (src.indexOf('://') == -1)
-                    if (src.indexOf('_skeleton') == -1)
-                        src += '_skeleton'; // 和hd中的区别是wing的项目一般使用自动管理资源，此时生成resjson中对于name_skeleton.json的命名将是name_skeleton而不是期望的name_skeleton_json
+                    if (src.indexOf('_ske') == -1)
+                        src += '_ske'; // 和hd中的区别是wing的项目一般使用自动管理资源，此时生成resjson中对于name_skeleton.json的命名将是name_skeleton而不是期望的name_skeleton_json
             }
             return src;
         }

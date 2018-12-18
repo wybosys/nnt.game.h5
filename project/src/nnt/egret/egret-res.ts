@@ -1,58 +1,3 @@
-// 对egret的RES模块进行功能扩展
-module RES {
-
-    class ExtResourceItem extends ResourceItem {
-        constructor(name: string, url: string, type: string) {
-            super(name, url, type);
-        }
-
-        _priority: nn.ResPriority = nn.ResCurrentPriority;
-    }
-
-    class ExtLazyLoadList {
-        push(item: ExtResourceItem) {
-            let arr = this.items[item._priority];
-            arr.push(item);
-            ++this.length;
-        }
-
-        pop(): ExtResourceItem {
-            if (this.length == 0)
-                return null;
-            let arr = this.items[nn.ResPriority.NORMAL];
-            let poped = arr.pop();
-            if (poped == null) {
-                arr = this.items[nn.ResPriority.CLIP];
-                poped = arr.pop();
-            }
-            --this.length;
-            return poped;
-        }
-
-        length: number = 0;
-
-        // 不通的等级定义不同的队列
-        items: Array<Array<ExtResourceItem>> = [[], []];
-    }
-
-    RES.ResourceItem = ExtResourceItem;
-
-    // 使用ext换掉原来的lazy以提供附加的优先级控制
-    let lazyLoadListChanged: boolean;
-    let PROTO = ResourceLoader.prototype;
-    let funcLoadItem = PROTO.loadItem;
-    PROTO.loadItem = function (resItem: ResourceItem) {
-        let self: any = this;
-        if (!lazyLoadListChanged) {
-            if (self.lazyLoadList == null)
-                nn.fatal("Egret引擎升级RES的LazyLoadList方法，请检查引擎修改");
-            self.lazyLoadList = new ExtLazyLoadList();
-            lazyLoadListChanged = true;
-        }
-        funcLoadItem.call(self, resItem);
-    };
-}
-
 module nn {
 
     export interface ICacheJson
@@ -85,7 +30,11 @@ module nn {
         use(): any;
     }
 
+    // 图片地址解析
     let WebImageUriCheckPattern = /^(https?):\/\/(.+)$/i;
+
+    // 是否支持图片跨域
+    let CLAZZ_EXT_IMAGE_LOADER: any;
 
     // 资源池
     export class _ResMemcache extends Memcache {
@@ -98,7 +47,7 @@ module nn {
             super.doRemoveObject(rcd);
             let srcs = this._sources[rcd.key];
             srcs.forEach((e: string) => {
-                RES.destroyRes(e);
+                //RES.destroyRes(e);
                 if (VERBOSE)
                     log("释放资源 " + e);
                 delete this._keys[e];
@@ -261,10 +210,6 @@ module nn {
         constructor() {
             super();
 
-            // config 只在manager中处理，其他事件转到包中处理
-            RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE,
-                this._cfg_loaded, this);
-
             RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE,
                 this._grp_complete, this);
             RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR,
@@ -282,13 +227,10 @@ module nn {
         // 资源的缓存管理
         cache = new _ResMemcache();
 
-        loadConfig(file: string, cb: (e: any) => void, ctx: any) {
-            this._ewd.add("::res::config", cb, ctx);
-            // 如过file是绝对地址，则不添加directory
-            if (file.indexOf('://') == -1)
-                file = this.directory + file;
-            RES.loadConfig(file,
-                this.directory);
+        loadConfig(file: string, domain: string, cb: (e: any) => void, ctx: any) {
+            RES.loadConfig(file, domain).then(() => {
+                cb.call(ctx);
+            });
         }
 
         get cacheEnabled(): boolean {
@@ -299,17 +241,10 @@ module nn {
             this.cache.enable = v;
         }
 
-        private _cfg_loaded(e: RES.ResourceEvent) {
-            let idr = "::res::config";
-            this._ewd.invoke(idr, e, false);
-            this._ewd.remove(idr);
-        }
-
         private _grp_complete(e: RES.ResourceEvent) {
             let idr0 = "::res::group::" + e.groupName;
             let idr1 = "::res::group::progress::" + e.groupName;
-            this._ewd.invoke(idr0, e, false);
-            this._ewd.remove(idr0);
+            this._ewd.invokeAfterClear(idr0, e, false);
             this._ewd.remove(idr1);
         }
 
@@ -362,6 +297,8 @@ module nn {
         }
 
         tryGetRes(key: string): ICacheRecord {
+            if (!key)
+                return new CacheRecord();
             let rcd = this.cache.query(key);
             if (rcd == null) {
                 let d = RES.getRes(key);
@@ -376,10 +313,11 @@ module nn {
 
         getResAsync(key: string, priority: ResPriority,
                     cb: (rcd: ICacheRecord) => void, ctx?: any) {
-            if (length(key) == 0) {
+            if (!key) {
                 cb.call(ctx, new CacheRecord());
                 return;
             }
+
             let rcd = this.cache.query(key);
             if (rcd == null) {
                 ResCurrentPriority = priority;
@@ -414,6 +352,9 @@ module nn {
 
         getResByUrl(src: UriSource, priority: ResPriority,
                     cb: (rcd: ICacheRecord | CacheRecord) => void, ctx: any, type: ResType) {
+            if (!src)
+                return new CacheRecord();
+
             // 如果位于缓存中，则直接返回
             let rcd = this.cache.query(src);
             if (rcd != null) {
@@ -437,12 +378,19 @@ module nn {
 
         getTexture(src: TextureSource, priority: ResPriority,
                    cb: (tex: ICacheTexture) => void, ctx: any): void {
+            if (src == null) {
+                let rcd = new CacheRecord();
+                cb.call(ctx, rcd);
+                return;
+            }
+
             if (<any>src instanceof COriginType) {
                 let t = new CacheRecord();
                 t.val = (<COriginType>src).imp;
                 cb.call(ctx, t);
                 return;
             }
+
             if (<any>src instanceof egret.Texture) {
                 let t = new CacheRecord();
                 t.val = src;
@@ -452,14 +400,14 @@ module nn {
 
             // 获得纹理需要处理跨域的情况, 只处理全url的情况
             let url: string = <string>src;
-            if (url.match(WebImageUriCheckPattern) && url.indexOf(document.domain) == -1) {
+            if (CLAZZ_EXT_IMAGE_LOADER && url.match(WebImageUriCheckPattern) && url.indexOf(document.domain) == -1) {
                 // 先判断是否可以从缓存中拿到
                 let rcd = this.cache.query(url);
                 if (rcd) {
                     cb.call(ctx, rcd);
                 } else {
                     // 跨域
-                    let il = new ExtImageLoader();
+                    let il = new CLAZZ_EXT_IMAGE_LOADER();
                     il.crossOrigin = "anonymous";
                     il.load(url, tex => {
                         if (tex) {
@@ -534,47 +482,51 @@ module nn {
         }
     }
 
-    // 用来异步加载跨域图片得加载类
-    class ExtImageLoader extends egret.ImageLoader {
+    if (typeof egret.ImageLoader != "undefined") {
 
-        load(url: string, cb?: (tex: egret.Texture) => void, ctx?: any) {
-            this._cb = cb;
-            this._ctx = ctx;
+        // 用来异步加载跨域图片得加载类
+        class ExtImageLoader extends egret.ImageLoader {
 
-            this.addEventListener(egret.Event.COMPLETE, this._cb_complete, this);
-            this.addEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
+            load(url: string, cb?: (tex: egret.Texture) => void, ctx?: any) {
+                this._cb = cb;
+                this._ctx = ctx;
 
-            super.load(url);
-        }
+                this.addEventListener(egret.Event.COMPLETE, this._cb_complete, this);
+                this.addEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
 
-        private _cb: (tex: egret.Texture) => void;
-        private _ctx: any;
-
-        private _cb_complete(e: egret.Event) {
-            if (this._cb) {
-                let tex = new egret.Texture();
-                tex.bitmapData = this.data;
-                this._cb.call(this._ctx, tex);
-                this._cb = null;
-                this._ctx = null;
+                super.load(url);
             }
 
-            this.removeEventListener(egret.Event.COMPLETE, this._cb_complete, this);
-            this.removeEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
-        }
+            private _cb: (tex: egret.Texture) => void;
+            private _ctx: any;
 
-        private _cb_error(e: egret.Event) {
-            if (this._cb) {
-                this._cb.call(this._ctx, null);
-                this._cb = null;
-                this._ctx = null;
+            private _cb_complete(e: egret.Event) {
+                if (this._cb) {
+                    let tex = new egret.Texture();
+                    tex.bitmapData = this.data;
+                    this._cb.call(this._ctx, tex);
+                    this._cb = null;
+                    this._ctx = null;
+                }
+
+                this.removeEventListener(egret.Event.COMPLETE, this._cb_complete, this);
+                this.removeEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
             }
 
-            this.removeEventListener(egret.Event.COMPLETE, this._cb_complete, this);
-            this.removeEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
+            private _cb_error(e: egret.Event) {
+                if (this._cb) {
+                    this._cb.call(this._ctx, null);
+                    this._cb = null;
+                    this._ctx = null;
+                }
+
+                this.removeEventListener(egret.Event.COMPLETE, this._cb_complete, this);
+                this.removeEventListener(egret.IOErrorEvent.IO_ERROR, this._cb_error, this);
+            }
         }
+
+        CLAZZ_EXT_IMAGE_LOADER = ExtImageLoader;
     }
 
     ResManager = new _ResManager();
-
 }

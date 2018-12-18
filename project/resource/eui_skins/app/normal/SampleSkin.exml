@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<e:Skin class="SampleSkin" width="720" height="1080" xmlns:e="http://ns.egret.com/eui" xmlns:wgt="app.wgt.*" xmlns:w="http://ns.egret.com/wing" xmlns:eui="eui.*">
+	<wgt:SamplePanel left="0" right="0" top="0" bottom="0" locked="true"/>
+	<eui:ImageU width="236" height="193" y="81.97" anchorOffsetX="0" anchorOffsetY="0" horizontalCenter="-211" source="http://jdc.jd.com/wp-content/uploads/2017/08/22.png"/>
+	<eui:GroupU id="sp_touch" height="192.15" y="81.97" anchorOffsetX="0" anchorOffsetY="0" slots="nn.SignalTouchMove=&gt;actTouchMoved" left="287" right="30">
+		<eui:RectU strokeColor="0x0949F4" left="0" bottom="0" top="0" fillColor="0x0422F9" right="0"/>
+		<eui:LabelU text="Touch Move On" horizontalCenter="0" verticalCenter="0"/>
+	</eui:GroupU>
+	<eui:TextInputU id="lblInp" y="295.33" prompt="输入框" slots="nn.SignalEnterKey=>actEnter" right="30" left="30" height="40"/>
+	<e:HtmlLabelU id="lblHtml" height="91.58" size="20" verticalAlign="middle" textAlign="left" left="30" right="30" top="353" slots="nn.SignalAction=>actOpenLink" anchorOffsetY="0"/>
+</e:Skin>

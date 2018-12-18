@@ -1,0 +1,48 @@
+{
+  "engineVersion": "5.2.13",
+  "compilerVersion": "5.2.13",
+  "template": {},
+  "target": {
+    "current": "{{TARGET}}"
+  },
+  "eui": {
+    "exmlRoot": [
+      "resource/eui_skins"
+    ],
+    "themes": [
+      "resource/default.thm.json"
+    ],
+    "exmlPublishPolicy": "commonjs"
+  },
+  "modules": [
+    {
+      "name": "egret"
+    },
+    {
+      "name": "game"
+    },
+    {
+      "name": "assetsmanager"
+    },
+    {
+      "name": "tween"
+    },
+    {
+      "name": "eui"
+    },
+    {
+      "name": "promise"
+    },
+    {
+      "name": "dragonbones"
+    },
+    {
+      "name": "particle",
+      "path": "3rd/particle"
+    },
+    {
+      "name": "physics",
+      "path": "3rd/physics"
+    }
+  ]
+}

@@ -1,11 +1,14 @@
 import fs = require("fs-extra");
 import {CliInput, EmbededKv, Ini, SimpleHashFile, UUID} from "./kernel";
+import {Game} from "./game";
+import {Worker} from "./worker";
 
 const VERSION = "0.0.1";
 
-export class Config {
+export class Config extends Worker {
 
-    constructor() {
+    constructor(game: Game) {
+        super(game);
         this._cfgdb = new EmbededKv(".n2/build");
         if (!this._cfgdb.contains('uuid'))
             this._cfgdb.set('uuid', UUID());
@@ -32,6 +35,7 @@ export class Config {
             ['app', 'background-color', '背景颜色'],
             ['app', 'orientation', '方向 [h]ov/[v]ec'],
             ['app', 'resource', '资源的模式 [d]ebug/[p]ublish]'],
+            ['app', 'maingroups', '主包的名称 ,隔开'],
             ['app', 'version', '版本号']
         ];
         for (let i = 0, l = arr.length; i < l; ++i) {

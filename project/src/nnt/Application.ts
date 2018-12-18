@@ -56,9 +56,6 @@ module nn {
 
             // 屏幕方向变化
             Device.shared.signals.connect(SignalOrientationChanged, this.__app_orientationchanged, this);
-
-            // 设置资源的根目录
-            ResManager.directory = "resource";
         }
 
         protected _initSignals() {
@@ -71,7 +68,7 @@ module nn {
         }
 
         /** 打开 app 所使用的地址 */
-        url = new URL(Js.siteUrl);
+        url = new URL(js.siteUrl);
 
         /** 版本号 */
         version: string = APPVERSION;
@@ -89,7 +86,19 @@ module nn {
         icon: string = APPICON;
 
         /** 默认资源 */
-        resourceFile: string = "default.res.json";
+        resourceFile: ResourceGroupInfo = {
+            name: "default.res.json",
+            domain: 'resource'
+        };
+
+        /** 子包资源 */
+        subresourceFile: ResourceGroupInfo = {
+            name: "sub.res.json",
+            domain: 'resource'
+        };
+
+        /** 资源目录 */
+        assetsDirectory = "resource/";
 
         /** 默认主题资源 */
         themeFile: string = "default.thm.json";
@@ -136,12 +145,15 @@ module nn {
             this.addChild(this._gameLayer);
             this.addChild(this._desktopLayer);
 
-            // 预加载流程
+            // 使用操作队列来完成游戏业务的加载
             let queue = new OperationQueue();
             queue.autoMode = false;
-            let queuegrp = new OperationGroup();
-            this._preloadConfig(queuegrp);
-            queue.add(queuegrp);
+            this._preloadConfig(queue);
+
+            // 同步默认资源设置
+            ResManager.directory = this.assetsDirectory;
+
+            // 基础准备好后，启动游戏
             queue.add(new OperationClosure(() => {
                 // 绑定app的句柄
                 CApplication.shared = this;
@@ -188,13 +200,17 @@ module nn {
                 // 显示加载页面
                 this.addChild(this._loadingScreen);
             }, this));
+
             // 开始启动队列
             queue.tryrun();
         }
 
         /** 延期加载的capsules */
         capsules(reqs: ReqResource[]): CResCapsule {
-            let c: Array<ReqResource> = [new ResourceEntity(ResManager.directory + this.dataFile + '?v=' + this.version, ResType.JSREF)];
+            let u = ResManager.directory + this.dataFile;
+            if (!Device.shared.isMinGame)
+                u += '?v=' + this.version;
+            let c: Array<ReqResource> = [new ResourceEntity(u, ResType.JSREF)];
             let r = ResManager.capsules(reqs.concat(c));
             // 加载成功后，激发dataloaded的处理
             r.signals.connect(SignalDone, () => {
@@ -207,33 +223,8 @@ module nn {
         }
 
         // 预加载队列
-        protected _preloadConfig(oper: OperationGroup) {
-            // 加载资源文件
-            oper.add(new OperationClosure((oper: Operation) => {
-                let res = this.resourceFile + '?v=' + this.version;
-                ResManager.loadConfig(res, () => {
-                    oper.done();
-                }, this);
-            }, this));
-            // 加载配置文件
-            oper.add(new OperationClosure((oper: Operation) => {
-                let cfg = this.configFile + '?v=' + this.version;
-                ResManager.getResByUrl(cfg, ResPriority.NORMAL, (obj: CacheRecord) => {
-                    this.config = obj.val;
-                    // 如果需要处理debug的config文件
-                    if (app.debug.CONFIG) {
-                        ResManager.getResByUrl('~debug.json', ResPriority.NORMAL, (obj: CacheRecord) => {
-                            let cfg = obj.val;
-                            Object.keys(cfg).forEach((e: any) => {
-                                this.config[e] = cfg[e];
-                            });
-                            oper.done();
-                        }, this, ResType.JSON);
-                    } else {
-                        oper.done();
-                    }
-                }, this, ResType.JSON);
-            }, this));
+        protected _preloadConfig(queue: OperationQueue) {
+            // pass 由各个引擎的实现类实现
         }
 
         // 开始加载资源
@@ -371,7 +362,7 @@ module nn {
 
         /** 生成唯一标示 */
         protected generateUniqueId(): string {
-            return Js.uuid(16, 16);
+            return js.uuid(16, 16);
         }
 
         // 打开全屏模式需要运行在touch事件中，所以需要设置一个开关，当touch事件发生时自动激活全屏幕时
@@ -421,20 +412,20 @@ module nn {
         enterFullscreen() {
             if (ISNATIVE || this.isFullscreen)
                 return;
-            Js.enterFullscreen(document.body);
+            js.enterFullscreen(document.body);
         }
 
         /** 推出全屏模式 */
         exitFullscreen() {
             if (ISNATIVE || !this.isFullscreen)
                 return;
-            Js.exitFullscreen();
+            js.exitFullscreen();
         }
 
         get isFullscreen(): boolean {
             if (ISNATIVE)
                 return true;
-            return Js.isFullscreen();
+            return js.isFullscreen();
         }
 
         /** 应用是否激活 */
@@ -516,6 +507,7 @@ module nn.loader {
     // 不同环境下的启动程序
     export let webloading: () => void; // 应用加载时调用
     export let webstart: () => void; // 应用启动时调用
+    export let mingamestart: (options: any) => void; // 启动小程序
     export let nativestart: () => void; // 本地化应用启动时
     export let runtimestart: () => void; // RUNTIME化应用启动时
 

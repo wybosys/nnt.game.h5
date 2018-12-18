@@ -1,5 +1,4 @@
-import {Game} from "./game";
-import {IsFile, ListDirs, ListFiles, StringT} from "./kernel";
+import {ArrayT, IsFile, ListDirs, ListFiles, StringT} from "./kernel";
 import {Resource, ResourceOptions} from "./resource";
 import fs = require("fs-extra");
 import path = require("path");
@@ -14,6 +13,7 @@ import {
 import {Service} from "./service";
 import watch = require("watch");
 import execa = require("execa");
+import {EgretGame} from "./egret";
 
 export class EgretResource extends Resource {
 
@@ -29,48 +29,65 @@ export class EgretResource extends Resource {
     }
 
     async refreshIn(dir: string): Promise<boolean> {
+        // 读取主包配置
+        let maingroups = this.game.config.get('app', 'maingroups').split(',');
+
         // 遍历所有的子文件，找出png\jpg\json，生成default.res.json文件并生成对应的group
-        let jsobj = {
+        let defaultres = {
             'groups': new Array<{ name: string, keys: string }>(),
             'resources': new Array<{ url: string, name: string, type: string, subkeys: string }>()
         };
-        // 第一级的资源为不加入group中的
+        let subres = {
+            'groups': new Array<{ name: string, keys: string }>(),
+            'resources': new Array<{ url: string, name: string, type: string, subkeys: string }>()
+        };
+
+        // 第一级的资源为不加入group中的, 野生资源
         ListFiles(dir + 'resource/assets', null, BLACKS_GENRES, null, 1).forEach(file => {
             let info = new EgretFileInfo();
             if (!info.parse(file))
                 return;
-            jsobj.resources.push({
+            defaultres.resources.push({
                 url: file.replace(dir + 'resource/', ''),
                 name: info.name,
                 type: info.type,
                 subkeys: info.subkeys
             });
         });
+
         // 处理其他2级资源
         ListDirs(dir + 'resource/assets', null, BLACKS_GENRES, null, 2).forEach(subdir => {
             let keys = new Array<string>();
+
+            let subpackage = path.basename(subdir);
+            let res = ArrayT.Contains(maingroups, subpackage) ? defaultres : subres;
+
             ListFiles(subdir, null, BLACKS_GENRES, null, 1).forEach(file => {
                 let info = new EgretFileInfo();
                 if (!info.parse(file))
                     return;
                 keys.push(info.name);
-                jsobj.resources.push({
+                res.resources.push({
                     url: file.replace(dir + 'resource/', ''),
                     name: info.name,
                     type: info.type,
                     subkeys: info.subkeys
                 });
             });
-            jsobj.groups.push({
+
+            res.groups.push({
                 name: subdir.replace(dir + 'resource/assets/', '').replace('/', '_'),
                 keys: keys.join(',')
             });
         });
-        fs.writeJSONSync(dir + 'resource/default.res.json', jsobj);
+
+        fs.writeJSONSync(dir + 'resource/default.res.json', defaultres);
+        fs.writeJSONSync(dir + 'resource/sub.res.json', subres);
+
         return true;
     }
 
-    async publishIn(dir: string, opts:ResourceOptions) {
+    async publishIn(dir: string, opts: ResourceOptions) {
         // 合并图片
         if (opts.merge) {
             fs.ensureDirSync(".n2/resmerger");
@@ -96,7 +113,7 @@ export class EgretResource extends Resource {
             // 挨个压缩
             for (let i = 0, l = files.length; i < l; ++i) {
                 let comp = new ImageCompress(files[i]);
-                comp.process();
+                await comp.process();
             }
         }
     }
@@ -139,7 +156,7 @@ class EgretFileInfo {
             if (info.ext == '.png')
                 return false;
             this.name = info.name + '_json';
-            this.type = 'json';
+            this.type = 'sheet';
             // 读取subkeys
             let jsobj = fs.readJSONSync(file);
             let frmobjs = jsobj["frames"];
@@ -181,7 +198,7 @@ if (path.basename(process.argv[1]) == 'egret-res.js') {
     console.log('启动egret-res服务');
     Service.Locker('egret-res').acquire();
 
-    let res = new EgretResource();
+    let res = new EgretResource(new EgretGame());
     watch.createMonitor('project/resource/assets', moniter => {
         moniter.on('created', (f, stat) => {
             console.log('created:' + f);

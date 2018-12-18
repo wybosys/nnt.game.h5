@@ -14,6 +14,7 @@ module nn {
     }
 
     export class Sprite extends Component implements IPage {
+
         constructor() {
             super();
         }
