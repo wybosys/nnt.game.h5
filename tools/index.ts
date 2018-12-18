@@ -70,10 +70,11 @@ function main() {
     program
         .command("mingame <special-channel>")
         .description("打包微信小游戏")
-        .action((channel) => {
+        .option("-d, --debug", "测试")
+        .action((channel, opts) => {
             game.mingame({
                 channel: channel,
-                publish: true
+                publish: !opts.debug
             });
         });
 

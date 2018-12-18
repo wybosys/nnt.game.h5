@@ -300,7 +300,7 @@ export class EgretGame extends Game {
             APPNAME: this.config.get('app', 'name'),
             APPORI: this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait',
             APPANGLE: this.config.get('app', 'orientation') == 'h' ? '90' : '0',
-            APPCONTENT: 'version=' + this.config.get('app', 'version') + this.config.get('app', 'resource') == 'p' ? 'publish' : '',
+            APPCONTENT: 'version=' + this.config.get('app', 'version') + (this.config.get('app', 'resource') == 'p' ? 'publish' : ''),
             APPVERSION: this.config.get('app', 'version'),
             APPICON: this.config.get('app', 'icon'),
             BACKGROUND: bkg,
@@ -335,7 +335,7 @@ export class EgretGame extends Game {
     }
 
     async mingame(opts: MinGameBuildOptions) {
-        console.log("构建微信小程序" + (opts.publish ? "发布" : '') + "版本");
+        console.log("构建小程序" + (opts.publish ? "发布" : '') + "版本");
         fs.ensureDirSync('project_wxgame');
         this.clean_channel();
 
@@ -345,6 +345,12 @@ export class EgretGame extends Game {
             switch (opts.channel) {
                 case 'readygo': {
                     suc = await this.channel_readygo(opts);
+                    fs.copySync("app.json", "project_wxgame/app.json");
+                }
+                    break;
+                case 'baidu': {
+                    suc = await this.channel_baidu(opts);
+                    fs.copySync("app.json", "project_baidugame/app.json");
                 }
                     break;
                 default: {
@@ -364,15 +370,13 @@ export class EgretGame extends Game {
         // 先编译下基础debug版本
         this.makeConfig({TARGET: "wxgame"});
 
+        // 编译普通版本，输出时再使用compress压缩代码
         this.egret('build');
 
         // 生成测试入口
         this.makeDebugIndex({
             scaleMode: "fixedWidth"
         });
-
-        // 复制一些基础数据
-        fs.copySync("app.json", "project_wxgame/app.json");
     }
 
     protected clean_channel() {
@@ -410,10 +414,15 @@ export class EgretGame extends Game {
             console.error("没有找到星汉数据SDK，请从星汉下载并改名到 sdks/readygo-stat-sdk.js");
             return false;
         }
+        if (!fs.existsSync("sdks/readygo-dsp-sdk.js")) {
+            console.error("没有找到星汉DSPSDK，请从星汉下载并改名到 sdks/readygo-dsp-sdk.js");
+            return false;
+        }
 
         // 游戏中心的js
         fs.copySync("sdks/sdks.js", "project_wxgame/sdks.js");
         fs.copySync("sdks/readygo.js", "project_wxgame/readygo.js");
+
         // 星汉分配游戏的js
         fs.copySync("sdks/readygo-sdk.js", "project_wxgame/readygo-sdk.js");
         fs.copySync("sdks/readygo-stat-sdk.js", "project_wxgame/readygo-stat-sdk.js");
@@ -425,9 +434,8 @@ export class EgretGame extends Game {
         optcs.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
         optcs.version = this.config.get('app', 'version') ? this.config.get('app', 'version') : "";
         optcs.sdkUrl = opts.publish ? 'wxgames.91yigame.com' : 'develop.91egame.com';
-        //dsp接入参数
-        let dspin: any = {};
-        dspin.appids = this.config.get('readygo', 'appids');
+        let dsp: any = {};
+        dsp.appids = this.config.get('readygo', 'appids');
         let region1 = `require('./sdks.js');
 require('./readygo.js');
 import XH_MINIPRO_SDK from './readygo-sdk.js';
@@ -445,9 +453,43 @@ sdks.config.set('GAME_VERSION', '${optcs.version}');
 let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
         `;
         //微信小游戏的一些配置
-        let region2 = `{"deviceOrientation":"${optcs.orientation}","navigatelist":"${dspin.appids}"}`;
+        let region2 = `{"deviceOrientation":"${optcs.orientation}","navigatelist":"${dsp.appids}"}`;
         fs.writeFileSync(".n2/egret/region1.js", region1);
         fs.writeFileSync(".n2/egret/wx_config.json", region2);
+
+        return true;
+    }
+
+    protected async channel_baidu(opts: MinGameBuildOptions): Promise<boolean> {
+        if (!fs.existsSync("sdks/sdks.js")) {
+            console.error("没有找到渠道sdk，请从游戏中心下载到 sdks/sdks.js");
+            return false;
+        }
+        if (!fs.existsSync("sdks/baidu.js")) {
+            console.error("没有找到渠道sdk，请从游戏中心下载到 sdks/baidu.js");
+            return false;
+        }
+
+        fs.copySync("sdks/sdks.js", "project_baidugame/sdks.js");
+        fs.copySync("sdks/baidu.js", "project_baidugame/baidu.js");
+
+        //一些游戏配置参数
+        let optcs: any = {};
+        optcs.orientation = this.config.get('app', 'orientation') == 'v' ? "portrait" : "landscape";
+        optcs.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
+        optcs.version = this.config.get('app', 'version') ? this.config.get('app', 'version') : "";
+        optcs.sdkUrl = opts.publish ? 'wxgames.91yigame.com' : 'develop.91egame.com';
+        let region1 = `require('./sdks.js');
+require('./baidu.js');
+sdks.config.set('CHANNEL_ID', 1806);
+sdks.config.set('URL', '${optcs.sdkUrl}');
+sdks.config.set('GAME_VERSION', '${optcs.version}');
+let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
+        `;
+        //微信小游戏的一些配置
+        let region2 = `{"deviceOrientation":"${optcs.orientation}"}`;
+        fs.writeFileSync(".n2/egret/region1.js", region1);
+        fs.writeFileSync(".n2/egret/baidu_config.json", region2);
 
         return true;
     }

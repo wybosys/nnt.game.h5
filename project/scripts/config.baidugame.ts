@@ -6,6 +6,7 @@ import { UglifyPlugin, CompilePlugin, ManifestPlugin, ExmlPlugin, EmitResConfigF
 import { BaidugamePlugin } from './baidugame/baidugame';
 import { CustomPlugin } from './myplugin';
 import * as defaultConfig from './config';
+import {FixPlugin} from "./fixplugin";
 
 const config: ResourceManagerConfig = {
 
@@ -21,7 +22,8 @@ const config: ResourceManagerConfig = {
                     new CompilePlugin({ libraryType: "debug", defines: { DEBUG: true, RELEASE: false } }),
                     new ExmlPlugin('commonjs'), // 非 EUI 项目关闭此设置
                     new BaidugamePlugin(),
-                    new ManifestPlugin({ output: 'manifest.js' })
+                    new ManifestPlugin({ output: 'manifest.js' }),
+                    new FixPlugin({ output: 'manifest.js' })
                 ]
             }
         }

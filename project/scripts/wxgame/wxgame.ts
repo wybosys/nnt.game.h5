@@ -69,6 +69,7 @@ export class WxgamePlugin implements plugins.Command {
                         content = "var physics = window.physics;" + content;
                     if (HasData)
                         content = "var Data = window.Data;" + content;
+
                     content += "\n;window.Main = Main;"
                 }
                 file.contents = new Buffer(content);
@@ -105,7 +106,8 @@ export class WxgamePlugin implements plugins.Command {
         gameJSContent = gameJSContent.replace(reg, replaceStr);
         fs.writeFileSync(gameJSPath + ".tmp", gameJSContent);
         */
-        // 替换
+
+        // 使用游戏编译时生成的代码替换
         let content = TPL_GAMEJS;
         for (let i = 1; i <= 2; ++i) {
             let f = pluginContext.outputDir + "/../.n2/egret/region" + i + ".js";
@@ -121,17 +123,18 @@ export class WxgamePlugin implements plugins.Command {
         //修改横竖屏
         let orientation;
         let navigateToMiniProgramAppIdList;
-        /*if (projectConfig.orientation == '"landscape"') {
+        /*
+        if (projectConfig.orientation == '"landscape"') {
             orientation = "landscape";
         }
         else {
             orientation = "portrait";
-        }*/
+        }
+        */
         let g = pluginContext.outputDir + "/../.n2/egret/wx_config.json";
         let wconfig = fs.readFileSync(g, {encoding: "utf8"});
         orientation = JSON.parse(wconfig).deviceOrientation;
         navigateToMiniProgramAppIdList = JSON.parse(wconfig).navigatelist;
-
 
         const gameJSONPath = path.join(pluginContext.outputDir, "game.json");
         let gameJSONContent = JSON.parse(fs.readFileSync(gameJSONPath, {encoding: "utf8"}));
@@ -157,7 +160,6 @@ if(window.RES && RES.processor) {
 
 //REGION_1//
 nn.loader.mingamestart(options);
-
 
 //REGION_2//
 
