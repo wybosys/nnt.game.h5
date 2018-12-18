@@ -5566,9 +5566,7 @@ module nn {
             self.isPurePC = !self.isMobile && (self.isMac || self.isWin || self.isUnix || self.isLinux);
 
             self.isHighPerfomance = !self.isAndroid;
-
-            if (typeof wx != "undefined")
-                self.isMinGame = true;
+            self.isMinGame = IS_MINGAME;
         }
 
         platform: string;
@@ -6362,10 +6360,8 @@ module nn {
             this.set(key, JSON.stringify(val));
         }
 
-        getObject(key: any, def?: any): any {
-            let s = this.value(key, undefined);
-            if (s == null)
-                return def;
+        getObject(key: any): any {
+            let s = this.value(key);
             return JSON.parse(s);
         }
 

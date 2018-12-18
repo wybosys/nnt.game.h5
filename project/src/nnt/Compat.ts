@@ -33,8 +33,16 @@ __PROTO.pattern = function (fmt) {
     return fmt;
 };
 
+// 微信
 declare var wx: any;
 let IS_WEIXIN_MINGAME = typeof wx != "undefined";
+
+// 百度
+declare var swan: any;
+let IS_BAIDU_MINGAME = typeof swan != "undefined";
+
+// 是否是小游戏
+let IS_MINGAME = IS_WEIXIN_MINGAME || IS_BAIDU_MINGAME;
 
 module js {
 
@@ -52,16 +60,14 @@ module js {
         while (f) {
             if ((m = /^[^\x25]+/.exec(f))) {
                 o.push(m[0]);
-            }
-            else if ((m = /^\x25{2}/.exec(f))) {
+            } else if ((m = /^\x25{2}/.exec(f))) {
                 o.push('%');
-            }
-            else if ((m = /^\x25(?:(\d+)\$)?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosuxX])/.exec(f))) {
+            } else if ((m = /^\x25(?:(\d+)\$)?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosuxX])/.exec(f))) {
                 if (((a = arguments[m[1] || i++]) == null) || (a == undefined)) {
                     throw('Too few arguments.');
                 }
-                if (/[^s]/.test(m[7]) && (typeof(a) != 'number')) {
-                    throw('Expecting number but found ' + typeof(a));
+                if (/[^s]/.test(m[7]) && (typeof (a) != 'number')) {
+                    throw('Expecting number but found ' + typeof (a));
                 }
                 switch (m[7]) {
                     case 'b':
@@ -100,8 +106,7 @@ module js {
                 x = m[5] - String(a).length - s.length;
                 p = m[5] ? str_repeat(c, x) : '';
                 o.push(s + (m[4] ? a + p : p + a));
-            }
-            else {
+            } else {
                 throw('Huh ?!');
             }
             f = f.substring(m[0].length);
@@ -157,19 +162,16 @@ module js {
                 document.documentElement.clientHeight)) {
             intH = document.documentElement.clientHeight;
             intW = document.documentElement.clientWidth;
-        }
-        else if (document.body &&
+        } else if (document.body &&
             (document.body.clientWidth || document.body.clientHeight)) {
             if (document.body.scrollHeight > document.body.clientHeight) {
                 intH = document.body.scrollHeight;
                 intW = document.body.scrollWidth;
-            }
-            else {
+            } else {
                 intH = document.body.clientHeight;
                 intW = document.body.clientWidth;
             }
-        }
-        else if (typeof window.innerWidth == 'number') {
+        } else if (typeof window.innerWidth == 'number') {
             intH = window.innerHeight;
             intW = window.innerWidth;
         }
@@ -214,7 +216,7 @@ module js {
     export function hashKey(o) {
         if (o == null)
             return null;
-        var tp = typeof(o);
+        var tp = typeof (o);
         if (tp == 'string' || tp == 'number' || tp == 'function')
             return o;
         if (o.hashCode)
@@ -293,8 +295,7 @@ module js {
                 loaded++;
                 if (loaded >= list.length) {
                     cb.call(ctx);
-                }
-                else {
+                } else {
                     loadNext();
                 }
             }, this);
@@ -303,8 +304,8 @@ module js {
     }
 
     export function loadScript(src, cb, ctx) {
-        if (IS_WEIXIN_MINGAME) {
-            console.info("微信小程序支持动态加载JS代码，请确保已经打包到项目中: " + src);
+        if (IS_MINGAME) {
+            console.info("小程序不支持通过url动态加载JS代码，请确保已经打包到项目中: " + src);
             cb.call(ctx);
         } else {
             var s: any = document.createElement('script');
@@ -328,8 +329,7 @@ module js {
                 loaded++;
                 if (loaded >= list.length) {
                     cb.call(ctx);
-                }
-                else {
+                } else {
                     loadNext();
                 }
             }, this);
@@ -338,8 +338,8 @@ module js {
     }
 
     export function loadStyle(src, cb, ctx) {
-        if (IS_WEIXIN_MINGAME) {
-            console.info("微信小程序不支持动态加载样式 " + src);
+        if (IS_MINGAME) {
+            console.info("小程序不支持动态加载样式 " + src);
         } else {
             var s: any = document.createElement('link');
             if (s.hasOwnProperty("async")) {
@@ -369,8 +369,7 @@ module js {
                 loaded++;
                 if (loaded >= list.length) {
                     cb.call(ctx);
-                }
-                else {
+                } else {
                     loadNext();
                 }
             }, this);
@@ -426,7 +425,7 @@ class Multimap<K, V> {
     private _store = new Map<K, Array<V>>();
 }
 
-// 如果是微信平台
+// 微信兼容层
 if (IS_WEIXIN_MINGAME) {
 
     // 实现alert
@@ -446,7 +445,7 @@ if (IS_WEIXIN_MINGAME) {
     window.localStorage.getItem = (key: string): string => {
         try {
             return wx.getStorageSync(key);
-        } catch(e) {
+        } catch (e) {
         }
         return undefined;
     };
@@ -454,21 +453,69 @@ if (IS_WEIXIN_MINGAME) {
     window.localStorage.setItem = (key: string, val: any) => {
         try {
             wx.setStorageSync(key, val);
-        } catch(e) {
+        } catch (e) {
         }
     };
 
     window.localStorage.removeItem = (key: string) => {
         try {
             wx.removeStorageSync(key);
-        } catch(e) {
+        } catch (e) {
         }
     };
 
     window.localStorage.clear = () => {
         try {
             wx.clearStorageSync();
-        } catch(e) {
+        } catch (e) {
         }
     };
+}
+
+// 百度兼容层
+if (IS_BAIDU_MINGAME) {
+
+    // 实现alert
+    window.alert = (msg: string) => {
+        swan.showModal({
+            title: '警告',
+            content: msg,
+            success: function (res) {
+                if (res.confirm) {
+                    // pass
+                }
+            }
+        });
+    };
+
+    // 实现localstorage
+    window.localStorage.getItem = (key: string): string => {
+        try {
+            return swan.getStorageSync(key);
+        } catch (e) {
+        }
+        return undefined;
+    };
+
+    window.localStorage.setItem = (key: string, val: any) => {
+        try {
+            swan.setStorageSync(key, val);
+        } catch (e) {
+        }
+    };
+
+    window.localStorage.removeItem = (key: string) => {
+        try {
+            swan.removeStorageSync(key);
+        } catch (e) {
+        }
+    };
+
+    window.localStorage.clear = () => {
+        try {
+            swan.clearStorageSync();
+        } catch (e) {
+        }
+    };
+
 }

@@ -44,10 +44,10 @@ module nn {
     })();
 
     if (_storageMode == 0) {
-        IMP_STORAGE_GET = IS_WEIXIN_MINGAME ? window.localStorage.getItem : egret.localStorage.getItem;
-        IMP_STORAGE_SET = IS_WEIXIN_MINGAME ? window.localStorage.setItem : egret.localStorage.setItem;
-        IMP_STORAGE_DEL = IS_WEIXIN_MINGAME ? window.localStorage.removeItem : egret.localStorage.removeItem;
-        IMP_STORAGE_CLEAR = IS_WEIXIN_MINGAME ? window.localStorage.clear : egret.localStorage.clear;
+        IMP_STORAGE_GET = IS_MINGAME ? window.localStorage.getItem : egret.localStorage.getItem;
+        IMP_STORAGE_SET = IS_MINGAME ? window.localStorage.setItem : egret.localStorage.setItem;
+        IMP_STORAGE_DEL = IS_MINGAME ? window.localStorage.removeItem : egret.localStorage.removeItem;
+        IMP_STORAGE_CLEAR = IS_MINGAME ? window.localStorage.clear : egret.localStorage.clear;
     }
     else if (_storageMode == 1) {
         IMP_STORAGE_GET = (k: string): string => {

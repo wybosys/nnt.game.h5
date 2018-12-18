@@ -50,8 +50,10 @@ module eui {
         }
 
         dispose() {
+            this.stop();
             this._imageSource.dispose();
             this.stopAllAnimates();
+
             if (this._signals) {
                 this._signals.dispose();
                 this._signals = undefined;
@@ -192,6 +194,33 @@ module eui {
 
         updateCache() {
         }
+
+        // 多图播放
+        play(srcs: string[], fps: number) {
+            this.stop();
+
+            if (srcs.length <= 1) {
+                this.source = srcs[0];
+                return;
+            }
+            let cur = 0;
+            this.source = srcs[cur++];
+            this._tmrPlay = nn.Repeat(1 / fps, () => {
+                if (cur == srcs.length)
+                    cur = 0;
+                this.source = srcs[cur++];
+            }, this);
+        }
+
+        stop() {
+            if (this._tmrPlay) {
+                this._tmrPlay.stop();
+                this._tmrPlay.drop();
+                this._tmrPlay = null;
+            }
+        }
+
+        private _tmrPlay: nn.CTimer;
     }
 
     // 自动连续滚动的Image，通常用来卷动背景
