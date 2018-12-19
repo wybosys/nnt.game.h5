@@ -75,15 +75,21 @@ module nn {
                 HudProgress.__hud_progress.open();
                 return;
             }
-            let hud: HudProgress = <any>CApplication.shared.clazzHudProgress.instance();
+            let hud = <any>CApplication.shared.clazzHudProgress.instance();
             hud.open();
+            HudProgress.__hud_anyprogress = hud;
             return hud;
         }
 
         static HideProgress() {
             HudProgress.__hud_progress_counter -= 1;
             if (HudProgress.__hud_progress_counter == 0) {
-                HudProgress.__hud_progress.delayClose();
+                if (HudProgress.__hud_progress)
+                    HudProgress.__hud_progress.delayClose();
+                if (HudProgress.__hud_anyprogress) {
+                    HudProgress.__hud_anyprogress.delayClose();
+                    HudProgress.__hud_anyprogress = null;
+                }
             }
             if (ISDEBUG && HudProgress.__hud_progress_counter < 0) {
                 fatal("HudProgress 的计数器 <0， 正常逻辑下必须 >=0，可能执行了不匹配的 Show/Hide 过程");
@@ -257,6 +263,7 @@ module nn {
         }
 
         static __hud_progress: HudProgress = null;
+        static __hud_anyprogress: any = null;
         static __hud_progress_counter = 0;
     }
 
