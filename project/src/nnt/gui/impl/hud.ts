@@ -80,9 +80,7 @@ module nn {
         static ShowProgress(data?: any): IHudProgress {
             if (HudProgress.__hud_progress_counter++ == 0) {
                 if (HudProgress.__hud_progress) {
-                    if (HudProgress.__hud_progress.reopen) {
-                        HudProgress.__hud_progress.reopen();
-                    }
+                    // 已经打开
                 } else {
                     let hud = <any>CApplication.shared.clazzHudProgress.instance();
                     hud.data = data;
@@ -96,14 +94,18 @@ module nn {
         static HideProgress(force?: boolean) {
             if (force) {
                 HudProgress.__hud_progress_counter = 0;
-                if (HudProgress.__hud_progress)
+                if (HudProgress.__hud_progress) {
                     HudProgress.__hud_progress.delayClose();
+                    HudProgress.__hud_progress = null;
+                }
                 return;
             }
 
             if (--HudProgress.__hud_progress_counter == 0) {
-                if (HudProgress.__hud_progress)
+                if (HudProgress.__hud_progress) {
                     HudProgress.__hud_progress.delayClose();
+                    HudProgress.__hud_progress = null;
+                }
             }
             if (HudProgress.__hud_progress_counter < 0)
                 HudProgress.__hud_progress_counter = 0;
@@ -189,7 +191,6 @@ module nn {
     /** 用来实现Progress的接口 */
     export interface IHudProgress extends IHud {
 
-        reopen?();
     }
 
     export class HudProgress
@@ -232,15 +233,7 @@ module nn {
             this.updateData();
         }
 
-        reopen() {
-            this.open();
-        }
-
         open() {
-            if (HudProgress.__hud_progress)
-                return;
-
-            HudProgress.__hud_progress = this;
             super.open();
 
             // 记录打开的时间
@@ -253,9 +246,6 @@ module nn {
 
         close() {
             super.close();
-
-            if (HudProgress.__hud_progress == this)
-                HudProgress.__hud_progress = null;
 
             if (this._tmrdelayclose) {
                 this._tmrdelayclose.drop();
