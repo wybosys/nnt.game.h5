@@ -1,5 +1,13 @@
 module nn {
 
+    export interface IHud {
+        open();
+
+        close();
+
+        delayClose(timeout?: number);
+    }
+
     export class Hud extends Sprite {
         static BackgroundColor = new Color(0xffffff, 0xf0);
         static BackgroundImage: TextureSource;
@@ -69,29 +77,46 @@ module nn {
             return hud;
         }
 
-        static ShowProgress(): Hud {
-            HudProgress.__hud_progress_counter += 1;
-            if (HudProgress.__hud_progress) {
-                HudProgress.__hud_progress.open();
-                return;
+        static ShowProgress(data?: any): IHudProgress {
+            if (HudProgress.__hud_progress_counter++ == 0) {
+                if (HudProgress.__hud_progress) {
+                    // 已经打开
+                } else {
+                    let hud = <any>CApplication.shared.clazzHudProgress.instance();
+                    hud.data = data;
+                    hud.open();
+                    HudProgress.__hud_progress = hud;
+                }
             }
-            let hud: HudProgress = <any>CApplication.shared.clazzHudProgress.instance();
-            hud.open();
-            return hud;
+            return HudProgress.__hud_progress;
         }
 
-        static HideProgress() {
-            HudProgress.__hud_progress_counter -= 1;
-            if (HudProgress.__hud_progress_counter == 0) {
-                HudProgress.__hud_progress.delayClose();
+        static HideProgress(force?: boolean) {
+            if (force) {
+                HudProgress.__hud_progress_counter = 0;
+                if (HudProgress.__hud_progress) {
+                    HudProgress.__hud_progress.delayClose();
+                    HudProgress.__hud_progress = null;
+                }
+                return;
             }
-            if (ISDEBUG && HudProgress.__hud_progress_counter < 0) {
-                fatal("HudProgress 的计数器 <0， 正常逻辑下必须 >=0，可能执行了不匹配的 Show/Hide 过程");
+
+            if (--HudProgress.__hud_progress_counter == 0) {
+                if (HudProgress.__hud_progress) {
+                    HudProgress.__hud_progress.delayClose();
+                    HudProgress.__hud_progress = null;
+                }
             }
+            if (HudProgress.__hud_progress_counter < 0)
+                HudProgress.__hud_progress_counter = 0;
         }
     }
 
-    export class HudText extends Hud {
+    export interface IHudText extends IHud {
+        message: string;
+    }
+
+    export class HudText extends Hud implements IHudText {
         static BackgroundColor = null;
         static BackgroundImage = null;
 
@@ -127,6 +152,10 @@ module nn {
             this._desk.touchEnabled = false;
         }
 
+        delayClose(timeout?: number) {
+            this.close();
+        }
+
         updateLayout() {
             super.updateLayout();
             this.labelMessage.frame = this.boundsForLayout();
@@ -159,7 +188,14 @@ module nn {
         animating: boolean;
     }
 
-    export class HudProgress extends Hud implements IProgress {
+    /** 用来实现Progress的接口 */
+    export interface IHudProgress extends IHud {
+
+    }
+
+    export class HudProgress
+        extends Hud implements IProgress, IHudProgress {
+
         static BackgroundColor = null;
         static BackgroundImage = null;
 
@@ -183,7 +219,7 @@ module nn {
                 this.addChild(val);
         }
 
-        static Current(): HudProgress {
+        static Current(): IHudProgress {
             return HudProgress.__hud_progress;
         }
 
@@ -198,49 +234,56 @@ module nn {
         }
 
         open() {
-            if (this.__tmrdc) {
-                egret.clearTimeout(this.__tmrdc);
-                this.__tmrdc = 0;
-            }
-
-            if (HudProgress.__hud_progress)
-                return;
-
-            HudProgress.__hud_progress = this;
             super.open();
-            this.__tmropen = egret.getTimer();
 
+            // 记录打开的时间
+            this._tmopened = DateTime.Now();
+
+            // 执行动画
             if (this._activity)
                 (<IActivity><any>this._activity).startAnimation();
         }
 
         close() {
             super.close();
-            if (HudProgress.__hud_progress == this)
-                HudProgress.__hud_progress = null;
+
+            if (this._tmrdelayclose) {
+                this._tmrdelayclose.drop();
+                this._tmrdelayclose = null;
+            }
 
             if (this._activity)
                 (<IActivity><any>this._activity).stopAnimation();
         }
 
-        private __tmropen: number;
-        private __tmrdc: number;
+        // 打开的时间
+        private _tmopened: number;
 
-        delayClose(timeout: number = 0.3) {
-            if (this.__tmrdc)
-                egret.clearTimeout(this.__tmrdc);
+        // 打开的定时器
+        private _tmrdelayclose: Timer;
 
-            if ((egret.getTimer() - this.__tmropen) * 0.001 > timeout) {
+        delayClose(timeout?: number) {
+            if (timeout == null)
+                timeout = HudProgress.DELAY_CLOSE;
+
+            // 清除老的
+            if (this._tmrdelayclose) {
+                this._tmrdelayclose.drop();
+                this._tmrdelayclose = null;
+            }
+
+            // 如果打开的时间已经超过了timeout，直接关闭
+            if (DateTime.Now() - this._tmopened >= timeout) {
                 this.close();
                 return;
             }
 
-            this.__tmrdc = egret.setTimeout(this.doDelayClose, this, timeout * 1000);
+            // 延迟自动关闭
+            this._tmrdelayclose = Delay(timeout, this.doDelayClose, this);
         }
 
         private doDelayClose() {
-            egret.clearTimeout(this.__tmrdc);
-            this.__tmrdc = 0;
+            this._tmrdelayclose = null;
             this.close();
         }
 
@@ -256,8 +299,14 @@ module nn {
             return new Rect();
         }
 
-        static __hud_progress: HudProgress = null;
+        // 当前弹出的实例
+        static __hud_progress: IHudProgress = null;
+
+        // 弹出计数器
         static __hud_progress_counter = 0;
+
+        // 默认自动关闭的时间
+        static DELAY_CLOSE = 0.3;
     }
 
 }
