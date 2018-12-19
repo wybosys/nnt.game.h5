@@ -1,5 +1,7 @@
 module nn {
 
+    import IHudText = nn.IHudText;
+
     export class _GameLayer extends Navigation {
         set root(spr: CComponent) {
             this.push(spr);
@@ -18,13 +20,13 @@ module nn {
 
     export abstract class CApplication extends Sprite implements IReqResources {
         /** 用来重新定义弹出文字框 */
-        clazzHudText = new Class<Hud>(HudText);
+        clazzHudText = new Class<IHudText>(HudText);
 
         /** 用来重新定义弹出的等待框 */
-        clazzHudProgress = new Class<Hud>(HudProgress);
+        clazzHudProgress = new Class<IHudProgress>(HudProgress);
 
         /** 用来实现实时资源加载进度的类 */
-        clazzResourceProgress = new Class<Hud>();
+        clazzResourceProgress = new Class<IHudProgress>();
 
         /** 用来实现首页加载进度的类 */
         clazzLoadingScene = new Class<LoadingScreen>(LoadingScreen);
@@ -98,7 +100,7 @@ module nn {
         };
 
         /** 资源目录 */
-        assetsDirectory = "resource/";
+        assetsDirectory = "resource";
 
         /** 默认主题资源 */
         themeFile: string = "default.thm.json";
@@ -336,7 +338,7 @@ module nn {
 
         /** 应用的主方向 */
         static Orientation(): number {
-            if (typeof(document_orientation) == 'undefined')
+            if (typeof (document_orientation) == 'undefined')
                 document_orientation = 0;
             return document_orientation;
         }
