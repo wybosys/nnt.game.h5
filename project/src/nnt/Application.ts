@@ -100,7 +100,7 @@ module nn {
         };
 
         /** 资源目录 */
-        assetsDirectory = "resource";
+        assetsDirectory = "resource/";
 
         /** 默认主题资源 */
         themeFile: string = "default.thm.json";
