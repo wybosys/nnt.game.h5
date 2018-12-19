@@ -78,8 +78,9 @@ def mergeimages(dir, name):
         work = {'work':Image.new('RGBA', (2048, 2048), (0, 0, 0, 0)),
                 'result':[]}
         res = mergeImages(work, images, (0, 0, 2048, 2048))
-        png = work['work']        
-        png.crop(png.getbbox()).save(dir + '/' + name + '_automerged_' + str(workid) + '.png')
+        png = work['work']
+        bbx = png.getbbox()            
+        png.crop((0, 0, bbx[2], bbx[3])).save(dir + '/' + name + '_automerged_' + str(workid) + '.png')
         frmobjs = {}
         for e in work['result']:
             frame = e['frame']
