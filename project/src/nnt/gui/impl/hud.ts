@@ -88,25 +88,29 @@ module nn {
                     HudProgress.__hud_progress = hud;
                 }
             }
+            // 重新开始计时保护用的定时器
+            HudProgress.__hud_progress_closer.start();
             return HudProgress.__hud_progress;
         }
 
         static HideProgress(force?: boolean) {
             if (force) {
-                HudProgress.__hud_progress_counter = 0;
-                if (HudProgress.__hud_progress) {
-                    HudProgress.__hud_progress.delayClose();
-                    HudProgress.__hud_progress = null;
-                }
-                return;
+                // 下一步会关闭掉
+                HudProgress.__hud_progress_counter = 1;
             }
 
+            // 如果自减到0，代表所有的show都正常hide
             if (--HudProgress.__hud_progress_counter == 0) {
                 if (HudProgress.__hud_progress) {
+                    // 关闭进度框时需要关闭保护定时器
+                    HudProgress.__hud_progress_closer.stop();
+                    // 关闭当前的进度对话框
                     HudProgress.__hud_progress.delayClose();
                     HudProgress.__hud_progress = null;
                 }
             }
+
+            // 避免意外
             if (HudProgress.__hud_progress_counter < 0)
                 HudProgress.__hud_progress_counter = 0;
         }
@@ -305,8 +309,15 @@ module nn {
         // 弹出计数器
         static __hud_progress_counter = 0;
 
+        // 避免progress因为计数器没有归0导致卡死前端逻辑
+        static __hud_progress_closer = new Timer(3, 1);
+
         // 默认自动关闭的时间
         static DELAY_CLOSE = 0.3;
     }
+
+    HudProgress.__hud_progress_closer.signals.connect(SignalDone, () => {
+        Hud.HideProgress(true);
+    }, null);
 
 }
