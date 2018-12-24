@@ -310,7 +310,7 @@ module nn {
         static __hud_progress_counter = 0;
 
         // 避免progress因为计数器没有归0导致卡死前端逻辑
-        static __hud_progress_closer = new Timer(3, 1);
+        static __hud_progress_closer = new Timer(5, 1);
 
         // 默认自动关闭的时间
         static DELAY_CLOSE = 0.3;
