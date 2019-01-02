@@ -322,7 +322,7 @@ namespace nn.logic {
         protected onClose(e: CloseEvent) {
             super.onClose(e);
 
-            if (e.code == 4000) {
+            if (e && e.code == 4000) {
                 // 服务端主动断开的链接，不能进行重连
                 let reason = <any>toJsonObject(e.reason);
                 switch (reason.code) {

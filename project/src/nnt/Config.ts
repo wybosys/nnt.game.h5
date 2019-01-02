@@ -18,6 +18,22 @@ module nn {
             }
         }
 
+        ua(ua: RegExp, cfg: IndexedObject) {
+            if (!navigator || !navigator.userAgent.match(ua))
+                return;
+            for (let k in cfg) {
+                this[k] = this._cur[k] = cfg[k];
+            }
+        }
+
+        platform(platform: RegExp, cfg: IndexedObject) {
+            if (!navigator || !navigator.platform.match(platform))
+                return;
+            for (let k in cfg) {
+                this[k] = this._cur[k] = cfg[k];
+            }
+        }
+
         get(key: string, def?: any): any {
             return key in this._cur ? this._cur[key] : def;
         }
