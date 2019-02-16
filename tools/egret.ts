@@ -386,11 +386,15 @@ export class EgretGame extends Game {
 
     protected async channel_test(index: IndexedObject): Promise<boolean> {
         let jss = index.FILESLIST;
-        jss = '<script src="http://develop.91egame.com/platform/sdks/ver/cur/script.es6.js"></script>\n\t' + jss;
+        if ('DEVOPS_RELEASE' in process.env) {
+            jss = '<script src="https://wxgames.91yigame.com/platform/sdks/ver/cur/script.es5.js"></script>\n\t' + jss;
+        } else {
+            jss = '<script src="http://develop.91egame.com/platform/sdks/ver/cur/script.es5.js"></script>\n\t' + jss;
+        }
         index.FILESLIST = jss;
         index.BEFORESTART += `
         sdks.config.set('CHANNEL_ID', 1800);
-        sdks.config.set('SDK_LANG', 'es6');
+        sdks.config.set('SDK_LANG', 'es5');
         sdks.config.set('GAME_VERSION', "${this.config.get('app', 'version')}"); 
         `;
         return true;
@@ -494,23 +498,39 @@ let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
         return true;
     }
 
-    async compress() {
-        if (fs.existsSync('project_wxgame')) {
+    async compress(channel: string) {
+        let project_channel;
+        switch (channel) {
+            case 'readygo':
+                project_channel = 'project_wxgame';
+                break;
+            case 'baidu':
+                project_channel = 'project_baidugame';
+                break;
+            default:
+                console.warn("未知渠道 " + channel)
+                break;
+        }
+        if (!project_channel)
+            return;
+
+        if (fs.existsSync(project_channel)) {
             let dir = path.resolve("./").replace(/\\/g, '/');
 
             // 合并输出的图片
-            let cmd = dir + "/tools/imagemerger " + dir + "/project_wxgame/resource/assets/";
+            let cmd = dir + "/tools/imagemerger " + dir + "/" + project_channel + "/resource/assets/";
+            console.log(cmd)
             this.cygwin(cmd);
 
             // 生成合并后的图片资源列表
-            await this.resource.refreshIn("project_wxgame/");
+            await this.resource.refreshIn(project_channel + "/");
 
             // 压缩图片
-            cmd = dir + "/tools/imagecompress " + dir + "/project_wxgame/resource/assets/";
+            cmd = dir + "/tools/imagecompress " + dir + "/" + project_channel + "/resource/assets/";
             this.cygwin(cmd);
 
             // 压缩输出的js文件
-            ListFiles('project_wxgame', null, null, WHITES_JS, 2).forEach(file => {
+            ListFiles(project_channel, null, null, WHITES_JS, 2).forEach(file => {
                 let content = fs.readFileSync(file, {encoding: 'utf8'});
                 let res = UglifyJS.minify(content);
                 if (res.error)

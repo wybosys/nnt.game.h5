@@ -79,10 +79,10 @@ function main() {
         });
 
     program
-        .command("compress")
+        .command("compress <special-channel>")
         .description("压缩输出的项目")
-        .action(() => {
-            game.compress();
+        .action((channel) => {
+            game.compress(channel);
         });
 
     program
