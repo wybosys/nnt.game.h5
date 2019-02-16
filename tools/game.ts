@@ -68,7 +68,7 @@ export abstract class Game {
     abstract commands(program: ProgramHandleType): void;
 
     // 压缩
-    abstract compress(): void;
+    abstract compress(channel: string): void;
 
     // 游戏配置
     config: Config;
