@@ -606,12 +606,18 @@ module nn {
     }
 
     /** 带保护的根据下标取得列表中的对象 */
-    export function at<T>(o: T[], idx: number, def: any = null): any {
-        if (o == null)
-            return <T>def;
-        if (length(o) <= idx)
-            return <T>def;
-        return o[idx];
+    export function at<T>(arr: T[], idx: number, def?: T): T {
+        if (arr == null)
+            return def;
+        if (arr.length <= idx)
+            return def;
+        return arr[idx];
+    }
+
+    export function modat<T>(arr: T[], idx: number, def?: T): T {
+        if (!arr || !arr.length)
+            return def;
+        return arr[idx % arr.length];
     }
 
     /** 带保护的判断对象是不是 0 */
