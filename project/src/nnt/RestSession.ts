@@ -25,14 +25,23 @@ module nn {
     export interface IRestSession extends ISObject {
         SID: string;
 
+        // 获取模型数据，不提示错误信息
         post(m: Model, cb?: (s?: Slot) => void, cbctx?: any);
 
+        // 获取模型数据
         fetch(m: Model,
               cbsuc?: (s?: Slot) => void, cbctx?: any,
               cbfail?: (s?: Slot) => void, cbend?: () => void);
 
+        // 获取一组模型数据
         fetchs(ms: Array<Model>,
                cbsuc?: (ss?: Array<Slot>) => void, cbctx?: any);
+
+        postp<M extends Model>(m: M): Promise<Slot>;
+
+        fetchp<M extends Model>(m: M): Promise<Slot>;
+
+        fetchsp<M extends Model>(ms: M[]): Promise<Slot[]>;
     }
 
     class _RestSession extends SObject {
@@ -65,7 +74,9 @@ module nn {
         fetch(m: Model,
               cbsuc?: (s?: Slot) => void, cbctx?: any,
               cbfail?: (s?: Slot) => void, cbend?: () => void) {
+
             m.ts = DateTime.Now();
+            m.session = this;
 
             // 为了防止正在调用 api 时，接受信号的对象析构，保护一下
             if (cbctx)
@@ -112,8 +123,7 @@ module nn {
 
             if (m.iscross()) {
                 _CrossLoader.process(m);
-            }
-            else {
+            } else {
                 let url = m.url();
 
                 if (url.indexOf('?') == -1)
@@ -152,6 +162,23 @@ module nn {
             work(ms, 0);
         }
 
+        async postp<M extends Model>(m: M): Promise<Slot> {
+            return new Promise<Slot>(resolve => {
+                this.post(m, resolve);
+            });
+        }
+
+        async fetchp<M extends Model>(m: M): Promise<Slot> {
+            return new Promise<Slot>((resolve, reject) => {
+                this.fetch(m, resolve, null, reject);
+            });
+        }
+
+        async fetchsp<M extends Model>(ms: M[]): Promise<Slot[]> {
+            return new Promise<Slot[]>((resolve, reject) => {
+                this.fetchs(ms, resolve);
+            });
+        }
     }
 
     export var RestSession: IRestSession = new _RestSession();

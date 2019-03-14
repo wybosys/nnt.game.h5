@@ -105,7 +105,7 @@ module nn {
                             this.setHdl(snd.use());
                             // 如果当前还是位于播放中，则真正去播放
                             if (this.playingState == WorkState.DOING)
-                                this.setCnl(this._hdl.play(this._position, this.count));
+                                this.setCnl(this._doPlay(this._position, this.count));
                         }, this);
                     }, this);
                 } else {
@@ -114,13 +114,21 @@ module nn {
                             return;
                         this.setHdl(snd.use());
                         if (this.playingState == WorkState.DOING)
-                            this.setCnl(this._hdl.play(this._position, this.count));
+                            this.setCnl(this._doPlay(this._position, this.count));
                     }, this);
                 }
+            } else {
+                this.setCnl(this._doPlay(this._position, this.count));
             }
-            else {
-                this.setCnl(this._hdl.play(this._position, this.count));
+        }
+
+        protected _doPlay(startTime?: number, loops?: number): egret.SoundChannel {
+            try {
+                return this._hdl.play(startTime, loops);
+            } catch (err) {
+                warn(err.message);
             }
+            return null;
         }
 
         replay() {
@@ -153,7 +161,7 @@ module nn {
             if (this.playingState == WorkState.PAUSED) {
                 this.__cb_play();
                 if (this._hdl) {
-                    this.setCnl(this._hdl.play(this._position, this.count));
+                    this.setCnl(this._doPlay(this._position, this.count));
                 }
             }
         }

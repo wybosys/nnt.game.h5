@@ -6,7 +6,7 @@ module nn {
     export enum ResPriority {
         NORMAL = 0,
         CLIP = 1
-    };
+    }
 
     // 不需要做Stack的模式，因为所有获取资源的地方必须传入priority的定义
     export let ResCurrentPriority = ResPriority.NORMAL;
@@ -27,7 +27,7 @@ module nn {
         SOUND, //声音
         BINARY, //2进制原始数据
         JSREF, //引用的其它js文件，会影响到加载方式
-    };
+    }
 
     export let ResPartKey = "::res::part";
 
@@ -78,8 +78,10 @@ module nn {
             this._signals.register(SignalChanged);
         }
 
+        // 资源包正在加载
         private _isloading: boolean;
 
+        // 加载资源包
         load(cb?: () => void, ctx?: any) {
             // 如果为空，直接回调
             if (IsEmpty(this._reqRes)) {
@@ -123,15 +125,25 @@ module nn {
             });
         }
 
+        async loadp() {
+            return new Promise<void>(resolve => {
+                this.load(resolve);
+            });
+        }
+
+        // 获取一个资源
         protected abstract loadOne(rr: ReqResource,
                                    cb: () => void, ctx: any);
 
+        // 资源包中资源数量
         protected abstract total(): number;
 
+        // 计算当前资源包的唯一码
         hashKey(): number {
             return CResCapsule.HashKey(this._reqRes);
         }
 
+        // 计算资源包的唯一码
         static HashKey(reqres: ReqResource[]): number {
             let a = [];
             reqres.forEach((rr: ReqResource) => {
@@ -252,33 +264,28 @@ module nn {
                         rcd.prop(ResPartKey, part);
                         cb.call(ctx, rcd);
                     }, this, type);
-                }
-                else if (scheme == 'file') {
+                } else if (scheme == 'file') {
                     this.getResByUrl(path, priority, (rcd: ICacheRecord) => {
                         rcd.prop(ResPartKey, part);
                         cb.call(ctx, rcd);
                     }, this, type);
-                }
-                else if (scheme == 'assets') {
+                } else if (scheme == 'assets') {
                     let url = this.directory + 'assets/' + path;
                     this.getResByUrl(url, priority, (rcd: ICacheRecord) => {
                         rcd.prop(ResPartKey, part);
                         cb.call(ctx, rcd);
                     }, this, type);
-                }
-                else {
+                } else {
                     fatal("ResManager无法解析路径协议 " + scheme);
                     cb.call(ctx, new CacheRecord());
                 }
-            }
-            else {
+            } else {
                 let rcd = <CacheRecord>ResManager.tryGetRes(src);
                 // 如果直接取得了 Res，则直接设定，否则需要通过异步来取得对应的资源
                 if (rcd.val != null) {
                     rcd.prop(ResPartKey, part);
                     cb.call(ctx, rcd);
-                }
-                else {
+                } else {
                     ResManager.getResAsync(src, priority, (rcd: ICacheRecord) => {
                         rcd.prop(ResPartKey, part);
                         cb.call(ctx, rcd);
