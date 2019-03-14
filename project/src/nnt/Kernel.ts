@@ -691,12 +691,22 @@ module nn {
             return def;
         let tp = typeof (o);
         if (tp == 'string')
-            return o;
+            return <string>o;
         if (tp == 'number')
             return SafeNumber(o).toString();
-        if (o.toString)
-            return o.toString();
-        return def;
+        if (o.toString) {
+            let t = o.toString();
+            if (t != "[object Object]")
+                return t;
+        }
+        // 转换成json
+        let r: string;
+        try {
+            r = JSON.stringify(o);
+        } catch (err) {
+            r = def;
+        }
+        return r;
     }
 
     /** 转换到json字串 */
@@ -5499,7 +5509,7 @@ module nn {
 
     /** 重复调用 */
     export function Repeat(s: number, cb: (s?: Slot) => void, ctx?: any): CTimer {
-        let tmr = new RtTimer(s);
+        let tmr = new SysTimer(s);
         tmr.signals.connect(SignalAction, cb, ctx);
         tmr.start();
         return tmr;

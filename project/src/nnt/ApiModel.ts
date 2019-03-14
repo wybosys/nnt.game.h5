@@ -192,7 +192,7 @@ module nn {
             let data = this._urlreq ? this._urlreq.data : e;
 
             // 判断是否需要从 json 转换回来
-            if (typeof(data) == 'string') {
+            if (typeof (data) == 'string') {
                 try {
                     this.response = JSON.parse(data);
                 } catch (err) {
@@ -235,8 +235,7 @@ module nn {
                 this.signals.emit(SignalSucceed);
                 if (this.session)
                     this.session.signals.emit(SignalSucceed, this);
-            }
-            else {
+            } else {
                 if (this.timeoutAsFailed) {
                     this.signals.emit(SignalFailed);
                     if (this.session)
@@ -307,9 +306,8 @@ module nn {
                     if (this.session)
                         this.session.signals.emit(SignalSucceed, this);
                 }
-            }
-            else {
-                warn('API ' + this.action + ' ' + this.message);
+            } else {
+                warn('API ' + this.action + ' ' + asString(this.message));
 
                 let tn = new SlotTunnel();
                 if (this.isDebug) {
@@ -340,6 +338,8 @@ module nn {
                 this._tmr_timeout.stop();
                 this._tmr_timeout = undefined;
             }
+
+            this.session = null;
         }
 
         _urlreq: CHttpConnector;
@@ -479,16 +479,14 @@ namespace app.models.logic {
         let fps: IndexedObject;
         if (target.hasOwnProperty(FP_KEY)) {
             fps = target[FP_KEY];
-        }
-        else {
+        } else {
             if (FP_KEY in target) {
                 fps = CloneFps(target[FP_KEY]);
                 for (let k in fps) {
                     let fp: FieldOption = fps[k];
                     fp.id *= 100;
                 }
-            }
-            else {
+            } else {
                 fps = {};
             }
             Object.defineProperty(target, FP_KEY, {
@@ -543,41 +541,35 @@ namespace app.models.logic {
                 if (fp.array) {
                     let arr = new Array();
                     if (val) {
-                        if (typeof(fp.valtype) == "string") {
+                        if (typeof (fp.valtype) == "string") {
                             if (fp.valtype == string_t) {
                                 val.forEach(e => {
                                     arr.push(e ? e.toString() : null);
                                 });
-                            }
-                            else if (fp.valtype == integer_t) {
+                            } else if (fp.valtype == integer_t) {
                                 val.forEach(e => {
                                     arr.push(e ? nn.toInt(e) : 0);
                                 });
-                            }
-                            else if (fp.valtype == double_t) {
+                            } else if (fp.valtype == double_t) {
                                 val.forEach(e => {
                                     arr.push(e ? nn.toFloat(e) : 0);
                                 });
-                            }
-                            else if (fp.valtype == boolean_t) {
+                            } else if (fp.valtype == boolean_t) {
                                 val.forEach(e => {
                                     arr.push(!!e);
                                 });
                             }
-                        }
-                        else {
+                        } else {
                             if (fp.valtype == Object) {
                                 val.forEach(e => {
                                     arr.push(e);
                                 });
-                            }
-                            else {
+                            } else {
                                 let clz: any = fp.valtype;
                                 val.forEach(e => {
                                     if (e == null) {
                                         arr.push(null);
-                                    }
-                                    else {
+                                    } else {
                                         let t = new clz();
                                         Decode(t, e);
                                         arr.push(t);
@@ -587,8 +579,7 @@ namespace app.models.logic {
                         }
                     }
                     mdl[key] = arr;
-                }
-                else if (fp.map) {
+                } else if (fp.map) {
                     let keyconv = (v: any) => {
                         return v
                     };
@@ -598,39 +589,34 @@ namespace app.models.logic {
                         keyconv = nn.toFloat;
                     let map = new Map();
                     if (val) {
-                        if (typeof(fp.valtype) == "string") {
+                        if (typeof (fp.valtype) == "string") {
                             if (fp.valtype == string_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     map.set(keyconv(ek), ev ? ev.toString() : null);
                                 }
-                            }
-                            else if (fp.valtype == integer_t) {
+                            } else if (fp.valtype == integer_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     map.set(keyconv(ek), ev ? nn.toInt(ev) : 0);
                                 }
-                            }
-                            else if (fp.valtype == double_t) {
+                            } else if (fp.valtype == double_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     map.set(keyconv(ek), ev ? nn.toFloat(ev) : 0);
                                 }
-                            }
-                            else if (fp.valtype == boolean_t)
+                            } else if (fp.valtype == boolean_t)
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     map.set(keyconv(ek), !!ev);
                                 }
-                        }
-                        else {
+                        } else {
                             let clz: any = fp.valtype;
                             for (let ek in val) {
                                 let ev = val[ek];
                                 if (ev == null) {
                                     map.set(keyconv(ek), null);
-                                }
-                                else {
+                                } else {
                                     let t = new clz();
                                     Decode(t, ev);
                                     map.set(keyconv(ek), t);
@@ -639,8 +625,7 @@ namespace app.models.logic {
                         }
                     }
                     mdl[key] = map;
-                }
-                else if (fp.multimap) {
+                } else if (fp.multimap) {
                     let keyconv = (v: any) => {
                         return v
                     };
@@ -650,32 +635,28 @@ namespace app.models.logic {
                         keyconv = nn.toFloat;
                     let mmap = new Multimap();
                     if (val) {
-                        if (typeof(fp.valtype) == "string") {
+                        if (typeof (fp.valtype) == "string") {
                             if (fp.valtype == string_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.asString(e)));
                                 }
-                            }
-                            else if (fp.valtype == integer_t) {
+                            } else if (fp.valtype == integer_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toInt(e)));
                                 }
-                            }
-                            else if (fp.valtype == double_t) {
+                            } else if (fp.valtype == double_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toFloat(e)));
                                 }
-                            }
-                            else if (fp.valtype == boolean_t)
+                            } else if (fp.valtype == boolean_t)
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => !!e));
                                 }
-                        }
-                        else {
+                        } else {
                             let clz: any = fp.valtype;
                             for (let ek in val) {
                                 let ev = val[ek];
@@ -688,21 +669,17 @@ namespace app.models.logic {
                         }
                     }
                     mdl[key] = mmap;
-                }
-                else if (fp.enum) {
+                } else if (fp.enum) {
                     mdl[key] = val ? parseInt(val) : 0;
-                }
-                else if (fp.valtype == Object) {
+                } else if (fp.valtype == Object) {
                     mdl[key] = val;
-                }
-                else if (val) {
+                } else if (val) {
                     let clz: any = fp.valtype;
                     let t = new clz();
                     Decode(t, val);
                     mdl[key] = t;
                 }
-            }
-            else {
+            } else {
                 if (fp.string)
                     mdl[key] = val ? val.toString() : null;
                 else if (fp.integer)
@@ -758,10 +735,9 @@ namespace app.models.logic {
             if (fp.valtype) {
                 if (fp.array) {
                     // 通用类型，则直接可以输出
-                    if (typeof(fp.valtype) == "string") {
+                    if (typeof (fp.valtype) == "string") {
                         r[fk] = val;
-                    }
-                    else {
+                    } else {
                         // 特殊类型，需要迭代进去
                         let arr = new Array();
                         val && val.forEach(e => {
@@ -769,47 +745,40 @@ namespace app.models.logic {
                         });
                         r[fk] = arr;
                     }
-                }
-                else if (fp.map) {
+                } else if (fp.map) {
                     let m: IndexedObject = {};
                     if (val) {
-                        if (typeof(fp.valtype) == "string") {
+                        if (typeof (fp.valtype) == "string") {
                             val.forEach((v, k) => {
                                 m[k] = v;
                             });
-                        }
-                        else {
+                        } else {
                             val.forEach((v, k) => {
                                 m[k] = Output(v);
                             });
                         }
                     }
                     r[fk] = m;
-                }
-                else if (fp.multimap) {
+                } else if (fp.multimap) {
                     let m: IndexedObject = {};
                     if (val) {
-                        if (typeof(fp.valtype) == "string") {
+                        if (typeof (fp.valtype) == "string") {
                             val.forEach((v, k) => {
                                 m[k] = v;
                             });
-                        }
-                        else {
+                        } else {
                             val.forEach((v, k) => {
                                 m[k] = nn.ArrayT.Convert(v, e => Output(e));
                             });
                         }
                     }
                     r[fk] = m;
-                }
-                else if (fp.valtype == Object) {
+                } else if (fp.valtype == Object) {
                     r[fk] = val;
-                }
-                else {
+                } else {
                     r[fk] = Output(val);
                 }
-            }
-            else {
+            } else {
                 r[fk] = val;
             }
         }
