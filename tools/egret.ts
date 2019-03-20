@@ -225,7 +225,7 @@ export class EgretGame extends Game {
         if (!tpl.APPORI)
             tpl.APPORI = this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait';
         if (!tpl.APPCONTENT)
-            tpl.APPCONTENT = 'debug, verbose' + (this.config.get('app', 'resource') == 'p' ? 'publish' : '');
+            tpl.APPCONTENT = 'debug=true verbose=true';
         if (!tpl.APPANGLE)
             tpl.APPANGLE = this.config.get('app', 'orientation') == 'h' ? '90' : '0';
         if (!tpl.BACKGROUND) {
@@ -299,7 +299,7 @@ export class EgretGame extends Game {
             APPNAME: this.config.get('app', 'name'),
             APPORI: this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait',
             APPANGLE: this.config.get('app', 'orientation') == 'h' ? '90' : '0',
-            APPCONTENT: 'version=' + this.config.get('app', 'version') + (this.config.get('app', 'resource') == 'p' ? 'publish' : ''),
+            APPCONTENT: 'version="' + this.config.get('app', 'version') + '"',
             APPVERSION: this.config.get('app', 'version'),
             APPICON: this.config.get('app', 'icon'),
             BACKGROUND: bkg,
@@ -605,7 +605,7 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, 
 <meta name="browsermode" content="application"/>
 <meta name="x5-page-mode" content="app"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<app content="{{&APPCONTENT}}"></app>
+<app {{&APPCONTENT}}></app>
 <style>
     html, body {
     -ms-touch-action:none;
@@ -659,9 +659,7 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, 
 <meta name="browsermode" content="application"/>
 <meta name="x5-page-mode" content="app"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<app content="{{&APPCONTENT}}"
-icon="{{APPICON}}"
-name="{{APPNAME}}"></app>
+<app {{&APPCONTENT}} icon="{{APPICON}}" name="{{APPNAME}}"></app>
 <style>
     html, body {
     -ms-touch-action:none;

@@ -1,25 +1,30 @@
 module nn {
 
-    export let COPYRIGHT: string = "WYBOSYS";
-    export let AUTHOR: string = "WYBOSYS@GMAIL.COM";
+    export const TOOLKIT_AUTHOR = "wybosys@gmail.com";
+    export const TOOLKIT_LICENSE = "BSD";
+    export const TOOLKIT_REPO = "github.com/wybosys/nnt.game.h5";
+
+    // 对接游戏中心的sdk
+    declare let sdks: any;
+
+    // 如果是egret
+    declare let egret: any;
 
     // 判断版本
     export let ISHTML5 = egret.Capabilities.runtimeType == "web";
     export let ISNATIVE = !ISHTML5;
 
-    // 如果对接游戏中心的sdk
-    declare let sdks: any;
-
+    // 默写环境下没有location，所以需要模拟一个
     class CLocation {
-        protocol: string = "https:";
+        protocol = "https:";
     }
 
     class CDocument {
-        domain: string = "localhost";
-        location: CLocation = new CLocation();
+        domain = "localhost";
+        location = new CLocation();
 
-        getElementsByTagName(name: string): any[] {
-            return [];
+        querySelector(selector: string): any {
+            return null;
         }
     }
 
@@ -39,80 +44,42 @@ module nn {
 
     export let ISHTTPS: boolean = location.protocol == "https:";
 
-    declare let __tag_debug;
-    declare let __tag_verbose;
-    declare let __tag_version;
-    declare let __tag_publish;
+    // 测试版标志
+    export let ISDEBUG: boolean = false;
+    // 打印日志标志
+    export let VERBOSE: boolean = false;
+    // 版本号
+    export let APPVERSION: string = null;
+    // 程序图标
+    export let APPICON: string = '';
+    // 程序名称
+    export let APPNAME: string = '';
 
-    export let APPICON: string;
-    export let APPNAME: string;
-
-    let app: any = document.getElementsByTagName('app');
-    if (app.length) {
-        app = app[0];
-
+    // tools编译时会将程序配置生成到app节点上
+    let app = document.querySelector('app');
+    if (app) {
         APPICON = app.getAttribute('icon');
         APPNAME = app.getAttribute('name');
-
-        let parseContent = function (content) {
-            if (content == undefined)
-                return;
-            let sets = content.replace(/ /g, '').split(',');
-            sets.forEach(function (set) {
-                if (set.indexOf('=') == -1) {
-                    this['__tag_' + set] = true;
-                } else {
-                    let p = set.split('=');
-                    this['__tag_' + p[0]] = p[1];
-                }
-            });
-        };
-
-        parseContent(app.getAttribute('content'));
-        let children = app.children;
-        let def, matched;
-        for (let i = 0; i < children.length; ++i) {
-            let node = children[i];
-            let url = node.getAttribute('url');
-            if (url && document.domain.match(url)) {
-                matched = true;
-                parseContent(node.getAttribute('content'));
-            } else if (url == undefined) {
-                def = node.getAttribute('content');
-            }
-        }
-
-        if (!matched)
-            parseContent(def);
+        ISDEBUG = app.getAttribute('debug') == "true";
+        VERBOSE = app.getAttribute('verbose') == "true";
+        APPVERSION = app.getAttribute('version');
     } else {
         if (ISNATIVE) {
-            let p;
-            if (p = egret.getOption('debug'))
-                __tag_debug = p == 'true';
-            if (p = egret.getOption('verbose'))
-                __tag_verbose = p == 'true';
-            if (p = egret.getOption('version'))
-                __tag_version = p;
-            if (p = egret.getOption('publish'))
-                __tag_publish = p == 'true';
+            APPICON = egret.getOption('icon');
+            APPNAME = egret.getOption('name');
+            ISDEBUG = egret.getOption('debug') == 'true';
+            VERBOSE = egret.getOption('verbose') == 'true';
+            APPVERSION = egret.getOption('version');
         } else {
             if (typeof sdks != 'undefined') {
-                __tag_debug = sdks.config.get('DEBUG');
-                __tag_verbose = sdks.config.get('VERBOSE');
-                __tag_version = sdks.config.get('GAME_VERSION');
-                __tag_publish = true;
+                APPICON = sdks.config.get('GAME_ICON');
+                APPNAME = sdks.config.get('GAME_NAME');
+                ISDEBUG = sdks.config.get('DEBUG');
+                VERBOSE = sdks.config.get('VERBOSE');
+                APPVERSION = sdks.config.get('GAME_VERSION');
             }
         }
     }
-
-    // 测试版标志
-    export let ISDEBUG: boolean = typeof (__tag_debug) == 'undefined' ? false : __tag_debug;
-    // 打印日志标志
-    export let VERBOSE: boolean = typeof (__tag_verbose) == 'undefined' ? false : __tag_verbose;
-    // 版本号
-    export let APPVERSION: string = typeof (__tag_version) == 'undefined' ? '' : __tag_version;
-    // 发布版本标志
-    export let PUBLISH: boolean = typeof (__tag_publish) == 'undefined' ? false : __tag_publish;
 
     // 如果是runtime，需要提供
     /*
