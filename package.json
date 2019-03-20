@@ -1,7 +1,7 @@
 {
   "scripts": {
     "help": "node tools/index.js -h",
-    "build": "node tools/index.js build sdks test",
+    "build": "node tools/index.js build null null",
     "publish": "node tools/index.js publish sdks test",
     "dist": "node tools/index.js dist sdks test",
     "mingame": "node tools/index.js mingame sdks test",
