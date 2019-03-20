@@ -2,6 +2,7 @@ import {Worker} from './worker';
 import {Game} from "./game";
 
 export interface ResourceOptions {
+
     // 合并小图
     merge?: boolean;
 
@@ -19,8 +20,8 @@ export abstract class Resource extends Worker {
     abstract async refresh(): Promise<boolean>;
 
     // 发布资源
-    abstract async publish(opts: ResourceOptions): Promise<void>;
+    abstract async publish(opts: ResourceOptions): Promise<boolean>;
 
     // 清理
-    abstract clean(): void;
+    abstract async clean(): Promise<void>;
 }

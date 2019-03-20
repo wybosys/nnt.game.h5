@@ -1,30 +1,21 @@
-import {ArrayT, IsFile, ListDirs, ListFiles, StringT} from "./kernel";
+import {ArrayT, IsFile, ListDirs, ListFiles, RunInBash} from "./kernel";
 import {Resource, ResourceOptions} from "./resource";
+import {BLACKS_GENRES} from "./image";
+import {IService, Service} from "./service";
+import {EgretGame} from "./egret";
 import fs = require("fs-extra");
 import path = require("path");
-import {
-    BLACKS_GENRES,
-    BLACKS_IMAGECOMPRESS,
-    BLACKS_IMAGEMERGE,
-    ImageCompress,
-    ImageMerge,
-    WHITES_IMAGECOMPRESS
-} from "./image";
-import {Service} from "./service";
 import watch = require("watch");
 import execa = require("execa");
-import {EgretGame} from "./egret";
 
-export class EgretResource extends Resource {
+export class EgretResource extends Resource implements IService {
 
     async refresh(): Promise<boolean> {
         return this.refreshIn('project/');
     }
 
-    clean() {
+    async clean() {
         fs.removeSync("publish/resource");
-        fs.removeSync(".n2/res/resmerger");
-        fs.removeSync(".n2/res/dist");
         fs.removeSync("project/resource/default.res.json");
     }
 
@@ -87,39 +78,31 @@ export class EgretResource extends Resource {
         return true;
     }
 
-    async publishIn(dir: string, opts: ResourceOptions) {
+    async publishIn(dir: string, opts: ResourceOptions): Promise<boolean> {
+        let cwd = path.resolve("./").replace(/\\/g, '/');
+
         // 合并图片
         if (opts.merge) {
-            fs.ensureDirSync(".n2/resmerger");
-            console.log("合并图片");
+            let cmd = `${cwd}/tools/imagemerger ${cwd}/${dir}/resource/assets/`;
+            console.log(cmd)
+            RunInBash(cmd);
 
-            const dirs = ListDirs(dir + "resource/assets", null, BLACKS_IMAGEMERGE, null, 2, false);
-            for (let i = 0, l = dirs.length; i < l; ++i) {
-                const subdir = dirs[i];
-                let full = dir + "resource/assets" + subdir;
-                let name = StringT.SubStr(subdir, 1);
-                let merge = new ImageMerge(full, name);
-                await merge.process();
-            }
-            await this.refreshIn(dir);
+            if (!await this.refreshIn(dir))
+                return false;
         }
 
         // 压缩图片
         if (opts.compress) {
-            fs.ensureDirSync(".n2/res/dist");
-            console.log("压缩图片");
-
-            const files = ListFiles(dir + "resource/assets", null, BLACKS_IMAGECOMPRESS, WHITES_IMAGECOMPRESS, -1);
-            // 挨个压缩
-            for (let i = 0, l = files.length; i < l; ++i) {
-                let comp = new ImageCompress(files[i]);
-                await comp.process();
-            }
+            let cmd = `${cwd}/tools/imagecompress ${cwd}/${dir}/resource/assets/`;
+            console.log(cmd);
+            RunInBash(cmd);
         }
+
+        return true;
     }
 
     // 发布图片
-    async publish(opts: ResourceOptions) {
+    async publish(opts: ResourceOptions): Promise<boolean> {
         // 移除之前的老资源
         fs.removeSync("publish");
         console.log("拷贝资源");
@@ -161,32 +144,26 @@ class EgretFileInfo {
             let jsobj = fs.readJSONSync(file);
             let frmobjs = jsobj["frames"];
             this.subkeys = Object.keys(frmobjs).join(',');
-        }
-        else if (info.ext == '.png') {
+        } else if (info.ext == '.png') {
             if (IsFile(info.dir + '/' + info.name + ".json") || IsFile(info.dir + '/' + info.name + ".fnt")) {
                 this.name = info.name + '_png';
             }
             this.type = 'image';
-        }
-        else if (info.ext == '.jpg') {
+        } else if (info.ext == '.jpg') {
             this.type = 'image';
-        }
-        else if (info.ext == '.json') {
+        } else if (info.ext == '.json') {
             // 如过同时存在 file_png 和 file_json 的队列，则认为是特殊资源，需要保持命名
             if (IsFile(info.dir + '/' + info.name + '.png')) {
                 this.name = info.name + '_json';
             }
             this.type = 'json';
-        }
-        else if (info.ext == '.ttf') {
+        } else if (info.ext == '.ttf') {
             this.name = info.name + '_ttf';
             this.type = 'font';
-        }
-        else if (info.ext == '.fnt') {
+        } else if (info.ext == '.fnt') {
             this.name = info.name + '_fnt';
             this.type = 'font';
-        }
-        else {
+        } else {
             this.type = 'bin';
         }
         return true;
@@ -198,19 +175,22 @@ if (path.basename(process.argv[1]) == 'egret-res.js') {
     console.log('启动egret-res服务');
     Service.Locker('egret-res').acquire();
 
-    let res = new EgretResource(new EgretGame());
-    watch.createMonitor('project/resource/assets', moniter => {
-        moniter.on('created', (f, stat) => {
-            console.log('created:' + f);
-            res.refresh();
-        });
-        moniter.on('changed', (f, stat) => {
-            console.log('changed:' + f);
-            res.refresh();
-        });
-        moniter.on('removed', (f, stat) => {
-            console.log('removed:' + f);
-            res.refresh();
+    let game = new EgretGame();
+    game.init().then(() => {
+        let res = new EgretResource(game);
+        watch.createMonitor('project/resource/assets', moniter => {
+            moniter.on('created', (f, stat) => {
+                console.log('created:' + f);
+                res.refresh();
+            });
+            moniter.on('changed', (f, stat) => {
+                console.log('changed:' + f);
+                res.refresh();
+            });
+            moniter.on('removed', (f, stat) => {
+                console.log('removed:' + f);
+                res.refresh();
+            });
         });
     });
 }

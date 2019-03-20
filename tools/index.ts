@@ -6,7 +6,7 @@ import path = require("path");
 import {Game} from "./game";
 import {EgretGame} from "./egret";
 
-function main() {
+async function main() {
     // 当前文件的上一级目录即为项目目录
     process.chdir(path.dirname(__dirname));
 
@@ -15,9 +15,14 @@ function main() {
 
     // 根据项目特征选用游戏模板
     let game: Game;
-    if (fs.existsSync("project/egretProperties.template.json"))
+    if (fs.existsSync("project/egretProperties.template.json")) {
         game = new EgretGame();
+    } else {
+        throw new Error('没有找到合适的编译配置');
+    }
+    await game.init();
 
+    // 初始化命令提示
     program
         .command("clean")
         .description("清理项目")
@@ -29,60 +34,70 @@ function main() {
         });
 
     program
-        .command("build [channel]")
+        .command("build <channel> <subchannel>")
         .description("生成调试项目")
-        .action((channel) => {
+        .action((channel, subchannel) => {
             game.build({
                 debug: true,
-                channel: channel
+                channel: channel,
+                subchannel: subchannel
             });
         });
 
     program
-        .command("publish [special-channel]")
+        .command("publish <channel> <subchannel>")
         .description("生成正式项目")
-        .option("-c, --compress", "图片压缩")
-        .option("-m, --merge", "图片合并")
-        .action((channel) => {
+        .action((channel, subchannel) => {
             game.build({
                 release: true,
                 noservice: true,
-                merge_images: program.merge,
-                compress_images: program.compress,
-                channel: channel
+                channel: channel,
+                subchannel: subchannel
             });
         });
 
     program
-        .command("dist [special-channel]")
+        .command("dist <channel> <subchannel>")
         .description("发布项目")
-        .action((channel) => {
-            game.build({
+        .action(async (channel, subchannel) => {
+            await game.build({
                 distribution: true,
                 noservice: true,
-                merge_images: false,
-                compress_images: false,
-                compress_scripts: true,
-                channel: channel
+                channel: channel,
+                subchannel: subchannel
+            });
+            await game.compress({
+                channel: channel,
+                subchannel: subchannel,
+                mergeimages: true,
+                compressimages: true,
+                compressscripts: true
             });
         });
 
     program
-        .command("mingame <special-channel>")
+        .command("mingame <channel> <subchannel>")
         .description("打包微信小游戏")
-        .option("-d, --debug", "测试")
-        .action((channel, opts) => {
+        .action((channel, subchannel, opts) => {
             game.mingame({
                 channel: channel,
-                publish: !opts.debug
+                subchannel: subchannel
             });
         });
 
     program
-        .command("compress <special-channel>")
+        .command("compress <channel> <subchannel>")
         .description("压缩输出的项目")
-        .action((channel) => {
-            game.compress(channel);
+        .option("-m, --mingame", "小游戏")
+        .action((channel, subchannel, opts) => {
+            game.compress({
+                channel: channel,
+                subchannel: subchannel,
+                mingame: opts.mingame,
+                mergeimages: true,
+                compressimages: true,
+                compressscripts: true
+            });
         });
 
     program
@@ -112,15 +127,9 @@ function main() {
     program
         .command("res <up|pub|dist>")
         .description("项目资源控制")
-        .option("-c, --compress", "图片压缩")
-        .option("-m, --merge", "图片合并")
         .action((act) => {
-            let opts = {
-                merge: program.merge,
-                compress: program.compress
-            };
             if (act == "pub") {
-                game.resource.publish(opts);
+                game.resource.publish({});
             } else if (act == "dist") {
                 game.resource.publish({
                     merge: true,
@@ -131,7 +140,7 @@ function main() {
             }
         });
 
-    // 添加程序命令
+    // 添加编译工具提供的命令
     game.commands(program);
 
     program
