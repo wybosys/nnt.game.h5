@@ -2,8 +2,8 @@
   "scripts": {
     "help": "node tools/index.js -h",
     "build": "node tools/index.js build null null",
-    "publish": "node tools/index.js publish sdks test",
-    "dist": "node tools/index.js dist sdks test",
+    "publish": "node tools/index.js publish null null",
+    "dist": "node tools/index.js dist null null",
     "mingame": "node tools/index.js mingame sdks test",
     "compress": "node tools/index.js compress sdks test",
     "clean": "node tools/index.js clean",
