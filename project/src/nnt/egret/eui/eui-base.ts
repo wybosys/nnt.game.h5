@@ -16,6 +16,7 @@ module eui {
     }
 
     export class ComponentU extends eui.Component implements eui.IItemRenderer {
+
         constructor() {
             super();
             this.touchEnabled = false;
@@ -23,7 +24,9 @@ module eui {
             this.addEventListener(eui.UIEvent.CREATION_COMPLETE, this.__cmp_completed, this);
         }
 
+        // 当皮肤处理完成后调用
         onLoaded() {
+            // pass
         }
 
         private __created: boolean;
@@ -298,6 +301,34 @@ module eui {
             t.lastPosition.copy(t.currentPosition);
         }
 
+        protected setSkin(skin: eui.Skin) {
+            super.setSkin(skin);
+
+            // 处理元素的slots连接
+            skin.$elementsContent.forEach((e: any) => {
+                // 如果设置了 slots，则需要处理具体的信号连接
+                if (e.slots != null) {
+                    let ss = e.slots.split(';');
+                    ss.forEach((s: string) => {
+                        if (s == '')
+                            return;
+                        let a = s.split('=>');
+                        let sig = egret.getDefinitionByName(a[0]);
+                        if (sig == null) {
+                            nn.warn("找不到皮肤文件里slots中的Signal:" + a[0]);
+                            return;
+                        }
+                        let tgt = this['_' + a[1]];
+                        if (typeof (tgt) == 'string') {
+                            e.signals.redirect(sig, tgt, this);
+                        } else {
+                            e.signals.connect(sig, tgt, this);
+                        }
+                    });
+                }
+            });
+        }
+
         setSkinPart(partName: string, instance: any) {
             let varname = partName;
             //nn.noti("绑定变量 " + varname);
@@ -307,27 +338,6 @@ module eui {
             let uiext = <IEUIExt>instance;
             if (uiext.onPartBinded)
                 uiext.onPartBinded(partName, this);
-
-            // 如果设置了 slots，则需要处理具体的信号连接
-            if (instance.slots != null) {
-                let ss = instance.slots.split(';');
-                ss.forEach((s: string) => {
-                    if (s == '')
-                        return;
-                    let a = s.split('=>');
-                    let sig = egret.getDefinitionByName(a[0]);
-                    if (sig == null) {
-                        nn.warn("找不到皮肤文件里slots中的Signal:" + a[0]);
-                        return;
-                    }
-                    let tgt = this['_' + a[1]];
-                    if (typeof (tgt) == 'string') {
-                        instance.signals.redirect(sig, tgt, this);
-                    } else {
-                        instance.signals.connect(sig, tgt, this);
-                    }
-                });
-            }
         }
 
         onPartBinded(name: string, tgt: any) {
@@ -467,10 +477,12 @@ module eui {
 
         /** 刷新布局 */
         updateLayout() {
+            // pass
         }
 
         /** 刷新数据 */
         updateData() {
+            // pass
         }
 
         /** 锚点 */
