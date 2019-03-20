@@ -225,7 +225,7 @@ export class EgretGame extends Game {
         if (!tpl.APPORI)
             tpl.APPORI = this.config.get('app', 'orientation') == 'h' ? 'landscape' : 'portrait';
         if (!tpl.APPCONTENT)
-            tpl.APPCONTENT = 'version=0.0.1, debug, verbose' + (this.config.get('app', 'resource') == 'p' ? 'publish' : '');
+            tpl.APPCONTENT = 'debug, verbose' + (this.config.get('app', 'resource') == 'p' ? 'publish' : '');
         if (!tpl.APPANGLE)
             tpl.APPANGLE = this.config.get('app', 'orientation') == 'h' ? '90' : '0';
         if (!tpl.BACKGROUND) {
