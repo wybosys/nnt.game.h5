@@ -327,6 +327,9 @@ export class EgretGame extends Game {
         if (tpl.channel == 'test') {
             // 渠道特殊处理
             this.channel_test(index);
+        } else if (tpl.channel == 'package') {
+            // 打包特殊处理
+            this.channel_package(index);
         } else if (tpl.channel == 'sdks') {
             let jss = index.FILESLIST;
             jss = '<script src="//apps.91yigame.com/platform/sdks/ver/cur/script.es6.min.js"></script>\n\t' + jss;
@@ -394,6 +397,22 @@ export class EgretGame extends Game {
         index.FILESLIST = jss;
         index.BEFORESTART += `
         sdks.config.set('CHANNEL_ID', 1800);
+        sdks.config.set('SDK_LANG', 'es5');
+        sdks.config.set('GAME_VERSION', "${this.config.get('app', 'version')}"); 
+        `;
+        return true;
+    }
+
+    protected async channel_package(index: IndexedObject): Promise<boolean> {
+        let jss = index.FILESLIST;
+        if ('DEVOPS_RELEASE' in process.env) {
+            jss = '<script src="http://<PACKAGE_SDK_URL>/platform/sdks/ver/cur/script.es5.js"></script>\n\t' + jss;
+        } else {
+            jss = '<script src="http://<PACKAGE_SDK_URL>/platform/sdks/ver/cur/script.es5.js"></script>\n\t' + jss;
+        }
+        index.FILESLIST = jss;
+        index.BEFORESTART += `
+        sdks.config.set('CHANNEL_ID', '<PACKAGE_CHANNEL_ID>');
         sdks.config.set('SDK_LANG', 'es5');
         sdks.config.set('GAME_VERSION', "${this.config.get('app', 'version')}"); 
         `;

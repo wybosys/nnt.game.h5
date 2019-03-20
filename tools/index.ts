@@ -15,7 +15,7 @@ function main() {
 
     // 根据项目特征选用游戏模板
     let game: Game;
-    if (fs.existsSync("project/wingProperties.json"))
+    if (fs.existsSync("project/egretProperties.template.json"))
         game = new EgretGame();
 
     program
