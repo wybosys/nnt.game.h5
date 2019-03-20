@@ -301,31 +301,38 @@ module eui {
             t.lastPosition.copy(t.currentPosition);
         }
 
+        private bindSlots(e: any) {
+            if (!e.slots || e.__slots_binded)
+                return;
+
+            // 如果设置了 slots，则需要处理具体的信号连接
+            let ss = e.slots.split(';');
+            ss.forEach((s: string) => {
+                if (s == '')
+                    return;
+                let a = s.split('=>');
+                let sig = egret.getDefinitionByName(a[0]);
+                if (sig == null) {
+                    nn.warn("找不到皮肤文件里slots中的Signal:" + a[0]);
+                    return;
+                }
+                let tgt = this['_' + a[1]];
+                if (typeof (tgt) == 'string') {
+                    e.signals.redirect(sig, tgt, this);
+                } else {
+                    e.signals.connect(sig, tgt, this);
+                }
+            });
+
+            e.__slots_binded = true;
+        }
+
         protected setSkin(skin: eui.Skin) {
             super.setSkin(skin);
 
             // 处理元素的slots连接
-            skin.$elementsContent.forEach((e: any) => {
-                // 如果设置了 slots，则需要处理具体的信号连接
-                if (e.slots != null) {
-                    let ss = e.slots.split(';');
-                    ss.forEach((s: string) => {
-                        if (s == '')
-                            return;
-                        let a = s.split('=>');
-                        let sig = egret.getDefinitionByName(a[0]);
-                        if (sig == null) {
-                            nn.warn("找不到皮肤文件里slots中的Signal:" + a[0]);
-                            return;
-                        }
-                        let tgt = this['_' + a[1]];
-                        if (typeof (tgt) == 'string') {
-                            e.signals.redirect(sig, tgt, this);
-                        } else {
-                            e.signals.connect(sig, tgt, this);
-                        }
-                    });
-                }
+            skin.$elementsContent.forEach(e => {
+                this.bindSlots(e);
             });
         }
 
@@ -338,6 +345,8 @@ module eui {
             let uiext = <IEUIExt>instance;
             if (uiext.onPartBinded)
                 uiext.onPartBinded(partName, this);
+
+            this.bindSlots(instance);
         }
 
         onPartBinded(name: string, tgt: any) {
