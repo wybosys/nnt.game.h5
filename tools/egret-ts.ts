@@ -1,10 +1,10 @@
 import path = require("path");
-import {Service} from "./service";
 import watch = require("watch");
-import {IsMatch, NotMatch, StringT} from "./kernel";
 import fs = require("fs-extra");
 import execa = require("execa");
 import os = require("os");
+import {IService, Service} from "./service";
+import {IsMatch, NotMatch, StringT} from "./kernel";
 
 const PAT_TS = [/\.ts$/];
 const PAT_TS_IGNORE = [/\.d\.ts$/];
@@ -14,7 +14,7 @@ let options: any;
 let project: any;
 let host: any;
 
-export class EgretTs {
+export class EgretTs implements IService {
 
     async startWatch(svc: Service) {
         if (!Service.Locker('egret-ts').trylock())

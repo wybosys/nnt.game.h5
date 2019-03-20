@@ -6283,8 +6283,10 @@ module nn {
             this.set(key, JSON.stringify(val));
         }
 
-        getObject(key: any): any {
-            let s = this.value(key);
+        getObject(key: any, def = null): any {
+            let s = this.value(key, null);
+            if (s == null)
+                return def;
             return JSON.parse(s);
         }
 

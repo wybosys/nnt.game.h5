@@ -13,7 +13,7 @@
         </tween:TweenGroup>
 	</w:Declarations>
 	<wgt:SamplePanel left="0" right="0" top="0" bottom="0" locked="true"/>
-	<e:MovieClipU width="200" height="200" textureSource="assets://mc/shangdi.png" frameSource="assets://mc/shangdi.json" clipName="shangdi" playCount="-1" autoPlay="true" x="48.48" y="100"/>
+	<e:MovieClipU width="200" height="200" textureSource="assets://mc.d/shangdi.png" frameSource="assets://mc.d/shangdi.json" clipName="shangdi" playCount="-1" autoPlay="true" x="48.48" y="100"/>
 	<eui:BoneU width="200" height="200" boneName="dragon" autoPlay="true" playCount="-1" motion="walk" x="300" y="100"/>
 	<wgt:EntryButton label="粒子" x="50" y="336" slots="nn.SignalClicked=&gt;actParticle"/>
 	<eui:ButtonU id="btnLogic" label="IDE编辑的帧动画" x="300" y="336" slots="nn.SignalClicked=&gt;actPlayFrameAni" anchorOffsetX="0" width="262.97" skinName="app.wgt.EntryButtonSkin"/>

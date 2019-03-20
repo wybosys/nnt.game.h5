@@ -8,6 +8,8 @@ import inquirer = require("inquirer");
 import async = require("async");
 import xmldom = require("xmldom");
 import fsext = require("fs-ext");
+import execa = require("execa");
+import os = require("os");
 
 export type IndexedObject = { [key: string]: any };
 
@@ -195,8 +197,7 @@ export function ListFiles(dir: string, rets: string[] = null, blacklist: RegExp[
         let stat = fs.statSync(full);
         if (stat.isDirectory()) {
             ListFiles(full, rets, blacklist, whitelist, depth, fullpath, curdir + '/' + entry);
-        }
-        else if (stat.isFile()) {
+        } else if (stat.isFile()) {
             // 黑名单过滤
             let fnd = blacklist && blacklist.some(e => {
                 return entry.match(e) != null;
@@ -449,7 +450,7 @@ export class DateTime {
 export function asString(o: any, def = ''): string {
     if (o == null)
         return def;
-    let tp = typeof(o);
+    let tp = typeof (o);
     if (tp == 'string')
         return <string>o;
     if (tp == 'number')
@@ -560,29 +561,26 @@ export function toJson(o: IndexedObject, def: string = null, space?: number) {
             r = JSON.stringify(o, null, space);
         else
             r = JSON.stringify(o);
-    }
-    catch (err) {
+    } catch (err) {
         r = def;
     }
     return r;
 }
 
 export function toJsonObject(o: any, def: any = null): IndexedObject {
-    let t = typeof(o);
+    let t = typeof (o);
     if (t == 'string') {
         if (o == "undefined" || o == "null")
             return def;
         let r: any;
         try {
             r = JSON.parse(o as string);
-        }
-        catch (err) {
+        } catch (err) {
             console.warn(o + " " + err);
             r = def;
         }
         return r;
-    }
-    else if (t == 'object')
+    } else if (t == 'object')
         return <any>o;
     return def;
 }
@@ -599,6 +597,38 @@ export function IsMatch(str: string, pat: RegExp[]): RegExp {
     for (let i = 0, l = pat.length; i < l; ++i) {
         if (str.match(pat[i]))
             return pat[i];
+    }
+    return null;
+}
+
+function cygwin(cmd: string): string {
+    let old = process.cwd();
+    let ret = '';
+    if (fs.existsSync("c:/cygwin"))
+        process.chdir('c:/cygwin/bin');
+    else
+        process.chdir('c:/cygwin64/bin');
+    try {
+        let res = execa.shellSync('bash --login -i -c  "' + cmd + '"');
+        ret = res.stdout;
+    } catch (err) {
+        console.warn(err.toString());
+    }
+    process.chdir(old);
+    return ret;
+}
+
+const IS_WINDOWS = os.type() == 'Windows_NT';
+
+export function RunInBash(file: string): string {
+    if (IS_WINDOWS)
+        return cygwin(file);
+
+    try {
+        let res = execa.shellSync(file);
+        return res.stdout;
+    } catch (err) {
+        console.warn(err.toString());
     }
     return null;
 }

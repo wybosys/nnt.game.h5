@@ -1,24 +1,29 @@
 import fs = require("fs-extra");
 import mustache = require("mustache");
+import path = require("path");
+import execa = require("execa");
+import watch = require("watch");
 import {
-    ArrayT, IsMatch,
+    ArrayT,
+    IsMatch,
     LinesReplace,
     ListFiles,
-    LoadXmlFile, ObjectT,
+    LoadXmlFile,
+    ObjectT,
     ReadFileLines,
     SetT,
     static_cast,
-    StringT, toJson, toJsonObject,
+    StringT,
+    toJson,
+    toJsonObject,
     XmlNode
 } from "./kernel";
-import path = require("path");
-import {Service} from "./service";
-import execa = require("execa");
-import watch = require("watch");
+import {IService, Service} from "./service";
 
 const PAT_EXML = [/Skin\.exml$/];
 
-export class EgretEui {
+// ui的特殊处理
+export class EgretEui implements IService {
 
     clean() {
         fs.removeSync("project/resource/default.thm.json");
@@ -92,8 +97,7 @@ export class EgretEui {
                 CLASS: path.basename(tscls)
             });
             fs.writeFileSync(tsfile, content);
-        }
-        else {
+        } else {
             // 生成interface需要的函数
             let funs = new Set<string>();
             slots.forEach(slot => {
@@ -147,7 +151,7 @@ export class EgretEui {
         if (!Service.Locker('egret-eui').trylock())
             return;
 
-        await this.build();
+        this.build();
 
         let res = execa('node', ['tools/egret-eui.js'], {
             detached: true,

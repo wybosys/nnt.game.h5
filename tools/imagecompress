@@ -3,9 +3,9 @@
 import sys, re, multiprocessing, os
 import common
 
-def compressdirectory(dir):    
+def compressdirectory(dir):
     pngs = common.listfiles(dir, whitelist=[re.compile(r'(\.png$)')])
-    jpgs = common.listfiles(dir, whitelist=[re.compile(r'(\.jpg$)')])    
+    jpgs = common.listfiles(dir, whitelist=[re.compile(r'(\.jpg$)')])
     sem = multiprocessing.Semaphore(8)
     for png in pngs:
         sem.acquire()
@@ -13,17 +13,20 @@ def compressdirectory(dir):
         p = multiprocessing.Process(target=compresspng, args=(q, sem, png))
         p.start()
     for jpg in jpgs:
-        sem.acquire()        
+        sem.acquire()
         q = multiprocessing.Queue()
         p = multiprocessing.Process(target=compressjpeg, args=(q, sem, jpg))
         p.start()
 
 def compresspng(q, sem, png):
-    os.system("pngquant --ext .png --force --speed 3 " + png)
+    os.system("pngquant --ext .png --force --skip-if-larger --speed 3 --quality 30-70 " + png)
     sem.release()
 
 def compressjpeg(q, sem, jpg):
-    os.system("jpegtran -optimize -copy none -outfile " + jpg + " " + jpg)
+    if sys.platform == 'linux' or sys.platform == 'darwin':
+        os.system("jpegoptim --all-normal -f -m70 -o " + jpg)
+    else:
+        os.system("jpegtran -optimize -copy none -outfile " + jpg + " " + jpg)
     sem.release()
 
 if __name__=="__main__":

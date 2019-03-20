@@ -36,6 +36,23 @@ module nn {
     // 是否支持图片跨域
     let CLAZZ_EXT_IMAGE_LOADER: any;
 
+    // 自定义资源版本管理
+    class _ResVersion implements RES.IVersionController {
+
+        async init(): Promise<any> {
+            return this;
+        }
+
+        getVirtualUrl(url: string): string {
+            if (APPVERSION && !Device.shared.isMinGame) {
+                url += `?v=${APPVERSION}`;
+            }
+            return url;
+        }
+    }
+
+    RES.registerVersionController(new _ResVersion());
+
     // 资源池
     export class _ResMemcache extends Memcache {
         constructor() {
@@ -65,18 +82,15 @@ module nn {
             let key: any;
             if (data == null) {
                 key = "::mc::null";
-            }
-            else if ('hashCode' in data) {
+            } else if ('hashCode' in data) {
                 key = data.hashCode;
-            }
-            else if (typeof(data) == 'object') {
+            } else if (typeof (data) == 'object') {
                 key = data[_ResMemcache.IDR_HASHCODE];
                 if (key == null) {
                     key = '::mc::' + this._hashCode++;
                     data[_ResMemcache.IDR_HASHCODE] = key;
                 }
-            }
-            else {
+            } else {
                 let rcd = new CacheRecord();
                 rcd.val = data;
                 return rcd;
@@ -157,8 +171,7 @@ module nn {
                     }
                     cb.call(ctx);
                 }, this, re.type);
-            }
-            else {
+            } else {
                 let grp = <ResourceGroup>rr;
                 if (RES.isGroupLoaded(grp)) {
                     if (this.signals.isConnected(SignalChanged)) {

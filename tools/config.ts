@@ -12,10 +12,9 @@ export class Config extends Worker {
         this._cfgdb = new EmbededKv(".n2/build");
         if (!this._cfgdb.contains('uuid'))
             this._cfgdb.set('uuid', UUID());
-        this.refresh();
     }
 
-    clean() {
+    async clean() {
         fs.removeSync(".n2/build");
     }
 

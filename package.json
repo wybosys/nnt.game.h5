@@ -1,16 +1,16 @@
 {
   "scripts": {
     "help": "node tools/index.js -h",
-    "build": "node tools/index.js build",
-    "publish": "node tools/index.js publish",
-    "dist": "node tools/index.js dist",
-    "mingame": "node tools/index.js mingame",
-    "compress": "node tools/index.js compress",
+    "build": "node tools/index.js build null null",
+    "publish": "node tools/index.js publish null null",
+    "dist": "node tools/index.js dist null null",
+    "mingame": "node tools/index.js mingame sdks test",
+    "compress": "node tools/index.js compress sdks test",
     "clean": "node tools/index.js clean",
     "gendata": "node tools/index.js gendata",
     "genskin": "node tools/index.js genskin",
     "genres": "node tools/index.js res up",
-    "devops": "node tools/index.js dist"
+    "devops": "node tools/index.js dist sdks test"
   },
   "devDependencies": {
     "@types/async": "^2.0.49",
@@ -30,7 +30,7 @@
     "@types/watch": "^1.0.0",
     "@types/xmldom": "^0.1.29",
     "async": "^2.6.1",
-    "commander": "^2.18.0",
+    "commander": "^2.19.0",
     "dot": "^1.1.2",
     "dustjs-linkedin": "^2.7.5",
     "execa": "^1.0.0",
@@ -42,7 +42,6 @@
     "lowdb": "^1.0.0",
     "mustache": "^2.3.2",
     "proper-lockfile": "^3.0.2",
-    "sharpkit": "^10.30.10",
     "tmp": "^0.0.33",
     "uglify-js": "^3.4.9",
     "uuid": "^3.3.2",

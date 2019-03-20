@@ -2,6 +2,8 @@ import fs = require("fs-extra");
 import tpl = require("dustjs-linkedin");
 import xlsx = require("xlsx");
 import execa = require("execa");
+import path = require("path");
+import watch = require("watch");
 import {
     ArrayT,
     asString,
@@ -14,9 +16,7 @@ import {
     toJson,
     toJsonObject
 } from "./kernel";
-import {Service} from "./service";
-import path = require("path");
-import watch = require("watch");
+import {IService, Service} from "./service";
 import {Worker} from "./worker";
 import {Game} from "./game";
 
@@ -24,7 +24,7 @@ const PAT_EXCEL = [/\.xlsx$/];
 const PAT_EXCEL_IGNORE = [/^~/, /^#/]; // office文件打开会产生临时文件
 const PAT_JS = [/\.js$/];
 
-export class Gendata extends Worker {
+export class Gendata extends Worker implements IService {
 
     constructor(game: Game) {
         super(game);
@@ -47,7 +47,7 @@ export class Gendata extends Worker {
         const files = ReadFiles(paths, {client: true});
 
         // 转换
-        new AsyncQueue()
+        await new AsyncQueue()
             .add(next => {
                 let tplcfg = (<any>tpl).config;
                 let old = tplcfg.whitespace;
@@ -282,8 +282,7 @@ class Sheet {
                     let proc = processors.get(f.type.config);
                     if (!proc) {
                         console.log("没有找到 " + this.name + " 自定义配置 " + f.type.config);
-                    }
-                    else {
+                    } else {
                         e = proc.convert(e.toString());
                         if (proc.string)
                             val = '"' + e + '"';
@@ -292,8 +291,7 @@ class Sheet {
                         else
                             val = "";
                     }
-                }
-                else {
+                } else {
                     if (f.string)
                         val = '"' + e + '"';
                     else
@@ -316,8 +314,7 @@ class Sheet {
             let key: any;
             if (fp == null) {
                 key = idx;
-            }
-            else {
+            } else {
                 if (fp.string)
                     key = '"' + row[fp.index] + '"';
                 else
@@ -447,19 +444,15 @@ function ParseSheet(nm: string, s: xlsx.WorkSheet, opt: ParseOption): Sheet {
                 if (f.type.client) {
                     if (opt.client)
                         r.fields.push(f);
-                }
-                else if (f.type.server) {
+                } else if (f.type.server) {
                     if (opt.server)
                         r.fields.push(f);
-                }
-                else {
+                } else {
                     r.fields.push(f);
                 }
-            }
-            else
+            } else
                 r.fields.push(f);
-        }
-        else {
+        } else {
             r.pfields.push(f);
         }
     });
@@ -489,8 +482,7 @@ function ParseSheet(nm: string, s: xlsx.WorkSheet, opt: ParseOption): Sheet {
                         if (idfp.string)
                             cv = '"' + cv + '"';
                         c.value = cv;
-                    }
-                    else {
+                    } else {
                         c.value = r.datas.length;
                     }
                     r.consts.push(c);

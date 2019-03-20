@@ -1,6 +1,6 @@
 declare let document_class;
 declare let document_orientation;
-if (typeof(document_class) == 'undefined')
+if (typeof (document_class) == 'undefined')
     document_class = 'Main';
 
 module nn {
@@ -42,10 +42,7 @@ module nn {
         protected _asyncPreloadConfig(group: OperationGroup) {
             // 加载基础配置文件
             group.add(new OperationClosure(oper => {
-                let cfg = this.configFile;
-                if (!Device.shared.isMinGame)
-                    cfg += '?v=' + this.version;
-                ResManager.getResByUrl(cfg, ResPriority.NORMAL, (obj: CacheRecord) => {
+                ResManager.getResByUrl(this.configFile, ResPriority.NORMAL, (obj: CacheRecord) => {
                     this.config = obj.val;
                     // 如果需要处理debug的config文件
                     if (app.debug.CONFIG) {
@@ -66,8 +63,6 @@ module nn {
             group.add(new OperationClosure(oper => {
                 let res = this.resourceFile.name;
                 let domain = this.resourceFile.domain;
-                if (!Device.shared.isMinGame)
-                    res += '?v=' + this.version;
                 ResManager.loadConfig(res, domain, () => {
                     oper.done();
                 }, this);
@@ -77,8 +72,6 @@ module nn {
             group.add(new OperationClosure(oper => {
                 let res = this.subresourceFile.name;
                 let domain = this.subresourceFile.domain;
-                if (!Device.shared.isMinGame)
-                    res += '?v=' + this.version;
                 ResManager.loadConfig(res, domain, () => {
                     oper.done();
                 }, this);
