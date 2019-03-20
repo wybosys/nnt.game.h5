@@ -27,7 +27,7 @@ module nn {
             // 加载皮肤文件
             let stage = this._imp.stage;
             group.add(new OperationClosure((oper: Operation) => {
-                let fn = ResManager.directory + this.themeFile + '?v=' + this.version;
+                let fn = ResManager.directory + this.themeFile;
                 let theme = new eeui.Theme(fn, stage);
                 theme.addEventListener(egret.Event.COMPLETE, () => {
                     oper.done();

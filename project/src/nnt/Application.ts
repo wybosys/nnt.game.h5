@@ -72,12 +72,11 @@ module nn {
         /** 打开 app 所使用的地址 */
         url = new URL(js.siteUrl);
 
-        /** 版本号 */
-        version: string = APPVERSION;
-
         /** 版本信息 */
         get versioninfo(): string {
-            let r = [this.version];
+            let r: string[] = [];
+            if (APPVERSION)
+                r.push(APPVERSION);
             if (ISDEBUG && app.debug) {
                 r.push(new DateTime(app.debug.BUILDDATE).toString('yyyy/M/d HH:mm:ss'));
             }
@@ -210,8 +209,6 @@ module nn {
         /** 延期加载的capsules */
         capsules(reqs: ReqResource[]): CResCapsule {
             let u = ResManager.directory + this.dataFile;
-            if (!Device.shared.isMinGame)
-                u += '?v=' + this.version;
             let c: Array<ReqResource> = [new ResourceEntity(u, ResType.JSREF)];
             let r = ResManager.capsules(reqs.concat(c));
             // 加载成功后，激发dataloaded的处理
