@@ -634,7 +634,7 @@ module nn {
     }
 
     /** 转换到 float */
-    export function toFloat(o: any, def = 0): number {
+    export function toDouble(o: any, def = 0): number {
         if (o == null)
             return def;
         let tp = typeof (o);
@@ -673,11 +673,7 @@ module nn {
         if (tp == 'number')
             return SafeNumber(o, def);
         if (tp == 'string') {
-            if (o.indexOf('.') == -1) {
-                let v = parseInt(o);
-                return SafeNumber(v, def);
-            }
-            let v = parseFloat(o);
+            let v = Number(<string>o);
             return SafeNumber(v, def);
         }
         if (o.toNumber)

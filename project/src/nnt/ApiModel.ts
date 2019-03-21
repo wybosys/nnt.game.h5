@@ -418,6 +418,7 @@ namespace app.models {
 
 namespace app.models.logic {
 
+
     type Class<T> = { new(...args: any[]): T, [key: string]: any };
     type AnyClass = Class<any>;
     type clazz_type = AnyClass | string;
@@ -444,6 +445,7 @@ namespace app.models.logic {
         string?: boolean;
         integer?: boolean;
         double?: boolean;
+        number?: boolean;
         boolean?: boolean;
         enum?: boolean;
         file?: boolean;
@@ -517,6 +519,7 @@ namespace app.models.logic {
     const string_t = "string";
     const integer_t = "integer";
     const double_t = "double";
+    const number_t = "number";
     const boolean_t = "boolean";
 
     function toBoolean(v: any): boolean {
@@ -544,15 +547,19 @@ namespace app.models.logic {
                         if (typeof (fp.valtype) == "string") {
                             if (fp.valtype == string_t) {
                                 val.forEach(e => {
-                                    arr.push(e ? e.toString() : null);
+                                    arr.push(nn.asString(e));
                                 });
                             } else if (fp.valtype == integer_t) {
                                 val.forEach(e => {
-                                    arr.push(e ? nn.toInt(e) : 0);
+                                    arr.push(nn.toInt(e));
                                 });
                             } else if (fp.valtype == double_t) {
                                 val.forEach(e => {
-                                    arr.push(e ? nn.toFloat(e) : 0);
+                                    arr.push(nn.toDouble(e));
+                                });
+                            } else if (fp.valtype == number_t) {
+                                val.forEach(e => {
+                                    arr.push(nn.toNumber(e));
                                 });
                             } else if (fp.valtype == boolean_t) {
                                 val.forEach(e => {
@@ -586,24 +593,31 @@ namespace app.models.logic {
                     if (fp.keytype == integer_t)
                         keyconv = nn.toInt;
                     else if (fp.keytype == double_t)
-                        keyconv = nn.toFloat;
+                        keyconv = nn.toDouble;
+                    else if (fp.keytype == number_t)
+                        keyconv = nn.toNumber;
                     let map = new Map();
                     if (val) {
                         if (typeof (fp.valtype) == "string") {
                             if (fp.valtype == string_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
-                                    map.set(keyconv(ek), ev ? ev.toString() : null);
+                                    map.set(keyconv(ek), nn.asString(ev));
                                 }
                             } else if (fp.valtype == integer_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
-                                    map.set(keyconv(ek), ev ? nn.toInt(ev) : 0);
+                                    map.set(keyconv(ek), nn.toInt(ev));
                                 }
                             } else if (fp.valtype == double_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
-                                    map.set(keyconv(ek), ev ? nn.toFloat(ev) : 0);
+                                    map.set(keyconv(ek), nn.toDouble(ev));
+                                }
+                            } else if (fp.valtype == number_t) {
+                                for (let ek in val) {
+                                    let ev = val[ek];
+                                    map.set(keyconv(ek), nn.toNumber(ev));
                                 }
                             } else if (fp.valtype == boolean_t)
                                 for (let ek in val) {
@@ -632,7 +646,9 @@ namespace app.models.logic {
                     if (fp.keytype == integer_t)
                         keyconv = nn.toInt;
                     else if (fp.keytype == double_t)
-                        keyconv = nn.toFloat;
+                        keyconv = nn.toDouble;
+                    else if (fp.keytype == number_t)
+                        keyconv = nn.toNumber;
                     let mmap = new Multimap();
                     if (val) {
                         if (typeof (fp.valtype) == "string") {
@@ -649,13 +665,19 @@ namespace app.models.logic {
                             } else if (fp.valtype == double_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
-                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toFloat(e)));
+                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toDouble(e)));
                                 }
-                            } else if (fp.valtype == boolean_t)
+                            } else if (fp.valtype == number_t) {
+                                for (let ek in val) {
+                                    let ev = val[ek];
+                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toNumber(e)));
+                                }
+                            } else if (fp.valtype == boolean_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => !!e));
                                 }
+                            }
                         } else {
                             let clz: any = fp.valtype;
                             for (let ek in val) {
@@ -681,11 +703,13 @@ namespace app.models.logic {
                 }
             } else {
                 if (fp.string)
-                    mdl[key] = val ? val.toString() : null;
+                    mdl[key] = nn.asString(val);
                 else if (fp.integer)
-                    mdl[key] = val ? nn.toInt(val) : 0;
+                    mdl[key] = nn.toInt(val);
                 else if (fp.double)
-                    mdl[key] = val ? nn.toFloat(val) : 0;
+                    mdl[key] = nn.toDouble(val);
+                else if (fp.number)
+                    mdl[key] = nn.toNumber(val);
                 else if (fp.boolean)
                     mdl[key] = toBoolean(val);
                 else if (fp.json)
@@ -791,6 +815,7 @@ namespace app.models.logic {
         static string_t = "string";
         static integer_t = "integer";
         static double_t = "double";
+        static number_t = "number";
         static boolean_t = "boolean";
 
         // 可选的参数
@@ -856,6 +881,21 @@ namespace app.models.logic {
                 output: opts.indexOf(Base.output) != -1,
                 optional: opts.indexOf(Base.optional) != -1,
                 double: true,
+                comment: comment
+            };
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        static number(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp: FieldOption = {
+                id: id,
+                val: 0,
+                input: opts.indexOf(Base.input) != -1,
+                output: opts.indexOf(Base.output) != -1,
+                optional: opts.indexOf(Base.optional) != -1,
+                number: true,
                 comment: comment
             };
             return (target: any, key: string) => {
