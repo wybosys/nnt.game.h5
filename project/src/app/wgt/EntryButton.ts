@@ -14,6 +14,7 @@ module app.wgt {
         iconDisplay: eui.ImageU;
         labelDisplay: eui.LabelU;
         spBkg: eui.RectU;
+
         //skin }
 
         onLoaded() {
@@ -70,7 +71,7 @@ module app.wgt {
                     manager.guide.setReaded(this._guide);
                     this._guide = null;
                     this._shou = null;
-                }, this);
+                });
             }
         }
 
@@ -119,7 +120,7 @@ module app.wgt {
                 this._shou.data = this._guide;
                 this._shou.direction = nn.DirectionFromString(this.guideDirection);
                 this._shou.open(true);
-            }, this);
+            });
         }
     }
 }
