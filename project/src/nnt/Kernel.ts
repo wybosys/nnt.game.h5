@@ -5187,16 +5187,16 @@ module nn {
     }
 
     /** 延迟运行 */
-    export function Delay(duration: Interval, cb: () => void, ctx: any, ...p: any[]): Timer {
+    export function Delay(duration: Interval, cb: () => void): Timer {
         if (duration <= 0) {
-            cb.call(ctx, p);
+            cb();
             return null;
         }
 
         let tmr = new Timer(duration, 1);
         tmr.signals.connect(SignalDone, () => {
-            cb.call(ctx, p);
-            tmr.stop(); // 不能dispse，一般业务层会做这个事情或者自动就gc掉了
+            cb();
+            tmr.stop(); //不用dispose，一般业务层会做这个事情或者自动就gc掉了
         }, null);
 
         // 直接开始，不能用defer避免出现外部先stop然后才到start的问题
@@ -5997,7 +5997,7 @@ module nn {
             } else {
                 Delay(delay, () => {
                     this._cb.call(this._ctx, this);
-                }, this);
+                });
             }
         }
 

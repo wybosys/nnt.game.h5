@@ -1,6 +1,20 @@
 module nn {
 
-    export class LoadingScreen extends Sprite implements IProgress {
+    // 首屏加载得实现
+    export interface ILoadingScreen extends Component {
+
+        // 进度
+        progressValue: Percentage;
+
+        // 加载完成
+        complete();
+    }
+
+    // 基于基础GUI实现的加载屏
+    export class LoadingScreen
+        extends Sprite
+        implements IProgress, ILoadingScreen {
+
         constructor() {
             super();
 
@@ -39,7 +53,8 @@ module nn {
                 .apply();
         }
 
-        _progressValue = new Percentage();
+        protected _progressValue = new Percentage();
+
         get progressValue(): Percentage {
             return this._progressValue;
         }

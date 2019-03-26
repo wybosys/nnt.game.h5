@@ -1,5 +1,7 @@
 module eui {
 
+    import Delay = nn.Delay;
+
     /** 用来提供设置参数 */
     export class DesktopU extends eui.ComponentU {
         static IDRKEY = "::nneui::idrkey::desktop";
@@ -196,6 +198,16 @@ module eui {
 
         close() {
             this.signals.emit(nn.SignalRequestClose);
+        }
+
+        delayClose(timeout?: number) {
+            if (timeout) {
+                Delay(timeout, () => {
+                    this.close();
+                });
+            } else {
+                this.close();
+            }
         }
 
         bestFrame(): nn.Rect {

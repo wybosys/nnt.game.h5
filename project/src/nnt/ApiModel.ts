@@ -181,8 +181,11 @@ module nn {
                 Hud.ShowProgress();
 
             // 启动超时计时器
-            if (this.timeout)
-                this._tmr_timeout = Delay(this.timeout, this.__mdl_timeout, this);
+            if (this.timeout) {
+                this._tmr_timeout = Delay(this.timeout, () => {
+                    this.__mdl_timeout();
+                });
+            }
 
             this.signals.emit(SignalStart);
         }
