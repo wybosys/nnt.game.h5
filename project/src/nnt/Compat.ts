@@ -55,7 +55,20 @@ module js {
 
     export function printf() {
         var i = 0, a;
-        var f = arguments[i++];
+
+        // 转换一下传入得数据，避免类型不匹配报错
+        let args = [];
+        if (arguments.length) {
+            let t = arguments[0];
+            args.push(t == null ? '' : t.toString());
+            for (let i = 1, l = arguments.length; i < l; ++i) {
+                args.push(arguments[i].valueOf());
+            }
+        } else {
+            return;
+        }
+
+        var f = args[i++];
         var o = [], m, p, c, x, s = '';
         while (f) {
             if ((m = /^[^\x25]+/.exec(f))) {
@@ -63,7 +76,7 @@ module js {
             } else if ((m = /^\x25{2}/.exec(f))) {
                 o.push('%');
             } else if ((m = /^\x25(?:(\d+)\$)?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosuxX])/.exec(f))) {
-                if (((a = arguments[m[1] || i++]) == null) || (a == undefined)) {
+                if (((a = args[m[1] || i++]) == null) || (a == undefined)) {
                     throw('Too few arguments.');
                 }
                 if (/[^s]/.test(m[7]) && (typeof (a) != 'number')) {

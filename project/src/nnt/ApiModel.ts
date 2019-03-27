@@ -447,6 +447,13 @@ namespace app.models {
             return new IntFloat(ori, scale);
         }
 
+        static FromValue(val: intfloat, scale: number): IntFloat {
+            if (val instanceof IntFloat) {
+                return new IntFloat(val.origin, scale);
+            }
+            return new IntFloat(0, scale).setValue(val);
+        }
+
         static Multiply(l: intfloat, r: number): intfloat {
             if (l instanceof IntFloat) {
                 return l.clone().multiply(r);
@@ -539,7 +546,7 @@ namespace app.models {
 namespace app.models.logic {
 
 
-    import toNumber = nn.toNumber;
+    import toInt = nn.toInt;
     type Class<T> = { new(...args: any[]): T, [key: string]: any };
     type AnyClass = Class<any>;
     type clazz_type = AnyClass | string;
@@ -839,7 +846,7 @@ namespace app.models.logic {
                 else if (fp.file)
                     mdl[key] = val;
                 else if (fp.intfloat)
-                    mdl[key] = IntFloat.From(0, fp.intfloat).setValue(toNumber(val));
+                    mdl[key] = IntFloat.From(toInt(val), fp.intfloat);
             }
         }
         // 处理内置参数
@@ -864,7 +871,7 @@ namespace app.models.logic {
             if (fp.valtype && !fp.enum && typeof fp.valtype != "string") {
                 r[key] = JSON.stringify(Encode(v));
             } else if (fp.intfloat) {
-                r[key] = v.valueOf();
+                r[key] = IntFloat.FromValue(v, fp.intfloat).origin;
             } else {
                 r[key] = v;
             }
@@ -930,7 +937,7 @@ namespace app.models.logic {
                     r[fk] = Output(val);
                 }
             } else if (fp.intfloat) {
-                r[fk] = val.valueOf();
+                r[fk] = IntFloat.Origin(val);
             } else {
                 r[fk] = val;
             }
