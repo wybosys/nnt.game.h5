@@ -11,6 +11,7 @@ import {
     LoadXmlFile,
     ObjectT,
     ReadFileLines,
+    SaveXmlFile,
     SetT,
     static_cast,
     StringT,
@@ -59,6 +60,36 @@ export class EgretEui implements IService {
         fs.writeFileSync('project/resource/default.thm.json', content);
     }
 
+    // 规范所有皮肤文件
+    fix() {
+        // 列出所有的exml文件
+        const skins = ListFiles('project/resource/eui_skins/app', null, null, PAT_EXML, -1);
+        skins.forEach(skin => {
+            this.fixOneSkin(skin);
+        });
+    }
+
+    // 规范一个皮肤文件
+    fixOneSkin(exml: string) {
+        let autoid = 0;
+        let modified = false;
+
+        let doc = LoadXmlFile(exml);
+        let slotsnodes = xml_getElementsByAttributeName(doc.documentElement, 'slots');
+        slotsnodes.forEach(e => {
+            if (e.getAttributeNode('id') == null) {
+                // 自动生成一个id
+                e.setAttribute('id', `__auto_${autoid++}`);
+                modified = true;
+            }
+        });
+
+        if (modified) {
+            // 将修改写回
+            SaveXmlFile(doc, exml);
+        }
+    }
+
     // 构建制定文件，返回对应的类名
     buildOneSkin(exml: string): string {
         let doc = LoadXmlFile(exml);
@@ -68,6 +99,10 @@ export class EgretEui implements IService {
         let props: string[] = [];
         nodes.forEach(node => {
             const id = node.getAttribute('id');
+            // 如果id是自动生成得，跳过生成变量，eui得setSkinPart需要id，所以当fix得时候会自动生成一个
+            if (id.indexOf('__auto_') == 0)
+                return;
+
             const ns = node.namespaceURI;
             let cls = node.localName;
             const e = node.prefix;
@@ -117,6 +152,7 @@ export class EgretEui implements IService {
             lines = LinesReplace(lines, /\/\/slot {/, /\/\/slot }/, SetT.ToArray(funs).sort());
             fs.writeFileSync(tsfile, lines.join('\n'));
         }
+
         return tscls.replace(/\//g, '.');
     }
 
@@ -133,24 +169,43 @@ export class EgretEui implements IService {
     }
 
     addSkin(exml: string) {
+        if (this._processingExmls.has(exml))
+            return;
+        this._processingExmls.add(exml);
+
         let path = exml.replace('project/', '');
+
         let thms = fs.readJsonSync('project/resource/default.thm.json');
         let fnd = ArrayT.QueryObject(thms.exmls, e => e == path);
         if (!fnd)
             thms.exmls.push(path);
+
+        // 检查文件正确性
+        this.fixOneSkin(exml);
+
+        // 编译文件到ts
         let cls = this.buildOneSkin(exml);
+
+        // 重新添加theme
         ObjectT.RemoveKeyByFilter(thms.skins, val => {
             return val == path;
         });
-        // 添加
         thms.skins[cls] = path;
+
+        // 更新egret主题对照表
         fs.writeJsonSync('project/resource/default.thm.json', thms);
+
+        this._processingExmls.delete(exml);
     }
 
     async startWatch(svc: Service) {
         if (!Service.Locker('egret-eui').trylock())
             return;
 
+        // 检查exml得正确性
+        this.fix();
+
+        // 编译文件
         this.build();
 
         let res = execa('node', ['tools/egret-eui.js'], {
@@ -160,6 +215,8 @@ export class EgretEui implements IService {
         res.unref();
         svc.add(res, 'egret-eui');
     }
+
+    private _processingExmls = new Set<string>();
 }
 
 function xml_getElementsByAttributeName(node: HTMLElement, name: string, arr?: HTMLElement[]): HTMLElement[] {

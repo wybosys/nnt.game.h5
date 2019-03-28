@@ -62,10 +62,14 @@ module js {
             let t = arguments[0];
             args.push(t == null ? '' : t.toString());
             for (let i = 1, l = arguments.length; i < l; ++i) {
-                args.push(arguments[i].valueOf());
+                let v = arguments[i];
+                if (typeof v == "object")
+                    args.push(arguments[i].valueOf());
+                else
+                    args.push(v);
             }
         } else {
-            return;
+            return '';
         }
 
         var f = args[i++];

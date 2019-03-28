@@ -509,6 +509,12 @@ export function LoadXmlFile(file: string): Document {
     return doc;
 }
 
+export function SaveXmlFile(doc: Document, file: string) {
+    let ser = new xmldom.XMLSerializer();
+    let content = ser.serializeToString(doc);
+    fs.writeFileSync(file, content, {encoding: 'utf-8'});
+}
+
 export enum XmlNode {
     ELEMENT_NODE = 1,
     TEXT_NODE = 3,

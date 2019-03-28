@@ -327,15 +327,6 @@ module eui {
             e.__slots_binded = true;
         }
 
-        protected setSkin(skin: eui.Skin) {
-            super.setSkin(skin);
-
-            // 处理元素的slots连接
-            skin.$elementsContent.forEach(e => {
-                this.bindSlots(e);
-            });
-        }
-
         setSkinPart(partName: string, instance: any) {
             let varname = partName;
             //nn.noti("绑定变量 " + varname);
