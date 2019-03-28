@@ -51,7 +51,7 @@ module nn {
                 Delay(this.delayClose, () => {
                     this._base = null;
                     this.removeFromParent();
-                }, this);
+                });
         }
 
         protected instanceDesktop(): Desktop {
@@ -113,8 +113,7 @@ module nn {
                     idrc.maxY = tarc.maxY;
                 else if (idrc.minY < tarc.minY)
                     idrc.minY = tarc.minY;
-            }
-            else if (trc.y - idrc.height - bst.height > rc.y) {
+            } else if (trc.y - idrc.height - bst.height > rc.y) {
                 d = Direction.UP;
                 this.identifier.rotation = Angle.ANGLE(180);
 
@@ -139,8 +138,7 @@ module nn {
                     idrc.maxX = tarc.maxX;
                 else if (idrc.minX < tarc.minX)
                     idrc.minX = tarc.minX;
-            }
-            else if (trc.x - idrc.width - bst.width > rc.x) {
+            } else if (trc.x - idrc.width - bst.width > rc.x) {
                 d = Direction.LEFT;
                 this.identifier.rotation = Angle.ANGLE(90);
 
@@ -165,8 +163,7 @@ module nn {
                     idrc.maxY = tarc.maxY;
                 else if (idrc.minY < tarc.minY)
                     idrc.minY = tarc.minY;
-            }
-            else {
+            } else {
                 d = Direction.DOWN;
                 this.identifier.rotation = Angle.ANGLE(0);
 

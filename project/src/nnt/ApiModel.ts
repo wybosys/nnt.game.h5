@@ -181,8 +181,11 @@ module nn {
                 Hud.ShowProgress();
 
             // 启动超时计时器
-            if (this.timeout)
-                this._tmr_timeout = Delay(this.timeout, this.__mdl_timeout, this);
+            if (this.timeout) {
+                this._tmr_timeout = Delay(this.timeout, () => {
+                    this.__mdl_timeout();
+                });
+            }
 
             this.signals.emit(SignalStart);
         }
@@ -414,10 +417,136 @@ module nn {
 
 namespace app.models {
 
+    // 用int来表示float
+    export class IntFloat {
+
+        constructor(ori: number = 0, s: number = 1) {
+            this._ori = ori | 0;
+            this._s = s;
+            this._value = ori / s;
+        }
+
+        static Money(ori: number = 0): IntFloat {
+            return new IntFloat(ori, 100);
+        }
+
+        static Percentage(ori: number = 0): IntFloat {
+            return new IntFloat(ori, 10000);
+        }
+
+        static Origin(ori: intfloat): number {
+            if (ori instanceof IntFloat)
+                return ori.origin;
+            throw new Error('对一个不是IntFloat的数据请求Origin');
+        }
+
+        static From(ori: intfloat, scale: number): IntFloat {
+            if (ori instanceof IntFloat) {
+                return new IntFloat(ori.origin, scale);
+            }
+            return new IntFloat(ori, scale);
+        }
+
+        static FromValue(val: intfloat, scale: number): IntFloat {
+            if (val instanceof IntFloat) {
+                return new IntFloat(val.origin, scale);
+            }
+            return new IntFloat(0, scale).setValue(val);
+        }
+
+        static Multiply(l: intfloat, r: number): intfloat {
+            if (l instanceof IntFloat) {
+                return l.clone().multiply(r);
+            }
+            throw new Error('对一个不是IntFloat的数据进行multiply操作');
+        }
+
+        static Add(l: intfloat, r: number): intfloat {
+            if (l instanceof IntFloat) {
+                return l.clone().add(r);
+            }
+            throw new Error('对一个不是IntFloat的数据进行multiply操作');
+        }
+
+        valueOf(): number {
+            return this._value;
+        }
+
+        toString(): string {
+            return this._value.toString();
+        }
+
+        // 缩放后的数据，代表真实值
+        get value(): number {
+            return this._value;
+        }
+
+        set value(v: number) {
+            this._value = v;
+            this._ori = (v * this._s) | 0;
+        }
+
+        setValue(v: number): IntFloat {
+            this.value = v;
+            return this;
+        }
+
+        // 缩放前的数据
+        get origin(): number {
+            return this._ori;
+        }
+
+        set origin(ori: number) {
+            this._ori = ori | 0;
+            this._value = ori / this._s;
+        }
+
+        get scale(): number {
+            return this._s;
+        }
+
+        toNumber(): number {
+            return this.value;
+        }
+
+        toDouble(): number {
+            return this.value;
+        }
+
+        toInt(): number {
+            return this.value | 0;
+        }
+
+        toBoolean(): boolean {
+            return this.value != 0;
+        }
+
+        add(r: number): this {
+            this.value += r;
+            return this;
+        }
+
+        multiply(r: number): this {
+            this.value *= r;
+            return this;
+        }
+
+        clone(): IntFloat {
+            return new IntFloat(this._ori, this._s);
+        }
+
+        private _value: number; // 最终表示的float
+        private _ori: number; // 当前的int
+        private _s: number; // 缩放数值
+    }
+
+    export type intfloat = IntFloat | number;
 }
 
 namespace app.models.logic {
 
+
+    import toInt = nn.toInt;
     type Class<T> = { new(...args: any[]): T, [key: string]: any };
     type AnyClass = Class<any>;
     type clazz_type = AnyClass | string;
@@ -444,10 +573,12 @@ namespace app.models.logic {
         string?: boolean;
         integer?: boolean;
         double?: boolean;
+        number?: boolean;
         boolean?: boolean;
         enum?: boolean;
         file?: boolean;
         json?: boolean;
+        intfloat?: number;
 
         // 注释
         comment?: string;
@@ -517,6 +648,7 @@ namespace app.models.logic {
     const string_t = "string";
     const integer_t = "integer";
     const double_t = "double";
+    const number_t = "number";
     const boolean_t = "boolean";
 
     function toBoolean(v: any): boolean {
@@ -544,15 +676,19 @@ namespace app.models.logic {
                         if (typeof (fp.valtype) == "string") {
                             if (fp.valtype == string_t) {
                                 val.forEach(e => {
-                                    arr.push(e ? e.toString() : null);
+                                    arr.push(nn.asString(e));
                                 });
                             } else if (fp.valtype == integer_t) {
                                 val.forEach(e => {
-                                    arr.push(e ? nn.toInt(e) : 0);
+                                    arr.push(nn.toInt(e));
                                 });
                             } else if (fp.valtype == double_t) {
                                 val.forEach(e => {
-                                    arr.push(e ? nn.toFloat(e) : 0);
+                                    arr.push(nn.toDouble(e));
+                                });
+                            } else if (fp.valtype == number_t) {
+                                val.forEach(e => {
+                                    arr.push(nn.toNumber(e));
                                 });
                             } else if (fp.valtype == boolean_t) {
                                 val.forEach(e => {
@@ -586,24 +722,31 @@ namespace app.models.logic {
                     if (fp.keytype == integer_t)
                         keyconv = nn.toInt;
                     else if (fp.keytype == double_t)
-                        keyconv = nn.toFloat;
+                        keyconv = nn.toDouble;
+                    else if (fp.keytype == number_t)
+                        keyconv = nn.toNumber;
                     let map = new Map();
                     if (val) {
                         if (typeof (fp.valtype) == "string") {
                             if (fp.valtype == string_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
-                                    map.set(keyconv(ek), ev ? ev.toString() : null);
+                                    map.set(keyconv(ek), nn.asString(ev));
                                 }
                             } else if (fp.valtype == integer_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
-                                    map.set(keyconv(ek), ev ? nn.toInt(ev) : 0);
+                                    map.set(keyconv(ek), nn.toInt(ev));
                                 }
                             } else if (fp.valtype == double_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
-                                    map.set(keyconv(ek), ev ? nn.toFloat(ev) : 0);
+                                    map.set(keyconv(ek), nn.toDouble(ev));
+                                }
+                            } else if (fp.valtype == number_t) {
+                                for (let ek in val) {
+                                    let ev = val[ek];
+                                    map.set(keyconv(ek), nn.toNumber(ev));
                                 }
                             } else if (fp.valtype == boolean_t)
                                 for (let ek in val) {
@@ -632,7 +775,9 @@ namespace app.models.logic {
                     if (fp.keytype == integer_t)
                         keyconv = nn.toInt;
                     else if (fp.keytype == double_t)
-                        keyconv = nn.toFloat;
+                        keyconv = nn.toDouble;
+                    else if (fp.keytype == number_t)
+                        keyconv = nn.toNumber;
                     let mmap = new Multimap();
                     if (val) {
                         if (typeof (fp.valtype) == "string") {
@@ -649,13 +794,19 @@ namespace app.models.logic {
                             } else if (fp.valtype == double_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
-                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toFloat(e)));
+                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toDouble(e)));
                                 }
-                            } else if (fp.valtype == boolean_t)
+                            } else if (fp.valtype == number_t) {
+                                for (let ek in val) {
+                                    let ev = val[ek];
+                                    mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => nn.toNumber(e)));
+                                }
+                            } else if (fp.valtype == boolean_t) {
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     mmap.set(keyconv(ek), nn.ArrayT.Convert(ev, e => !!e));
                                 }
+                            }
                         } else {
                             let clz: any = fp.valtype;
                             for (let ek in val) {
@@ -681,17 +832,21 @@ namespace app.models.logic {
                 }
             } else {
                 if (fp.string)
-                    mdl[key] = val ? val.toString() : null;
+                    mdl[key] = nn.asString(val);
                 else if (fp.integer)
-                    mdl[key] = val ? nn.toInt(val) : 0;
+                    mdl[key] = nn.toInt(val);
                 else if (fp.double)
-                    mdl[key] = val ? nn.toFloat(val) : 0;
+                    mdl[key] = nn.toDouble(val);
+                else if (fp.number)
+                    mdl[key] = nn.toNumber(val);
                 else if (fp.boolean)
                     mdl[key] = toBoolean(val);
                 else if (fp.json)
                     mdl[key] = val;
                 else if (fp.file)
                     mdl[key] = val;
+                else if (fp.intfloat)
+                    mdl[key] = IntFloat.From(toInt(val), fp.intfloat);
             }
         }
         // 处理内置参数
@@ -713,10 +868,13 @@ namespace app.models.logic {
             if (v == null)
                 continue;
             // 如果是对象，则需要在encode一次
-            if (fp.valtype && !fp.enum && typeof fp.valtype != "string")
+            if (fp.valtype && !fp.enum && typeof fp.valtype != "string") {
                 r[key] = JSON.stringify(Encode(v));
-            else
+            } else if (fp.intfloat) {
+                r[key] = IntFloat.FromValue(v, fp.intfloat).origin;
+            } else {
                 r[key] = v;
+            }
         }
         return r;
     }
@@ -778,6 +936,8 @@ namespace app.models.logic {
                 } else {
                     r[fk] = Output(val);
                 }
+            } else if (fp.intfloat) {
+                r[fk] = IntFloat.Origin(val);
             } else {
                 r[fk] = val;
             }
@@ -791,6 +951,7 @@ namespace app.models.logic {
         static string_t = "string";
         static integer_t = "integer";
         static double_t = "double";
+        static number_t = "number";
         static boolean_t = "boolean";
 
         // 可选的参数
@@ -803,61 +964,59 @@ namespace app.models.logic {
         static input = "input";
         static output = "output";
 
-        static string(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
-            let fp: FieldOption = {
+        static field(id: number, opts: string[], comment?: string): FieldOption {
+            return {
                 id: id,
-                val: "",
                 input: opts.indexOf(Base.input) != -1,
                 output: opts.indexOf(Base.output) != -1,
                 optional: opts.indexOf(Base.optional) != -1,
-                string: true,
                 comment: comment
             };
+        }
+
+        static string(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp = this.field(id, opts, comment);
+            fp.string = true;
             return (target: any, key: string) => {
                 DefineFp(target, key, fp);
             };
         }
 
         static boolean(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
-            let fp: FieldOption = {
-                id: id,
-                val: false,
-                input: opts.indexOf(Base.input) != -1,
-                output: opts.indexOf(Base.output) != -1,
-                optional: opts.indexOf(Base.optional) != -1,
-                boolean: true,
-                comment: comment
-            };
+            let fp = this.field(id, opts, comment);
+            fp.boolean = true;
             return (target: any, key: string) => {
                 DefineFp(target, key, fp);
             };
         }
 
         static integer(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
-            let fp: FieldOption = {
-                id: id,
-                val: 0,
-                input: opts.indexOf(Base.input) != -1,
-                output: opts.indexOf(Base.output) != -1,
-                optional: opts.indexOf(Base.optional) != -1,
-                integer: true,
-                comment: comment
-            };
+            let fp = this.field(id, opts, comment);
+            fp.integer = true;
             return (target: any, key: string) => {
                 DefineFp(target, key, fp);
             };
         }
 
         static double(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
-            let fp: FieldOption = {
-                id: id,
-                val: 0.,
-                input: opts.indexOf(Base.input) != -1,
-                output: opts.indexOf(Base.output) != -1,
-                optional: opts.indexOf(Base.optional) != -1,
-                double: true,
-                comment: comment
+            let fp = this.field(id, opts, comment);
+            fp.double = true;
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
             };
+        }
+
+        static number(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp = this.field(id, opts, comment);
+            fp.number = true;
+            return (target: any, key: string) => {
+                DefineFp(target, key, fp);
+            };
+        }
+
+        static intfloat(id: number, scale: number, opts: string[], comment?: string): (target: any, key: string) => void {
+            let fp = this.field(id, opts, comment);
+            fp.intfloat = scale;
             return (target: any, key: string) => {
                 DefineFp(target, key, fp);
             };
@@ -865,15 +1024,9 @@ namespace app.models.logic {
 
         // 定义数组
         static array(id: number, clz: clazz_type, opts: string[], comment?: string): (target: any, key: string) => void {
-            let fp: FieldOption = {
-                id: id,
-                input: opts.indexOf(Base.input) != -1,
-                output: opts.indexOf(Base.output) != -1,
-                optional: opts.indexOf(Base.optional) != -1,
-                array: true,
-                valtype: clz,
-                comment: comment
-            };
+            let fp = this.field(id, opts, comment);
+            fp.array = true;
+            fp.valtype = clz;
             return (target: any, key: string) => {
                 DefineFp(target, key, fp);
             };
@@ -881,32 +1034,20 @@ namespace app.models.logic {
 
         // 定义映射表
         static map(id: number, keytyp: clazz_type, valtyp: clazz_type, opts: string[], comment?: string): (target: any, key: string) => void {
-            let fp: FieldOption = {
-                id: id,
-                input: opts.indexOf(Base.input) != -1,
-                output: opts.indexOf(Base.output) != -1,
-                optional: opts.indexOf(Base.optional) != -1,
-                map: true,
-                keytype: keytyp,
-                valtype: valtyp,
-                comment: comment
-            };
+            let fp = this.field(id, opts, comment);
+            fp.map = true;
+            fp.keytype = keytyp;
+            fp.valtype = valtyp;
             return (target: any, key: string) => {
                 DefineFp(target, key, fp);
             };
         }
 
         static multimap(id: number, keytyp: clazz_type, valtyp: clazz_type, opts: string[], comment?: string): (target: any, key: string) => void {
-            let fp: FieldOption = {
-                id: id,
-                input: opts.indexOf(Base.input) != -1,
-                output: opts.indexOf(Base.output) != -1,
-                optional: opts.indexOf(Base.optional) != -1,
-                multimap: true,
-                keytype: keytyp,
-                valtype: valtyp,
-                comment: comment
-            };
+            let fp = this.field(id, opts, comment);
+            fp.multimap = true;
+            fp.keytype = keytyp;
+            fp.valtype = valtyp;
             return (target: any, key: string) => {
                 DefineFp(target, key, fp);
             };
@@ -914,14 +1055,8 @@ namespace app.models.logic {
 
         // json对象
         static json(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
-            let fp: FieldOption = {
-                id: id,
-                input: opts.indexOf(Base.input) != -1,
-                output: opts.indexOf(Base.output) != -1,
-                optional: opts.indexOf(Base.optional) != -1,
-                json: true,
-                comment: comment
-            };
+            let fp = this.field(id, opts, comment);
+            fp.json = true;
             return (target: any, key: string) => {
                 DefineFp(target, key, fp);
             };
@@ -929,14 +1064,8 @@ namespace app.models.logic {
 
         // 使用其他类型
         static type(id: number, clz: clazz_type, opts: string[], comment?: string): (target: any, key: string) => void {
-            let fp: FieldOption = {
-                id: id,
-                input: opts.indexOf(Base.input) != -1,
-                output: opts.indexOf(Base.output) != -1,
-                optional: opts.indexOf(Base.optional) != -1,
-                valtype: clz,
-                comment: comment
-            };
+            let fp = this.field(id, opts, comment);
+            fp.valtype = clz;
             return (target: any, key: string) => {
                 DefineFp(target, key, fp);
             };
@@ -944,15 +1073,9 @@ namespace app.models.logic {
 
         // 枚举
         static enumerate(id: number, clz: any, opts: string[], comment?: string): (target: any, key: string) => void {
-            let fp: FieldOption = {
-                id: id,
-                input: opts.indexOf(Base.input) != -1,
-                output: opts.indexOf(Base.output) != -1,
-                optional: opts.indexOf(Base.optional) != -1,
-                valtype: clz,
-                enum: true,
-                comment: comment
-            };
+            let fp = this.field(id, opts, comment);
+            fp.enum = true;
+            fp.valtype = clz;
             return (target: any, key: string) => {
                 DefineFp(target, key, fp);
             };
@@ -960,14 +1083,8 @@ namespace app.models.logic {
 
         // 文件类型
         static file(id: number, opts: string[], comment?: string): (target: any, key: string) => void {
-            let fp: FieldOption = {
-                id: id,
-                input: opts.indexOf(Base.input) != -1,
-                output: opts.indexOf(Base.output) != -1,
-                optional: opts.indexOf(Base.optional) != -1,
-                file: true,
-                comment: comment
-            };
+            let fp = this.field(id, opts, comment);
+            fp.file = true;
             return (target: any, key: string) => {
                 DefineFp(target, key, fp);
             };

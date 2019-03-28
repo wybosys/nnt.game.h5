@@ -203,6 +203,7 @@ export class EgretGame extends Game {
             .command('genskin')
             .description('刷新皮肤')
             .action(() => {
+                this._eui.fix();
                 this._eui.build();
             });
     }

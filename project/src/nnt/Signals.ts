@@ -101,7 +101,9 @@ module nn {
             this.tunnel = tunnel;
 
             if (this.delay) {
-                Delay(this.delay, this.doEmit, this);
+                Delay(this.delay, () => {
+                    this.doEmit();
+                });
             } else {
                 this.doEmit();
             }

@@ -10,11 +10,13 @@ module nn {
             });
 
             egret.lifecycle.onPause = () => {
-                egret.ticker.pause();
+                if (Device.shared.isMobile)
+                    egret.ticker.pause();
             };
 
             egret.lifecycle.onResume = () => {
-                egret.ticker.resume();
+                if (Device.shared.isMobile)
+                    egret.ticker.resume();
             };
 
             egret.registerImplementation("eui.IAssetAdapter", new AssetAdapter());

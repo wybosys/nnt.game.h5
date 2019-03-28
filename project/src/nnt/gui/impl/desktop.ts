@@ -125,8 +125,11 @@ module nn {
             super.onAppeared();
 
             // 延迟关闭
-            if (isZero(this.delayClose) == false)
-                Delay(this.delayClose, this.close, this);
+            if (isZero(this.delayClose) == false) {
+                Delay(this.delayClose, () => {
+                    this.close();
+                });
+            }
 
             this.updateFilters();
         }
@@ -405,7 +408,9 @@ module nn {
             let dsk = <any>this._desktop;
             let d = dsk.delayOpenInQueue;
             if (d) {
-                Delay(d, dsk.doOpen, dsk);
+                Delay(d, () => {
+                    dsk.doOpen();
+                });
             } else {
                 dsk.doOpen();
             }

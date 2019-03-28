@@ -346,7 +346,7 @@ namespace nn.logic {
                     this.signals.emit(SignalReopen);
                     Delay(1, () => {
                         this.doReconnect();
-                    }, this);
+                    });
                 }
             }
         }
@@ -358,7 +358,7 @@ namespace nn.logic {
             if (this.autoReconnect) {
                 Delay(1, () => {
                     this.doReconnect();
-                }, this);
+                });
             }
         }
 

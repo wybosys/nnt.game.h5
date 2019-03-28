@@ -634,7 +634,7 @@ module nn {
     }
 
     /** 转换到 float */
-    export function toFloat(o: any, def = 0): number {
+    export function toDouble(o: any, def = 0): number {
         if (o == null)
             return def;
         let tp = typeof (o);
@@ -673,11 +673,7 @@ module nn {
         if (tp == 'number')
             return SafeNumber(o, def);
         if (tp == 'string') {
-            if (o.indexOf('.') == -1) {
-                let v = parseInt(o);
-                return SafeNumber(v, def);
-            }
-            let v = parseFloat(o);
+            let v = Number(<string>o);
             return SafeNumber(v, def);
         }
         if (o.toNumber)
@@ -5191,16 +5187,16 @@ module nn {
     }
 
     /** 延迟运行 */
-    export function Delay(duration: Interval, cb: () => void, ctx: any, ...p: any[]): Timer {
+    export function Delay(duration: Interval, cb: () => void): Timer {
         if (duration <= 0) {
-            cb.call(ctx, p);
+            cb();
             return null;
         }
 
         let tmr = new Timer(duration, 1);
         tmr.signals.connect(SignalDone, () => {
-            cb.call(ctx, p);
-            tmr.stop(); // 不能dispse，一般业务层会做这个事情或者自动就gc掉了
+            cb();
+            tmr.stop(); //不用dispose，一般业务层会做这个事情或者自动就gc掉了
         }, null);
 
         // 直接开始，不能用defer避免出现外部先stop然后才到start的问题
@@ -6001,7 +5997,7 @@ module nn {
             } else {
                 Delay(delay, () => {
                     this._cb.call(this._ctx, this);
-                }, this);
+                });
             }
         }
 

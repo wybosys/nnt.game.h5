@@ -18,7 +18,10 @@ module nn {
     /** 资源加载进度和弹出的进度是同一个类 */
     export let RESOURCELOADINGISHUD: boolean;
 
-    export abstract class CApplication extends Sprite implements IReqResources {
+    export abstract class CApplication
+        extends Sprite
+        implements IReqResources {
+
         /** 用来重新定义弹出文字框 */
         clazzHudText = new Class<IHudText>(HudText);
 
@@ -29,7 +32,7 @@ module nn {
         clazzResourceProgress = new Class<IHudProgress>();
 
         /** 用来实现首页加载进度的类 */
-        clazzLoadingScene = new Class<LoadingScreen>(LoadingScreen);
+        clazzLoadingScene = new Class<ILoadingScreen>(LoadingScreen);
 
         /** 用来实现alert等标准弹出框的绑定 */
         alert: (title: string, msg: string, data: { btn?: string, cb?: () => void }) => void;
@@ -133,7 +136,7 @@ module nn {
         fontFamily: string = FontsManager.font("黑体");
 
         // 加载进度
-        private _loadingScreen: LoadingScreen;
+        private _loadingScreen: ILoadingScreen;
 
         // 当app添加到舞台后开始默认资源的加载
         private __app_addedtostage() {
