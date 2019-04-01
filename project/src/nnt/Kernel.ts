@@ -12,6 +12,9 @@ type jsonobj = string | Object;
 
 module nn {
 
+    export type KvObject<V> = { [key: string]: V };
+    export type IndexedObject = KvObject<any>;
+
     // 默认的时间单位，秒
     export type Interval = number;
 
@@ -162,8 +165,10 @@ module nn {
     export class SObject implements IRefObject, ISObject {
         /** 构造函数 */
         constructor() {
+            // pass
         }
 
+        /** 业务可以根据需要随意绑定到该变量 */
         tag: any;
 
         /** 唯一id */
@@ -171,7 +176,7 @@ module nn {
         hashCode: number = ++SObject.HashCode;
 
         // 已经析构掉，用来 debug 模式下防止多次析构
-        __disposed = false;
+        protected __disposed = false;
 
         /** 析构函数 */
         dispose() {
@@ -916,10 +921,10 @@ module nn {
                     this._sck.pop();
 
                     this._sck.push(t['--'][1]);
-                    MapT.Foreach(o, (k: any, v: any) => {
+                    ObjectT.Foreach(o, (v: any, k: any) => {
                         if (this.write(k))
                             this.write(v);
-                    }, this);
+                    });
                     this._sck.pop();
                 } else if (typeof (o.serialize) == 'function') {
                     let t: any = {'__': Classname(o), '--': []};
@@ -933,10 +938,10 @@ module nn {
                     top.push(t);
 
                     this._sck.push(t['--']);
-                    MapT.Foreach(o, (k: any, v: any) => {
+                    ObjectT.Foreach(o, (v: any, k: any) => {
                         if (this.write(k))
                             this.write(v);
-                    }, this);
+                    });
                     this._sck.pop();
                 }
             } else {
@@ -1170,107 +1175,6 @@ module nn {
         }
 
         private _set = new CSet<T>();
-    }
-
-    /** 提供操作基础对象的工具函数 */
-    export class ObjectT {
-
-        // 任意对象的比较
-        static Compare(l: any, r: any): COMPARERESULT {
-            if (l > r)
-                return COMPARERESULT.GREATER;
-            if (l < r)
-                return COMPARERESULT.LESS;
-            return COMPARERESULT.EQUAL;
-        }
-
-        /** 比较两个实例是否相等
-         @brief 优先使用比较函数的结果
-         */
-        static IsEqual<L, R>(l: L, r: R, eqfun?: (l: L, r: R) => boolean, eqctx?: any): boolean {
-            if (l == null || r == null)
-                return false;
-            if (eqfun)
-                return eqfun.call(eqctx, l, r);
-            if (l && (<any>l).isEqual)
-                return (<any>l).isEqual(r);
-            if (r && (<any>r).isEqual)
-                return (<any>r).isEqual(l);
-            return <any>l == <any>r;
-        }
-
-        /** 面向对象的深度copy
-         @highRight 以右面的对象为主
-         */
-        static Copy<L, R>(l: L, r: R, highRight = true) {
-            if (this.IsEqual(l, r))
-                return;
-            let b = highRight ? r : l;
-            let keys = Object.keys(b);
-            ArrayT.RemoveObjectsInArray(keys, OBJECT_DEFAULT_KEYS);
-            keys.forEach((key: string) => {
-                if (key.indexOf('_') == 0)
-                    return;
-                let t = typeof (b[key]);
-                if (t == "string" || t == "number" || t == "boolean") {
-                    l[key] = r[key];
-                } else if (t == "object") {
-                    let v = r[key];
-                    if (v instanceof Array) {
-                        if (l[key] == null)
-                            l[key] = [];
-                        let tmp = l[key];
-                        ArrayT.Resize(tmp, v.length);
-                        // 复制对象
-                        tmp.forEach((o: L, idx: number) => {
-                            if (o == null) {
-                                o = InstanceNewObject(v[idx]);
-                                tmp[idx] = o;
-                            }
-                            // 复制内容
-                            this.Copy(o, v[idx]);
-                        });
-                    } else {
-                        let o = InstanceNewObject(v);
-                        this.Copy(o, v);
-                        l[key] = o;
-                    }
-                }
-            });
-        }
-
-        /** 根据查询路径获取值 */
-        static GetValueByKeyPath(o: any, kp: string, def?: any): any {
-            if (o == null)
-                return def;
-            let ks = kp.split('.');
-            for (let i = 0; i < ks.length; ++i) {
-                o = o[ks[i]];
-                if (o == null)
-                    return def;
-            }
-            return o;
-        }
-
-        /** 根据查询路径设置值 */
-        static SetValueByKeyPath(o: any, kp: string, v: any) {
-            if (o == null) {
-                warn("不能对null进行keypath的设置操作");
-                return;
-            }
-            let ks = kp.split('.');
-            let l = ks.length - 1;
-            for (let i = 0; i < l; ++i) {
-                let k = ks[i];
-                let t = o[k];
-                if (t == null) {
-                    t = {};
-                    o[k] = t;
-                }
-                o = t;
-            }
-            o[ks[l]] = v;
-        }
     }
 
     export enum COMPARERESULT {
@@ -1571,6 +1475,29 @@ module nn {
                 }
             }
             return out;
+        }
+
+        // 标准的substr只支持正向，这里实现的支持两个方向比如，substr(1, -2)
+        static SubStr(str: string, pos: number, len?: number): string {
+            if (len == null || len >= 0)
+                return str.substr(pos, len);
+            if (pos < 0)
+                pos = str.length + pos;
+            pos += len;
+            let of = 0;
+            if (pos < 0) {
+                of = pos;
+                pos = 0;
+            }
+            return str.substr(pos, -len + of);
+        }
+
+        static Repeat(str: string, count: number = 1): string {
+            let r = "";
+            while (count--) {
+                r += str;
+            }
+            return r;
         }
     }
 
@@ -2296,6 +2223,295 @@ module nn {
         private _arr: Array<T>;
     }
 
+    export class ObjectT {
+
+        static IsEmpty(tgt: any): boolean {
+            if (!tgt)
+                return true;
+            return Object.keys(tgt).length == 0;
+        }
+
+        static RemoveKey(tgt: any, k: any) {
+            delete tgt[k];
+        }
+
+        // 任意对象的比较
+        static Compare(l: any, r: any): COMPARERESULT {
+            if (l > r)
+                return COMPARERESULT.GREATER;
+            if (l < r)
+                return COMPARERESULT.LESS;
+            return COMPARERESULT.EQUAL;
+        }
+
+        static Minus(l: any, r: any): number {
+            return l - r;
+        }
+
+        static Max<T>(l: T, r: T): T {
+            return ObjectT.Compare(l, r) == COMPARERESULT.GREATER ? l : r;
+        }
+
+        static Min<T>(l: T, r: T): T {
+            return ObjectT.Compare(l, r) == COMPARERESULT.LESS ? l : r;
+        }
+
+        static QueryObject(tgt: any, filter: (e: any, k: string) => boolean): any {
+            for (let k in tgt) {
+                let v = tgt[k];
+                if (filter(v, k))
+                    return v;
+            }
+            return null;
+        }
+
+        static QueryKey(tgt: any, filter: (e: any, k: string) => boolean): any {
+            for (let k in tgt) {
+                let v = tgt[k];
+                if (filter(v, k))
+                    return k;
+            }
+            return null;
+        }
+
+        static Foreach(tgt: any, proc: (e: any, k: string) => void) {
+            for (let k in tgt) {
+                proc(tgt[k], k);
+            }
+        }
+
+        static Clear(tgt: any, proc: (e: any, k: string) => void) {
+            for (let k in tgt) {
+                proc(tgt[k], k);
+                delete tgt[k];
+            }
+        }
+
+        // 第一层的赋值，如果左边存在，则不覆盖左边的
+        static LightMerge(l: any, r: any) {
+            for (let k in r) {
+                if (k in l)
+                    continue;
+                l[k] = r[k];
+            }
+        }
+
+        // from r copy to l
+        static LightCopy(l: any, r: any) {
+            for (let k in r) {
+                l[k] = r[k];
+            }
+        }
+
+        // 只copy第一层
+        static LightClone(tgt: any): any {
+            let r: IndexedObject = {};
+            for (let k in tgt) {
+                r[k] = tgt[k];
+            }
+            return r;
+        }
+
+        static DeepClone(tgt: any): any {
+            let r: IndexedObject = {};
+            for (let k in tgt) {
+                let v = tgt[k];
+                if (v == null) {
+                    r[k] = v;
+                } else if (v instanceof Array) {
+                    let t = new Array();
+                    v.forEach(e => {
+                        t.push(ObjectT.DeepClone(e));
+                    });
+                    r[k] = t;
+                } else {
+                    let typ = typeof (v);
+                    if (typ == "string" || typ == "number" || typ == "boolean") {
+                        r[k] = v;
+                    } else {
+                        r[k] = ObjectT.DeepClone(v);
+                    }
+                }
+            }
+            return r;
+        }
+
+        /** 比较两个实例是否相等
+         @brief 优先使用比较函数的结果
+         */
+        static IsEqual<L, R>(l: L, r: R, eqfun?: (l: L, r: R) => boolean, eqctx?: any): boolean {
+            if (l == null || r == null)
+                return false;
+            if (eqfun)
+                return eqfun.call(eqctx, l, r);
+            if (l && (<any>l).isEqual)
+                return (<any>l).isEqual(r);
+            if (r && (<any>r).isEqual)
+                return (<any>r).isEqual(l);
+            return <any>l == <any>r;
+        }
+
+        /** 根据查询路径获取值 */
+        static GetValueByKeyPath(o: any, kp: string, def?: any): any {
+            if (o == null)
+                return def;
+            let ks = kp.split('.');
+            for (let i = 0; i < ks.length; ++i) {
+                o = o[ks[i]];
+                if (o == null)
+                    return def;
+            }
+            return o;
+        }
+
+        static GetValueByKeyPaths(o: any, def: any, ...ks: any[]): any {
+            if (o == null)
+                return def;
+            for (let i = 0; i < ks.length; ++i) {
+                o = o[ks[i]];
+                if (o == null)
+                    return def;
+            }
+            return o;
+        }
+
+        /** 根据查询路径设置值 */
+        static SetValueByKeyPath(o: any, kp: string, v: any): boolean {
+            if (o == null) {
+                console.warn("不能对null进行keypath的设置操作");
+                return false;
+            }
+            let ks = kp.split('.');
+            let l = ks.length - 1;
+            for (let i = 0; i < l; ++i) {
+                let k = ks[i];
+                let t = o[k];
+                if (t == null) {
+                    t = {};
+                    o[k] = t;
+                }
+                o = t;
+            }
+            o[ks[l]] = v;
+            return true;
+        }
+
+        static SetValueByKeyPaths(o: any, v: any, ...ks: any[]): boolean {
+            if (o == null) {
+                console.warn("不能对null进行keypath的设置操作");
+                return false;
+            }
+            let l = ks.length - 1;
+            for (let i = 0; i < l; ++i) {
+                let k = ks[i];
+                let t = o[k];
+                if (t == null) {
+                    t = {};
+                    o[k] = t;
+                }
+                o = t;
+            }
+            o[ks[l]] = v;
+            return true;
+        }
+
+        // 展开成keypath的结构
+        static KeyPathExpand(o: any): IndexedObject {
+            let r: IndexedObject = {};
+            this._KeyPathExpandAt(o, r, []);
+            return r;
+        }
+
+        private static _KeyPathExpandAt(o: any, r: IndexedObject, p: string[]) {
+            const typ = typeof o;
+            if (typ == "number" || typ == "string" || typ == "boolean") {
+                r[p.join('.')] = o;
+                return;
+            }
+
+            if (o instanceof Array) {
+                o.forEach((e, i) => {
+                    let np = p.concat();
+                    np.push(i.toString());
+                    this._KeyPathExpandAt(e, r, np);
+                });
+            } else if (o instanceof Map) {
+                o.forEach((e, k) => {
+                    let np = p.concat();
+                    np.push(k);
+                    this._KeyPathExpandAt(e, r, np)
+                });
+            } else {
+                for (let k in o) {
+                    let np = p.concat();
+                    np.push(k);
+                    this._KeyPathExpandAt(o[k], r, np);
+                }
+            }
+        }
+
+        static SeqForin<T, R>(obj: { [key: string]: T }, proc: (e: T, key: string, next: (ret?: R) => void) => void, complete: (ret?: R) => void) {
+            let keys = Object.keys(obj);
+            let iter = keys.entries();
+
+            function next(ret?: R) {
+                let val = iter.next();
+                if (!val.done) {
+                    proc(obj[val.value[1]], keys[val.value[0]], next);
+                } else {
+                    complete(ret);
+                }
+            }
+
+            next();
+        }
+
+        static HasKey(m: any, key: string): boolean {
+            if (!m)
+                return false;
+            return key in m;
+        }
+
+        static Get(m: any, key: string): any {
+            return m[key];
+        }
+
+        static Set(m: any, key: string, value: any) {
+            m[key] = value;
+        }
+
+        // @sort 是否打开字典序
+        static ToMap(obj: IndexedObject, sort = true): Map<string, any> {
+            let r = new Map<string, any>();
+            let keys = Object.keys(obj);
+            if (sort)
+                keys.sort();
+            keys.forEach(e => {
+                r.set(e, obj[e]);
+            });
+            return r;
+        }
+
+        static Length(obj: any): number {
+            return Object.keys(obj).length;
+        }
+
+        static RemoveKeyByFilter(obj: IndexedObject, filter: (val: any, key: any) => boolean): IndexedObject {
+            let keys = Object.keys(obj);
+            for (let i = 0, l = keys.length; i < l; ++i) {
+                let key = keys[i];
+                let val = obj[key];
+                if (filter(val, key)) {
+                    delete obj[key];
+                    let r = Object.create(null);
+                    r[key] = val;
+                    return r;
+                }
+            }
+            return null;
+        }
+    }
+
     /** set 的工具类 */
     export class SetT {
         /** 删除对象 */
@@ -2342,172 +2558,153 @@ module nn {
 
     /** map 的工具类 */
     export class MapT {
-        /** 获取 */
-        static Get<K, V>(m: MapType<K, V>, k: K): V {
-            return m[<any>k];
-        }
 
-        /** 获取所有的value */
-        static GetValues<K, V>(m: MapType<K, V>): Array<V> {
-            let r = [];
-            this.Foreach(m, (k, v) => {
-                r.push(v);
+        static ToObject<K, V>(m: Map<K, V>): IndexedObject {
+            let r: IndexedObject = {};
+            m.forEach((v, k: any) => {
+                r[k] = v;
             });
             return r;
         }
 
-        /** 增加 */
-        static Add<K, V>(m: MapType<K, V>, k: K, v: V) {
-            m[<any>k] = v;
-        }
-
-        /** 遍历 */
-        static Foreach<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => void, ctx?: any) {
-            let keys = Object.keys(m);
-            keys.forEach((k: any) => {
-                fun.call(ctx, k, m[k]);
-            }, this);
-        }
-
-        /** 转换 */
-        static ToArray<K, V, T>(m: MapType<K, V>, fun: (k: string, v: V) => T, ctx?: any): Array<T> {
-            let r = [];
-            let keys = Object.keys(m);
-            keys.forEach((k: any) => {
-                let obj = fun.call(ctx, k, m[k]);
-                r.push(obj);
-            }, this);
-            return r;
-        }
-
-        static SafeToArray<K, V, T>(m: MapType<K, V>, fun: (k: string, v: V) => T, ctx?: any): Array<T> {
-            let r = [];
-            let keys = Object.keys(m);
-            keys.forEach((k: any) => {
-                let obj = fun.call(ctx, k, m[k]);
-                if (obj)
-                    r.push(obj);
-            }, this);
-            return r;
-        }
-
-        /** 取值 */
-        static QueryObject<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): [K, V] {
-            let keys = Object.keys(m);
-            for (let i = 0; i < keys.length; ++i) {
-                let k = keys[i];
-                if (fun.call(ctx, k, m[k]))
-                    return [<any>k, m[k]];
+        // 对某个key
+        static Inc<K, V>(m: Map<K, V>, key: K, v: V): V {
+            if (m.has(key)) {
+                let cur = <any>m.get(key);
+                cur += v;
+                m.set(key, cur);
+                return cur;
             }
-            return null;
+            m.set(key, v);
+            return v;
         }
 
-        static QueryObjects<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): MapType<K, V> {
-            let keys = Object.keys(m);
-            let r: any = {};
-            keys.forEach((k) => {
-                let v = m[k];
-                if (fun.call(ctx, k, v))
-                    r[k] = v;
+        static Sum<K, V, R>(m: Map<K, V>, proc: (v: V, k: K) => R): R {
+            let r: any = null;
+            let idx = 0;
+            m.forEach((v, k) => {
+                if (idx++ == 0)
+                    r = proc(v, k);
+                else
+                    r += proc(v, k);
             });
             return r;
         }
 
-        /** 获取值 */
-        static QueryValue<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): V {
-            let fnd = this.QueryObject(m, fun, ctx);
-            return fnd ? fnd[1] : null;
+        static Max<K, V>(m: Map<K, V>, proc: (v: V, k: K) => V): V {
+            let cur: V;
+            let obj: V;
+            let idx = 0;
+            m.forEach((v, k) => {
+                if (idx++ == 0) {
+                    cur = proc(v, k);
+                    obj = v;
+                    return;
+                }
+                let t = proc(v, k);
+                if (ObjectT.Compare(cur, t) == COMPARERESULT.LESS) {
+                    cur = t;
+                    obj = v;
+                }
+            });
+            return obj;
         }
 
-        static QueryValues<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): V[] {
-            let keys = Object.keys(m);
-            let r: any = [];
-            keys.forEach((k) => {
-                let v = m[k];
-                if (fun.call(ctx, k, v))
+        static Min<K, V>(m: Map<K, V>, proc: (v: V, k: K) => V): V {
+            let cur: V;
+            let obj: V;
+            let idx = 0;
+            m.forEach((v, k) => {
+                if (idx++ == 0) {
+                    cur = proc(v, k);
+                    obj = v;
+                    return;
+                }
+                let t = proc(v, k);
+                if (ObjectT.Compare(t, cur) == COMPARERESULT.LESS) {
+                    cur = t;
+                    obj = v;
+                }
+            });
+            return obj;
+        }
+
+        static Foreach<K, V>(m: Map<K, V>, proc: (v: V, k: K) => boolean): boolean {
+            let iter = m.entries();
+            let each = iter.next();
+            while (!each.done) {
+                if (!proc(each.value[1], each.value[0]))
+                    return false;
+                each = iter.next();
+            }
+            return true;
+        }
+
+        static SeqForeach<K, V, R>(m: Map<K, V>, proc: (v: V, k: K, next: (ret?: R) => void) => void, complete: (ret?: R) => void) {
+            let iter = m.entries();
+
+            function next(ret?: R) {
+                let val = iter.next();
+                if (!val.done) {
+                    proc(val.value[1], val.value[0], next);
+                } else {
+                    complete(ret);
+                }
+            }
+
+            next();
+        }
+
+        static QueryObjects<K, V>(m: Map<K, V>, proc: (v: V, k: K) => boolean): Array<V> {
+            let r = new Array();
+            m.forEach((v, k) => {
+                if (proc(v, k))
                     r.push(v);
             });
             return r;
         }
 
-        static QueryKey<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): K {
-            let fnd = this.QueryObject(m, fun, ctx);
-            return fnd ? fnd[0] : null;
-        }
-
-        static QueryKeys<K, V>(m: MapType<K, V>, fun: (k: K, v: V) => boolean, ctx?: any): K[] {
-            let keys = Object.keys(m);
-            let r: any = [];
-            keys.forEach((k) => {
-                let v = m[k];
-                if (fun.call(ctx, k, v))
-                    r.push(k);
+        static Keys<K, V>(m: Map<K, V>): K[] {
+            let r = new Array<K>();
+            m.forEach((v, k) => {
+                r.push(k);
             });
             return r;
         }
 
-        /** 判断是否为空 */
-        static IsEmpty<K, V>(m: MapType<K, V>): boolean {
-            if (m == null)
-                return true;
-            return Object.keys(m).length == 0;
-        }
-
-        /** 删除key的元素 */
-        static RemoveKey<K, V>(m: MapType<K, V>, k: K) {
-            delete m[<any>k];
-        }
-
-        /** 清空 */
-        static Clear<K, V>(m: MapType<K, V>, cb?: (k: K, o: V) => void, ctx?: any) {
-            MapT.Foreach(m, (k: K, v: V) => {
-                if (cb)
-                    cb.call(ctx, k, v);
-                delete m[<any>k];
-            }, this);
-        }
-
-        /** 合并 */
-        static Concat(l: MapType<any, any>, r: MapType<any, any>) {
-            if (l == null)
-                return r;
-            if (r == null)
-                return l;
-            MapT.Foreach(r, (k, v) => {
-                l[k] = v;
-            }, this);
-        }
-
-        /** 复制 */
-        static Clone<K, V>(l: MapType<K, V>): MapType<K, V> {
-            let r = new KvObject<K, V>();
-            MapT.Foreach(l, (k: any, v) => {
-                r[k] = v;
-            }, this);
+        static Values<K, V, R>(m: Map<K, V>, proc?: (v: V, k: K) => R, skipnull = false): R[] {
+            let r = new Array<R>();
+            if (proc) {
+                m.forEach((v, k) => {
+                    let t = proc(v, k);
+                    if (skipnull && !t)
+                        return;
+                    r.push(t);
+                });
+            } else {
+                m.forEach((v) => {
+                    r.push(<any>v);
+                });
+            }
             return r;
         }
 
-        /** 获取长度 */
-        static Length<T>(m: T): number {
-            return Object.keys(m).length;
+        static ValueAtIndex<K, V>(m: Map<K, V>, idx: number, def?: V): V {
+            let iter = m.values();
+            let cur = iter.next();
+            while (!cur.done && idx--) {
+                cur = iter.next();
+            }
+            return (idx > 0 || cur.done) ? def : cur.value;
         }
 
-        /** 使用下标获取对象 */
-        static ObjectAtIndex<K, V>(m: MapType<K, V>, idx: number, def?: V): V {
-            let keys = Object.keys(m);
-            let k = at(keys, idx, null);
-            if (k == null)
-                return def;
-            return m[k];
-        }
-
-        /** 转换成普通Object */
-        static Simplify<K, V>(m: MapType<K, V>): Object {
-            let obj = {};
-            this.Foreach(m, (k, v) => {
-                obj[<any>k] = <any>v;
+        static FromArray<K, V, R>(arr: R[], proc: (map: Map<K, V>, obj: R, idx?: number) => void, inm?: Map<K, V>): Map<K, V> {
+            if (!inm)
+                inm = new Map<K, V>();
+            arr.forEach((e, idx) => {
+                proc(inm, e, idx);
             });
-            return obj;
+            return inm;
         }
     }
 
@@ -2571,18 +2768,18 @@ module nn {
         }
 
         /** 遍历 */
-        forEach(cb: (k: K, v: T) => void, ctx?: any) {
+        forEach(cb: (v: T, k: K) => void) {
             this._keys.forEach((k: K, idx: number) => {
                 let v = this._vals[idx];
-                cb.call(ctx, k, v);
+                cb(v, k);
             }, this);
         }
 
-        iterateEach(cb: (k: K, v: T) => boolean, ctx?: any) {
+        iterateEach(cb: (v: T, k: K) => boolean) {
             for (let i = 0, len = this._keys.length; i < len; ++i) {
                 let k = this._keys[i];
                 let v = this._vals[i];
-                if (!cb.call(ctx, k, v))
+                if (!cb(v, k))
                     break;
             }
         }
@@ -2625,12 +2822,13 @@ module nn {
     }
 
     export class IndexedMapT {
-        static RemoveObjectByFilter<K, T>(map: IndexedMap<K, T>, filter: (k: K, v: T) => boolean, ctx?: any): [K, T] {
+
+        static RemoveObjectByFilter<K, T>(map: IndexedMap<K, T>, filter: (v: T, k: K) => boolean): [K, T] {
             let keys = map.keys;
             for (let i = 0, len = keys.length; i < len; ++i) {
                 let k = keys[i];
                 let v = map.objectForKey(k);
-                if (filter.call(ctx, k, v)) {
+                if (filter(v, k)) {
                     map.remove(k);
                     return [k, v];
                 }
@@ -2638,13 +2836,13 @@ module nn {
             return null;
         }
 
-        static RemoveObjectsByFilter<K, T>(map: IndexedMap<K, T>, filter: (k: K, v: T) => boolean, ctx?: any): Array<[K, T]> {
+        static RemoveObjectsByFilter<K, T>(map: IndexedMap<K, T>, filter: (v: T, k: K) => boolean): Array<[K, T]> {
             let r = new Array<[K, T]>();
             let keys = map.keys;
             for (let i = 0, len = keys.length; i < len; ++i) {
                 let k = keys[i];
                 let v = map.objectForKey(k);
-                if (filter.call(ctx, k, v)) {
+                if (filter(v, k)) {
                     map.remove(k);
                     r.push([k, v]);
                 }
@@ -2652,21 +2850,21 @@ module nn {
             return r;
         }
 
-        static QueryObject<K, T>(map: IndexedMap<K, T>, query: (k: K, v: T) => boolean, ctx?: any): T {
+        static QueryObject<K, T>(map: IndexedMap<K, T>, query: (v: T, k: K) => boolean): T {
             let keys = map.keys;
             for (let i = 0, len = keys.length; i < len; ++i) {
                 let k = keys[i];
                 let v = map.objectForKey(k);
-                if (query.call(ctx, k, v))
+                if (query(v, k))
                     return v;
             }
             return null;
         }
 
-        static Convert<K, T, V>(arr: Array<V>, convert: (v: V) => [K, T], ctx?: any): IndexedMap<K, T> {
+        static Convert<K, T, V>(arr: Array<V>, convert: (v: V) => [K, T]): IndexedMap<K, T> {
             let r = new IndexedMap<K, T>();
             arr.forEach((e: V) => {
-                let o = convert.call(ctx, e);
+                let o = convert(e);
                 r.add(o[0], o[1]);
             });
             return r;
@@ -2697,12 +2895,12 @@ module nn {
             return this._map.remove(k);
         }
 
-        forEach(proc: (k: K, arr: V[]) => void, ctx?: any) {
-            this._map.forEach(proc, ctx);
+        forEach(proc: (arr: V[], k: K) => void) {
+            this._map.forEach(proc);
         }
 
-        iterateEach(proc: (k: K, arr: V[]) => boolean, ctx?: any) {
-            this._map.iterateEach(proc, ctx);
+        iterateEach(proc: (arr: V[], k: K) => boolean) {
+            this._map.iterateEach(proc);
         }
 
         get keys(): Array<K> {
@@ -4536,7 +4734,7 @@ module nn {
             }
         }
 
-        fields = new KvObject<string, string>();
+        fields: KvObject<string> = {};
         domain = '';
 
         toString(): string {
@@ -4546,18 +4744,18 @@ module nn {
                     r += 'http://';
                 r += this.domain;
                 if (this.domain.indexOf('?') == -1 &&
-                    !MapT.IsEmpty(this.fields))
+                    !ObjectT.IsEmpty(this.fields))
                     r += '?';
             }
             r += URL.MapToField(this.fields);
             return r;
         }
 
-        static MapToField(m: KvObject<any, any>): string {
+        static MapToField(m: KvObject<any>): string {
             let arr = [];
-            MapT.Foreach(m, (k, v) => {
+            ObjectT.Foreach(m, (v, k) => {
                 arr.push(k + "=" + this.encode(v));
-            }, this);
+            });
             return arr.join('&');
         }
 
@@ -5205,6 +5403,12 @@ module nn {
         return tmr;
     }
 
+    export function Sleep(duration: Interval): Promise<void> {
+        return new Promise<void>(resolve => {
+            Delay(duration, resolve);
+        });
+    }
+
     /** 时间片对象 */
     export class CoTimerItem extends CTimer {
         constructor() {
@@ -5468,6 +5672,7 @@ module nn {
 
     /** 延迟器 */
     export class Delayer {
+
         constructor(tm: number, cb: Function, ctx?: any) {
             this._tm = tm;
             this._cb = cb;
@@ -5576,7 +5781,7 @@ module nn {
         url: string;
 
         /** fields */
-        fields: KvObject<string, any>;
+        fields: KvObject<any>;
 
         /** 获取的数据 */
         data: any;
@@ -6096,7 +6301,7 @@ module nn {
         }
 
         clear() {
-            MapT.Clear(this._pl, (k: any, v: Array<T>) => {
+            ObjectT.Clear(this._pl, (v, k) => {
                 ArrayT.Clear(v, (o: T) => {
                     drop(o);
                 });
@@ -6105,7 +6310,7 @@ module nn {
 
         private _ins: (...p: any[]) => T;
         private _ctx: any;
-        private _pl = new KvObject<any, Array<T>>();
+        private _pl: KvObject<Array<T>> = {};
     }
 
     export class ReusesPool<T> implements IReusesPool {
@@ -6165,7 +6370,7 @@ module nn {
         private _use: (k: any, o: T) => void;
         private _unuse: (k: any, o: T) => void;
         private _ctx: any;
-        private _pl = new KvObject<any, Array<T>>();
+        private _pl: KvObject<Array<T>> = {};
         private _useds = new Array<T>();
         private _unuseds = new Array<T>();
     }
@@ -6333,7 +6538,7 @@ module nn {
             return this.get(idr).getNumber(idr + "::" + key, def);
         }
 
-        private _storages = new KvObject<string, Storage>();
+        private _storages: KvObject<Storage> = {};
         static shared = new CryptoStorages();
     }
 
@@ -6434,7 +6639,7 @@ module nn {
     /** 基础缓存实现 */
     export class Memcache implements IShared {
         // 存储所有的对象，用来做带key的查找
-        protected _maps = new KvObject<any, CacheRecord>();
+        protected _maps: KvObject<CacheRecord> = {};
         protected _records = new Array<CacheRecord>();
 
         // 是否启用
@@ -6501,7 +6706,7 @@ module nn {
 
         /** override 回调处理移除一个元素 */
         protected doRemoveObject(rcd: CacheRecord) {
-            MapT.RemoveKey(this._maps, rcd.key);
+            ObjectT.RemoveKey(this._maps, rcd.key);
         }
 
         static shared = new Memcache();

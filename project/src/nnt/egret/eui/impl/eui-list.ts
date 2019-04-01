@@ -57,7 +57,8 @@ module eui {
         }
 
         private __lst_selchanged(e: egret.Event) {
-            this._signals.emit(nn.SignalSelectionChanged);
+            let info = _EUIDataGroupExt.Selected(this);
+            this._signals.emit(nn.SignalSelectionChanged, info);
         }
 
         private __lst_selchanging(e: egret.Event) {

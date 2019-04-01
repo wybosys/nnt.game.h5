@@ -25,6 +25,11 @@ module nn {
         onRender(cost: number);
     }
 
+    interface ILayoutableComponent {
+        __disposed: boolean;
+        __islayouting: boolean;
+    }
+
     export abstract class CFramesManager {
         private _blayouts = NewSet<CComponent>();
         private _bzpositions = NewSet<CComponent>();
@@ -42,30 +47,37 @@ module nn {
             // 刷新一下布局
             ++CFramesManager._layoutthreshold;
             nn.SetT.SafeClear(this._blayouts, (c: CComponent) => {
-                if (!c.__disposed) {
-                    c._islayouting = true;
+                let ref = <ILayoutableComponent><any>c;
+                if (!ref.__disposed) {
+                    ref.__islayouting = true;
                     c.updateLayout();
-                    c._islayouting = false;
+                    ref.__islayouting = false;
                 }
             });
             --CFramesManager._layoutthreshold;
 
             // 调整z顺序
             nn.SetT.SafeClear(this._bzpositions, (c: CComponent) => {
-                if (!c.__disposed)
+                let ref = <ILayoutableComponent><any>c;
+                if (!ref.__disposed) {
                     c.updateZPosition();
+                }
             });
 
             // 当布局结束才激发已显示
             nn.SetT.SafeClear(this._bappears, (c: CComponent) => {
-                if (!c.__disposed && !c.isAppeared)
+                let ref = <ILayoutableComponent><any>c;
+                if (!ref.__disposed && !c.isAppeared) {
                     c.onAppeared();
+                }
             });
 
             // 更新图形缓存
             nn.SetT.Clear(<any>this._bcaches, (c: CComponent) => {
-                if (!c.__disposed)
+                let ref = <ILayoutableComponent><any>c;
+                if (!ref.__disposed) {
                     c.flushCache();
+                }
             });
 
             // 更新内存缓存

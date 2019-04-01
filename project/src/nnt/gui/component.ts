@@ -164,7 +164,7 @@ module nn {
         // 当子级加入时业务级调用
         protected onChildAdded(c: CComponent, layout: boolean) {
             // 子元素的加入需要更新一下自身的布局
-            if (layout && !this._islayouting && this.validate())
+            if (layout && !this.__islayouting && this.validate())
                 this.setNeedsLayout();
             // 如果已经显示在舞台，激活一下appear
             if (c.onStage)
@@ -448,7 +448,7 @@ module nn {
         }
 
         // 是否正在布局，参见FramesManager
-        _islayouting: boolean;
+        protected __islayouting: boolean;
 
         /** 强制刷新布局 */
         flushLayout() {

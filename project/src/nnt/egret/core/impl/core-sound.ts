@@ -263,9 +263,9 @@ module nn {
         set enable(b: boolean) {
             if (b == this._enable)
                 return;
-            nn.MapT.Foreach(this._tracks, (k: any, v: SoundTrack) => {
+            nn.ObjectT.Foreach(this._tracks, (v, k) => {
                 v.enable = b;
-            }, this);
+            });
         }
     }
 

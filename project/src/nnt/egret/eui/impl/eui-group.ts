@@ -28,6 +28,10 @@ module eui {
             _EUIExt.stopAllAnimates(this);
         }
 
+        animate(cb: (ani: nn.CAnimate) => void): Promise<void> {
+            return _EUIExt.MakeAnimate(this, cb);
+        }
+
         set exhibition(b: boolean) {
             _EUIExt.setExhibition(this, b);
         }

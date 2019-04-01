@@ -2,6 +2,17 @@ module egret {
     export var VERSION_5_0_0 = MAKE_VERSION(5, 0, 0);
 }
 
+nn.ISHTML5 = egret.Capabilities.runtimeType == "web";
+nn.ISNATIVE = !nn.ISHTML5;
+
+if (nn.ISNATIVE) {
+    nn.APPICON = egret.getOption('icon');
+    nn.APPNAME = egret.getOption('name');
+    nn.ISDEBUG = egret.getOption('debug') == 'true';
+    nn.VERBOSE = egret.getOption('verbose') == 'true';
+    nn.APPVERSION = egret.getOption('version');
+}
+
 module nn {
 
     IMP_TIMEPASS = (): number => {
@@ -44,12 +55,11 @@ module nn {
     })();
 
     if (_storageMode == 0) {
-        IMP_STORAGE_GET = IS_MINGAME ? window.localStorage.getItem : egret.localStorage.getItem;
-        IMP_STORAGE_SET = IS_MINGAME ? window.localStorage.setItem : egret.localStorage.setItem;
-        IMP_STORAGE_DEL = IS_MINGAME ? window.localStorage.removeItem : egret.localStorage.removeItem;
-        IMP_STORAGE_CLEAR = IS_MINGAME ? window.localStorage.clear : egret.localStorage.clear;
-    }
-    else if (_storageMode == 1) {
+        IMP_STORAGE_GET = nn.ISMINGAME ? window.localStorage.getItem : egret.localStorage.getItem;
+        IMP_STORAGE_SET = nn.ISMINGAME ? window.localStorage.setItem : egret.localStorage.setItem;
+        IMP_STORAGE_DEL = nn.ISMINGAME ? window.localStorage.removeItem : egret.localStorage.removeItem;
+        IMP_STORAGE_CLEAR = nn.ISMINGAME ? window.localStorage.clear : egret.localStorage.clear;
+    } else if (_storageMode == 1) {
         IMP_STORAGE_GET = (k: string): string => {
             return window.sessionStorage.getItem(k);
         };
@@ -62,8 +72,7 @@ module nn {
         IMP_STORAGE_CLEAR = () => {
             window.sessionStorage.clear();
         };
-    }
-    else {
+    } else {
         let __g_storage = {};
         IMP_STORAGE_GET = (key: string): string => {
             return __g_storage[key];
@@ -111,6 +120,23 @@ module nn {
                 var r = this.touchDownTarget[i];
                 egret.TouchEvent.dispatchTouchEvent(r, egret.TouchEvent.TOUCH_MOVE, !0, !0, t, e, i, !0)
             }
+        }
+    }
+
+    if (ISHTML5) {
+
+        // 保护htmlaudio的播放
+        let clz: any = egret.web['HtmlSoundChannel'];
+        if (clz) {
+            let _PROTO: any = clz.prototype;
+            let OLD = _PROTO.$play;
+            _PROTO.$play = () => {
+                try {
+                    OLD();
+                } catch (ex) {
+                    nn.log('SoundChannel遇到兼容性原因: ' + ex);
+                }
+            };
         }
     }
 }

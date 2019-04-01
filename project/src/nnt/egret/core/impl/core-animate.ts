@@ -63,6 +63,14 @@ module nn {
         return egret.Ease.getBackIn(amount);
     };
 
+    TimeFunction.Cubic = (inout?: number): Function => {
+        if (inout == TimeFunction.INOUT)
+            return egret.Ease.cubicInOut;
+        else if (inout == TimeFunction.OUT)
+            return egret.Ease.cubicOut;
+        return egret.Ease.cubicIn;
+    };
+
     interface DAnimateStep {
         preprops: {}; // 变化前
         props: {}; // 变化后
@@ -74,13 +82,19 @@ module nn {
         opt?: any;
     }
 
+    // 分装引擎的动画
     export class Animate extends CAnimate {
+
         constructor() {
             super();
         }
 
         dispose() {
             super.dispose();
+        }
+
+        bindDisplayObject(ui: egret.DisplayObject): this {
+            return this.bind(nn.BridgedComponent.Wrapper(ui));
         }
 
         bind(tgt: CComponent): this {
@@ -109,6 +123,44 @@ module nn {
             });
         }
 
+        prev(pprops: any, duration: number, tf?: Function): this {
+            let props: IndexedObject = {};
+            // prev是从之前某个状态变换到当前，所以需要构造当前的值
+            for (let k in pprops) {
+                switch (k) {
+                    case 'dx':
+                        props['dx'] = 0;
+                        break;
+                    case 'dy':
+                        props['dy'] = 0;
+                        break;
+                    case 'x':
+                        props['dx'] = 0;
+                        break;
+                    case 'y':
+                        props['dy'] = 0;
+                        break;
+                    case 'sx':
+                        props['dsx'] = 0;
+                        break;
+                    case 'sy':
+                        props['dsy'] = 0;
+                        break;
+                    case 'dsx':
+                        props['dsx'] = 0;
+                        break;
+                    case 'dsy':
+                        props['dsy'] = 0;
+                        break;
+                    case 'alpha':
+                        props['dalpha'] = 0; // dalpha会当生成当前值时，直接设置ui.alpha
+                        break;
+                }
+            }
+            this._steps.push({preprops: pprops, props: props, duration: duration, time: tf});
+            return this;
+        }
+
         next(props: any, duration: number, tf?: Function): this {
             this._steps.push({preprops: {}, props: props, duration: duration, time: tf});
             return this;
@@ -134,105 +186,119 @@ module nn {
         private __ani_ended = 0;
 
         protected _doPlay(reverse: boolean) {
-            var self = this;
-            self.__ani_ended = 0;
+            this.__ani_ended = 0;
             // 动画每一步
-            self._targets.forEach((ui: egret.DisplayObject) => {
-                var tw = egret.Tween.get(ui, {'loop': self.count < 1});
+            this._targets.forEach((ui: egret.DisplayObject) => {
+                let tw = egret.Tween.get(ui, {'loop': this.count < 1});
 
-                self._steps.forEach((step: DAnimateStep) => {
-                    var pprops: any = step.preprops;
-                    var props: any = step.props;
+                this._steps.forEach((step: DAnimateStep) => {
+                    let pprops: any = step.preprops;
+                    let props: any = step.props;
+
+                    let psets = {};
+                    let sets = {};
 
                     // 设置旧值
-                    var cntpprops = nn.MapT.Length(pprops);
-                    if (cntpprops) {
-                        var sets = {};
-                        nn.MapT.Foreach(pprops, (k: any, v: any): boolean => {
-                            if (reverse)
-                                v = -v;
-                            switch (k) {
-                                case 'dx':
-                                    sets['x'] = ui.x + v * ScaleFactorW;
-                                    break;
-                                case 'dy':
-                                    sets['y'] = ui.y + v * ScaleFactorH;
-                                    break;
-                                case 'dsx':
-                                    sets['scaleX'] = ui.scaleX + v;
-                                    break;
-                                case 'dsy':
-                                    sets['scaleY'] = ui.scaleY + v;
-                                    break;
-                                case 'dxs':
-                                    sets['x'] = ui.x + ui.width * v;
-                                    break;
-                                case 'dys':
-                                    sets['y'] = ui.y + ui.height * v;
-                                    break;
-                                case 'alpha':
-                                    sets['alpha'] = v;
-                                    break;
-                                case 'dangle':
-                                    sets['rotation'] = ui.rotation + v;
-                                    break;
-                                default:
-                                    sets[k] = ui[k] + v;
-                                    break;
-                            }
-                            return true;
-                        });
-                        tw.to(sets, 0, null);
-                    }
+                    nn.ObjectT.Foreach(pprops, (v, k) => {
+                        if (reverse)
+                            v = -v;
+                        switch (k) {
+                            case 'dx':
+                                psets['x'] = ui.x + v * ScaleFactorW;
+                                break;
+                            case 'dy':
+                                psets['y'] = ui.y + v * ScaleFactorH;
+                                break;
+                            case 'sx':
+                                psets['scaleX'] = v;
+                                break;
+                            case 'sy':
+                                psets['scaleY'] = v;
+                                break;
+                            case 'dsx':
+                                psets['scaleX'] = ui.scaleX + v;
+                                break;
+                            case 'dsy':
+                                psets['scaleY'] = ui.scaleY + v;
+                                break;
+                            case 'dxs':
+                                psets['x'] = ui.x + ui.width * v;
+                                break;
+                            case 'dys':
+                                psets['y'] = ui.y + ui.height * v;
+                                break;
+                            case 'alpha':
+                                psets['alpha'] = v;
+                                break;
+                            case 'dalpha':
+                                psets['alpha'] = ui.alpha + v;
+                                break;
+                            case 'dangle':
+                                psets['rotation'] = ui.rotation + v;
+                                break;
+                            default:
+                                psets[k] = ui[k] + v;
+                                break;
+                        }
+                    });
 
                     // 设置新值
-                    var cntprops = nn.MapT.Length(props);
-                    if (cntprops) {
-                        var sets = {};
-                        nn.MapT.Foreach(props, (k: any, v: any): boolean => {
-                            if (reverse)
-                                v = -v;
-                            switch (k) {
-                                case 'x':
-                                    sets['x'] = v * ScaleFactorX + ui.anchorOffsetX;
-                                    break;
-                                case 'y':
-                                    sets['y'] = v * ScaleFactorY + ui.anchorOffsetY;
-                                    break;
-                                case 'dx':
-                                    sets['x'] = ui.x + v * ScaleFactorW;
-                                    break;
-                                case 'dy':
-                                    sets['y'] = ui.y + v * ScaleFactorH;
-                                    break;
-                                case 'dsx':
-                                    sets['scaleX'] = ui.scaleX + v;
-                                    break;
-                                case 'dsy':
-                                    sets['scaleY'] = ui.scaleY + v;
-                                    break;
-                                case 'dxs':
-                                    sets['x'] = ui.x + ui.width * v;
-                                    break;
-                                case 'dys':
-                                    sets['y'] = ui.y + ui.height * v;
-                                    break;
-                                case 'alpha':
-                                    sets['alpha'] = v;
-                                    break;
-                                case 'dangle':
-                                    sets['rotation'] = ui.rotation + v;
-                                    break;
-                                default:
-                                    sets[k] = v;
-                                    break;
-                            }
-                            return true;
-                        }, this);
-                        tw.to(sets, step.duration * 1000, step.time);
-                    }
+                    nn.ObjectT.Foreach(props, (v, k) => {
+                        if (reverse)
+                            v = -v;
+                        switch (k) {
+                            case 'x':
+                                sets['x'] = v * ScaleFactorX + ui.anchorOffsetX;
+                                break;
+                            case 'y':
+                                sets['y'] = v * ScaleFactorY + ui.anchorOffsetY;
+                                break;
+                            case 'dx':
+                                sets['x'] = ui.x + v * ScaleFactorW;
+                                break;
+                            case 'dy':
+                                sets['y'] = ui.y + v * ScaleFactorH;
+                                break;
+                            case 'sx':
+                                psets['scaleX'] = v;
+                                break;
+                            case 'sy':
+                                psets['scaleY'] = v;
+                                break;
+                            case 'dsx':
+                                sets['scaleX'] = ui.scaleX + v;
+                                break;
+                            case 'dsy':
+                                sets['scaleY'] = ui.scaleY + v;
+                                break;
+                            case 'dxs':
+                                sets['x'] = ui.x + ui.width * v;
+                                break;
+                            case 'dys':
+                                sets['y'] = ui.y + ui.height * v;
+                                break;
+                            case 'alpha':
+                                sets['alpha'] = v;
+                                break;
+                            case 'dalpha':
+                                sets['alpha'] = ui.alpha;
+                                break;
+                            case 'dangle':
+                                sets['rotation'] = ui.rotation + v;
+                                break;
+                            default:
+                                sets[k] = v;
+                                break;
+                        }
+                    });
 
-                    if (cntpprops == 0 && cntprops == 0) {
+                    const psets_empty = nn.ObjectT.IsEmpty(psets);
+                    const sets_empty = nn.ObjectT.IsEmpty(sets);
+                    if (!psets_empty)
+                        tw.to(psets, 0, null);
+                    if (!sets_empty)
+                        tw.to(sets, step.duration * 1000, step.time);
+                    if (psets_empty && sets_empty) {
                         if (step.duration) {
                             // 如过都是空的，代表等待
                             tw.wait(step.duration * 1000, step.opt);
@@ -243,15 +309,21 @@ module nn {
                     }
 
                     // 自动恢复
-                    if (self.autoReset && cntprops) {
-                        var sets = {};
-                        nn.MapT.Foreach(props, (k: any, v: any): boolean => {
+                    if (this.autoReset && !sets_empty) {
+                        let sets = {};
+                        nn.ObjectT.Foreach(props, (v, k) => {
                             switch (k) {
                                 case 'dx':
                                     sets['x'] = ui.x;
                                     break;
                                 case 'dy':
                                     sets['y'] = ui.y;
+                                    break;
+                                case 'sx':
+                                    sets['scaleX'] = ui.scaleX;
+                                    break;
+                                case 'sy':
+                                    sets['scaleY'] = ui.scaleY;
                                     break;
                                 case 'dsx':
                                     sets['scaleX'] = ui.scaleX;
@@ -268,6 +340,9 @@ module nn {
                                 case 'alpha':
                                     sets['alpha'] = ui.alpha;
                                     break;
+                                case 'dalpha':
+                                    sets['alpha'] = ui.alpha;
+                                    break;
                                 case 'dangle':
                                     sets['rotation'] = ui.rotation;
                                     break;
@@ -275,45 +350,43 @@ module nn {
                                     sets[k] = ui[v];
                                     break;
                             }
-                            return true;
-                        }, this);
+                        });
                         tw.to(sets, 0, null);
                     }
 
                     // end for each tw & target
-                }, this);
+                });
 
                 // 监听结束
                 tw.call((o: [egret.Tween, any]) => {
-                    if (++self.__ani_ended == self._targets.size) {
+                    if (++this.__ani_ended == this._targets.size) {
                         // 重置计数器
-                        self.__ani_ended = 0;
+                        this.__ani_ended = 0;
 
                         // 一批动画结束
-                        self._signals && self._signals.emit(SignalEnd);
+                        this._signals && this._signals.emit(SignalEnd);
                         // 一次动画都结束了
-                        if (self.count > 0) {
-                            if (++self._firedCount >= self.count) {
+                        if (this.count > 0) {
+                            if (++this._firedCount >= this.count) {
                                 // 释放所有动画
-                                self.stop();
+                                this.stop();
 
                                 // 激发结束
-                                self._signals && self._signals.emit(SignalDone);
+                                this._signals && this._signals.emit(SignalDone);
 
                                 // 检查一下是否需要释放
-                                if (self.autoUnbind)
-                                    self.unbindAll();
-                                if (self.autoDrop)
-                                    self = drop(self);
-                            }
-                            else {
+                                if (this.autoUnbind)
+                                    this.unbindAll();
+                                if (this.autoDrop)
+                                    drop(this);
+                            } else {
                                 // 播放下一次
-                                self._doPlay(reverse);
+                                this._doPlay(reverse);
                             }
                         }
                     }
-                }, self, [ui]);
-            }, self);
+                }, this, [ui]);
+            });
         }
 
         play(reverse?: boolean): this {
@@ -367,6 +440,7 @@ module nn {
 
         // uiobj
         private _targets = new CSet<egret.DisplayObject>();
+
         // 变化前、变化后、持续、时间函数、附加数据
         private _steps = new Array<DAnimateStep>();
 

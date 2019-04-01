@@ -1,10 +1,5 @@
 // 提供一个类型，用来声明利用Object来模拟Map的类型
 // ps：当KvObject位于nn空间内，egret4.0.1编译出的代码会漏掉nn名域，所以干错KvObject暴露到全局
-class KvObject<K, V> {
-}
-
-type IndexedObject = KvObject<any, any>;
-
 module nn {
 
     declare let Map;
@@ -197,7 +192,6 @@ module nn {
         forEach: (cb: (o: V) => void, ctx?: any) => void = ECMA6_NATIVE ? this._n_foreach : this._i_foreach;
     }
 
-    export type MapType<K, V> = KvObject<K, V> | Object;
     export type SetType<V> = CSet<V>;// | Set<V>;
 
 }

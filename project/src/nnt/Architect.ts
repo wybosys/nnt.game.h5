@@ -89,7 +89,7 @@ module nn {
          */
         register(entryClass: EntryClassType, data: EntrySettings = EntrySettings.Default) {
             let idr: string;
-            if (typeof(entryClass) == 'object') {
+            if (typeof (entryClass) == 'object') {
                 let o = <IEntryClass>entryClass;
                 idr = o.name;
             } else {
@@ -113,9 +113,9 @@ module nn {
                 nn.warn("不能打开空的实例");
                 return;
             }
-            let idr = typeof(entry) == 'string' ? entry : nn.Classname(entry);
+            let idr = typeof (entry) == 'string' ? entry : nn.Classname(entry);
             let cls: any = this._entries[idr];
-            if (typeof(cls) == 'object') {
+            if (typeof (cls) == 'object') {
                 // 复杂定义一个类型，为了支持动态入口逻辑
                 let o = <IEntryClass>cls;
                 cls = o.clazz();
@@ -126,9 +126,9 @@ module nn {
             }
             // 在launchers中查启动点
             let ler: ILauncher;
-            if (typeof(launcher) == 'string')
+            if (typeof (launcher) == 'string')
                 ler = Launchers.find(<string>launcher);
-            if (ler == null && typeof(launcher) == 'function') {
+            if (ler == null && typeof (launcher) == 'function') {
                 let leridr = (<EntryIdrToLauncherIdr>launcher)(idr);
                 ler = Launchers.find(leridr);
                 // 如果ler为null，则代表目标模块还没有加载，需要先加载目标模块，待之准备好后，再加载当前模块
@@ -147,7 +147,7 @@ module nn {
                     return;
                 }
             }
-            if (ler == null && typeof(launcher) == 'object')
+            if (ler == null && typeof (launcher) == 'object')
                 ler = <ILauncher>launcher;
             if (ler == null) {
                 nn.fatal("没有找到停靠点" + <any>launcher);
@@ -164,12 +164,12 @@ module nn {
             ler.launchEntry(cls, data);
         }
 
-        private _entries = new KvObject<string, EntryClassType>();
-        private _entriesdata = new KvObject<string, EntrySettings>();
+        private _entries: KvObject<EntryClassType> = {};
+        private _entriesdata: KvObject<EntrySettings> = {};
 
         toString(): string {
             let t = [];
-            nn.MapT.Foreach(this._entries, (k: string) => {
+            nn.ObjectT.Foreach(this._entries, (v, k) => {
                 t.push(k);
             });
             return t.join(';');
@@ -208,7 +208,7 @@ module nn {
         /** 取消 */
         unregister(obj: ILauncher) {
             let idr = nn.Classname(obj);
-            nn.MapT.RemoveKey(this._launchers, idr);
+            nn.ObjectT.RemoveKey(this._launchers, idr);
         }
 
         /** 查找一个启动器 */
@@ -216,11 +216,11 @@ module nn {
             return this._launchers[str];
         }
 
-        private _launchers = new KvObject<string, ILauncher>();
+        private _launchers: KvObject<ILauncher> = {};
 
         toString(): string {
             let t = [];
-            nn.MapT.Foreach(this._launchers, (k: string) => {
+            nn.ObjectT.Foreach(this._launchers, (v, k) => {
                 t.push(k);
             });
             return t.join(';');

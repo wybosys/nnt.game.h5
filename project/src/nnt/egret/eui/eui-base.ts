@@ -1,8 +1,9 @@
 // 为了阻止wing莫名其妙的感知
-var eeui = eui;
+let eeui = eui;
 
 // 模块为毛这样命名而不是命名为 nn.eui 是因为2b的wing不能识别nn.eui.这种多级的并且也不识别nneui这种
 module eui {
+
 
     export type StackPageType = nn.InstanceType<egret.DisplayObject>;
     export type UiType = egret.DisplayObject;
@@ -382,20 +383,29 @@ module eui {
             _EUIExt.removeFromParent(this);
         }
 
+        // 播放动画
         playAnimate(ani: Animate, idr?: any): Animate {
             return _EUIExt.playAnimate(this, ani, idr);
         }
 
+        // 查找身上的动画
         findAnimate(idr: any): Animate {
             return _EUIExt.findAnimate(this, idr);
         }
 
+        // 停止身上的动画
         stopAnimate(idr: any) {
             _EUIExt.stopAnimate(this, idr);
         }
 
+        // 停止身上的所有动画
         stopAllAnimates() {
             _EUIExt.stopAllAnimates(this);
+        }
+
+        // 构造一个基础动画对象
+        animate(cb: (ani: nn.CAnimate) => void): Promise<void> {
+            return _EUIExt.MakeAnimate(this, cb);
         }
 
         // 约定使用该函数返回容器的上一级
@@ -561,6 +571,8 @@ module eui {
     /** 业务非wing重用模块继承该类型 */
     export class SpriteU
         extends ComponentU {
+
+        // pass
     }
 
     nn.EntryCheckSettings = (cls: any, data: nn.EntrySettings): boolean => {
@@ -577,5 +589,27 @@ module eui {
             }
         }
         return true;
+    }
+
+    // 从皮肤对象提取类对象
+    export function getAppClazzForSkin(skin: any): any {
+        // 调试模式
+        if (typeof generateEUI == 'undefined') {
+            let skin_path: string = skin.prototype.__class__;
+            if (skin_path.indexOf('Skin') != (skin_path.length - 4)) {
+                nn.fatal(`皮肤 ${skin_path} 命名错误，无法获取对应的类`);
+                return null;
+            }
+            return nn.GetObjectOfWindowByKeyPath(nn.StringT.SubStr(skin_path, 0, skin_path.length - 4));
+        }
+
+        // 发布模式
+        let skin_full_path = nn.ObjectT.QueryKey(generateEUI.paths, (v, k) => {
+            return v == skin;
+        });
+        let clazz_path = nn.ObjectT.QueryKey(generateEUI.skins, (v, k) => {
+            return v == skin_full_path;
+        });
+        return nn.GetObjectOfWindowByKeyPath(clazz_path);
     }
 }

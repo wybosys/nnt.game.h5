@@ -206,10 +206,12 @@ module eui {
 
         /** 刷新选中状态 */
         updateSelection() {
+            // override
         }
 
         /** 刷新数据 */
         updateData() {
+            // override
         }
 
         /** 隶属的栈 */

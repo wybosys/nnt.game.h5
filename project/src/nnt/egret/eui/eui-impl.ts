@@ -34,10 +34,12 @@ module eui {
     // 避免wing中使用自定义属性报错
     export function _EUIExtFix(cls: any) {
         let p = cls.prototype;
-        if (p.setSkinPart == undefined)
+        if (p.setSkinPart == undefined) {
             p.setSkinPart = function (name, instance) {
+                // pass
             };
-    };
+        }
+    }
 }
 
 module nn {

@@ -1,3 +1,34 @@
+// 系统级兼容处理
+
+// 默写环境下没有location，所以需要模拟一个
+class CLocation {
+    protocol = "https:";
+}
+
+class CDocument {
+    domain = "localhost";
+    location = new CLocation();
+
+    querySelector(selector: string): any {
+        return null;
+    }
+}
+
+class CNavigator {
+    platform: string = "native";
+    userAgent: string = "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X; en-us) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53";
+}
+
+if (typeof (document) == 'undefined') {
+    document = <any>new CDocument();
+    navigator = <any>new CNavigator();
+}
+
+if (typeof (location) == 'undefined') {
+    location = <any>new CLocation();
+}
+
+// 提供Date的tostring方法
 var __PROTO: any = Date.prototype;
 __PROTO.pattern = function (fmt) {
     var o = {
@@ -42,7 +73,7 @@ declare var swan: any;
 let IS_BAIDU_MINGAME = typeof swan != "undefined";
 
 // 是否是小游戏
-let IS_MINGAME = IS_WEIXIN_MINGAME || IS_BAIDU_MINGAME;
+nn.ISMINGAME = IS_WEIXIN_MINGAME || IS_BAIDU_MINGAME;
 
 module js {
 
@@ -321,7 +352,7 @@ module js {
     }
 
     export function loadScript(src, cb, ctx) {
-        if (IS_MINGAME) {
+        if (nn.ISMINGAME) {
             console.info("小程序不支持通过url动态加载JS代码，请确保已经打包到项目中: " + src);
             cb.call(ctx);
         } else {
@@ -355,7 +386,7 @@ module js {
     }
 
     export function loadStyle(src, cb, ctx) {
-        if (IS_MINGAME) {
+        if (nn.ISMINGAME) {
             console.info("小程序不支持动态加载样式 " + src);
         } else {
             var s: any = document.createElement('link');
@@ -534,5 +565,4 @@ if (IS_BAIDU_MINGAME) {
         } catch (e) {
         }
     };
-
 }

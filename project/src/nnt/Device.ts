@@ -34,7 +34,7 @@ module nn {
             self.isPurePC = !self.isMobile && (self.isMac || self.isWin || self.isUnix || self.isLinux);
 
             self.isHighPerfomance = !self.isAndroid;
-            self.isMinGame = IS_MINGAME;
+            self.isMinGame = nn.ISMINGAME;
         }
 
         platform: string;
