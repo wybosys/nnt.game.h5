@@ -15,6 +15,7 @@ import {
     SetT,
     static_cast,
     StringT,
+    toInt,
     toJson,
     toJsonObject,
     XmlNode
@@ -71,18 +72,32 @@ export class EgretEui implements IService {
 
     // 规范一个皮肤文件
     fixOneSkin(exml: string) {
-        let autoid = 0;
         let modified = false;
 
+        // 读取皮肤文件
         let doc = LoadXmlFile(exml);
+
+        // 搜索所有配置了slots的节点，如果没有设置id会导致eui无法调用setSkinPart继而无法将slot绑定到signal中，所以需要自动生成id
         let slotsnodes = xml_getElementsByAttributeName(doc.documentElement, 'slots');
-        slotsnodes.forEach(e => {
-            if (e.getAttributeNode('id') == null) {
-                // 自动生成一个id
-                e.setAttribute('id', `__auto_${autoid++}`);
-                modified = true;
-            }
-        });
+        if (slotsnodes.length) {
+            // 查看自动生成的id起始，避免新生成时，下标仍然从0开始
+            let autoid = 0;
+            slotsnodes.forEach(e => {
+                let v = e.getAttribute('id');
+                if (v.indexOf('__auto_') == 0) {
+                    let cid = toInt(v.split('__auto_')[1]);
+                    autoid = Math.max(cid, autoid);
+                }
+            });
+
+            // 自动生成一个id
+            slotsnodes.forEach(e => {
+                if (e.getAttributeNode('id') == null) {
+                    e.setAttribute('id', `__auto_${++autoid}`);
+                    modified = true;
+                }
+            });
+        }
 
         if (modified) {
             // 将修改写回

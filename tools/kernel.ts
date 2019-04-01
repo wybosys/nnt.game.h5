@@ -474,6 +474,64 @@ function SafeNumber(o: any, def = 0): number {
     return isNaN(o) ? def : o;
 }
 
+
+/** 带保护的判断对象是不是 0 */
+export function isZero(o: any): boolean {
+    if (o == null || o == 0)
+        return true;
+    if (o.length)
+        return o.length == 0;
+    return false;
+}
+
+/** 转换到 float */
+export function toDouble(o: any, def = 0): number {
+    if (o == null)
+        return def;
+    let tp = typeof (o);
+    if (tp == 'number')
+        return SafeNumber(o, def);
+    if (tp == 'string') {
+        let v = parseFloat(o);
+        return SafeNumber(v, def);
+    }
+    if (o.toNumber)
+        return o.toNumber();
+    return def;
+}
+
+/** 转换到 int */
+export function toInt(o: any, def = 0): number {
+    if (o == null)
+        return def;
+    let tp = typeof (o);
+    if (tp == 'number' || tp == 'string') {
+        let v = parseInt(o);
+        return SafeNumber(v, def);
+    }
+    if (o.toNumber)
+        return o.toNumber() >> 0;
+    return def;
+}
+
+/** 转换到数字
+ @brief 如果对象不能直接转换，会尝试调用对象的 toNumber 进行转换
+ */
+export function toNumber(o: any, def = 0): number {
+    if (o == null)
+        return def;
+    let tp = typeof (o);
+    if (tp == 'number')
+        return SafeNumber(o, def);
+    if (tp == 'string') {
+        let v = Number(<string>o);
+        return SafeNumber(v, def);
+    }
+    if (o.toNumber)
+        return o.toNumber();
+    return def;
+}
+
 export type QueueCallback = (next: () => void) => void;
 
 export class AsyncQueue {
