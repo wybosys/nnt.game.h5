@@ -190,7 +190,7 @@ module nn {
         /** 对所有插槽激发信号
          @note 返回被移除的插槽的对象
          */
-        emit(data: any, tunnel: SlotTunnel): CSet<any> {
+        emit(data: any, tunnel: SlotTunnel): Set<any> {
             if (this.isblocked())
                 return null;
 
@@ -219,7 +219,7 @@ module nn {
 
             // 删除用完的slot
             if (ids) {
-                let r = new CSet<any>();
+                let r = new Set<any>();
                 nn.ArrayT.RemoveObjectsInIndexArray(this.slots, ids)
                     .forEach((o: Slot): boolean => {
                         if (o.target)
@@ -276,7 +276,7 @@ module nn {
             this.owner = owner;
         }
 
-        private _slots = new KvObject<string, Slots>();
+        private _slots: KvObject<Slots> = {};
 
         // 信号的主体
         owner: any;
@@ -293,7 +293,7 @@ module nn {
             }, this);
 
             // 清理信号，不能直接用clear的原因是clear不会断开对于ower的引用
-            nn.MapT.Clear(this._slots, (k: string, o: Slots) => {
+            nn.ObjectT.Clear(this._slots, (o, k) => {
                 if (o)
                     o.dispose();
             });
@@ -311,7 +311,7 @@ module nn {
             }, this);
 
             // 清空slot的连接
-            nn.MapT.Foreach(this._slots, (k: string, o: Slots) => {
+            nn.ObjectT.Foreach(this._slots, (o, k) => {
                 if (o)
                     o.clear();
             });
@@ -319,9 +319,9 @@ module nn {
 
         toString(): string {
             let str = "";
-            nn.MapT.Foreach(this._slots, (k, v) => {
+            nn.ObjectT.Foreach(this._slots, (v, k) => {
                 str += k + ": " + v + "\n";
-            }, this);
+            });
             return str;
         }
 
@@ -477,10 +477,10 @@ module nn {
             if (target == null)
                 return;
 
-            nn.MapT.Foreach(this._slots, (sig: string, ss: Slots) => {
+            nn.ObjectT.Foreach(this._slots, (ss, sig) => {
                 if (ss)
                     ss.disconnect(null, target);
-            }, this);
+            });
 
             if (inv)
                 this.__inv_disconnect(target);
@@ -514,9 +514,9 @@ module nn {
         }
 
         isConnectedOfTarget(target: any): boolean {
-            return nn.MapT.QueryObject(this._slots, (sig: string, ss: Slots): boolean => {
+            return nn.ObjectT.QueryObject(this._slots, (ss, sig): boolean => {
                 return ss ? ss.is_connected(target) : false;
-            }, this) != null;
+            }) != null;
         }
 
         /** 阻塞一个信号，将不响应激发 */
@@ -570,7 +570,7 @@ module nn {
     }
 
     export class EventWeakDispatcher {
-        private _slots = new KvObject<string, _EventWeak>();
+        private _slots: KvObject<_EventWeak> = {};
 
         add<T>(idr: string, cb: (e: T) => void, cbctx: any) {
             let fnd = this._slots[idr];
@@ -600,7 +600,7 @@ module nn {
                 return;
             }
 
-            ew.cbs.forEach((cb) => {
+            ew.cbs.forEach((cb: any) => {
                 if (cb.cb && cb.ctx)
                     cb.cb.call(cb.ctx, e);
             }, this);
@@ -617,14 +617,14 @@ module nn {
             let cbs = ew.cbs.concat();
             ew.cbs.length = 0;
 
-            cbs.forEach((cb) => {
+            cbs.forEach((cb: any) => {
                 if (cb.cb && cb.ctx)
                     cb.cb.call(cb.ctx, e);
             }, this);
         }
 
         clear() {
-            nn.MapT.Clear(this._slots);
+            this._slots = {};
         }
     }
 
@@ -737,7 +737,8 @@ module nn {
     export interface SelectionData {
         old: any;
         now: any;
-    };
+    }
+
     export let SignalSelectionChanged = "::nn::selection::changed";
     export let SignalSelectionChanging = "::nn::selection::changing";
 

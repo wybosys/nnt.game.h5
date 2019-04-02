@@ -90,7 +90,7 @@ module eui {
             // 打开的动画
             let ani = this.animateOpen;
             if (ani) {
-                ani.clone().bind(this).play();
+                ani.clone().bindDisplayObject(this).play();
             }
         }
 
@@ -235,6 +235,26 @@ module eui {
 
         bestPosition(): nn.Point {
             return null;
+        }
+
+        playAnimate(ani: Animate, idr?: any): Animate {
+            return _EUIExt.playAnimate(this, ani, idr);
+        }
+
+        findAnimate(idr: any): Animate {
+            return _EUIExt.findAnimate(this, idr);
+        }
+
+        stopAnimate(idr: any) {
+            _EUIExt.stopAnimate(this, idr);
+        }
+
+        stopAllAnimates() {
+            _EUIExt.stopAllAnimates(this);
+        }
+
+        animate(cb: (ani: nn.CAnimate) => void): Promise<void> {
+            return _EUIExt.MakeAnimate(this, cb);
         }
     }
 

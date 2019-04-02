@@ -1,6 +1,10 @@
 module eui {
 
+    // 查看eui.js，会把ItemRenderSkinName的值保存在$DataGroup[13]
+    const DATAGROUP_ITEMRENDERERSKINNAME = 13;
+
     export class _EUIDataGroupExt {
+
         static onPartBinded(self: any, name: string, target: any) {
             _EUIExt.onPartBinded(self, name, target);
 
@@ -34,9 +38,16 @@ module eui {
 
             // 是否绑定了条目渲染类型
             let itemRenderer = name + 'Item';
+
+            // 如果业务的类手动定义了 xxxItem，则直接绑定
             if (itemRenderer in target) {
                 self.itemRenderer = target[itemRenderer];
+            } else {
+                // 获得设置的ItemSkin，转换成对应的类，自动绑定
+                let clz = getAppClazzForSkin(self.$DataGroup[DATAGROUP_ITEMRENDERERSKINNAME]);
+                self.itemRenderer = clz;
             }
+
             // 顺手定义一下get/set方法使得可以动态的绑定item类型
             Object.defineProperty(target, itemRenderer, {
                 get: function () {
@@ -47,6 +58,7 @@ module eui {
                 }
             });
 
+            // 使用override的方式动态在业务中获得数据
             let rendererForData = name + 'ItemForData';
             if (rendererForData in target) {
                 self.itemRendererFunction = (d: any): any => {
@@ -54,7 +66,7 @@ module eui {
                 };
             }
 
-            // 是否实现了item刷新
+            // 使用约定的方式 _onXxxItemUpdate 回调业务层的刷新
             let itemUpdate = '_on' + Name + 'ItemUpdate';
             if (itemUpdate in target) {
                 self.__imp_updateitem = target[itemUpdate];

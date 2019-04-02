@@ -1,6 +1,7 @@
 module eui {
 
     export class TabBarU extends eui.TabBar {
+        belong: any;
         public slots: string = null;
 
         onPartBinded(name: string, target: any) {
@@ -49,6 +50,7 @@ module eui {
 
         _signalConnected(sig: string, s?: nn.Slot) {
             if (sig == nn.SignalSelectionChanged) {
+                // pass
             } else if (sig == nn.SignalSelectionChanging) {
                 nn.EventHook(this, egret.Event.CHANGING, this.__lst_selchanging, this);
             }
@@ -65,9 +67,12 @@ module eui {
             }
         }
 
-        private __lst_selchanged() {
-            if (this._signals) // 修改为构造函数的时候绑定，所以signals会还没有初始化
-                this._signals.emit(nn.SignalSelectionChanged);
+        private __lst_selchanged(e: egret.Event) {
+            let info = _EUIDataGroupExt.Selected(this);
+
+            // 修改为构造函数的时候绑定，所以signals会还没有初始化
+            this._signals.emit(nn.SignalSelectionChanged, info);
+
             // 动作page
             if (this.pageStack) {
                 this.pageStack.selectedIndex = this.selectedIndex;
@@ -91,24 +96,38 @@ module eui {
 
         private _data: any;
         set data(data: any) {
-            if (data == null)
-                this.dataProvider = null;
-            else
-                this.dataProvider = new eui.ArrayCollection(data);
             this._data = data;
+            this.updateData();
         }
 
         get data(): any {
             return this._data;
         }
 
+        updateData() {
+            if (this._data == null) {
+                this.dataProvider = null;
+            } else {
+                this.dataProvider = new eui.ArrayCollection(this._data);
+                if (this.requireSelection && this.selectedIndex == -1)
+                    this.selectedIndex = 0;
+            }
+        }
+
         reload() {
             this.dataProviderRefreshed();
+        }
+
+        dataProviderRefreshed() {
+            super.dataProviderRefreshed();
         }
 
         private __imp_updateitem: any;
 
         updateRenderer(renderer: eui.IItemRenderer, itemIndex: number, data: any): eui.IItemRenderer {
+            // 绑定render的belong，为了业务层可以方便的从item直接拿到list所在的父实体
+            (<any>renderer).belong = this.belong;
+
             let r = super.updateRenderer(renderer, itemIndex, data);
             if (this.__imp_updateitem)
                 this.__imp_updateitem(r, itemIndex, data);
@@ -117,6 +136,21 @@ module eui {
 
         // 绑定到对应的pagestack简化动作
         pageStack: PageStackU;
+
+        protected itemAdded(item: any, idx: number) {
+            super.itemAdded(item, idx);
+        }
+
+        protected itemRemoved(item: any, idx: number) {
+            super.itemRemoved(item, idx);
+        }
+
+        /** 获得指定的元素 */
+        getItem(idx: number): eui.IItemRenderer {
+            if (this.useVirtualLayout)
+                return <any>this.getVirtualElementAt(idx);
+            return <any>this.getElementAt(idx);
+        }
     }
 
 }

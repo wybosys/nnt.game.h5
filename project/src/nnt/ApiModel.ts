@@ -19,7 +19,7 @@ module nn {
 
         dispose() {
             this.response = undefined;
-            nn.MapT.Clear(this.params);
+            this.params = null;
             super.dispose();
         }
 
@@ -41,7 +41,7 @@ module nn {
             return this.host + '|' + this.action + '|' + JSON.stringify(this.paramsForCache());
         }
 
-        paramsForCache(): KvObject<string, string> {
+        paramsForCache(): KvObject<string> {
             return this.params;
         }
 
@@ -53,7 +53,7 @@ module nn {
         action: string = '';
 
         /** 参数 */
-        params = new KvObject<string, string>();
+        params: KvObject<string> = {};
 
         /** 域 */
         host: string = '';
@@ -112,7 +112,7 @@ module nn {
         }
 
         /** 可用的参数 */
-        fields(): KvObject<string, string> {
+        fields(): KvObject<string> {
             return this.params;
         }
 
@@ -161,7 +161,7 @@ module nn {
             return this.url();
         }
 
-        protected fieldsForLog(): KvObject<string, string> {
+        protected fieldsForLog(): KvObject<string> {
             return this.fields();
         }
 
@@ -171,7 +171,7 @@ module nn {
             if (VERBOSE) {
                 let str = this.urlForLog();
                 let flds = this.fieldsForLog();
-                if (nn.MapT.IsEmpty(flds) == false) {
+                if (nn.ObjectT.IsEmpty(flds) == false) {
                     str += ' >> ' + URL.MapToField(flds);
                 }
                 log("API " + this.action + " 请求 " + str);
@@ -1090,7 +1090,7 @@ namespace app.models.logic {
             };
         }
 
-        fields(): KvObject<string, string> {
+        fields(): nn.KvObject<string> {
             return Encode(this);
         }
 

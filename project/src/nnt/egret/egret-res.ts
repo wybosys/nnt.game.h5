@@ -118,8 +118,8 @@ module nn {
         }
 
         // cache-key 和 sources 的对照表
-        private _sources = new KvObject<any, Array<string>>();
-        private _keys = new KvObject<string, any>();
+        private _sources: KvObject<Array<string>> = {};
+        private _keys: KvObject<any> = {};
     }
 
     class _ResCacheObject implements ICacheObject {
@@ -291,11 +291,11 @@ module nn {
         }
 
         // 正在加载的资源包
-        private _capsules = new KvObject<number, CResCapsule>();
+        private _capsules: KvObject<CResCapsule> = {};
 
         capsules(grps: ReqResource[]): CResCapsule {
             let k = ResCapsule.HashKey(grps);
-            let cp: ResCapsule = this._capsules[k];
+            let cp: CResCapsule = this._capsules[k];
             if (cp == null) {
                 cp = new ResCapsule(grps, this._ewd);
                 this._capsules[k] = cp;
@@ -334,15 +334,19 @@ module nn {
             let rcd = this.cache.query(key);
             if (rcd == null) {
                 ResCurrentPriority = priority;
-                RES.getResAsync(key, (d: any) => {
-                    if (d) {
-                        rcd = this.cache.add(key, d);
-                    } else {
-                        rcd = new CacheRecord();
-                        warn("res " + key + " not found");
-                    }
-                    cb.call(ctx, rcd);
-                }, this);
+                try {
+                    RES.getResAsync(key, (d: any) => {
+                        if (d) {
+                            rcd = this.cache.add(key, d);
+                        } else {
+                            rcd = new CacheRecord();
+                            warn("res " + key + " not found");
+                        }
+                        cb.call(ctx, rcd);
+                    }, this);
+                } catch (e) {
+                    warn(`获得资源 ${key} 失败`);
+                }
             } else {
                 cb.call(ctx, rcd);
             }

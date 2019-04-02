@@ -27,7 +27,7 @@ module nn {
         attr(key: string, value: string | number): this {
             this._buf += key + '=';
             let strval = <string>value;
-            if (typeof(value) == 'string' && strval.length && strval[0] != '#')
+            if (typeof (value) == 'string' && strval.length && strval[0] != '#')
                 this._buf += '"' + value + '" ';
             else
                 this._buf += value + ' ';
@@ -77,7 +77,7 @@ module nn {
         export type DomId = string | Element;
 
         export function getElementById(id: DomId): Element {
-            if (typeof(id) == 'string')
+            if (typeof (id) == 'string')
                 return document.getElementById(<string>id);
             return <Element>id;
         }
@@ -94,7 +94,7 @@ module nn {
             dispose() {
                 super.dispose();
                 if (this._listeners) {
-                    MapT.Clear(this._listeners);
+                    this._listeners = null;
                 }
             }
 
@@ -294,10 +294,10 @@ module nn {
                 return cb;
             }
 
-            protected _listeners: KvObject<any, Function>;
-            protected get listeners(): KvObject<any, Function> {
+            protected _listeners: KvObject<Function>;
+            protected get listeners(): KvObject<Function> {
                 if (this._listeners == null)
-                    this._listeners = new KvObject<any, Function>();
+                    this._listeners = {};
                 return this._listeners;
             }
         }

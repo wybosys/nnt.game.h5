@@ -7,8 +7,8 @@ module nn {
 
     /** 自定义动画对象 */
     export class Animator {
-        _preproperties = new KvObject<string, any>();
-        _properties = new KvObject<string, any>();
+        _preproperties: KvObject<any> = {};
+        _properties: KvObject<any> = {};
 
         /** 类似于 iOS 的反向设置模式 */
         backMode: boolean;
@@ -145,9 +145,12 @@ module nn {
         static Elastic: (amplitude?: any, period?: any, inout?: number) => Function;
         static Circ: (inout?: number) => Function;
         static Back: (amount?: number, inout?: number) => Function;
-    };
+        static Cubic: (inout?: number) => Function;
+    }
 
-    export abstract class CAnimate extends SObject {
+    export abstract class CAnimate
+        extends SObject {
+
         constructor() {
             super();
         }
@@ -188,16 +191,11 @@ module nn {
         /** 结束所有动画 */
         abstract stop();
 
-        /** 链接对象 */
-        abstract bind(tgt: CComponent): this;
-
-        /** 取消对象 */
-        abstract unbind(tgt: CComponent);
-
-        abstract unbindAll();
+        /** 上一步，反向定义 */
+        abstract prev(props: any, duration: number, tf?: Function): this;
 
         /** 下一步 */
-        abstract next(props: any, duration: number, tf: Function): this;
+        abstract next(props: any, duration: number, tf?: Function): this;
 
         abstract to(duration: number, tf: Function, ani: (ani: Animator) => void, ctx?: any): this;
 
@@ -217,6 +215,15 @@ module nn {
             return this;
         }
 
+        /** 使用promise形式的结束 */
+        async completep(): Promise<void> {
+            return new Promise<void>(resolve => {
+                this.complete(() => {
+                    resolve();
+                }, null);
+            });
+        }
+
         /** 播放 */
         abstract play(reverse?: boolean): this;
 
@@ -225,6 +232,15 @@ module nn {
 
         /** 恢复 */
         abstract resume();
+
+        /** 绑定 */
+        abstract bind(tgt: CComponent): this;
+
+        /** 取消绑定 */
+        abstract unbind(tgt: CComponent);
+
+        /** 取消所有动画绑定 */
+        abstract unbindAll();
 
         /** 暂停的状态 */
         abstract isPaused(): boolean;
@@ -237,6 +253,11 @@ module nn {
 
         /** 动画结束后是否自动释放 */
         autoDrop: boolean = true;
+
+        setAutoReset(b: boolean): this {
+            this.autoReset = b;
+            return this;
+        }
 
         /** 复制 */
         clone(): this {
@@ -251,6 +272,7 @@ module nn {
 
         /** 直接停止对象动画 */
         static Stop(tgt: CComponent) {
+            // pass
         }
 
         inTo(duration: number, cb: (animator: Animator) => void, ctx?: any,

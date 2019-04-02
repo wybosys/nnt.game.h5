@@ -135,6 +135,13 @@ module eui {
                 });
             }
         }
+
+        static MakeAnimate(self: any, cb: (ani: nn.CAnimate) => void): Promise<void> {
+            let r = new Animate();
+            r.bindDisplayObject(self);
+            cb(r);
+            return r.play().completep();
+        }
     }
 
     export function ConvertPoint(fromsp: egret.DisplayObject | nn.CComponent, pt: nn.Point, tosp: egret.DisplayObject | nn.CComponent): nn.Point {

@@ -88,9 +88,9 @@ module nn {
             if (b == this._autoRecovery)
                 return;
             this._autoRecovery = b;
-            nn.MapT.Foreach(this._sounds, (k: string, v: SoundPlayer) => {
+            nn.ObjectT.Foreach(this._sounds, (v, k) => {
                 v.autoRecovery = b;
-            }, this);
+            });
         }
 
         /** 资源组 */
@@ -106,9 +106,9 @@ module nn {
             if (b == this._enable)
                 return;
             this._enable = b;
-            nn.MapT.Foreach(this._sounds, (k: string, v: SoundPlayer) => {
+            nn.ObjectT.Foreach(this._sounds, (v, k) => {
                 v.enable = b;
-            }, this);
+            });
         }
 
         /** 获取一个播放器 */
@@ -141,8 +141,7 @@ module nn {
 
             if (!ply.enable) {
                 Defer(ply.drop, ply);
-            }
-            else {
+            } else {
                 ply.signals.connect(SignalEnd, (s: nn.Slot) => {
                     drop(s.sender);
                 }, null);
@@ -152,7 +151,7 @@ module nn {
         }
 
         // 映射文件和播放器
-        protected _sounds = new KvObject<string, SoundPlayer>();
+        protected _sounds: KvObject<SoundPlayer> = {};
 
         // 当前正在独奏的播放器
         private _soloplayer: SoundPlayer;
@@ -167,16 +166,16 @@ module nn {
 
         /** 播放全部 */
         play() {
-            nn.MapT.Foreach(this._sounds, (k: string, v: SoundPlayer) => {
+            nn.ObjectT.Foreach(this._sounds, (v, k) => {
                 v.play();
-            }, this);
+            });
         }
 
         /** 停止全部 */
         stop() {
-            nn.MapT.Foreach(this._sounds, (k: string, v: SoundPlayer) => {
+            nn.ObjectT.Foreach(this._sounds, (v, k) => {
                 v.stop();
-            }, this);
+            });
         }
 
         // 配置application，业务不需要关心
@@ -198,7 +197,7 @@ module nn {
             super();
         }
 
-        protected _tracks = new KvObject<any, SoundTrack>();
+        protected _tracks: KvObject<SoundTrack> = {};
 
         /** 默认资源组 */
         resourceGroups: string[];

@@ -24,8 +24,8 @@ module nn {
             p.appendChild(n);
         }
 
-        private _fonts = new KvObject<string, string>();
-        private _dfonts = new KvObject<string, string>();
+        private _fonts: KvObject<string> = {};
+        private _dfonts: KvObject<string> = {};
 
         // 计算出默认的字体组合
         font(name: string): string {

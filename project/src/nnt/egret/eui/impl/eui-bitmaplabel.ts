@@ -1,6 +1,8 @@
 module eui {
 
-    export class BitmapLabelU extends eui.BitmapLabel {
+    export class BitmapLabelU
+        extends eui.BitmapLabel {
+
         onPartBinded(name: string, target: any) {
             _EUIExt.onPartBinded(this, name, target);
         }
@@ -51,6 +53,30 @@ module eui {
         $onRemoveFromStage() {
             super.$onRemoveFromStage();
             this.drop();
+        }
+
+        goBack() {
+            _EUIExt.goBack(this);
+        }
+
+        playAnimate(ani: Animate, idr?: any): Animate {
+            return _EUIExt.playAnimate(this, ani, idr);
+        }
+
+        findAnimate(idr: any): Animate {
+            return _EUIExt.findAnimate(this, idr);
+        }
+
+        stopAnimate(idr: any) {
+            _EUIExt.stopAnimate(this, idr);
+        }
+
+        stopAllAnimates() {
+            _EUIExt.stopAllAnimates(this);
+        }
+
+        animate(cb: (ani: nn.CAnimate) => void): Promise<void> {
+            return _EUIExt.MakeAnimate(this, cb);
         }
     }
 

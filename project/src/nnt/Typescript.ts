@@ -103,7 +103,7 @@ module nn {
      */
     export class Instance<T> {
         constructor(o: T | Function) {
-            if (typeof(o) == 'function') {
+            if (typeof (o) == 'function') {
                 this._clazz = <Function>o;
             } else {
                 this._obj = <any>o;
@@ -192,6 +192,16 @@ module nn {
     /** 直接运行，返回参数 */
     export function call(cb: () => void) {
         return cb();
+    }
+
+    // 从window变量获得数据
+    export function GetObjectOfWindowByKeyPath(kp: string, def = null): any {
+        let cur = window;
+        let ps = kp.split('.').reverse();
+        while (cur && ps.length) {
+            cur = cur[ps.pop()];
+        }
+        return ps.length == 0 ? cur : def;
     }
 }
 

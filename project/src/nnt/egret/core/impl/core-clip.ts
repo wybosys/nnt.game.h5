@@ -197,8 +197,7 @@ module nn {
                 // 需要重新布局以调整位置
                 //this.setNeedsLayout();
                 this.updateLayout(); // 飞天项目汇报如果用setNeedsLayout会引起重影
-            }
-            else {
+            } else {
                 this._mc.bindMovieClipData(d, f);
             }
 
@@ -323,7 +322,7 @@ module nn {
 
     class _ClipsManager {
         // 如果是同一种config，则只生成一份factorydata
-        private _factorys = new KvObject<number, _ClipFactory>();
+        private _factorys: KvObject<_ClipFactory> = {};
 
         // 根据配置实例化序列帧
         instance(cfg: ClipConfig,
@@ -333,8 +332,7 @@ module nn {
                     this.instanceOne(cfg,
                         cb, ctx);
                 }, this);
-            }
-            else {
+            } else {
                 this.instanceOne(cfg,
                     cb, ctx);
             }
@@ -356,8 +354,7 @@ module nn {
                 }
 
                 cb.call(ctx, d, factory);
-            }
-            else {
+            } else {
                 ResManager.getSources([
                     [frame, ResType.JSON],
                     [tex, ResType.TEXTURE]
@@ -404,8 +401,7 @@ module nn {
             let r = factory.factory.generateMovieClipData(name || ""); // 传null则修正为""代表第一个动作
             if (r == null) {
                 warn("生成序列帧 " + name + " 失败");
-            }
-            else {
+            } else {
                 // 保存最原始的真帧速度
                 if (newdata)
                     (<any>r).__fileFrameRate = r.frameRate;

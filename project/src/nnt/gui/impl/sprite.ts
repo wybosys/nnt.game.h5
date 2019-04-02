@@ -22,21 +22,21 @@ module nn {
         pathKey: string;
 
         // 重用控件，以避免大量制作成员变量来承载简单控件
-        private _reuseUis: KvObject<any, any>;
+        private _reuseUis: KvObject<any>;
 
         reuse(idr: any, cb: () => any, ctx: any): any;
         reuse(idr: any, cls: any): any;
         reuse(idr: any): any;
         reuse(...params: any[]): any {
             if (this._reuseUis == null)
-                this._reuseUis = new KvObject<string, any>();
+                this._reuseUis = {};
             let obj = this._reuseUis[params[0]];
             if (obj == null) {
                 if (params.length == 3) {
                     obj = params[1].call(params[2]);
                 } else if (params.length == 2) {
                     let o = params[1];
-                    if (typeof(o) == 'function')
+                    if (typeof (o) == 'function')
                         obj = new params[1]();
                     else
                         obj = o;

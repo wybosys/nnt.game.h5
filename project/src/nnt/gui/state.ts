@@ -12,9 +12,9 @@ module nn {
         change(o: {}) {
             if (this.props == null)
                 this.props = {};
-            nn.MapT.Foreach(<any>o, (k: any, v: any) => {
+            nn.ObjectT.Foreach(<any>o, (v, k) => {
                 this.props[k] = v;
-            }, this);
+            });
         }
 
         static Text(text: string, color?: ColorType, size?: number): State {
@@ -52,7 +52,7 @@ module nn {
             if (obj instanceof State)
                 return obj;
 
-            let t = typeof(obj);
+            let t = typeof (obj);
             if (t == 'string')
                 return State.Text(obj);
 
@@ -61,23 +61,23 @@ module nn {
 
         setIn(ui: any) {
             if (this.props) {
-                nn.MapT.Foreach(<any>this.props, (k: string, v: any) => {
+                nn.ObjectT.Foreach(<any>this.props, (v, k) => {
                     if (v !== undefined)
                         ui[k] = v;
-                }, this);
+                });
             }
 
             if (this._children) {
-                nn.MapT.Foreach(this._children, (k: any, v: State) => {
+                nn.ObjectT.Foreach(this._children, (v, k) => {
                     v.setIn(ui);
-                }, this);
+                });
             }
         }
 
-        protected _children: KvObject<any, State>;
-        get children(): KvObject<any, State> {
+        protected _children: KvObject<State>;
+        get children(): KvObject<State> {
             if (this._children == null)
-                this._children = new KvObject<any, State>();
+                this._children = {};
             return this._children;
         }
 
@@ -115,10 +115,10 @@ module nn {
 
         dispose() {
             super.dispose();
-            this.nullstate = undefined;
-            this.nullobj = undefined;
-            this._state = undefined;
-            nn.MapT.Clear(this._states);
+            this.nullstate = null;
+            this.nullobj = null;
+            this._state = null;
+            this._states = null;
         }
 
         // 当前状态
@@ -212,7 +212,7 @@ module nn {
             return this._states[state];
         }
 
-        private _states = new KvObject<any, any>();
+        private _states: KvObject<any> = {};
 
         // 通过回调来设置具体控件怎么应用状态
         cbset: (obj: any) => void;

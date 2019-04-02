@@ -1,6 +1,6 @@
 module app {
 
-    import guid = js.guid;
+
     export const kSignalShowGuide = '::app::guide::show';
 
     export class GuideManager
@@ -59,7 +59,7 @@ module app {
         private _updateValids() {
             // 按照规则，只能显示所有wid《＝1全部完成的group的导引
             let gid = 0;
-            this._guidegrps.iterateEach((k, arr) => {
+            this._guidegrps.iterateEach((arr, k) => {
                 gid = k;
                 let fnd = nn.ArrayT.QueryObject(arr, e => {
                     return e.wid <= 1 && !e.readed;
