@@ -435,44 +435,6 @@ module js {
     }
 }
 
-class Multimap<K, V> {
-
-    get(k: K): Array<V> {
-        return this._store.get(k);
-    }
-
-    set(k: K, arr: V[]) {
-        this._store.set(k, arr);
-    }
-
-    push(k: K, v: V) {
-        let arr = this._store.get(k);
-        if (arr == null) {
-            arr = new Array<V>();
-            this._store.set(k, arr);
-        }
-        arr.push(v);
-    }
-
-    forEach(proc: (vs: V[], k: K) => void) {
-        this._store.forEach(proc);
-    }
-
-    clear() {
-        this._store.clear();
-    }
-
-    keys(): Iterator<K> {
-        return this._store.keys();
-    }
-
-    entries(): Iterator<[K, Array<V>]> {
-        return this._store.entries();
-    }
-
-    private _store = new Map<K, Array<V>>();
-}
-
 // 微信兼容层
 if (IS_WEIXIN_MINGAME) {
 

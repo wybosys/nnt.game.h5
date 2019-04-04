@@ -778,7 +778,7 @@ namespace app.models.logic {
                         keyconv = nn.toDouble;
                     else if (fp.keytype == number_t)
                         keyconv = nn.toNumber;
-                    let mmap = new Multimap();
+                    let mmap = new nn.MultiMap<any, any>();
                     if (val) {
                         if (typeof (fp.valtype) == "string") {
                             if (fp.valtype == string_t) {

@@ -176,7 +176,7 @@ module nn {
         }
 
         // 正在监听的对象集，用来当服务器回数据时激发，或者重新建立监听时使用
-        private _listenings = new CMap<number, Model>();
+        private _listenings = new Map<number, Model>();
 
         unwatch(mdl: Model) {
             if (!this._listenings.has(mdl.hashCode))
@@ -192,7 +192,7 @@ module nn {
         }
 
         // 正在等待类rest访问的模型，收到访问或超时后就会被移除
-        private _fetchings = new CMap<number, Model>();
+        private _fetchings = new Map<number, Model>();
 
         /** 获取一个数据
          @param cb, 成功后的回调

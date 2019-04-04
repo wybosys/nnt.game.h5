@@ -158,7 +158,7 @@ module eui {
         }
 
         // 参照core-dialog
-        _filters = new nn.CSet<nn.CComponent>();
+        _filters = new Set<nn.CComponent>();
 
         addFilter(ui: UiType) {
             let c = nn.BridgedComponent.Wrapper(ui);

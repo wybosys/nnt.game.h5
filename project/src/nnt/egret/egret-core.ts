@@ -124,15 +124,14 @@ module nn {
     }
 
     if (ISHTML5) {
-
         // 保护htmlaudio的播放
         let clz: any = egret.web['HtmlSoundChannel'];
         if (clz) {
             let _PROTO: any = clz.prototype;
             let OLD = _PROTO.$play;
-            _PROTO.$play = () => {
+            _PROTO.$play = function () {
                 try {
-                    OLD();
+                    OLD.apply(this, arguments);
                 } catch (ex) {
                     nn.log('SoundChannel遇到兼容性原因: ' + ex);
                 }
