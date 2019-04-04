@@ -14,11 +14,11 @@ module eui {
             _EUIExt.onPartBinded(this, name, target);
         }
 
-        get value(): numstr {
+        get value(): nn.numstr {
             return this.text;
         }
 
-        set value(v: numstr) {
+        set value(v: nn.numstr) {
             this.text = v;
         }
 

@@ -8,7 +8,11 @@ module nn {
         if (o == null)
             return null;
         let p = o['prototype'];
-        return p ? p : o['__proto__'];
+        if (!p)
+            p = o['__proto__'];
+        if (!p)
+            p = o;
+        return p;
     }
 
     export function ObjectClass(o: any): any {

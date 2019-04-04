@@ -455,13 +455,13 @@ module nn {
          */
         cast(sig: string) {
             if (this._castings == null) {
-                this._castings = new CSet<string>();
+                this._castings = new Set<string>();
                 Defer(this._doCastings, this);
             }
             this._castings.add(sig);
         }
 
-        private _castings: CSet<string>;
+        private _castings: Set<string>;
 
         private _doCastings() {
             if (this._castings == null)
@@ -494,7 +494,7 @@ module nn {
 
             if (cb == null && target == null) {
                 // 清除sig的所有插槽，自动断开反向引用
-                let targets = new CSet<any>();
+                let targets = new Set<any>();
                 nn.ArrayT.Clear(ss.slots, (o: Slot) => {
                     if (o.target)
                         targets.add(o.target);
@@ -538,7 +538,7 @@ module nn {
         }
 
         // 反向登记，当自身 dispose 时，需要和对方断开
-        private __invtargets = new CSet<Signals>();
+        private __invtargets = new Set<Signals>();
 
         private __inv_connect(tgt: any) {
             if (tgt == null || tgt.signals == null)

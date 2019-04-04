@@ -33,7 +33,7 @@ module nn {
         pathKey: string;
 
         // 最终转由desktop处理
-        _filters = new CSet<CComponent>();
+        _filters = new Set<CComponent>();
 
         addFilter(ui: CComponent) {
             this._filters.add(ui);

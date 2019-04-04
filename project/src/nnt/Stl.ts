@@ -5,7 +5,7 @@ module nn {
     declare let Map;
     declare let Set;
     export let ECMA6_NATIVE: boolean = true;
-    if (typeof (Map) == 'undefined')
+    if (typeof (Map) == 'function')
         ECMA6_NATIVE = false;
 
     export class CMap<K, V> {
@@ -74,6 +74,10 @@ module nn {
 
         get length(): number {
             return ECMA6_NATIVE ? this._n_length() : this._i_length();
+        }
+
+        get size(): number {
+            return this.length;
         }
 
         private _n_set(k: K, v: V) {
@@ -192,6 +196,210 @@ module nn {
         forEach: (cb: (o: V) => void, ctx?: any) => void = ECMA6_NATIVE ? this._n_foreach : this._i_foreach;
     }
 
-    export type SetType<V> = CSet<V>;// | Set<V>;
+    /** 使用索引的 map，可以按照顺序来获取元素 */
+    export class IndexedMap<K, T> {
+        constructor() {
+        }
 
+        /** 添加 */
+        add(k: K, v: T) {
+            if (<any>k in this._map) {
+                let idx = this._keys.indexOf(k);
+                this._keys[idx] = k;
+                this._vals[idx] = v;
+            } else {
+                this._keys.push(k);
+                this._vals.push(v);
+            }
+
+            this._map[<any>k] = v;
+        }
+
+        /** 替换 */
+        replace(k: K, v: T) {
+            if (<any>k in this._map) {
+                let idx = this._keys.indexOf(k);
+                this._vals[idx] = v;
+            } else {
+                this._keys.push(k);
+                this._vals.push(v);
+            }
+
+            this._map[<any>k] = v;
+        }
+
+        /** 删除 */
+        remove(k: K): T {
+            if (!(<any>k in this._map))
+                return null;
+
+            // k和v是1-1，所以indexOfKey和indexOfVal一致
+            let idx = this._keys.indexOf(k);
+            let val = this._vals[idx];
+            ArrayT.RemoveObjectAtIndex(this._keys, idx);
+            ArrayT.RemoveObjectAtIndex(this._vals, idx);
+
+            delete this._map[<any>k];
+            return val;
+        }
+
+        /** 获得大小 */
+        get length(): number {
+            return this._keys.length;
+        }
+
+        /** 清空 */
+        clear() {
+            this._keys.length = 0;
+            this._vals.length = 0;
+            this._map = {};
+        }
+
+        /** 遍历 */
+        forEach(cb: (v: T, k: K) => void) {
+            this._keys.forEach((k: K, idx: number) => {
+                let v = this._vals[idx];
+                cb(v, k);
+            }, this);
+        }
+
+        iterateEach(cb: (v: T, k: K) => boolean) {
+            for (let i = 0, len = this._keys.length; i < len; ++i) {
+                let k = this._keys[i];
+                let v = this._vals[i];
+                if (!cb(v, k))
+                    break;
+            }
+        }
+
+        /** 是否存在k */
+        contains(k: K): boolean {
+            return <any>k in this._map;
+        }
+
+        /** 取得k的下标 */
+        indexOfKey(k: K): number {
+            return this._keys.indexOf(k);
+        }
+
+        /** 使用下标取得数据 */
+        objectForKey(k: K): T {
+            return this._map[<any>k];
+        }
+
+        objectForIndex(idx: number): T {
+            let k: any = this._keys[idx];
+            return this._map[k];
+        }
+
+        keyForIndex(idx: number): K {
+            return this._keys[idx];
+        }
+
+        get keys(): Array<K> {
+            return this._keys.concat();
+        }
+
+        get values(): Array<T> {
+            return this._vals;
+        }
+
+        private _map = {};
+        private _keys = new Array<K>();
+        private _vals = new Array<T>();
+    }
+
+    export class IndexedMapT {
+
+        static RemoveObjectByFilter<K, T>(map: IndexedMap<K, T>, filter: (v: T, k: K) => boolean): [K, T] {
+            let keys = map.keys;
+            for (let i = 0, len = keys.length; i < len; ++i) {
+                let k = keys[i];
+                let v = map.objectForKey(k);
+                if (filter(v, k)) {
+                    map.remove(k);
+                    return [k, v];
+                }
+            }
+            return null;
+        }
+
+        static RemoveObjectsByFilter<K, T>(map: IndexedMap<K, T>, filter: (v: T, k: K) => boolean): Array<[K, T]> {
+            let r = new Array<[K, T]>();
+            let keys = map.keys;
+            for (let i = 0, len = keys.length; i < len; ++i) {
+                let k = keys[i];
+                let v = map.objectForKey(k);
+                if (filter(v, k)) {
+                    map.remove(k);
+                    r.push([k, v]);
+                }
+            }
+            return r;
+        }
+
+        static QueryObject<K, T>(map: IndexedMap<K, T>, query: (v: T, k: K) => boolean): T {
+            let keys = map.keys;
+            for (let i = 0, len = keys.length; i < len; ++i) {
+                let k = keys[i];
+                let v = map.objectForKey(k);
+                if (query(v, k))
+                    return v;
+            }
+            return null;
+        }
+
+        static Convert<K, T, V>(arr: Array<V>, convert: (v: V) => [K, T]): IndexedMap<K, T> {
+            let r = new IndexedMap<K, T>();
+            arr.forEach((e: V) => {
+                let o = convert(e);
+                r.add(o[0], o[1]);
+            });
+            return r;
+        }
+    }
+
+    /** 多索引map */
+    export class MultiMap<K, V> {
+        add(k: K, v: V): this {
+            let arr = this._map.objectForKey(k);
+            if (arr == null) {
+                arr = new Array<V>();
+                this._map.add(k, arr);
+            }
+            arr.push(v);
+            return this;
+        }
+
+        set(k: K, vs: V[]): this {
+            this._map.add(k, vs);
+            return this;
+        }
+
+        replace(k: K, v: Array<V>) {
+            this._map.replace(k, v);
+        }
+
+        objectForKey(k: K): V[] {
+            return this._map.objectForKey(k);
+        }
+
+        remove(k: K): V[] {
+            return this._map.remove(k);
+        }
+
+        forEach(proc: (arr: V[], k: K) => void) {
+            this._map.forEach(proc);
+        }
+
+        iterateEach(proc: (arr: V[], k: K) => boolean) {
+            this._map.iterateEach(proc);
+        }
+
+        get keys(): Array<K> {
+            return this._map.keys;
+        }
+
+        private _map = new IndexedMap<K, Array<V>>();
+    }
 }
