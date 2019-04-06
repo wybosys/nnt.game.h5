@@ -268,7 +268,7 @@ export class EgretGame extends Game {
 
         // 为了支持插件调试模式，需要描述一下当前项目的信息
         const debug = mustache.render(TPL_DEBUG, {
-            PATH: process.cwd(),
+            PATH: process.cwd().replace(/\\/g, '\\\\'),
             UUID: this.config.uuid,
             CONFIG: fs.pathExistsSync('~debug.json'),
             BUILDDATE: DateTime.Current()
