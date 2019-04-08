@@ -76,3 +76,28 @@ export class Config extends Worker {
     protected _cfg: Ini;
     protected _cfgdb: EmbededKv;
 }
+
+// 使用sdks作为聚合sdk接入时预定得参数
+export class SDKS_CONFIG {
+
+    // 测试地址
+    static DEVELOP_HOST = 'develop.91egame.com';
+
+    // 正式版地址
+    static RELEASE_HOST = 'wxgames.91yigame.com';
+
+    // 打包地址
+    static PACKAGE_HOST = '<PACKAGE_SDK_URL>';
+
+    // 打包的渠道id
+    static CHANNELID_PACKAGE = 0;
+
+    // 测试渠道得渠道id
+    static CHANNELID_TEST = 1800;
+
+    // readygo的渠道id
+    static CHANNELID_READYGO = 1802;
+
+    // 百度渠道
+    static CHANNELID_BAIDU = 1806;
+}
