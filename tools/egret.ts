@@ -1,5 +1,5 @@
 import {BuildOptions, CompressOptions, Game, MinGameOptions, ProgramHandleType} from "./game";
-import {Config} from "./config";
+import {Config, SDKS_CONFIG} from "./config";
 import {Gendata} from "./gendata";
 import {ArrayT, DateTime, DirAtChild, IndexedObject, ListFiles, RunInBash, SimpleHashFile} from "./kernel";
 import {Service} from "./service";
@@ -329,28 +329,28 @@ export class EgretGame extends Game {
             if (opts.subchannel == 'test') {
                 let jss = tpl.FILESLIST;
                 if ('DEVOPS_RELEASE' in process.env) {
-                    jss = '<script src="//wxgames.91yigame.com/platform/sdks/ver/cur/script.es5.js"></script>\n\t' + jss;
+                    jss = `<script src="//${SDKS_CONFIG.RELEASE_HOST}/platform/sdks/ver/cur/script.es5.js"></script>\n\t` + jss;
                 } else {
-                    jss = '<script src="//develop.91egame.com/platform/sdks/ver/cur/script.es5.js"></script>\n\t' + jss;
+                    jss = `<script src="//${SDKS_CONFIG.DEVELOP_HOST}/platform/sdks/ver/cur/script.es5.js"></script>\n\t` + jss;
                 }
                 tpl.FILESLIST = jss;
                 tpl.BEFORESTART += `
-        sdks.config.set('CHANNEL_ID', 1800);
+        sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_TEST});
         sdks.config.set('SDK_LANG', 'es5');
         sdks.config.set('GAME_VERSION', "${this.config.get('app', 'version')}"); 
         `;
             } else if (opts.subchannel == 'package') {
                 let jss = tpl.FILESLIST;
-                jss = '<script src="//<PACKAGE_SDK_URL>/platform/sdks/ver/cur/script.es5.js"></script>\n\t' + jss;
+                jss = `<script src="//${SDKS_CONFIG.PACKAGE_HOST}/platform/sdks/ver/cur/script.es5.js"></script>\n\t` + jss;
                 tpl.FILESLIST = jss;
                 tpl.BEFORESTART += `
-        sdks.config.set('CHANNEL_ID', '<PACKAGE_CHANNEL_ID>');
+        sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_PACKAGE});
         sdks.config.set('SDK_LANG', 'es5');
         sdks.config.set('GAME_VERSION', "${this.config.get('app', 'version')}"); 
         `;
             } else {
                 let jss = tpl.FILESLIST;
-                jss = '<script src="//apps.91yigame.com/platform/sdks/ver/cur/script.es6.min.js"></script>\n\t' + jss;
+                jss = `<script src="//${SDKS_CONFIG.CHANNELID_PACKAGE}/platform/sdks/ver/cur/script.es6.min.js"></script>\n\t` + jss;
                 tpl.FILESLIST = jss;
             }
         }
@@ -442,7 +442,7 @@ export class EgretGame extends Game {
         optcs.orientation = this.config.get('app', 'orientation') == 'v' ? "portrait" : "landscape";
         optcs.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
         optcs.version = this.config.get('app', 'version') ? this.config.get('app', 'version') : "";
-        optcs.sdkUrl = opts.channel == 'sdks' ? 'wxgames.91yigame.com' : 'develop.91egame.com';
+        optcs.sdkUrl = opts.channel == 'sdks' ? SDKS_CONFIG.RELEASE_HOST : SDKS_CONFIG.DEVELOP_HOST;
         let dsp: any = {};
         dsp.appids = this.config.get('readygo', 'appids');
         let region1 = `require('./sdks.js');
@@ -456,7 +456,7 @@ window["readygo_stat"] = XH_MINIPRO_STATISTIC;
 window["XH_MINIPRO_STATISTIC"] = XH_MINIPRO_STATISTIC;
 window["readygo_dsp"] = XH_MINIPRO_DSP;
 window["XH_MINIPRO_DSP"] = XH_MINIPRO_DSP;
-sdks.config.set('CHANNEL_ID', 1802);
+sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_READYGO});
 sdks.config.set('URL', '${optcs.sdkUrl}');
 sdks.config.set('GAME_VERSION', '${optcs.version}');
 let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
@@ -491,10 +491,10 @@ let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
         optcs.orientation = this.config.get('app', 'orientation') == 'v' ? "portrait" : "landscape";
         optcs.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
         optcs.version = this.config.get('app', 'version') ? this.config.get('app', 'version') : "";
-        optcs.sdkUrl = opts.channel == 'sdks' ? 'wxgames.91yigame.com' : 'develop.91egame.com';
+        optcs.sdkUrl = opts.channel == 'sdks' ? SDKS_CONFIG.RELEASE_HOST : SDKS_CONFIG.DEVELOP_HOST;
         let region1 = `require('./sdks.js');
 require('./baidu.js');
-sdks.config.set('CHANNEL_ID', 1806);
+sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_BAIDU});
 sdks.config.set('URL', '${optcs.sdkUrl}');
 sdks.config.set('GAME_VERSION', '${optcs.version}');
 let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
@@ -621,6 +621,7 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, 
 </head>
 <body>
     <div style="margin:auto;width:100%;height:100%;"
+    id="egret-player"    
     class="egret-player"
     data-entry-class="Main"
     data-orientation="auto"
@@ -675,6 +676,7 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, 
 </head>
 <body>
     <div style="margin:auto;width:100%;height:100%"
+    id="egret-player"     
     class="egret-player" 
     data-entry-class="Main"
     data-orientation="auto"
