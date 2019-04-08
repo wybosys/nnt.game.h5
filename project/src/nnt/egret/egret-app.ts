@@ -9,9 +9,17 @@ module nn {
         constructor() {
             super();
 
-            // 通用的app事件
-            egret.MainContext.instance.stage.addEventListener(egret.Event.ACTIVATE, this.onActivated, this);
-            egret.MainContext.instance.stage.addEventListener(egret.Event.DEACTIVATE, this.onDeactived, this);
+            egret.lifecycle.addLifecycleListener(() => {
+                // pass
+            });
+
+            egret.lifecycle.onPause = () => {
+                this.onDeactived();
+            };
+
+            egret.lifecycle.onResume = () => {
+                this.onActivated();
+            };
         }
 
         set fontFamily(f: string) {

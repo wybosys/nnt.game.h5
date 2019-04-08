@@ -5,22 +5,20 @@ module nn {
             super();
             EUI_MODE = true;
 
-            egret.lifecycle.addLifecycleListener(() => {
-                // pass
-            });
-
-            egret.lifecycle.onPause = () => {
-                if (Device.shared.isMobile)
-                    egret.ticker.pause();
-            };
-
-            egret.lifecycle.onResume = () => {
-                if (Device.shared.isMobile)
-                    egret.ticker.resume();
-            };
-
             egret.registerImplementation("eui.IAssetAdapter", new AssetAdapter());
             egret.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
+        }
+
+        protected onActivated() {
+            super.onActivated();
+            if (Device.shared.isMobile)
+                egret.ticker.resume();
+        }
+
+        protected onDeactived() {
+            super.onDeactived();
+            if (Device.shared.isMobile)
+                egret.ticker.pause();
         }
 
         protected _asyncPreloadConfig(group: OperationGroup) {
