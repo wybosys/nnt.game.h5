@@ -402,4 +402,69 @@ module nn {
 
         private _map = new IndexedMap<K, Array<V>>();
     }
+
+    // 步进array，每次取，均从上一次的下一个开始
+    export class StepArray<T> {
+
+        constructor(arr: T[] = []) {
+            this._arr = arr;
+        }
+
+        push(v: T): this {
+            this._arr.push(v);
+            return this;
+        }
+
+        get position(): number {
+            return this._cur;
+        }
+
+        set position(pos: number) {
+            this._cur = pos % this._arr.length;
+        }
+
+        moveto(pos: number): this {
+            this.position = pos;
+            return this;
+        }
+
+        at(idx: number): T {
+            this._cur = idx % this._arr.length;
+            return this.get();
+        }
+
+        get(): T {
+            let r = this._arr[this._cur];
+            if (++this._cur == this._arr.length)
+                this._cur = 0;
+            return r;
+        }
+
+        get length(): number {
+            return this._arr.length;
+        }
+
+        clear() {
+            this._arr.length = 0;
+        }
+
+        clone(): StepArray<T> {
+            let r = new StepArray<T>();
+            r._arr = this._arr.concat();
+            r._cur = this._cur;
+            return r;
+        }
+
+        reverse(): this {
+            this._arr.reverse();
+            return this;
+        }
+
+        forEach(proc: (v: T, idx?: number) => void) {
+            this._arr.forEach(proc);
+        }
+
+        private _cur: number = 0;
+        private _arr: T[];
+    }
 }
