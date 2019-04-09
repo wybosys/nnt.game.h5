@@ -50,7 +50,7 @@ module eui {
 
         constructor() {
             super();
-            //this.touchEnabled = false; 注释掉的原因，标准的egret实现必须要求内部元素可点击，否则hitTest会丢失
+            this.touchEnabled = false;
         }
 
         dispose() {
@@ -197,6 +197,7 @@ module eui {
         }
 
         updateCache() {
+            // pass
         }
 
         // 多图播放
