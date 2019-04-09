@@ -436,9 +436,6 @@ module nn {
         protected onActivated() {
             log("应用激活");
 
-            // 恢复切换到后台时暂停的声音
-            SoundManager.background._app_actived();
-
             this.isActivating = true;
             this.signals.emit(SignalActivated);
         }
@@ -446,11 +443,21 @@ module nn {
         protected onDeactived() {
             log("应用切换到后台");
 
+            this.isActivating = false;
+            this.signals.emit(SignalDeactivated);
+        }
+
+        protected onRenderActivated() {
+            // 恢复切换到后台时暂停的声音
+            SoundManager.background._app_actived();
+        }
+
+        protected onRenderDeactivated() {
             // 暂停背景声音
             SoundManager.background._app_deactived();
 
-            this.isActivating = false;
-            this.signals.emit(SignalDeactivated);
+            // 重置帧定时器，避免恢复时的第一帧出现巨大的cost
+            FramesManager.needResetFrameTimer = true;
         }
 
         /** 重新打开应用 */
