@@ -68,7 +68,7 @@ module eui {
         /** 隶属于的控件，可以方便业务层的数据穿透 */
         belong: any = null;
 
-        __disposed = false;
+        protected __disposed = false;
         protected _refcnt = 1;
 
         drop() {
@@ -198,10 +198,23 @@ module eui {
 
         $onAddToStage(stage: egret.Stage, nestLevel: number) {
             super.$onAddToStage(stage, nestLevel);
+
+            // 如果实现了IFrameRender接口，则自动添加帧渲染的回调
+            let self: any = this;
+            if (self.onRender) {
+                nn.FramesManager.RENDERS.add(self);
+            }
         }
 
         $onRemoveFromStage() {
             super.$onRemoveFromStage();
+
+            let self: any = this;
+            if (self.onRender) {
+                nn.FramesManager.RENDERS.delete(self);
+            }
+
+            // 移除认为是析构
             this.drop();
         }
 
