@@ -2562,6 +2562,12 @@ module nn {
     /** map 的工具类 */
     export class MapT {
 
+        static Get<K, V>(m: Map<K, V>, k: K, def?: V): V {
+            if (m.has(k))
+                return m.get(k);
+            return def;
+        }
+
         static ToObject<K, V>(m: Map<K, V>): IndexedObject {
             let r: IndexedObject = {};
             m.forEach((v, k: any) => {

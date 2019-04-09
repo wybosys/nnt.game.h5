@@ -106,7 +106,7 @@ module eui {
                 nn.ArrayT.RemoveObject(self._playingAnimates, ani);
             }, self);
 
-            ani.bind(self).play();
+            ani.bindDisplayObject(self).play();
             return ani;
         }
 
