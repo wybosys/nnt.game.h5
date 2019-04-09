@@ -464,6 +464,10 @@ module nn {
             this._arr.forEach(proc);
         }
 
+        valueOf(): T[] {
+            return this._arr;
+        }
+
         private _cur: number = 0;
         private _arr: T[];
     }
