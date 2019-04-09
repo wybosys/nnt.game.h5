@@ -449,6 +449,9 @@ module nn {
             // 暂停背景声音
             SoundManager.background._app_deactived();
 
+            // 重置帧定时器，避免恢复时的第一帧出现巨大的cost
+            FramesManager.needResetFrameTimer = true;
+
             this.isActivating = false;
             this.signals.emit(SignalDeactivated);
         }
