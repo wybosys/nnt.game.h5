@@ -9,18 +9,6 @@ module nn {
             egret.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
         }
 
-        protected onActivated() {
-            super.onActivated();
-            if (Device.shared.isMobile)
-                egret.ticker.resume();
-        }
-
-        protected onDeactived() {
-            super.onDeactived();
-            if (Device.shared.isMobile)
-                egret.ticker.pause();
-        }
-
         protected _asyncPreloadConfig(group: OperationGroup) {
             super._asyncPreloadConfig(group);
 

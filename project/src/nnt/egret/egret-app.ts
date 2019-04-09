@@ -13,12 +13,14 @@ module nn {
                 // pass
             });
 
-            egret.lifecycle.onPause = () => {
-                this.onDeactived();
-            };
-
             egret.lifecycle.onResume = () => {
                 this.onActivated();
+                this.onRenderActivated();
+            };
+
+            egret.lifecycle.onPause = () => {
+                this.onDeactived();
+                this.onRenderDeactivated();
             };
         }
 
@@ -28,6 +30,16 @@ module nn {
 
         get fontFamily(): string {
             return egret.TextField.default_fontFamily;
+        }
+
+        protected onRenderActivated() {
+            super.onRenderActivated();
+            egret.ticker.resume();
+        }
+
+        protected onRenderDeactivated() {
+            super.onRenderDeactivated();
+            egret.ticker.pause();
         }
 
         protected _preloadConfig(queue: OperationQueue) {

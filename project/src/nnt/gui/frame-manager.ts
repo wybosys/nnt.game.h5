@@ -90,17 +90,17 @@ module nn {
         }
 
         protected onRendering() {
-            let cost = 0;
-
-            if (!this.needResetFrameTimer) {
-                let now = DateTime.Pass();
-                this._ft.cost = now - this._ft.now;
-                this._ft.past = now - this._ft.start;
+            let now = DateTime.Pass();
+            this._ft.past = now - this._ft.start;
+            if (this.needResetFrameTimer) {
+                this._ft.cost = 0;
                 this._ft.now = now;
-                cost = this._ft.cost;
-            } else {
                 this.needResetFrameTimer = false;
+            } else {
+                this._ft.cost = now - this._ft.now;
+                this._ft.now = now;
             }
+            let cost = this._ft.cost;
 
             // 标准set的foreach需要传入3个参数，但是后两个我们都不会去使用
             (<any>this.RENDERS).forEach((each: IFrameRender) => {
