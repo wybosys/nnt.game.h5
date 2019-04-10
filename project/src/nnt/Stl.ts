@@ -2,8 +2,8 @@
 // ps：当KvObject位于nn空间内，egret4.0.1编译出的代码会漏掉nn名域，所以干错KvObject暴露到全局
 module nn {
 
-    declare let Map;
-    declare let Set;
+    declare let Map: MapConstructor;
+    declare let Set: SetConstructor;
     export let ECMA6_NATIVE: boolean = true;
     if (typeof (Map) == 'function')
         ECMA6_NATIVE = false;
@@ -470,5 +470,79 @@ module nn {
 
         private _cur: number = 0;
         private _arr: T[];
+    }
+
+    export interface ISafeMap<K, V> extends Map<K, V> {
+
+        get(k: K, def?: V): V;
+    }
+
+    export class SafeMap<K, V> /*implements ISafeMap<K, V>*/ {
+
+        get(k: K, def?: V): V {
+            if (this._m.has(k))
+                return this._m.get(k);
+            return def;
+        }
+
+        clear() {
+            this._m.clear();
+        }
+
+        delete(k: K): boolean {
+            return this._m.delete(k);
+        }
+
+        has(k: K): boolean {
+            return this._m.has(k);
+        }
+
+        forEach(proc: (v: V, k: K, map: Map<K, V>) => void, ctx?: any) {
+            this._m.forEach(proc, ctx);
+        }
+
+        set(k: K, v: V): this {
+            this._m.set(k, v);
+            return this;
+        }
+
+        get size(): number {
+            return this._m.size;
+        }
+
+        entries() {
+            return this._m.entries();
+        }
+
+        keys() {
+            return this._m.keys();
+        }
+
+        values() {
+            return this._m.values();
+        }
+
+        private _m = new Map<K, V>();
+    }
+
+    export class MapNumber<K> extends SafeMap<K, number> {
+
+        get(k: K, def: number = 0): number {
+            return super.get(k, def);
+        }
+    }
+
+    export class MapString<K> extends SafeMap<K, string> {
+
+        get(k: K, def: string = ''): string {
+            return super.get(k, def);
+        }
+    }
+
+    export class MapBoolean<K> extends SafeMap<K, boolean> {
+
+        get(k: K, def: boolean = false): boolean {
+            return super.get(k, def);
+        }
     }
 }
