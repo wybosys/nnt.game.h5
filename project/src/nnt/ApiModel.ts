@@ -547,6 +547,9 @@ namespace app.models.logic {
 
 
     import toInt = nn.toInt;
+    import MapString = nn.MapString;
+    import MapNumber = nn.MapNumber;
+    import MapBoolean = nn.MapBoolean;
     type Class<T> = { new(...args: any[]): T, [key: string]: any };
     type AnyClass = Class<any>;
     type clazz_type = AnyClass | string;
@@ -725,35 +728,42 @@ namespace app.models.logic {
                         keyconv = nn.toDouble;
                     else if (fp.keytype == number_t)
                         keyconv = nn.toNumber;
-                    let map = new Map();
+                    let map: any;
                     if (val) {
                         if (typeof (fp.valtype) == "string") {
                             if (fp.valtype == string_t) {
+                                map = new MapString();
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     map.set(keyconv(ek), nn.asString(ev));
                                 }
                             } else if (fp.valtype == integer_t) {
+                                map = new MapNumber();
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     map.set(keyconv(ek), nn.toInt(ev));
                                 }
                             } else if (fp.valtype == double_t) {
+                                map = new MapNumber();
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     map.set(keyconv(ek), nn.toDouble(ev));
                                 }
                             } else if (fp.valtype == number_t) {
+                                map = new MapNumber();
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     map.set(keyconv(ek), nn.toNumber(ev));
                                 }
-                            } else if (fp.valtype == boolean_t)
+                            } else if (fp.valtype == boolean_t) {
+                                map = new MapBoolean();
                                 for (let ek in val) {
                                     let ev = val[ek];
                                     map.set(keyconv(ek), !!ev);
                                 }
+                            }
                         } else {
+                            map = new Map();
                             let clz: any = fp.valtype;
                             for (let ek in val) {
                                 let ev = val[ek];
@@ -766,6 +776,8 @@ namespace app.models.logic {
                                 }
                             }
                         }
+                    } else {
+                        map = new Map();
                     }
                     mdl[key] = map;
                 } else if (fp.multimap) {
