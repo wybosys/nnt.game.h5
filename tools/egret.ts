@@ -328,24 +328,31 @@ export class EgretGame extends Game {
         if (opts.channel == 'sdks' || opts.channel == 'dsdks') {
             if (opts.subchannel == 'test') {
                 let jss = tpl.FILESLIST;
+                let lang: string;
+                let sdkhost: string;
                 if ('DEVOPS_RELEASE' in process.env) {
-                    jss = `<script src="//${SDKS_CONFIG.RELEASE_HOST}/platform/sdks/ver/cur/script.es5.js"></script>\n\t` + jss;
+                    lang = 'es5.min';
+                    sdkhost = SDKS_CONFIG.SDKS_HOST;
                 } else {
-                    jss = `<script src="//${SDKS_CONFIG.DEVELOP_HOST}/platform/sdks/ver/cur/script.es5.js"></script>\n\t` + jss;
+                    lang = 'es5';
+                    sdkhost = SDKS_CONFIG.SDKS_DEBUG_HOST;
                 }
+                jss = `<script src="//${sdkhost}/platform/sdks/ver/cur/script.${lang}.js"></script>\n\t` + jss;
                 tpl.FILESLIST = jss;
                 tpl.BEFORESTART += `
         sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_TEST});
-        sdks.config.set('SDK_LANG', 'es5');
+        sdks.config.set('SDK_LANG', '${lang}');
+        sdks.config.set('SDK_HOST', '${sdkhost}');
         sdks.config.set('GAME_VERSION', "${this.config.get('app', 'version')}"); 
         `;
             } else if (opts.subchannel == 'package') {
                 let jss = tpl.FILESLIST;
-                jss = `<script src="//${SDKS_CONFIG.PACKAGE_HOST}/platform/sdks/ver/cur/script.es5.js"></script>\n\t` + jss;
+                jss = `<script src="//${SDKS_CONFIG.SDKS_HOST}/platform/sdks/ver/cur/script.es5.min.js"></script>\n\t` + jss;
                 tpl.FILESLIST = jss;
                 tpl.BEFORESTART += `
         sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_PACKAGE});
-        sdks.config.set('SDK_LANG', 'es5');
+        sdks.config.set('SDK_LANG', 'es5.min');
+        sdks.config.set('SDK_HOST', '${SDKS_CONFIG.SDKS_HOST}');
         sdks.config.set('GAME_VERSION', "${this.config.get('app', 'version')}"); 
         `;
             } else {
@@ -442,7 +449,7 @@ export class EgretGame extends Game {
         optcs.orientation = this.config.get('app', 'orientation') == 'v' ? "portrait" : "landscape";
         optcs.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
         optcs.version = this.config.get('app', 'version') ? this.config.get('app', 'version') : "";
-        optcs.sdkUrl = opts.channel == 'sdks' ? SDKS_CONFIG.RELEASE_HOST : SDKS_CONFIG.DEVELOP_HOST;
+        optcs.sdkUrl = opts.channel == 'sdks' ? SDKS_CONFIG.SDKS_HOST : SDKS_CONFIG.SDKS_DEBUG_HOST;
         let dsp: any = {};
         dsp.appids = this.config.get('readygo', 'appids');
         let region1 = `require('./sdks.js');
@@ -491,7 +498,7 @@ let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
         optcs.orientation = this.config.get('app', 'orientation') == 'v' ? "portrait" : "landscape";
         optcs.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
         optcs.version = this.config.get('app', 'version') ? this.config.get('app', 'version') : "";
-        optcs.sdkUrl = opts.channel == 'sdks' ? SDKS_CONFIG.RELEASE_HOST : SDKS_CONFIG.DEVELOP_HOST;
+        optcs.sdkUrl = opts.channel == 'sdks' ? SDKS_CONFIG.SDKS_HOST : SDKS_CONFIG.SDKS_DEBUG_HOST;
         let region1 = `require('./sdks.js');
 require('./baidu.js');
 sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_BAIDU});
