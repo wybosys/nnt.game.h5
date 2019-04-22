@@ -80,15 +80,10 @@ export class Config extends Worker {
 // 使用sdks作为聚合sdk接入时预定得参数
 export class SDKS_CONFIG {
 
-    // 测试地址
-    static DEVELOP_HOST = 'develop.91egame.com';
-
-    // 正式版地址
-    static RELEASE_HOST = 'wxgames.91yigame.com';
-
-    // 打包地址
-    static PACKAGE_HOST = '<PACKAGE_SDK_URL>';
-
+    // SDKS地址
+    static SDKS_HOST = 'wxgames.91yigame.com';
+    static SDKS_DEBUG_HOST = 'develop.91egame.com';
+    
     // 打包的渠道id
     static CHANNELID_PACKAGE = 0;
 
