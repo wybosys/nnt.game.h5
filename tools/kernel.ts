@@ -188,7 +188,7 @@ export function ListFiles(dir: string, rets: string[] = null, blacklist: RegExp[
         return rets;
     else if (depth != -1)
         depth -= 1;
-    if (!fs.statSync(dir).isDirectory())
+    if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory())
         return rets;
     if (!dir.endsWith('/'))
         dir += '/';
