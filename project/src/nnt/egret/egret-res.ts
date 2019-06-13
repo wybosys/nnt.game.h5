@@ -352,14 +352,9 @@ module nn {
             }
         }
 
-        // 静态检查兼容性
-        if(DEBUG) {
-            if ((<any>RES).configInstance == undefined)
-                fatal('ResManager 存在兼容问题');
-        }
-
         getResUrl(key: string): string {
-            let obj = (<any>RES).configInstance.keyMap[key];
+            // 如果报错, 则代表egret的assetmanager修改了获得资源url对象的方式
+            let obj = (<any>RES).config.config.fileSystem.fsData[key];
             if (obj == null) {
                 warn("res " + key + " not found");
                 return null;
