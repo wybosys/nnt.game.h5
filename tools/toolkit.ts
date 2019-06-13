@@ -7,7 +7,7 @@ export class Toolkit {
     }
 
     update() {
-        CopyTree('tools', `${this._prj}/tools`);
+        CopyTree('tools', `${this._prj}/tools`, null, null, true);
         CopyTree('project/3rd', `${this._prj}/project/3rd`, null, null, true);
         CopyTree('project/scripts', `${this._prj}/project/scripts`, null, null, true);
         CopyTree('project/template', `${this._prj}/project/template`, null, null, true);
