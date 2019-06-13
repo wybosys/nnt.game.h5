@@ -261,11 +261,28 @@ module nn {
             this.onChildRemoved(c);
         }
 
+        removeChildAt(idx: number) {
+            let r = this._imp.removeChildAt(idx);
+            this.onChildRemoved(r);
+        }
+
         removeChildren() {
             this.children.forEach((c: CComponent) => {
                 this.removeChild(c);
             }, this);
             this._imp.removeChildren();
+        }
+
+        get name(): string {
+            return this._imp.name;
+        }
+
+        set name(name: string) {
+            this._imp.name = name;
+        }
+
+        getChildByName(name: string): CComponent {
+            return Component.FromImp(this._imp.getChildByName(name));
         }
 
         getChildAt(idx: number): CComponent {

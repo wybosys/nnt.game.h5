@@ -2553,6 +2553,17 @@ module nn {
     /** map 的工具类 */
     export class MapT {
 
+        static At<K, V>(m: Map<K, V>, idx: number, def = null): V {
+            if (idx >= m.size || idx < 0)
+                return def;
+            let iter = m.values();
+            let cur = iter.next();
+            while (!cur.done && idx--) {
+                cur = iter.next();
+            }
+            return cur.value;
+        }
+
         static Get<K, V>(m: Map<K, V>, k: K, def?: V): V {
             if (m.has(k))
                 return m.get(k);
