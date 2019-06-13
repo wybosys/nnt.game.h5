@@ -67,5 +67,10 @@ module nn {
                 this._spe.graphics.drawRect(rc.x, rc.y, rc.width, rc.height);
             return this;
         }
+
+        circle(center: Point, radius: number): this {
+            this._spe.graphics.drawCircle(center.x, center.y, radius);
+            return this;
+        }
     }
 }

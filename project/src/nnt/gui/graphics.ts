@@ -66,5 +66,7 @@ module nn {
         abstract lineto(pt: Point): this;
 
         abstract rect(rc: Rect, rounded?: Size): this;
+
+        abstract circle(center: Point, radius: number): this;
     }
 }
