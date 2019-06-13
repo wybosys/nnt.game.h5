@@ -21,6 +21,7 @@ export class Toolkit {
         CopyTree('package.json', `${this._prj}/package.json`);
         CopyTree('tsconfig.json', `${this._prj}/tsconfig.json`);
         CopyTree('.gitignore', `${this._prj}/.gitignore`);
+        CopyTree('.n2.cfg', `${this._prj}/.n2.cfg`);
 
         EnsureDir(`${this._prj}/project/resource/assets`,
             `${this._prj}/project/resource/eui_skins/app`,
