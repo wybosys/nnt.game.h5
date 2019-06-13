@@ -1,6 +1,6 @@
 {
-  "engineVersion": "5.2.17",
-  "compilerVersion": "5.2.17",
+  "engineVersion": "5.2.21",
+  "compilerVersion": "5.2.21",
   "template": {},
   "target": {
     "current": "{{TARGET}}"
