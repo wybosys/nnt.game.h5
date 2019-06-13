@@ -39,8 +39,11 @@ export class Gendata extends Worker implements IService {
     // 处理项目中的excel文件
     async build() {
         // 如果不存在配置文件
-        if (!fs.existsSync('project/src/app/data'))
+        if (!fs.existsSync('project/src/app/data')) {
+            fs.writeFileSync('project/resource/default.data.js', '');
+            fs.writeFileSync('project/resource/default.data.d.ts', '');
             return;
+        }
 
         // 临时输出
         fs.ensureDirSync(".n2/gendata");
