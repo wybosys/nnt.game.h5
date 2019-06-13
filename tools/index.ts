@@ -5,6 +5,7 @@ import fs = require("fs-extra");
 import path = require("path");
 import {Game} from "./game";
 import {EgretGame} from "./egret";
+import {Toolkit} from "./toolkit";
 
 async function main() {
     // 当前文件的上一级目录即为项目目录
@@ -137,6 +138,15 @@ async function main() {
                 });
             } else {
                 game.resource.refresh();
+            }
+        });
+
+    program
+        .command("toolkit <up> <project>")
+        .description("更新项目基础库")
+        .action((act, prj) => {
+            if (act == "up") {
+                new Toolkit(prj).update();
             }
         });
 

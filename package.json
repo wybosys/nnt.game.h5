@@ -10,7 +10,8 @@
     "gendata": "node tools/index.js gendata",
     "genskin": "node tools/index.js genskin",
     "genres": "node tools/index.js res up",
-    "devops": "node tools/index.js dist sdks test"
+    "devops": "node tools/index.js dist sdks test",
+    "toolkit": "node tools/index.js toolkit"
   },
   "devDependencies": {
     "@types/async": "^2.0.49",
