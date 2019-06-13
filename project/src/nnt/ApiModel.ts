@@ -41,7 +41,7 @@ module nn {
             return this.host + '|' + this.action + '|' + JSON.stringify(this.paramsForCache());
         }
 
-        paramsForCache(): KvObject<string> {
+        paramsForCache(): IndexedObject {
             return this.params;
         }
 
@@ -53,7 +53,7 @@ module nn {
         action: string = '';
 
         /** 参数 */
-        params: KvObject<string> = {};
+        params: IndexedObject = {};
 
         /** 域 */
         host: string = '';
@@ -112,7 +112,7 @@ module nn {
         }
 
         /** 可用的参数 */
-        fields(): KvObject<string> {
+        fields(): IndexedObject {
             return this.params;
         }
 
@@ -161,7 +161,7 @@ module nn {
             return this.url();
         }
 
-        protected fieldsForLog(): KvObject<string> {
+        protected fieldsForLog(): IndexedObject {
             return this.fields();
         }
 
@@ -1102,7 +1102,7 @@ namespace app.models.logic {
             };
         }
 
-        fields(): nn.KvObject<string> {
+        fields(): IndexedObject {
             return Encode(this);
         }
 

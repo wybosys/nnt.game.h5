@@ -188,7 +188,7 @@ export function ListFiles(dir: string, rets: string[] = null, blacklist: RegExp[
         return rets;
     else if (depth != -1)
         depth -= 1;
-    if (!fs.statSync(dir).isDirectory())
+    if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory())
         return rets;
     if (!dir.endsWith('/'))
         dir += '/';
@@ -420,6 +420,13 @@ export class StringT {
         if (!str || !str.length)
             return "";
         return str[0].toUpperCase() + str.substr(1);
+    }
+
+    static InRegex(str: string, res: RegExp[]): boolean {
+        let fnd = ArrayT.QueryObject(res, re => {
+            return str.match(re) != null;
+        });
+        return fnd != null;
     }
 }
 
@@ -665,6 +672,12 @@ export function IsMatch(str: string, pat: RegExp[]): RegExp {
     return null;
 }
 
+// 运行命令
+export function System(cmd: string): string {
+    let res = execa.shellSync(cmd);
+    return res.stdout;
+}
+
 function cygwin(cmd: string): string {
     let old = process.cwd();
     let ret = '';
@@ -695,4 +708,69 @@ export function RunInBash(file: string): string {
         console.warn(err.toString());
     }
     return null;
+}
+
+// 转换成系统路径
+export function Realpath(str: string): string {
+    if (IS_WINDOWS)
+        return System(`cygpath -w ${str}`);
+    return System(`realpath ${str}`);
+}
+
+export function EnsureDir(...strs: string[]) {
+    strs.forEach(str => {
+        str = Realpath(str);
+        if (fs.existsSync(str))
+            return;
+        try {
+            fs.mkdirsSync(str);
+        } catch (e) {
+            console.error(str);
+        }
+    });
+}
+
+// 复制目录
+export function CopyTree(from: string, to: string, wls?: RegExp[], bls?: RegExp[], force?: boolean, depth?: number) {
+    from = Realpath(from);
+    to = Realpath(to);
+
+    let st = fs.statSync(from);
+    if (st.isDirectory()) {
+        if (depth === 0)
+            return;
+
+        if (!fs.existsSync(to))
+            fs.mkdirsSync(to);
+
+        fs.readdirSync(from).forEach(e => {
+            if (wls) {
+                if (!StringT.InRegex(e, wls))
+                    return;
+            } else {
+                if (bls) {
+                    if (StringT.InRegex(e, bls))
+                        return;
+                }
+            }
+
+            let cur = `${from}/${e}`;
+            let tgt = `${to}/${e}`;
+            let st = fs.statSync(cur);
+            if (st.isDirectory()) {
+                if (!fs.existsSync(tgt))
+                    fs.mkdirSync(tgt);
+                CopyTree(cur, tgt, wls, bls, force, --depth);
+                return;
+            }
+
+            if (force || !fs.existsSync(tgt))
+                fs.copyFileSync(cur, tgt);
+        });
+        return;
+    }
+
+    // copy file
+    if (force || !fs.existsSync(to))
+        fs.copyFileSync(from, to);
 }

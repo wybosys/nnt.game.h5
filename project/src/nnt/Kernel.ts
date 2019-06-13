@@ -1404,15 +1404,6 @@ module nn {
             return r;
         }
 
-        static ForeachAsciiCode(s: string, f: (e: number, idx: number) => void) {
-            let b = new egret.ByteArray();
-            b.writeUTFBytes(s);
-            b.position = 0;
-            let lb = b.length;
-            for (let i = 0; i < lb; ++i)
-                f(b.readUnsignedByte(), i);
-        }
-
         static Code(s: string): number[] {
             let r = [];
             let l = s.length;
@@ -2561,6 +2552,17 @@ module nn {
 
     /** map 的工具类 */
     export class MapT {
+
+        static At<K, V>(m: Map<K, V>, idx: number, def = null): V {
+            if (idx >= m.size || idx < 0)
+                return def;
+            let iter = m.values();
+            let cur = iter.next();
+            while (!cur.done && idx--) {
+                cur = iter.next();
+            }
+            return cur.value;
+        }
 
         static Get<K, V>(m: Map<K, V>, k: K, def?: V): V {
             if (m.has(k))
@@ -4972,7 +4974,9 @@ module nn {
         delay: number;
 
         start() {
-            egret.setTimeout(this.done, this, this.delay);
+            Delay(this.delay, () => {
+                this.done();
+            });
         }
     }
 

@@ -34,6 +34,8 @@ module nn {
             let r: CComponent = this._gameLayer.root;
             return r.handle();
         }
+
+        static shared: CoreApplication;
     }
 
 }
