@@ -1404,15 +1404,6 @@ module nn {
             return r;
         }
 
-        static ForeachAsciiCode(s: string, f: (e: number, idx: number) => void) {
-            let b = new egret.ByteArray();
-            b.writeUTFBytes(s);
-            b.position = 0;
-            let lb = b.length;
-            for (let i = 0; i < lb; ++i)
-                f(b.readUnsignedByte(), i);
-        }
-
         static Code(s: string): number[] {
             let r = [];
             let l = s.length;
@@ -4972,7 +4963,9 @@ module nn {
         delay: number;
 
         start() {
-            egret.setTimeout(this.done, this, this.delay);
+            Delay(this.delay, () => {
+                this.done();
+            });
         }
     }
 
