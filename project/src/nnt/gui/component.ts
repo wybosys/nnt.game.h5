@@ -219,13 +219,45 @@ module nn {
 
         /** 裁剪 */
         clipsToBounds: boolean;
+
+        /** 裁剪区域 */
         clipsRegion: Rect;
+
+        /** 使用view的透明区来表示遮罩 */
         maskView: CComponent;
+
+        /** 计算位置的方式 */
+        locatingType = LocatingType.LAYOUT;
+
+        /** 设置相对位置，需要在适当的地方（通常为updateLayout调用一下update */
+        relativeFrame: RRect;
+
+        updateRelativeLayout(inview?: CComponent, anchor?: boolean) {
+            if (this.relativeFrame == null ||
+                this.locatingType == LocatingType.LAYOUT)
+                return;
+
+            if (inview == null)
+                inview = this.parent;
+            var prc = inview.boundsForLayout();
+            var rc = this.relativeFrame.toRect(prc);
+
+            // 计算最终frame
+            rc.x *= StageScaleFactorX;
+            rc.y *= StageScaleFactorY;
+            if (this.locatingType == LocatingType.RELATIVE) {
+                rc.width *= StageScaleFactorX;
+                rc.height *= StageScaleFactorY;
+            }
+
+            this.setFrame(rc, anchor);
+        }
 
         /** 动画变成属性
          @note 只允许设置，不允许get，设计的CAnimate会当结束后自动释放掉自己
          */
         set animate(ani: CAnimate) {
+            // override
         }
 
         /** 播放动画
@@ -307,6 +339,7 @@ module nn {
 
         // 设置内部实现类的大小
         protected impSetFrame(rc: Rect, ui: any) {
+            // override
         }
 
         /** 获得内部区域 */
@@ -359,6 +392,7 @@ module nn {
 
         /** 当资源准备完成时更新资源 */
         protected updateResource() {
+            // override
         }
 
         /** 加载需要的资源 */
@@ -458,6 +492,7 @@ module nn {
 
         /** 更新布局 */
         updateLayout() {
+            // override
         }
 
         /** 需要刷新z顺序 */
@@ -467,6 +502,7 @@ module nn {
 
         /** 更新数据 */
         updateData() {
+            // override
         }
 
         /** 手势 */
@@ -712,6 +748,7 @@ module nn {
 
         /** 当显示改变时 */
         onVisibleChanged() {
+            // override
         }
 
         /** 所有子元素 */
