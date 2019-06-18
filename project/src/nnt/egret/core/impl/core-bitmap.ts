@@ -76,10 +76,9 @@ module nn {
         }
 
         protected _setTexture(tex: egret.Texture) {
-            let p9rc: egret.Rectangle = tex ? tex['scale9Grid'] : null;
-            this._bmp.scale9Grid = p9rc;
-            this._bmp.texture = tex;
+            impSetTexture(this._bmp, tex);
 
+            let p9rc = this._bmp.scale9Grid;
             if (p9rc) {
                 this._point9 = [p9rc.x, p9rc.y, p9rc.width, p9rc.height];
             }
