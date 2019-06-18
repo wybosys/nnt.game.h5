@@ -30,7 +30,6 @@ module nn {
 
         constructor() {
             super();
-            this.pen = new CPen();
         }
 
         // 清空画布
