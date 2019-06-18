@@ -61,9 +61,28 @@ module nn {
             }, this);
         }
 
+        private _point9: Point9;
+
+        get point9(): Point9 {
+            return this._point9;
+        }
+
+        set point9(p: Point9) {
+            this._point9 = p;
+            if (p)
+                this._bmp.scale9Grid = new egret.Rectangle(p[0], p[1], p[2], p[3]);
+            else
+                this._bmp.scale9Grid = null;
+        }
+
         protected _setTexture(tex: egret.Texture) {
-            this._bmp.scale9Grid = tex ? tex['scale9Grid'] : null;
+            let p9rc: egret.Rectangle = tex ? tex['scale9Grid'] : null;
+            this._bmp.scale9Grid = p9rc;
             this._bmp.texture = tex;
+
+            if (p9rc) {
+                this._point9 = [p9rc.x, p9rc.y, p9rc.width, p9rc.height];
+            }
 
             if (this._signals)
                 this._signals.emit(SignalChanged, tex);

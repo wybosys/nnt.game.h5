@@ -1,5 +1,8 @@
 module nn {
 
+    // 和使用textmerge划分的数据保持一致
+    export type Point9 = [number, number, number, number];
+
     export abstract class CBitmap extends Widget {
         constructor(res?: TextureSource) {
             super();
@@ -15,7 +18,7 @@ module nn {
         }
 
         /** 9点 */
-        point9: [number, number, number, number];
+        point9: Point9;
 
         /** 素材 */
         imageSource: TextureSource;
