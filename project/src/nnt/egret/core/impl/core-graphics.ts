@@ -28,7 +28,10 @@ module nn {
 
         set pen(pen: CPen) {
             this._pen = pen;
-            this._spe.graphics.lineStyle(pen.width, pen.color.rgb, pen.color.alphaf, true);
+            if (pen)
+                this._spe.graphics.lineStyle(pen.width, pen.color.rgb, pen.color.alphaf, true);
+            else
+                this._spe.graphics.lineStyle();
         }
 
         private _fill: boolean;
