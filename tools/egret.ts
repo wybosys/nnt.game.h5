@@ -503,8 +503,12 @@ let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
         optcs.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
         optcs.version = this.config.get('app', 'version') ? this.config.get('app', 'version') : "";
         optcs.sdkUrl = opts.channel == 'sdks' ? SDKS_CONFIG.SDKS_HOST : SDKS_CONFIG.SDKS_DEBUG_HOST;
-        let region1 = `require('./embeded.js');
+        let region1 = `
+require('./manifest.js');
+require('./egret.baidugame.js');
+require('./embeded.js');
 require('./baidu.js');
+
 sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_BAIDU});
 sdks.config.set('URL', '${optcs.sdkUrl}');
 sdks.config.set('GAME_VERSION', '${optcs.version}');
