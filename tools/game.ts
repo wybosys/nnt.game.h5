@@ -34,6 +34,9 @@ export interface MinGameOptions {
 
     // 二级渠道名
     subchannel?: string;
+
+    // 项目代号
+    projectcode?: string;
 }
 
 // 压缩用的参数
