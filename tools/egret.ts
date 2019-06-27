@@ -379,7 +379,7 @@ export class EgretGame extends Game {
         await this.resource.refresh();
 
         // 先编译下基础debug版本
-        this.makeConfig({TARGET: "wxgame"});
+        this.makeConfig({TARGET: opts.projectcode});
 
         // 编译普通版本，输出时再使用compress压缩代码
         this.egret('build');
@@ -402,8 +402,12 @@ export class EgretGame extends Game {
     private async channel_mingame(opts: MinGameOptions): Promise<boolean> {
         if (opts.channel == 'sdks' || opts.channel == 'dsdks') {
             if (opts.subchannel == 'readygo') {
+                if (!opts.projectcode)
+                    opts.projectcode = 'wxgame';
                 return this.mingame_readygo(opts);
             } else if (opts.subchannel == 'baidu') {
+                if (!opts.projectcode)
+                    opts.projectcode = 'baidugame';
                 return this.mingame_baidu(opts);
             }
         }
@@ -414,8 +418,8 @@ export class EgretGame extends Game {
     private async mingame_readygo(opts: MinGameOptions): Promise<boolean> {
         fs.ensureDirSync('project_wxgame');
 
-        if (!fs.existsSync("sdks/sdks.js")) {
-            console.error("没有找到渠道sdk，请从游戏中心下载到 sdks/sdks.js");
+        if (!fs.existsSync("sdks/embeded.js")) {
+            console.error("没有找到渠道sdk，请从游戏中心下载到 sdks/embeded.js");
             return false;
         }
         if (!fs.existsSync("sdks/readygo.js")) {
@@ -436,7 +440,7 @@ export class EgretGame extends Game {
         }
 
         // 游戏中心的js
-        fs.copySync("sdks/sdks.js", "project_wxgame/sdks.js");
+        fs.copySync("sdks/embeded.js", "project_wxgame/embeded.js");
         fs.copySync("sdks/readygo.js", "project_wxgame/readygo.js");
 
         // 星汉分配游戏的js
@@ -452,7 +456,7 @@ export class EgretGame extends Game {
         optcs.sdkUrl = opts.channel == 'sdks' ? SDKS_CONFIG.SDKS_HOST : SDKS_CONFIG.SDKS_DEBUG_HOST;
         let dsp: any = {};
         dsp.appids = this.config.get('readygo', 'appids');
-        let region1 = `require('./sdks.js');
+        let region1 = `require('./embeded.js');
 require('./readygo.js');
 import XH_MINIPRO_SDK from './readygo-sdk.js';
 import XH_MINIPRO_STATISTIC from './readygo-stat-sdk.js';
@@ -481,8 +485,8 @@ let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
     private async mingame_baidu(opts: MinGameOptions): Promise<boolean> {
         fs.ensureDirSync('project_baidugame');
 
-        if (!fs.existsSync("sdks/sdks.js")) {
-            console.error("没有找到渠道sdk，请从游戏中心下载到 sdks/sdks.js");
+        if (!fs.existsSync("sdks/embeded.js")) {
+            console.error("没有找到渠道sdk，请从游戏中心下载到 sdks/embeded.js");
             return false;
         }
         if (!fs.existsSync("sdks/baidu.js")) {
@@ -490,7 +494,7 @@ let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
             return false;
         }
 
-        fs.copySync("sdks/sdks.js", "project_baidugame/sdks.js");
+        fs.copySync("sdks/embeded.js", "project_baidugame/embeded.js");
         fs.copySync("sdks/baidu.js", "project_baidugame/baidu.js");
 
         //一些游戏配置参数
@@ -499,8 +503,12 @@ let options = {orientation:'${optcs.orientation}',frameRate:${optcs.frameRate}};
         optcs.frameRate = this.config.get('app', 'frameRate') ? this.config.get('app', 'frameRate') : 60;
         optcs.version = this.config.get('app', 'version') ? this.config.get('app', 'version') : "";
         optcs.sdkUrl = opts.channel == 'sdks' ? SDKS_CONFIG.SDKS_HOST : SDKS_CONFIG.SDKS_DEBUG_HOST;
-        let region1 = `require('./sdks.js');
+        let region1 = `
+require('./manifest.js');
+require('./egret.baidugame.js');
+require('./embeded.js');
 require('./baidu.js');
+
 sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_BAIDU});
 sdks.config.set('URL', '${optcs.sdkUrl}');
 sdks.config.set('GAME_VERSION', '${optcs.version}');

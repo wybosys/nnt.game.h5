@@ -60,9 +60,17 @@ module nn {
 
     /** 定位方式 */
     export enum LocatingType {
-        LAYOUT, // 默认，使用LayoutBox来布局，只使用FactorSize来调整缩放后的尺寸
-        ABSOLUTE, // 绝对布局，会使用ScaleFactor来调整位置
-        RELATIVE, // 相对布局，会使用ScaleFactor来调整位置以及尺寸
+        LAYOUT = 0, // 默认，使用LayoutBox来布局，只使用FactorSize来调整缩放后的尺寸
+
+        SCALE_FACTOR_X = 0x11, // 使用scalefactor缩放x
+        SCALE_FACTOR_Y = 0x12, // 使用scalefactor缩放y
+        SCALE_FACTOR_WIDTH = 0x14, // 使用scalefactor缩放宽度
+        SCALE_FACTOR_HEIGHT = 0x18, // 使用scalefactor缩放高度
+
+        ABSOLUTE = SCALE_FACTOR_X | SCALE_FACTOR_Y,
+        RELATIVE = ABSOLUTE | SCALE_FACTOR_WIDTH | SCALE_FACTOR_HEIGHT,
+
+        FIXED = 3, // 仅确定位置, 不使用ScaleFactor
     }
 
     /** 全局的设计和实际坐标的转换 */

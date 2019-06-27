@@ -243,12 +243,14 @@ module nn {
             var rc = this.relativeFrame.toRect(prc);
 
             // 计算最终frame
-            rc.x *= StageScaleFactorX;
-            rc.y *= StageScaleFactorY;
-            if (this.locatingType == LocatingType.RELATIVE) {
+            if (nn.Mask.isset(LocatingType.SCALE_FACTOR_X, this.locatingType))
+                rc.x *= StageScaleFactorX;
+            if (nn.Mask.isset(LocatingType.SCALE_FACTOR_Y, this.locatingType))
+                rc.y *= StageScaleFactorY;
+            if (nn.Mask.isset(LocatingType.SCALE_FACTOR_WIDTH, this.locatingType))
                 rc.width *= StageScaleFactorX;
+            if (nn.Mask.isset(LocatingType.SCALE_FACTOR_HEIGHT, this.locatingType))
                 rc.height *= StageScaleFactorY;
-            }
 
             this.setFrame(rc, anchor);
         }

@@ -35,41 +35,41 @@ async function main() {
         });
 
     program
-        .command("build <channel> <subchannel>")
+        .command("build <channel> <subchannel> [oversubchannel]")
         .description("生成调试项目")
-        .action((channel, subchannel) => {
+        .action((channel, subchannel, oversubchannel) => {
             game.build({
                 debug: true,
                 channel: channel,
-                subchannel: subchannel
+                subchannel: oversubchannel ? oversubchannel : subchannel
             });
         });
 
     program
-        .command("publish <channel> <subchannel>")
+        .command("publish <channel> <subchannel> [oversubchannel]")
         .description("生成正式项目")
-        .action((channel, subchannel) => {
+        .action((channel, subchannel, oversubchannel) => {
             game.build({
                 release: true,
                 noservice: true,
                 channel: channel,
-                subchannel: subchannel
+                subchannel: oversubchannel ? oversubchannel : subchannel
             });
         });
 
     program
-        .command("dist <channel> <subchannel>")
+        .command("dist <channel> <subchannel> [oversubchannel]")
         .description("发布项目")
-        .action(async (channel, subchannel) => {
+        .action(async (channel, subchannel, oversubchannel) => {
             await game.build({
                 distribution: true,
                 noservice: true,
                 channel: channel,
-                subchannel: subchannel
+                subchannel: oversubchannel ? oversubchannel : subchannel
             });
             await game.compress({
                 channel: channel,
-                subchannel: subchannel,
+                subchannel: oversubchannel ? oversubchannel : subchannel,
                 mergeimages: true,
                 compressimages: true,
                 compressscripts: true
@@ -77,23 +77,23 @@ async function main() {
         });
 
     program
-        .command("mingame <channel> <subchannel>")
+        .command("mingame <channel> <subchannel> [oversubchannel]")
         .description("打包微信小游戏")
-        .action((channel, subchannel, opts) => {
+        .action((channel, subchannel, oversubchannel) => {
             game.mingame({
                 channel: channel,
-                subchannel: subchannel
+                subchannel: oversubchannel ? oversubchannel : subchannel
             });
         });
 
     program
-        .command("compress <channel> <subchannel>")
+        .command("compress <channel> <subchannel> [oversubchannel]")
         .description("压缩输出的项目")
         .option("-m, --mingame", "小游戏")
-        .action((channel, subchannel, opts) => {
+        .action((channel, subchannel, oversubchannel, opts) => {
             game.compress({
                 channel: channel,
-                subchannel: subchannel,
+                subchannel: oversubchannel ? oversubchannel : subchannel,
                 mingame: opts.mingame,
                 mergeimages: true,
                 compressimages: true,

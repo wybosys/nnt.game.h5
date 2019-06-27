@@ -40,8 +40,8 @@ export class Gendata extends Worker implements IService {
     async build() {
         // 如果不存在配置文件
         if (!fs.existsSync('project/src/app/data')) {
-            fs.writeFileSync('project/resource/default.data.js', '');
-            fs.writeFileSync('project/resource/default.data.d.ts', '');
+            fs.writeFileSync('project/resource/default.data.js', 'var Data;(function (Data) {})(Data || (Data = {}));');
+            fs.writeFileSync('project/resource/default.data.d.ts', 'declare module Data {}');
             return;
         }
 
