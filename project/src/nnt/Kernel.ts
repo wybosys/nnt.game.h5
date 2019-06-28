@@ -4385,16 +4385,17 @@ module nn {
             return new Angle(this._rad);
         }
 
+        // 使用弧度初始化对象
         static RAD(rad: number): Angle {
-            let r = new Angle(rad);
-            return r;
+            return new Angle(rad);
         }
 
+        // 使用角度初始化对象
         static ANGLE(ang: number): Angle {
-            let r = new Angle(Angle.ToRad(ang));
-            return r;
+            return new Angle(Angle.ToRad(ang));
         }
 
+        // 使用方向初始化对象
         static DIRECTION(d: Direction): Angle {
             let r = new Angle();
             switch (d) {
