@@ -790,6 +790,7 @@ module nn {
             }
         }
 
+        // 手势处理
         private _gestures: Array<Gesture>;
         get gestures(): Array<Gesture> {
             if (this._gestures == null)
@@ -809,6 +810,24 @@ module nn {
                     o.drop();
                 });
             }
+        }
+
+        // 特效处理
+        private _effects: AbstractEffect[];
+
+        get effects(): AbstractEffect[] {
+            return this._effects;
+        }
+
+        set effects(effs: AbstractEffect[]) {
+            if (!effs) {
+                this._imp.filters = null;
+            } else {
+                this._imp.filters = ArrayT.Convert(effs, e => {
+                    return e._instance();
+                });
+            }
+            this._effects = effs;
         }
 
         updateLayout() {

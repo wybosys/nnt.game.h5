@@ -37,6 +37,14 @@ module eui {
             return _EUIExt.getExhibition(this);
         }
 
+        get effects(): EffectsType {
+            return _EUIExt.getEffects(this);
+        }
+
+        set effects(effs: EffectsType) {
+            _EUIExt.setEffects(this, effs);
+        }
+
         protected _help: any = null;
         get help(): any {
             return this._help;

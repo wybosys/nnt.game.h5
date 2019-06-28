@@ -2,6 +2,9 @@ module eui {
 
     let gs_convertpt = new egret.Point();
 
+    // 特效类或者类名
+    export type EffectsType = nn.AbstractEffect[] | string;
+
     // 因为wing的问题自定义类必须位于独立的文件中，混在一起就找不到了
     export interface IEUIExt {
         // skin绑定结束的回调
@@ -63,6 +66,36 @@ module eui {
             });
             // 调用父级元素的回退方法
             p.goBack();
+        }
+
+        /* 增加eui的设置特效的功能 */
+        static setEffects(self: any, effs: EffectsType) {
+            if (typeof effs == 'string') {
+                // 配置的是类名
+                let cls = nn.StringT.Split(effs, ',');
+                let tmp = nn.ArrayT.SafeConvert(cls, e => {
+                    let clz = egret.getDefinitionByName(e);
+                    if (!clz) {
+                        nn.fatal(`没有找到特效定义的类${e}`)
+                        return null;
+                    }
+                    return new clz();
+                });
+                this.setEffects(self, tmp);
+            } else {
+                if (!effs) {
+                    self.filters = null;
+                } else {
+                    self.filters = nn.ArrayT.Convert(effs, e => {
+                        return e._instance();
+                    });
+                }
+                self._effects = effs;
+            }
+        }
+
+        static getEffects(self: any): nn.AbstractEffect[] {
+            return self._effects;
         }
 
         /* eui提供了基础的visible和includeInLayout，但是业务中会遇到同时操作这两个属性，所以提供一个便捷的设置 */

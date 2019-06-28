@@ -4,5 +4,5 @@
 	<e:ImageU id="iconDisplay" horizontalCenter="0" verticalCenter="0"/>
     <e:LabelU id="labelDisplay" top="8" bottom="8" left="8" right="8"
              size="26"
-             textColor="0xFFFFFF" verticalAlign="middle" textAlign="center" stroke="1"/>
+             textColor="0xFFFFFF" verticalAlign="middle" textAlign="center" stroke="1" effects="app.TextShadow"/>
 </e:Skin>
