@@ -83,7 +83,7 @@ module nn {
             this.angle = angle;
         }
 
-        distance: number = 0; // 距离
+        distance: number = 5; // 距离
         angle: Angle; // 角度
         color: Color;
         x: byte;
