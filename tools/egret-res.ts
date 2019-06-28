@@ -163,6 +163,8 @@ class EgretFileInfo {
         } else if (info.ext == '.fnt') {
             this.name = info.name + '_fnt';
             this.type = 'font';
+        } else if (info.ext == '.mp3' || info.ext == '.aac') {
+            this.type = 'sound';
         } else {
             this.type = 'bin';
         }
