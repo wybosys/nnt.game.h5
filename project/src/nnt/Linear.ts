@@ -31,14 +31,16 @@ module nn {
         }
 
         copyFrom(arr: T[]): this {
-            let size = this._arr.length;
-            this._arr = arr.concat();
-            if (size > arr.length) {
-                for (let i = arr.length; i < size; ++i) {
+            const llen = this._arr.length;
+            const rlen = arr.length;
+            const mlen = llen < rlen ? llen : rlen;
+            for (let i = 0; i < mlen; ++i) {
+                this._arr[i] = arr[i];
+            }
+            if (rlen < llen) {
+                for (let i = rlen; i < llen; ++i) {
                     this._arr[i] = this._def;
                 }
-            } else {
-                this._arr.length = size;
             }
             return this;
         }

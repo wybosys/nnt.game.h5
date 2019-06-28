@@ -72,7 +72,7 @@ module eui {
         static setEffects(self: any, effs: EffectsType) {
             if (typeof effs == 'string') {
                 // 配置的是类名
-                let cls = nn.StringT.Split(effs, ',');
+                let cls = nn.StringT.Split(effs, ';');
                 let tmp = nn.ArrayT.SafeConvert(cls, e => {
                     let clz = egret.getDefinitionByName(e);
                     if (!clz) {
