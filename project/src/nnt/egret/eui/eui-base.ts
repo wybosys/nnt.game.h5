@@ -5,6 +5,9 @@ let eeui = eui;
 module eui {
 
 
+    import BlurEffect = nn.BlurEffect;
+    import GlowEffect = nn.GlowEffect;
+    import ShadowEffect = nn.ShadowEffect;
     export type StackPageType = nn.InstanceType<egret.DisplayObject>;
     export type UiType = egret.DisplayObject;
 
@@ -624,5 +627,18 @@ module eui {
             return v == skin_full_path;
         });
         return nn.GetObjectOfWindowByKeyPath(clazz_path);
+    }
+
+    // 实现特效转换
+    BlurEffect.prototype._instance = function () {
+        return new egret.BlurFilter(this.x, this.y, 0);
+    }
+
+    GlowEffect.prototype._instance = function () {
+        return new egret.GlowFilter(this.color.rgb, this.color.alphaf, this.x, this.y, this.strength, 0, this.inner, this.hollow);
+    }
+
+    ShadowEffect.prototype._instance = function () {
+        return new egret.DropShadowFilter(this.distance, this.angle.angle, this.color.rgb, this.color.alphaf, this.x, this.y, this.strength, 0, this.inner, this.hollow, this.onlyShadow);
     }
 }
