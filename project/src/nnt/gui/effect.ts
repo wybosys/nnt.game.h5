@@ -88,7 +88,7 @@ module nn {
         color: Color;
         x: byte;
         y: byte;
-        strength: byte = 1; // 对比度
+        strength: byte = 2; // 对比度
         inner: boolean = false; // 内阴影
         hollow: boolean = false; // 挖空
         onlyShadow: boolean = false; // 只有阴影可见
