@@ -8,6 +8,7 @@ module eui {
     import BlurEffect = nn.BlurEffect;
     import GlowEffect = nn.GlowEffect;
     import ShadowEffect = nn.ShadowEffect;
+    import ColorizeEffect = nn.ColorizeEffect;
     export type StackPageType = nn.InstanceType<egret.DisplayObject>;
     export type UiType = egret.DisplayObject;
 
@@ -640,5 +641,9 @@ module eui {
 
     ShadowEffect.prototype._instance = function () {
         return new egret.DropShadowFilter(this.distance, this.angle.angle, this.color.rgb, this.color.alphaf, this.x, this.y, this.strength, 0, this.inner, this.hollow, this.onlyShadow);
+    }
+
+    ColorizeEffect.prototype._instance = function () {
+        return new egret.ColorMatrixFilter(this.transform.toArray());
     }
 }

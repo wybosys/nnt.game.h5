@@ -95,4 +95,17 @@ module nn {
     }
 
     _EFF_FACTORIES.set('shadow', ShadowEffect);
+
+    export class ColorizeEffect extends AbstractEffect {
+
+        transform = new Matrix2<number>(5, 4, 0);
+    }
+
+    export class GrayscaleEffect extends ColorizeEffect {
+
+        constructor() {
+            super();
+            this.transform.copyFrom([0.3, 0.6, 0, 0, 0, 0.3, 0.6, 0, 0, 0, 0.3, 0.6, 0, 0, 0, 0, 0, 0, 1, 0]);
+        }
+    }
 }
