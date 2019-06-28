@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <e:Skin class="app.normal.SampleSkin" width="400" xmlns:e="http://ns.egret.com/eui" xmlns:wgt="app.wgt.*">
 	<e:GroupU horizontalCenter="0" height="473" verticalCenter="0">
-		<wgt:EntryButton width="200" height="50" label="基础控件" x="0" y="0" entryIdr="normal" guideDirection="left"/>
-		<wgt:EntryButton width="200" height="50" x="0" y="106.08" label="列表" entryIdr="list" guideDirection="right"/>
-		<wgt:EntryButton width="200" height="50" x="0" y="211.17" label="弹出框" entryIdr="dialog" guideDirection="left"/>
-		<wgt:EntryButton width="200" height="50" x="0" y="316.92" label="通讯" entryIdr="service" guideDirection="right"/>
-		<wgt:EntryButton width="200" height="50" x="0" y="423" label="动效" entryIdr="ani" guideDirection="left"/>
+		<wgt:EntryButton width="200" height="50" label="基础控件" x="0" y="0" entryIdr="normal" guideDirection="left" effects="app.TextShadow"/>
+		<wgt:EntryButton width="200" height="50" x="0" y="106.08" label="列表" entryIdr="list" guideDirection="right" effects="app.TextShadow"/>
+		<wgt:EntryButton width="200" height="50" x="0" y="211.17" label="弹出框" entryIdr="dialog" guideDirection="left" effects="app.TextShadow"/>
+		<wgt:EntryButton width="200" height="50" x="0" y="316.92" label="通讯" entryIdr="service" guideDirection="right" effects="app.TextShadow"/>
+		<wgt:EntryButton width="200" height="50" x="0" y="423" label="动效" entryIdr="ani" guideDirection="left" effects="app.TextShadow"/>
 	</e:GroupU>
 </e:Skin>

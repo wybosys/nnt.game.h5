@@ -15,11 +15,24 @@ module nn {
     /** JSONOBJ+字符串 */
     export type jsonobj = string | Object;
 
+    /** 带类型检查的kv定义 */
     export type KvObject<V> = { [key: string]: V };
     export type IndexedObject = KvObject<any>;
 
-    // 默认的时间单位，秒
+    /** 默认的时间单位，秒 */
     export type Interval = number;
+
+    /** 基础数据类型 */
+    export type uint = number;
+    export type int = number;
+    export type short = number;
+    export type ushort = number;
+    export type long = number;
+    export type ulong = number;
+    export type longlong = number;
+    export type ulonglong = number;
+    export type byte = number;
+    export type char = number;
 
     // 获得当前渲染的进度
     export let IMP_TIMEPASS: () => number;

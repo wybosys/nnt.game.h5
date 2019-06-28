@@ -40,6 +40,14 @@ module eui {
             return _EUIExt.getExhibition(this);
         }
 
+        get effects(): EffectsType {
+            return _EUIExt.getEffects(this);
+        }
+
+        set effects(effs: EffectsType) {
+            _EUIExt.setEffects(this, effs);
+        }
+
         dispose() {
             this.stopAllAnimates();
             if (this._signals) {

@@ -282,11 +282,13 @@ module nn {
         }
 
         getChildByName(name: string): CComponent {
-            return Component.FromImp(this._imp.getChildByName(name));
+            let c = this._imp.getChildByName(name);
+            return c ? Component.FromImp(c) : null;
         }
 
         getChildAt(idx: number): CComponent {
-            return Component.FromImp(this._imp.getChildAt(idx));
+            let c = this._imp.getChildAt(idx);
+            return c ? Component.FromImp(c) : null;
         }
 
         setChildIndex(c: CComponent, idx: number) {
@@ -790,6 +792,7 @@ module nn {
             }
         }
 
+        // 手势处理
         private _gestures: Array<Gesture>;
         get gestures(): Array<Gesture> {
             if (this._gestures == null)
@@ -809,6 +812,24 @@ module nn {
                     o.drop();
                 });
             }
+        }
+
+        // 特效处理
+        private _effects: AbstractEffect[];
+
+        get effects(): AbstractEffect[] {
+            return this._effects;
+        }
+
+        set effects(effs: AbstractEffect[]) {
+            if (!effs) {
+                this._imp.filters = null;
+            } else {
+                this._imp.filters = ArrayT.Convert(effs, e => {
+                    return e._instance();
+                });
+            }
+            this._effects = effs;
         }
 
         updateLayout() {
