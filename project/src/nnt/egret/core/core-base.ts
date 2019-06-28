@@ -282,11 +282,13 @@ module nn {
         }
 
         getChildByName(name: string): CComponent {
-            return Component.FromImp(this._imp.getChildByName(name));
+            let c = this._imp.getChildByName(name);
+            return c ? Component.FromImp(c) : null;
         }
 
         getChildAt(idx: number): CComponent {
-            return Component.FromImp(this._imp.getChildAt(idx));
+            let c = this._imp.getChildAt(idx);
+            return c ? Component.FromImp(c) : null;
         }
 
         setChildIndex(c: CComponent, idx: number) {
