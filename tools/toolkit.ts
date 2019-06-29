@@ -16,7 +16,7 @@ export class Toolkit {
         CopyTree('project/egretProperties.template.json', `${this._prj}/project/egretProperties.template.json`, null, null, true);
         CopyTree('project/tsconfig.json', `${this._prj}/project/tsconfig.json`, null, null, true);
         CopyTree('project/resource/eui_skins/wgt', `${this._prj}/project/resource/eui_skins/wgt`);
-        CopyTree('app.json', `${this._prj}/app.json`);
+        CopyTree('app.config.json', `${this._prj}/app.config.json`);
         CopyTree('devops.json', `${this._prj}/devops.json`);
         CopyTree('package.json', `${this._prj}/package.json`);
         CopyTree('tsconfig.json', `${this._prj}/tsconfig.json`);
