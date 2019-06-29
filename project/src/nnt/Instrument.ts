@@ -143,8 +143,9 @@ module nn {
                 return;
 
             // 如果是手机浏览器，打开虚拟控制台
-            if (Device.shared.isMobile)
+            if (Device.shared.isMobile && !Device.shared.isPC && !Device.shared.isMinGame) {
                 new VConsole();
+            }
 
             if (Instrument.shared == null)
                 Instrument.shared = new Instrument();
