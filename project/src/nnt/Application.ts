@@ -111,7 +111,7 @@ module nn {
         dataFile: string = "default.data.js";
 
         /** 默认项目配置 */
-        configFile: string = "app.json";
+        configFile: string = "app.config.json";
 
         /** 用来填充白边的图片 */
         backgroundImagePattern: string;
