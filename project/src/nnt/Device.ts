@@ -26,11 +26,13 @@ module nn {
             self.isUnix = (self.platform == "X11") &&
                 !self.isMac && !self.isWin;
             self.isLinux = self.platform.indexOf("Linux") != -1;
+            self.isDevtools = self.platform.indexOf('devtools') != -1;
 
             self.isIOS = /(iPhone|iPad|iPod|iOS)/i.test(self.agent);
             self.isAndroid = /android/i.test(self.agent);
             self.isMobile = self.isIOS || self.isAndroid;
-            self.isPC = !self.isMobile || self.isMac || self.isWin || self.isUnix || self.isLinux;
+
+            self.isPC = !self.isMobile || self.isMac || self.isWin || self.isUnix || self.isLinux || self.isDevtools;
             self.isPurePC = !self.isMobile && (self.isMac || self.isWin || self.isUnix || self.isLinux);
 
             self.isHighPerfomance = !self.isAndroid;
@@ -52,6 +54,9 @@ module nn {
 
         /** 小程序模式 */
         isMinGame: boolean = false;
+
+        /** 是否是开发工具 */
+        isDevtools: boolean = false;
 
         /** canvas模式 */
         isCanvas: boolean = true;
