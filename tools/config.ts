@@ -89,10 +89,4 @@ export class SDKS_CONFIG {
 
     // 测试渠道得渠道id
     static CHANNELID_TEST = 1800;
-
-    // readygo的渠道id
-    static CHANNELID_READYGO = 1802;
-
-    // 百度渠道
-    static CHANNELID_BAIDU = 1806;
 }
