@@ -332,7 +332,7 @@ export class EgretGame extends Game {
                 let lang: string;
                 let sdkhost: string;
                 if ('DEVOPS_RELEASE' in process.env) {
-                    lang = 'es5.min';
+                    lang = 'es5';
                     sdkhost = SDKS_CONFIG.SDKS_HOST;
                 } else {
                     lang = 'es5';
@@ -352,7 +352,7 @@ export class EgretGame extends Game {
                 tpl.FILESLIST = jss;
                 tpl.BEFORESTART += `
         sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_PACKAGE});
-        sdks.config.set('SDK_LANG', 'es5.min');
+        sdks.config.set('SDK_LANG', 'es5');
         sdks.config.set('SDK_HOST', '${SDKS_CONFIG.SDKS_HOST}');
         sdks.config.set('GAME_VERSION', "${this.config.get('app', 'version')}"); 
         `;
