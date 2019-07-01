@@ -12,7 +12,7 @@ RESMAKER_BLACKS = [
 ]
 GENRES_BLACKS = RESMAKER_BLACKS + [re.compile(r'\.d/|\.d$'), re.compile(r'\.g/|\.g$')]
 PATTERN_FILENAME_EXT = re.compile(r'(.+)\.(.+)')
-IMAGE_EXTS = ['jpeg', 'jpg', 'png']
+IMAGE_EXTS = ['jpeg', 'jpg', 'png', 'json', 'fnt']
 
 def merge(dir):
     common.processdirs(dir, mergeimages, blacklist=GENRES_BLACKS, depth=2);
@@ -33,9 +33,9 @@ def mergeimages(dir, name):
             ignores.append(ef)
         elif ext == 'jpg':
             ignores.append(ef)        
-    for ef in ignores:        
+    for ef in ignores:
         nm = ef[0]
-        ext = ef[1]
+        ext = ef[1]        
         if ext == 'fnt':            
             try:
                 files.remove(ef)
