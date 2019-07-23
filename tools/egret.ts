@@ -338,7 +338,7 @@ export class EgretGame extends Game {
                     lang = 'es5';
                     sdkhost = SDKS_CONFIG.SDKS_DEBUG_HOST;
                 }
-                jss = `<script src="//${sdkhost}/platform/sdks/ver/cur/script.${lang}.js"></script>\n\t` + jss;
+                jss = `<script src="//${sdkhost}/platform/sdks/ver/dev/script.${lang}.js"></script>\n\t` + jss;
                 tpl.FILESLIST = jss;
                 tpl.BEFORESTART += `
         sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_TEST});
@@ -348,7 +348,7 @@ export class EgretGame extends Game {
         `;
             } else if (opts.subchannel == 'package') {
                 let jss = tpl.FILESLIST;
-                jss = `<script src="//${SDKS_CONFIG.SDKS_HOST}/platform/sdks/ver/cur/script.es5.min.js"></script>\n\t` + jss;
+                jss = `<script src="//${SDKS_CONFIG.SDKS_HOST}/platform/sdks/ver/dev/script.es5.min.js"></script>\n\t` + jss;
                 tpl.FILESLIST = jss;
                 tpl.BEFORESTART += `
         sdks.config.set('CHANNEL_ID', ${SDKS_CONFIG.CHANNELID_PACKAGE});
@@ -358,7 +358,7 @@ export class EgretGame extends Game {
         `;
             } else {
                 let jss = tpl.FILESLIST;
-                jss = `<script src="//${SDKS_CONFIG.CHANNELID_PACKAGE}/platform/sdks/ver/cur/script.es6.min.js"></script>\n\t` + jss;
+                jss = `<script src="//${SDKS_CONFIG.CHANNELID_PACKAGE}/platform/sdks/ver/dev/script.es6.min.js"></script>\n\t` + jss;
                 tpl.FILESLIST = jss;
             }
         }
