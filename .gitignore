@@ -2,7 +2,7 @@
 /project/bin-*
 /project/libs
 /project/index.html
-/project/app.json
+/project/app.config.json
 /project/egretProperties.json
 /project/wingProperties.json
 manifest.json
